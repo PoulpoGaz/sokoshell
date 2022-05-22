@@ -1,21 +1,17 @@
 package fr.valax.args;
 
+import fr.valax.args.api.HelpFormatter;
+import fr.valax.args.utils.CommandLineException;
 import fr.valax.args.utils.Node;
+import fr.valax.args.utils.ParseException;
 
-import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static fr.valax.args.utils.ArgsUtils.thrParseExc;
 
 public class CommandLine {
-
-    private static final OptionSpecification DEFAULT_HELP = new OptionSpecificationBuilder()
-            .name("h").name("-h")
-            .desc("Print this message and exit")
-            .build();
 
     /**
      * Contains all commands in a tree
@@ -26,24 +22,15 @@ public class CommandLine {
     /** A class with type T must be associated with a type converted of the same type */
     private final Map<Class<?>, TypeConverter<?>> converters;
 
-    private OptionSpecification help = DEFAULT_HELP;
+    private final HelpFormatter helpFormatter;
+    private boolean showHelp = true;
 
-    CommandLine(Node<CommandSpecification> root) {
+    CommandLine(Node<CommandSpecification> root,
+                Map<Class<?>, TypeConverter<?>> converters,
+                HelpFormatter helpFormatter) {
         this.root = root;
-        converters = new HashMap<>();
-    }
-
-    public CommandLine addDefaultConverters() {
-        converters.put(String.class, TypeConverters.STRING);
-        converters.put(Byte.class, TypeConverters.BYTE);
-        converters.put(Short.class, TypeConverters.SHORT);
-        converters.put(Integer.class, TypeConverters.INT);
-        converters.put(Long.class, TypeConverters.LONG);
-        converters.put(Float.class, TypeConverters.FLOAT);
-        converters.put(Double.class, TypeConverters.DOUBLE);
-        converters.put(Path.class, TypeConverters.PATH);
-
-        return this;
+        this.converters = converters;
+        this.helpFormatter = helpFormatter;
     }
 
     public Object parse(String[] args) throws CommandLineException {
@@ -55,7 +42,7 @@ public class CommandLine {
             CommandSpecification spec = parent.getValue();
 
             if (spec == null) { // for root
-                thrParseExc("Unrecognized command: %s", Arrays.toString(args));
+                unrecognizedCommand(null, args);
             } else {
                 return execute(spec, args, args.length, args.length);
             }
@@ -75,11 +62,19 @@ public class CommandLine {
             } else if (parent.getValue() != null) {
                 return execute(parent.getValue(), args, index, args.length);
             } else {
-                thrParseExc("Unrecognized command: %s", Arrays.toString(args));
+                unrecognizedCommand(parent.getValue(), args);
             }
         }
 
         return null;
+    }
+
+    private void unrecognizedCommand(CommandSpecification last, String[] args) throws ParseException {
+        if (showHelp()) {
+            System.out.println(helpFormatter.unrecognizedCommand(last, root, args));
+        } else {
+            thrParseExc("Unrecognized command: %s", Arrays.toString(args));
+        }
     }
 
     protected Object execute(CommandSpecification spec, String[] args, int start, int end)
@@ -96,20 +91,23 @@ public class CommandLine {
                     spec.getOptions().parse(args, start, end);
                 }
             } catch (ParseException e) {
-                if (spec.getCommand().help()) {
-                    //HelpFormatter.printHelp(spec.getAction());
+                if (showHelp) {
+                    System.out.println(helpFormatter.commandHelp(e, spec));
                     return null;
                 } else {
-                    //throw new CommandLineException("In " + spec.getName(), e);
                     throw e;
                 }
             }
 
-            spec.setOptions();
+            if (spec.getCommand().addHelp() && spec.getHelp().isPresent()) {
+                System.out.println(helpFormatter.commandHelp(null, spec));
 
-            return spec.getCommand().execute();
+                return null;
+            } else {
+                spec.setOptions();
 
-
+                return spec.getCommand().execute();
+            }
         } finally {
             spec.getOptions().reset();
         }
@@ -120,11 +118,11 @@ public class CommandLine {
         return (TypeConverter<T>) converters.get(class_);
     }
 
-    public OptionSpecification getHelp() {
-        return help;
+    public boolean showHelp() {
+        return showHelp;
     }
 
-    public void setHelp(OptionSpecification help) {
-        this.help = help;
+    public void setShowHelp(boolean showHelp) {
+        this.showHelp = showHelp;
     }
 }

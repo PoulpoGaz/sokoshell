@@ -1,5 +1,7 @@
 package fr.valax.args;
 
+import fr.valax.args.utils.TypeException;
+
 /**
  * A type converter is used to convert a string to a T.
  * @param <T> the result

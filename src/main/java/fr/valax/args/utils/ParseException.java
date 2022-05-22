@@ -1,4 +1,4 @@
-package fr.valax.args;
+package fr.valax.args.utils;
 
 /**
  * Base class for parsing exception.

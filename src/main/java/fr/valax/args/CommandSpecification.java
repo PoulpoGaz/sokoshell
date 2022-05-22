@@ -4,6 +4,7 @@ import fr.valax.args.api.Command;
 import fr.valax.args.api.Option;
 import fr.valax.args.api.OptionGroup;
 import fr.valax.args.api.VaArgs;
+import fr.valax.args.utils.CommandLineException;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -26,6 +27,7 @@ public class CommandSpecification {
     private CommandLine cli;
 
     private Options options;
+    private OptionSpecification help;
     private Map<OptionSpecification, Field> optionMapping;
     private Field vaargs;
 
@@ -33,6 +35,15 @@ public class CommandSpecification {
         this.command = command;
 
         createOptions();
+        if (command.addHelp()) {
+            help = new OptionSpecificationBuilder()
+                    .name("h").name("-help")
+                    .desc("Print help for this command")
+                    .allowDuplicate(false)
+                    .build();
+
+            options.addOption(help);
+        }
     }
 
     protected void createOptions() throws CommandLineException {
@@ -234,6 +245,9 @@ public class CommandSpecification {
         return options;
     }
 
+    public OptionSpecification getHelp() {
+        return help;
+    }
 
     public void setCli(CommandLine cli) {
         this.cli = cli;

@@ -8,7 +8,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Declare a field as an option for a {@link CommandOld}
+ * Declare a field as an option for a {@link Command}
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
@@ -41,14 +41,12 @@ public @interface Option {
     String defaultValue() default "";
 
     /**
-     * @return what is the purpose of this command
-     * @see fr.valax.args.HelpFormatter
+     * @return what is the purpose of this command?
      */
     String description() default "";
 
     /**
      * @return the name of the argument
-     * @see fr.valax.args.HelpFormatter
      */
     String argName() default "";
 

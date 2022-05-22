@@ -1,5 +1,7 @@
 package fr.valax.args;
 
+import fr.valax.args.utils.TypeException;
+
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.function.Function;

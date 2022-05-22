@@ -9,11 +9,13 @@ public interface Command<T> {
 
     /**
      * @return A text to explains the user how to use the command.
-     *         Only useful when {@link #help()} returns true
      */
     String getUsage();
 
-    boolean help();
+    /**
+     * @return true to automatically add -h/--help option
+     */
+    boolean addHelp();
 
     T execute();
 }

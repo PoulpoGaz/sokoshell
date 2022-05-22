@@ -1,8 +1,11 @@
 package fr.valax.args;
 
 import fr.valax.args.api.Command;
+import fr.valax.args.api.HelpFormatter;
+import fr.valax.args.utils.CommandLineException;
 import fr.valax.args.utils.Node;
 
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,6 +17,7 @@ public class CommandLineBuilder {
 
     /** not null only for the "root" CommandLineBuilder*/
     private final Map<Class<?>, TypeConverter<?>> converters;
+    private HelpFormatter helpFormatter;
 
     public CommandLineBuilder() {
         this(null, new Node<>());
@@ -39,7 +43,12 @@ public class CommandLineBuilder {
             throw new IllegalStateException("Not the root");
         }
 
-        CommandLine cli = new CommandLine(root);
+        CommandLine cli;
+        if (helpFormatter != null) {
+            cli = new CommandLine(root, converters, helpFormatter);
+        } else {
+            cli = new CommandLine(root, converters, new DefaultHelpFormatter());
+        }
 
         for (Node<CommandSpecification> spec : root) {
             if (spec.getValue() != null) {
@@ -62,6 +71,19 @@ public class CommandLineBuilder {
 
     public CommandLineBuilder endSubCommand() {
         return ancestor;
+    }
+
+    public CommandLineBuilder addDefaultConverters() {
+        converters.put(String.class, TypeConverters.STRING);
+        converters.put(Byte.class, TypeConverters.BYTE);
+        converters.put(Short.class, TypeConverters.SHORT);
+        converters.put(Integer.class, TypeConverters.INT);
+        converters.put(Long.class, TypeConverters.LONG);
+        converters.put(Float.class, TypeConverters.FLOAT);
+        converters.put(Double.class, TypeConverters.DOUBLE);
+        converters.put(Path.class, TypeConverters.PATH);
+
+        return this;
     }
 
     public <T> CommandLineBuilder addConverter(Class<T> class_, TypeConverter<T> converter) {
@@ -98,5 +120,18 @@ public class CommandLineBuilder {
         }
 
         return Collections.unmodifiableMap(converters);
+    }
+
+    public HelpFormatter getHelpFormatter() {
+        return helpFormatter;
+    }
+
+    public CommandLineBuilder setHelpFormatter(HelpFormatter helpFormatter) {
+        if (ancestor != null) {
+            throw new IllegalStateException("Not the root");
+        }
+
+        this.helpFormatter = helpFormatter;
+        return this;
     }
 }

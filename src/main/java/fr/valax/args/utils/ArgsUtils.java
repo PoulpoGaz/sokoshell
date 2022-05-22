@@ -1,7 +1,5 @@
 package fr.valax.args.utils;
 
-import fr.valax.args.CommandLineException;
-import fr.valax.args.ParseException;
 import fr.valax.args.TypeConverter;
 
 import java.util.Collection;

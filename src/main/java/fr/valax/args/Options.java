@@ -1,5 +1,7 @@
 package fr.valax.args;
 
+import fr.valax.args.utils.ParseException;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;

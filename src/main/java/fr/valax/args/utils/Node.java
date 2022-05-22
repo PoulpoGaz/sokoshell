@@ -70,6 +70,10 @@ public class Node<V> implements Iterable<Node<V>> {
         return Collections.unmodifiableList(children);
     }
 
+    public boolean hasChildren() {
+        return children.size() > 0;
+    }
+
     @Override
     public Iterator<Node<V>> iterator() {
         return depthFirstIterator();
