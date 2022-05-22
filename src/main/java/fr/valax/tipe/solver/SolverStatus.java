@@ -1,4 +1,4 @@
-package fr.valax.tipe;
+package fr.valax.tipe.solver;
 
 public enum SolverStatus {
 

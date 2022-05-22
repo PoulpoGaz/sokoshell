@@ -1,4 +1,4 @@
-package fr.valax.tipe;
+package fr.valax.tipe.solver;
 
 import java.util.HashSet;
 import java.util.Set;
