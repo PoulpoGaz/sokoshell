@@ -1,4 +1,4 @@
-package fr.valax.args.annotation;
+package fr.valax.args.api;
 
 import fr.valax.args.TypeConverter;
 
@@ -8,7 +8,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Declare a field as an option for a {@link Command}
+ * Declare a field as an option for a {@link CommandOld}
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)

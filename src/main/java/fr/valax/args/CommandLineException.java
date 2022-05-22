@@ -1,5 +1,11 @@
 package fr.valax.args;
 
+/**
+ * Base class for all CommandLineException
+ *
+ * @see ParseException
+ * @see TypeException
+ */
 public class CommandLineException extends Exception {
 
     public CommandLineException() {

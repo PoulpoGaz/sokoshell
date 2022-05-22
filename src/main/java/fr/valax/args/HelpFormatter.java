@@ -1,6 +1,5 @@
 package fr.valax.args;
 
-import fr.valax.args.annotation.Command;
 import fr.valax.args.utils.ArgsUtils;
 
 import java.util.Comparator;
@@ -19,19 +18,19 @@ public class HelpFormatter {
     private static final Comparator<OptionGroupSpecification> groupComparator =
             ArgsUtils.comparing(OptionGroupSpecification::getName);
 
-    public static void printHelp(Runnable runnable) {
-        System.out.println(helpString(runnable));
-    }
+    //public static void printHelp(Runnable runnable) {
+    //    System.out.println(helpString(runnable));
+    //}
 
-    public static String helpString(Runnable runnable) {
-        Options options = Options.createFrom(runnable);
+    //public static String helpString(Runnable runnable) {
+    //    Options options = Options.createFrom(runnable);
 
-        String usage = runnable.getClass()
-                .getAnnotation(Command.class)
-                .usage();
+    //    String usage = runnable.getClass()
+    //            .getAnnotation(Command.class)
+    //            .usage();
 
-        return helpString(usage, options);
-    }
+    //    return helpString(usage, options);
+    //}
 
     public static void printHelp(String usage, Options options) {
         System.out.println(helpString(usage, options));

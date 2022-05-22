@@ -1,4 +1,4 @@
-package fr.valax.args.annotation;
+package fr.valax.args.api;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Command {
+public @interface CommandOld {
 
     /**
      * @return the name of the command

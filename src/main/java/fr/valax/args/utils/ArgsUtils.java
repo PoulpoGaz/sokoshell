@@ -1,5 +1,9 @@
 package fr.valax.args.utils;
 
+import fr.valax.args.CommandLineException;
+import fr.valax.args.ParseException;
+import fr.valax.args.TypeConverter;
+
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Objects;
@@ -50,5 +54,19 @@ public class ArgsUtils {
                 return u1.compareTo(u2);
             }
         };
+    }
+
+    public static void notNull(TypeConverter<?> converter, String err, Object... args) throws CommandLineException {
+        if (converter == null) {
+            thrExc(err, args);
+        }
+    }
+
+    public static void thrExc(String format, Object... args) throws CommandLineException {
+        throw new CommandLineException(format.formatted(args));
+    }
+
+    public static void thrParseExc(String format, Object... args) throws ParseException {
+        throw new ParseException(format.formatted(args));
     }
 }

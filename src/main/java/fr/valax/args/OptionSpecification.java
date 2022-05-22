@@ -1,6 +1,6 @@
 package fr.valax.args;
 
-import fr.valax.args.annotation.Option;
+import fr.valax.args.api.Option;
 import fr.valax.args.utils.ArgsUtils;
 
 import java.util.*;
@@ -11,7 +11,7 @@ import java.util.*;
  * They serve to the parser: to store arguments before converting and
  * checking if an option is required but not present
  */
-class OptionSpecification {
+public class OptionSpecification {
 
     private final String[] names;
     private final String description;
@@ -54,7 +54,7 @@ class OptionSpecification {
         present = true;
     }
 
-    public void clear() {
+    public void reset() {
         present = false;
         arguments.clear();
     }

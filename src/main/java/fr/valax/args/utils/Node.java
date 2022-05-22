@@ -21,14 +21,15 @@ public class Node<V> implements Iterable<Node<V>> {
         children = new ArrayList<>();
     }
 
-    public void addChildren(V child) {
-        addChildren(new Node<>(child));
+    public Node<V> addChildren(V child) {
+        return addChildren(new Node<>(child));
     }
 
-    public void addChildren(Node<V> child) {
+    public Node<V> addChildren(Node<V> child) {
         child.removeFromParent();
         children.add(child);
         child.parent = this;
+        return child;
     }
 
     public void removeFromParent() {
@@ -95,7 +96,9 @@ public class Node<V> implements Iterable<Node<V>> {
         public Node<V> next() {
             Node<V> next = stack.pop();
 
-            for (Node<V> child : next.children) {
+            List<Node<V>> nodes = next.children;
+            for (int i = nodes.size() - 1; i >= 0; i--) {
+                Node<V> child = nodes.get(i);
                 stack.push(child);
             }
 

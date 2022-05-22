@@ -1,4 +1,4 @@
-package fr.valax.args.annotation;
+package fr.valax.args.api;
 
 import fr.valax.args.TypeConverter;
 

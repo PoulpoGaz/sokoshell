@@ -1,22 +1,17 @@
 package fr.valax.args;
 
-import fr.valax.args.annotation.Command;
-import fr.valax.args.annotation.Option;
-import fr.valax.args.annotation.OptionGroup;
-
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
- * An internal object containing all options and groups for a command.
+ * An object containing all options and groups for a command.
  * It also parses arguments of a command
  */
-class Options implements Iterable<OptionSpecification> {
+public class Options implements Iterable<OptionSpecification> {
 
-    public static Options createFrom(Object object) {
+    /*public static Options createFrom(Object object) {
         if (object.getClass().isAnnotationPresent(Command.class)) {
             Class<?> class_ = object.getClass();
 
@@ -41,7 +36,7 @@ class Options implements Iterable<OptionSpecification> {
         } else {
             throw new IllegalStateException("The object isn't annotated with Command");
         }
-    }
+    }*/
 
     /**
      * An option without a group is added to the OptionGroupSpecification
@@ -51,18 +46,6 @@ class Options implements Iterable<OptionSpecification> {
 
     public Options() {
         options = new LinkedHashMap<>();
-    }
-
-    public Options(Options... opts) {
-        if (opts.length == 0) {
-            options = new LinkedHashMap<>();
-        } else {
-            options = new LinkedHashMap<>(opts[0].getOptions());
-
-            for (int i = 1; i < opts.length; i++) {
-                merge(opts[i]);
-            }
-        }
     }
 
     public void parse(String[] args) throws ParseException {
@@ -135,6 +118,14 @@ class Options implements Iterable<OptionSpecification> {
         }
     }
 
+    public void reset() {
+        for (OptionGroupSpecification groupSpec : options.values()) {
+            for (OptionSpecification spec : groupSpec.getOptions()) {
+                spec.reset();
+            }
+        }
+    }
+
     /**
      * The option will be added to the unnamed group
      * @param option the option to add
@@ -173,12 +164,6 @@ class Options implements Iterable<OptionSpecification> {
         }
 
         return false;
-    }
-
-    public void merge(Options b) {
-        for (OptionGroupSpecification group : b.getOptions().values()) {
-            options.merge(group.getName(), group, OptionGroupSpecification::new);
-        }
     }
 
     public LinkedHashMap<String, OptionGroupSpecification> getOptions() {
