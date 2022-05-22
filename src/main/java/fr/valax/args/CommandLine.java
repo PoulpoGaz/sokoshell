@@ -1,5 +1,9 @@
 package fr.valax.args;
 
+import fr.valax.args.annotation.Command;
+import fr.valax.args.annotation.Option;
+import fr.valax.args.annotation.OptionGroup;
+import fr.valax.args.annotation.VaArgs;
 import fr.valax.args.utils.Node;
 
 import java.lang.reflect.Array;
@@ -10,7 +14,7 @@ import java.util.*;
 
 public class CommandLine {
 
-    private static final OptionSpec DEFAULT_HELP = new OptionSpecBuilder()
+    private static final OptionSpecification DEFAULT_HELP = new OptionSpecificationBuilder()
             .name("h").name("-h")
             .desc("Print this message and exit")
             .build();
@@ -22,7 +26,7 @@ public class CommandLine {
     /** A class with type T must be associated with a type converted of the same typ */
     private final Map<Class<?>, TypeConverter<?>> converters;
 
-    private OptionSpec help = DEFAULT_HELP;
+    private OptionSpecification help = DEFAULT_HELP;
 
     public CommandLine() {
         commands = new HashMap<>();
@@ -178,11 +182,11 @@ public class CommandLine {
         return Collections.unmodifiableMap(converters);
     }
 
-    public OptionSpec getHelp() {
+    public OptionSpecification getHelp() {
         return help;
     }
 
-    public void setHelp(OptionSpec help) {
+    public void setHelp(OptionSpecification help) {
         this.help = help;
     }
 
@@ -192,7 +196,7 @@ public class CommandLine {
         private final Runnable action;
 
         private Options options;
-        private Map<OptionSpec, Field> optionMapping;
+        private Map<OptionSpecification, Field> optionMapping;
         private Field vaargs;
 
         public CommandSpec(Runnable action) throws CommandLineException {
@@ -235,7 +239,7 @@ public class CommandLine {
                         checkBoolean(field, "%s should be a boolean", field.getName());
                     }
 
-                    OptionSpec spec = new OptionSpec(option);
+                    OptionSpecification spec = new OptionSpecification(option);
                     options.addOption(optGroup, spec);
                     optionMapping.put(spec, field);
 
@@ -267,8 +271,8 @@ public class CommandLine {
         }
 
         public void setOptions() throws CommandLineException {
-            for (Map.Entry<OptionSpec, Field> entry : optionMapping.entrySet()) {
-                OptionSpec opt = entry.getKey();
+            for (Map.Entry<OptionSpecification, Field> entry : optionMapping.entrySet()) {
+                OptionSpecification opt = entry.getKey();
                 Field field = entry.getValue();
 
                 if (opt.hasArgument()) {

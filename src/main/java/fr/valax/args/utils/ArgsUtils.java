@@ -34,8 +34,7 @@ public class ArgsUtils {
     }
 
     public static <T, U extends Comparable<? super U>> Comparator<T> comparing(
-            Function<? super T, ? extends U> keyExtractor)
-    {
+            Function<? super T, ? extends U> keyExtractor) {
         Objects.requireNonNull(keyExtractor);
         return (c1, c2) -> {
             U u1 = keyExtractor.apply(c1);

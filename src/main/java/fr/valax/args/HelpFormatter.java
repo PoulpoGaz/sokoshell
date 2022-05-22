@@ -13,8 +13,11 @@ public class HelpFormatter {
 
     private static final String DEFAULT_ARG_NAME = "ARG";
 
-    private static final Comparator<OptionSpec> optComparator = ArgsUtils.comparing(OptionSpec::firstName);
-    private static final Comparator<OptionGroupSpec> groupComparator = ArgsUtils.comparing(OptionGroupSpec::getName);
+    private static final Comparator<OptionSpecification> optComparator =
+            ArgsUtils.comparing(OptionSpecification::firstName);
+
+    private static final Comparator<OptionGroupSpecification> groupComparator =
+            ArgsUtils.comparing(OptionGroupSpecification::getName);
 
     public static void printHelp(Runnable runnable) {
         System.out.println(helpString(runnable));
@@ -38,14 +41,14 @@ public class HelpFormatter {
         StringBuilder builder = new StringBuilder();
         builder.append("Usage: ").append(usage).append("\n\n");
 
-        OptionGroupSpec unnamed = options.getGroup(null);
+        OptionGroupSpecification unnamed = options.getGroup(null);
         if (unnamed != null) {
             printGroup(builder, unnamed);
         }
 
-        List<OptionGroupSpec> groups = options.getOptions().values().stream().sorted(groupComparator).toList();
+        List<OptionGroupSpecification> groups = options.getOptions().values().stream().sorted(groupComparator).toList();
 
-        for (OptionGroupSpec g : groups) {
+        for (OptionGroupSpecification g : groups) {
             if (g != unnamed) {
                 printGroup(builder, g);
             }
@@ -54,7 +57,7 @@ public class HelpFormatter {
         return builder.toString();
     }
 
-    private static void printGroup(StringBuilder builder, OptionGroupSpec group) {
+    private static void printGroup(StringBuilder builder, OptionGroupSpecification group) {
         String indent = "";
         if (group.getName() != null) {
             builder.append(group.getName()).append(":\n");
@@ -64,8 +67,8 @@ public class HelpFormatter {
         int width = getWidth(group);
         String descIndent = indent + " ".repeat(10 + width);
 
-        List<OptionSpec> options = group.getOptions().stream().sorted(optComparator).toList();
-        for (OptionSpec option : options) {
+        List<OptionSpecification> options = group.getOptions().stream().sorted(optComparator).toList();
+        for (OptionSpecification option : options) {
             builder.append(indent);
 
             int pos = builder.length();
@@ -140,10 +143,10 @@ public class HelpFormatter {
         return length;
     }
 
-    private static int getWidth(OptionGroupSpec group) {
+    private static int getWidth(OptionGroupSpecification group) {
         int width = 0;
 
-        for (OptionSpec option : group.getOptions()) {
+        for (OptionSpecification option : group.getOptions()) {
             int w = 0;
 
             String[] names = option.getNames();

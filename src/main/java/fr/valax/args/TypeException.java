@@ -1,5 +1,9 @@
 package fr.valax.args;
 
+/**
+ * An exception throws by {@link TypeConverter} when
+ * it failed to convert
+ */
 public class TypeException extends CommandLineException {
 
     public TypeException() {

@@ -5,34 +5,38 @@ import fr.valax.args.utils.ArgsUtils;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 
-public class OptionGroupSpec implements Iterable<OptionSpec> {
+/**
+ * An internal object used to describe an OptionGroup.
+ * It also contains references to his options
+ */
+class OptionGroupSpecification implements Iterable<OptionSpecification> {
 
     private final String name;
-    private final LinkedHashSet<OptionSpec> options;
+    private final LinkedHashSet<OptionSpecification> options;
 
-    public OptionGroupSpec(String name) {
+    public OptionGroupSpecification(String name) {
         this.name = name;
         this.options = new LinkedHashSet<>();
     }
 
-    public OptionGroupSpec(OptionGroupSpec... groups) {
+    public OptionGroupSpecification(OptionGroupSpecification... groups) {
         this.name = groups[0].getName();
         this.options = new LinkedHashSet<>();
 
-        for (OptionGroupSpec group : groups) {
+        for (OptionGroupSpecification group : groups) {
             options.addAll(group.getOptions());
         }
     }
 
-    public OptionSpec getOption(String name) {
+    public OptionSpecification getOption(String name) {
         return ArgsUtils.find(options, (o) -> o.hasName(name));
     }
 
-    public void addOption(OptionSpec option) {
+    public void addOption(OptionSpecification option) {
         options.add(option);
     }
 
-    public LinkedHashSet<OptionSpec> getOptions() {
+    public LinkedHashSet<OptionSpecification> getOptions() {
         return options;
     }
 
@@ -40,7 +44,7 @@ public class OptionGroupSpec implements Iterable<OptionSpec> {
         return name;
     }
 
-    public boolean contains(OptionSpec option) {
+    public boolean contains(OptionSpecification option) {
         return options.contains(option);
     }
 
@@ -53,7 +57,7 @@ public class OptionGroupSpec implements Iterable<OptionSpec> {
     }
 
     @Override
-    public Iterator<OptionSpec> iterator() {
+    public Iterator<OptionSpecification> iterator() {
         return options.iterator();
     }
 }

@@ -5,7 +5,13 @@ import fr.valax.args.utils.ArgsUtils;
 
 import java.util.*;
 
-public class OptionSpec {
+/**
+ * An internal object used to describe an option.
+ * It also contains {@link #arguments} and {@link #present} fields.
+ * They serve to the parser: to store arguments before converting and
+ * checking if an option is required but not present
+ */
+class OptionSpecification {
 
     private final String[] names;
     private final String description;
@@ -17,7 +23,7 @@ public class OptionSpec {
     private final List<String> arguments = new ArrayList<>();
     private boolean present;
 
-    public OptionSpec(Option option) {
+    public OptionSpecification(Option option) {
         names = option.names();
         description = option.description();
         optional = option.optional();
@@ -26,12 +32,12 @@ public class OptionSpec {
         argumentName = option.argName();
     }
 
-    public OptionSpec(String[] names,
-                      String description,
-                      boolean optional,
-                      boolean allowDuplicate,
-                      String defaultValue,
-                      String argName) {
+    public OptionSpecification(String[] names,
+                               String description,
+                               boolean optional,
+                               boolean allowDuplicate,
+                               String defaultValue,
+                               String argName) {
         this.names = Objects.requireNonNull(names);
         this.description = description;
         this.optional = optional;
@@ -46,6 +52,11 @@ public class OptionSpec {
 
     public void markPresent() {
         present = true;
+    }
+
+    public void clear() {
+        present = false;
+        arguments.clear();
     }
 
     public boolean hasName(String name) {
@@ -105,7 +116,7 @@ public class OptionSpec {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        OptionSpec that = (OptionSpec) o;
+        OptionSpecification that = (OptionSpecification) o;
 
         if (optional != that.optional) return false;
         if (allowDuplicate != that.allowDuplicate) return false;

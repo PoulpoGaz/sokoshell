@@ -4,6 +4,11 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.function.Function;
 
+/**
+ * Basic type converters.
+ * They are not added by default. You must use
+ * {@link CommandLine#addDefaultConverters()} to add them
+ */
 public class TypeConverters {
 
     public static final TypeConverter<String> STRING = s -> s;

@@ -10,11 +10,15 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-public class Options implements Iterable<OptionSpec> {
+/**
+ * An internal object containing all options and groups for a command.
+ * It also parses arguments of a command
+ */
+class Options implements Iterable<OptionSpecification> {
 
-    public static Options createFrom(Runnable runnable) {
-        if (runnable.getClass().isAnnotationPresent(Command.class)) {
-            Class<?> class_ = runnable.getClass();
+    public static Options createFrom(Object object) {
+        if (object.getClass().isAnnotationPresent(Command.class)) {
+            Class<?> class_ = object.getClass();
 
             Options options = new Options();
 
@@ -27,7 +31,7 @@ public class Options implements Iterable<OptionSpec> {
                 if (field.isAnnotationPresent(Option.class)) {
                     Option option = field.getAnnotation(Option.class);
 
-                    OptionSpec spec = new OptionSpec(option);
+                    OptionSpecification spec = new OptionSpecification(option);
                     options.addOption(optGroup, spec);
 
                 }
@@ -35,11 +39,15 @@ public class Options implements Iterable<OptionSpec> {
 
             return options;
         } else {
-            throw new IllegalStateException("Runnable isn't annotated with Command");
+            throw new IllegalStateException("The object isn't annotated with Command");
         }
     }
 
-    private final LinkedHashMap<String, OptionGroupSpec> options;
+    /**
+     * An option without a group is added to the OptionGroupSpecification
+     * with name = null, also named "unnamed group"
+     */
+    private final LinkedHashMap<String, OptionGroupSpecification> options;
 
     public Options() {
         options = new LinkedHashMap<>();
@@ -74,7 +82,7 @@ public class Options implements Iterable<OptionSpec> {
         for (int i = start; i < end; i++) {
             String arg = args[i];
 
-            OptionSpec option;
+            OptionSpecification option;
             if (arg.startsWith("-")) {
                 option = getOption(arg.substring(1));
 
@@ -92,7 +100,7 @@ public class Options implements Iterable<OptionSpec> {
         return vaargs;
     }
 
-    protected int parseOption(OptionSpec option, String[] args, int i, int end) throws ParseException {
+    protected int parseOption(OptionSpecification option, String[] args, int i, int end) throws ParseException {
         String arg = args[i];
 
         if (option.isPresent() && !option.allowDuplicate()) {
@@ -120,7 +128,7 @@ public class Options implements Iterable<OptionSpec> {
     }
 
     protected void checkNotOptionalOption() throws ParseException {
-        for (OptionSpec opt : this) {
+        for (OptionSpecification opt : this) {
             if (!opt.isOptional() && !opt.isPresent()) {
                 throw new ParseException(opt.firstName() + " is required");
             }
@@ -131,20 +139,20 @@ public class Options implements Iterable<OptionSpec> {
      * The option will be added to the unnamed group
      * @param option the option to add
      */
-    public Options addOption(OptionSpec option) {
+    public Options addOption(OptionSpecification option) {
         return addOption(null, option);
     }
 
-    public Options addOptionGroup(OptionGroupSpec group) {
+    public Options addOptionGroup(OptionGroupSpecification group) {
         options.put(group.getName(), group);
         return this;
     }
 
-    public Options addOption(String group, OptionSpec option) {
-        OptionGroupSpec optGroup = options.get(group);
+    public Options addOption(String group, OptionSpecification option) {
+        OptionGroupSpecification optGroup = options.get(group);
 
         if (optGroup == null) {
-            optGroup = new OptionGroupSpec(group);
+            optGroup = new OptionGroupSpecification(group);
             optGroup.addOption(option);
             options.put(group, optGroup);
         } else {
@@ -153,12 +161,12 @@ public class Options implements Iterable<OptionSpec> {
         return this;
     }
 
-    public OptionGroupSpec getGroup(String name) {
+    public OptionGroupSpecification getGroup(String name) {
         return options.get(name);
     }
 
-    public boolean contains(OptionSpec option) {
-        for (OptionGroupSpec group : options.values()) {
+    public boolean contains(OptionSpecification option) {
+        for (OptionGroupSpecification group : options.values()) {
             if (group.contains(option)) {
                 return true;
             }
@@ -168,18 +176,18 @@ public class Options implements Iterable<OptionSpec> {
     }
 
     public void merge(Options b) {
-        for (OptionGroupSpec group : b.getOptions().values()) {
-            options.merge(group.getName(), group, OptionGroupSpec::new);
+        for (OptionGroupSpecification group : b.getOptions().values()) {
+            options.merge(group.getName(), group, OptionGroupSpecification::new);
         }
     }
 
-    public LinkedHashMap<String, OptionGroupSpec> getOptions() {
+    public LinkedHashMap<String, OptionGroupSpecification> getOptions() {
         return options;
     }
 
-    public OptionSpec getOption(String name) {
-        for (OptionGroupSpec group : options.values()) {
-            OptionSpec opt = group.getOption(name);
+    public OptionSpecification getOption(String name) {
+        for (OptionGroupSpecification group : options.values()) {
+            OptionSpecification opt = group.getOption(name);
 
             if (opt != null) {
                 return opt;
@@ -191,7 +199,7 @@ public class Options implements Iterable<OptionSpec> {
 
     public int nOptions() {
         int size = 0;
-        for (OptionGroupSpec g : options.values()) {
+        for (OptionGroupSpecification g : options.values()) {
             size += g.nOptions();
         }
         return size;
@@ -202,13 +210,13 @@ public class Options implements Iterable<OptionSpec> {
     }
 
     @Override
-    public Iterator<OptionSpec> iterator() {
+    public Iterator<OptionSpecification> iterator() {
         return new Iterator<>() {
-            private final Iterator<OptionGroupSpec> groupIterator = options
+            private final Iterator<OptionGroupSpecification> groupIterator = options
                     .values()
                     .iterator();
 
-            private Iterator<OptionSpec> optionIterator = null;
+            private Iterator<OptionSpecification> optionIterator = null;
 
             @Override
             public boolean hasNext() {
@@ -226,8 +234,8 @@ public class Options implements Iterable<OptionSpec> {
             }
 
             @Override
-            public OptionSpec next() {
-                OptionSpec opt = optionIterator.next();
+            public OptionSpecification next() {
+                OptionSpecification opt = optionIterator.next();
 
                 if (!optionIterator.hasNext()) {
                     optionIterator = null;

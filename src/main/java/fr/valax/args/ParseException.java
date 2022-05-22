@@ -1,5 +1,12 @@
 package fr.valax.args;
 
+/**
+ * Base class for parsing exception.
+ * They may occur when parsing arguments or
+ * when converting a value
+ *
+ * @see TypeException
+ */
 public class ParseException extends CommandLineException {
 
     public ParseException() {
