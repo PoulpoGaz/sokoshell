@@ -33,18 +33,18 @@ public class CommandLine {
         this.helpFormatter = helpFormatter;
     }
 
-    public Object parse(String[] args) throws CommandLineException {
-        return parseSub(root, args, 0);
+    public Object execute(String[] args) throws CommandLineException {
+        return executeSub(root, args, 0);
     }
 
-    protected Object parseSub(Node<CommandSpecification> parent, String[] args, int index) throws CommandLineException {
+    protected Object executeSub(Node<CommandSpecification> parent, String[] args, int index) throws CommandLineException {
         if (index >= args.length) {
             CommandSpecification spec = parent.getValue();
 
             if (spec == null) { // for root
                 unrecognizedCommand(null, args);
             } else {
-                return execute(spec, args, args.length, args.length);
+                return executeCommand(spec, args, args.length, args.length);
             }
 
         } else {
@@ -58,9 +58,9 @@ public class CommandLine {
             }
 
             if (next != null) {
-                parseSub(next, args, index + 1);
+                return executeSub(next, args, index + 1);
             } else if (parent.getValue() != null) {
-                return execute(parent.getValue(), args, index, args.length);
+                return executeCommand(parent.getValue(), args, index, args.length);
             } else {
                 unrecognizedCommand(parent.getValue(), args);
             }
@@ -71,13 +71,13 @@ public class CommandLine {
 
     private void unrecognizedCommand(CommandSpecification last, String[] args) throws ParseException {
         if (showHelp()) {
-            System.out.println(helpFormatter.unrecognizedCommand(last, root, args));
+            System.out.println(helpFormatter.generalHelp(last, root, args, true));
         } else {
             thrParseExc("Unrecognized command: %s", Arrays.toString(args));
         }
     }
 
-    protected Object execute(CommandSpecification spec, String[] args, int start, int end)
+    protected Object executeCommand(CommandSpecification spec, String[] args, int start, int end)
             throws CommandLineException {
         try {
 
@@ -116,6 +116,44 @@ public class CommandLine {
     @SuppressWarnings("unchecked")
     public <T> TypeConverter<T> getConverter(Class<T> class_) {
         return (TypeConverter<T>) converters.get(class_);
+    }
+
+    public String getGeneralHelp() {
+        return helpFormatter.generalHelp(null, root, null, false);
+    }
+
+    public String getCommandHelp(String command) {
+        Node<CommandSpecification> spec;
+
+        if (command.isBlank()) {
+            spec = root;
+        } else {
+            String[] split = command.split(" ");
+
+            spec = getCommandHelp(root, split, 0);
+        }
+
+        if (spec != null && spec.getValue() != null) {
+            return helpFormatter.commandHelp(null, spec.getValue());
+        } else {
+            return "Unknown command: " + command;
+        }
+    }
+
+    private Node<CommandSpecification> getCommandHelp(Node<CommandSpecification> node, String[] parts, int index) {
+        if (index < parts.length) {
+            for (Node<CommandSpecification> child : node.getChildren()) {
+
+                CommandSpecification spec = child.getValue();
+                if (parts[index].equals(spec.getName())) {
+                    return getCommandHelp(child, parts, index + 1);
+                }
+            }
+
+            return null;
+        } else {
+            return node;
+        }
     }
 
     public boolean showHelp() {

@@ -3,6 +3,11 @@ package fr.valax.args.api;
 public interface Command<T> {
 
     /**
+     * @return the output of this command
+     */
+    T execute();
+
+    /**
      * @return the name of the command
      */
     String getName();
@@ -16,6 +21,4 @@ public interface Command<T> {
      * @return true to automatically add -h/--help option
      */
     boolean addHelp();
-
-    T execute();
 }

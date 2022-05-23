@@ -9,17 +9,13 @@ import fr.valax.args.utils.CommandLineException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static fr.valax.args.utils.ArgsUtils.notNull;
 import static fr.valax.args.utils.ArgsUtils.thrExc;
 
 /**
- * An internal object to describe a command and
- * for setting fields.
+ * An object used to describe a command and for setting fields.
  */
 public class CommandSpecification {
 
@@ -32,6 +28,7 @@ public class CommandSpecification {
     private Field vaargs;
 
     public CommandSpecification(Command<?> command) throws CommandLineException {
+        Objects.requireNonNull(command.getName());
         this.command = command;
 
         createOptions();

@@ -13,33 +13,6 @@ import java.util.List;
  */
 public class Options implements Iterable<OptionSpecification> {
 
-    /*public static Options createFrom(Object object) {
-        if (object.getClass().isAnnotationPresent(Command.class)) {
-            Class<?> class_ = object.getClass();
-
-            Options options = new Options();
-
-            for (Field field : class_.getDeclaredFields()) {
-                String optGroup = null;
-                if (field.isAnnotationPresent(OptionGroup.class)) {
-                    optGroup = field.getAnnotation(OptionGroup.class).name();
-                }
-
-                if (field.isAnnotationPresent(Option.class)) {
-                    Option option = field.getAnnotation(Option.class);
-
-                    OptionSpecification spec = new OptionSpecification(option);
-                    options.addOption(optGroup, spec);
-
-                }
-            }
-
-            return options;
-        } else {
-            throw new IllegalStateException("The object isn't annotated with Command");
-        }
-    }*/
-
     /**
      * An option without a group is added to the OptionGroupSpecification
      * with name = null, also named "unnamed group"

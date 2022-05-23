@@ -3,8 +3,6 @@ package fr.valax.args;
 import fr.valax.args.api.Command;
 import fr.valax.args.api.Option;
 import fr.valax.args.utils.CommandLineException;
-import fr.valax.args.utils.ParseException;
-import org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -28,11 +26,12 @@ public class Test {
         }
 
         try {
-            cli.parse(new String[] {"prit", "-"});
+            cli.execute(new String[] {"prit", "-"});
             System.out.println("---------------");
-            cli.parse(new String[] {"print", "-"});
+            cli.execute(new String[] {"print", "-"});
             System.out.println("---------------");
-            cli.parse(new String[] {"print", "-h"});
+            cli.execute(new String[] {"print", "-h"});
+            cli.execute(new String[] {"print"});
         } catch (CommandLineException e) {
             throw new RuntimeException(e);
         }

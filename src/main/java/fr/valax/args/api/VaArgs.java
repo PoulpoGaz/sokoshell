@@ -10,8 +10,6 @@ import java.lang.annotation.Target;
 /**
  * Declaring a field as VaArgs means that it will receive all
  * arguments that are not attached to an option.
- *
- * The field still need to be annotated with {@link Option}
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)

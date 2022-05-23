@@ -3,6 +3,10 @@ package fr.valax.args;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A builder to create options without an annotation.
+ * For internal usage
+ */
 public class OptionSpecificationBuilder {
 
     private final List<String> names = new ArrayList<>();
@@ -11,7 +15,6 @@ public class OptionSpecificationBuilder {
     private boolean allowDuplicate = true;
     private String defaultValue = null;
     private String argName = null;
-
 
     public OptionSpecification build() {
         if (names.size() == 0) {

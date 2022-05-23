@@ -9,7 +9,7 @@ import java.util.function.Function;
 /**
  * Basic type converters.
  * They are not added by default. You must use
- * {@link CommandLine#addDefaultConverters()} to add them
+ * {@link CommandLineBuilder#addDefaultConverters()} to add them
  */
 public class TypeConverters {
 

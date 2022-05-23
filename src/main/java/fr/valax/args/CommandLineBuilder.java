@@ -74,6 +74,10 @@ public class CommandLineBuilder {
     }
 
     public CommandLineBuilder addDefaultConverters() {
+        if (converters == null) {
+            throw new IllegalStateException("Not the root");
+        }
+
         converters.put(String.class, TypeConverters.STRING);
         converters.put(Byte.class, TypeConverters.BYTE);
         converters.put(Short.class, TypeConverters.SHORT);

@@ -34,7 +34,9 @@ public class DefaultHelpFormatter implements HelpFormatter {
         }
 
         builder.append("Command: ").append(spec.getName()).append('\n');
-        builder.append("Usage: ").append(usage).append("\n\n");
+        if (usage != null) {
+            builder.append("Usage: ").append(usage).append("\n\n");
+        }
 
         OptionGroupSpecification unnamed = options.getGroup(null);
         if (unnamed != null) {
@@ -101,8 +103,6 @@ public class DefaultHelpFormatter implements HelpFormatter {
             if (desc != null) {
                 appendTextBlock(builder, desc, descIndent, maxTextBlockSize);
             }
-
-            builder.append('\n');
         }
     }
 
@@ -140,23 +140,31 @@ public class DefaultHelpFormatter implements HelpFormatter {
     }
 
     @Override
-    public String unrecognizedCommand(CommandSpecification parent,
-                                      Node<CommandSpecification> commands,
-                                      String[] args) {
-
-        String commandString = String.join(" ", args);
+    public String generalHelp(CommandSpecification parent,
+                              Node<CommandSpecification> commands,
+                              String[] args,
+                              boolean unrecognizedCommand) {
 
         StringBuilder builder = new StringBuilder();
-        builder.append("Unrecognized command: ")
-                .append(commandString)
-                .append("\n\n");
+
+        if (unrecognizedCommand) {
+            builder.append("Unrecognized command");
+
+            if (args != null) {
+                String commandString = String.join(" ", args);
+                builder.append(": ")
+                        .append(commandString)
+                        .append("\n\n");
+
+            }
+        }
 
         builder.append("Commands:\n");
 
         int maxCommandNameSize = getMaxCommandNameSize(commands, "");
 
-        // +2 because of ": "
-        addCommand(builder, commands, "", " ".repeat(maxCommandNameSize + 2 + spaceBetweenTextBlockAndName));
+        // +1 because of ':'
+        addCommand(builder, commands, "", " ".repeat(maxCommandNameSize + 1 + spaceBetweenTextBlockAndName));
 
         return builder.toString();
     }
@@ -194,13 +202,17 @@ public class DefaultHelpFormatter implements HelpFormatter {
                 fullCommandName = fullCommandName + " " + spec.getName();
             }
 
-            builder.append(fullCommandName).append(": ");
+            builder.append(fullCommandName);
 
-            int emptySpaceLength = usageIdent.length() - fullCommandName.length() - 2;
-            builder.append(" ".repeat(emptySpaceLength));
+            String usage = spec.getCommand().getUsage();
+            if (usage != null) {
+                builder.append(':');
 
-            appendTextBlock(builder, spec.getCommand().getUsage(), usageIdent, maxTextBlockSize);
-            builder.append('\n');
+                int emptySpaceLength = usageIdent.length() - fullCommandName.length() - 1;
+                builder.append(" ".repeat(emptySpaceLength));
+
+                appendTextBlock(builder, usage, usageIdent, maxTextBlockSize);
+            }
         }
 
         for (Node<CommandSpecification> child : command.getChildren()) {
@@ -229,6 +241,8 @@ public class DefaultHelpFormatter implements HelpFormatter {
                 builder.append("\n").append(indent);
             }
         }
+
+        builder.append('\n');
     }
 
     private int wordLength(String text, int start) {

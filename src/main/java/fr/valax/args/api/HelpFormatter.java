@@ -13,7 +13,8 @@ public interface HelpFormatter {
     String commandHelp(ParseException error,
                        CommandSpecification spec);
 
-    String unrecognizedCommand(CommandSpecification parent,
-                               Node<CommandSpecification> commands,
-                               String[] args);
+    String generalHelp(CommandSpecification parent,
+                       Node<CommandSpecification> commands,
+                       String[] args,
+                       boolean unrecognizedCommand);
 }
