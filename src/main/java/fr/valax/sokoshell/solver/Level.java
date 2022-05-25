@@ -35,7 +35,7 @@ public class Level {
     }
 
     public int getPlayerY() {
-        return playerPos % getHeight();
+        return playerPos / getWidth();
     }
 
     public State getInitialState() {

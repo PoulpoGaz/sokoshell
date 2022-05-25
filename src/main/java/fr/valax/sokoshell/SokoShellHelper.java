@@ -2,6 +2,8 @@ package fr.valax.sokoshell;
 
 import fr.valax.sokoshell.solver.Pack;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 
 public class SokoShellHelper {
@@ -33,5 +35,9 @@ public class SokoShellHelper {
 
     public Pack getPack(String name) {
         return packs.get(name);
+    }
+
+    public Collection<Pack> getPacks() {
+        return packs.values();
     }
 }

@@ -25,7 +25,7 @@ public class Map {
         this.content = new Tile[height][width];
 
         for (int y = 0; y < height; y++) {
-            System.arraycopy(content[y], 0, other.content[y], 0, width);
+            System.arraycopy(other.content[y], 0, content[y], 0, width);
         }
     }
 

@@ -1,6 +1,7 @@
 package fr.valax.sokoshell.solver;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author darth-mole
@@ -8,7 +9,7 @@ import java.util.ArrayList;
  */
 public interface Solver {
 
-    SolverStatus solve(Level level, ArrayList<State> solution);
+    SolverStatus solve(Level level, List<State> solution);
 
     void pause();
 

@@ -68,9 +68,10 @@ public class IsekaiReader implements Reader {
 
             int x = is.read();
             int y = is.read();
-            builder.setPlayerPos(x, y);
 
+            // TODO: replace this
             builder.setSize(is.read(), is.read());
+            builder.setPlayerPos(x, y);
 
             boolean compressed = is.read() == 1;
 

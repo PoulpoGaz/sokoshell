@@ -1,9 +1,8 @@
 package fr.valax.sokoshell.solver;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
+import fr.valax.sokoshell.PrintCommand;
+
+import java.util.*;
 
 /**
  * @author darth-mole
@@ -20,12 +19,12 @@ public abstract class BasicBrutalSolver extends AbstractSolver {
 
     protected final ArrayDeque<State> toProcess = new ArrayDeque<>();
     protected boolean[][] accessibleCases;
-    protected final HashMap<State, Boolean> processed = new HashMap<>();
+    protected final Set<State> processed = new HashSet<>();
 
     protected abstract State getNext();
 
     @Override
-    public SolverStatus solve(Level level, ArrayList<State> solution) {
+    public SolverStatus solve(Level level, List<State> solution) {
         Map map = new Map(level.getMap());
         State initialState = level.getInitialState();
 
@@ -41,14 +40,17 @@ public abstract class BasicBrutalSolver extends AbstractSolver {
         while (!toProcess.isEmpty()) {
             State cur = getNext();
             map.addStateCrates(cur);
+
+            System.out.println("--------------------------------");
+            PrintCommand.printMap(map, cur.playerPos());
             if (map.isCompletedWith(cur)) {
                 finalState = cur;
                 break;
             }
-            if (processed.containsKey(cur) && processed.get(cur))
-                continue;
-            processed.put(cur, true);
-            addChildrenStates(cur, map);
+            if (processed.add(cur)) {
+                addChildrenStates(cur, map);
+            }
+
             map.removeStateCrates(cur);
         }
 
@@ -60,7 +62,7 @@ public abstract class BasicBrutalSolver extends AbstractSolver {
         }
     }
 
-    private void buildSolution(ArrayList<State> solution, State finalState) {
+    private void buildSolution(List<State> solution, State finalState) {
         solution.clear();
         State s = finalState;
         while (s.parent() != null)
@@ -73,7 +75,11 @@ public abstract class BasicBrutalSolver extends AbstractSolver {
 
     private void addChildrenStates(State cur, Map map) {
         findAccessibleCases(cur.playerPos(), map);
-        for (int crate : cur.cratesIndices()) {
+
+        int[] cratesIndices = cur.cratesIndices();
+        for (int crateIndex = 0; crateIndex < cratesIndices.length; crateIndex++) {
+
+            int crate = cratesIndices[crateIndex];
             int crateX = map.getX(crate);
             int crateY = map.getY(crate);
 
@@ -83,9 +89,9 @@ public abstract class BasicBrutalSolver extends AbstractSolver {
                 int persoX = crateX - d.dirX();
                 int persoY = crateY - d.dirY();
                 if (crateDestX < 0 || crateDestX >= map.getWidth()
-                 || crateDestY < 0 || crateDestY >= map.getHeight()
-                 || persoX < 0 || persoX >= map.getWidth()
-                 || persoY < 0 || persoY >= map.getHeight()) {
+                        || crateDestY < 0 || crateDestY >= map.getHeight()
+                        || persoX < 0 || persoX >= map.getWidth()
+                        || persoY < 0 || persoY >= map.getHeight()) {
                     continue;
                 }
 
@@ -94,22 +100,18 @@ public abstract class BasicBrutalSolver extends AbstractSolver {
                 }
 
                 if (map.isTileEmpty(crateX - d.dirX(), crateY - d.dirY())) {
-                    addNewStateBasedOn(cur, map, crate, crateDestX, crateDestY);
+                    State s = new State(persoY * map.getWidth() + persoX, cur.cratesIndices().clone(), cur);
+                    s.cratesIndices()[crateIndex] = crateDestY * map.getWidth() + crateDestX;
+                    toProcess.add(s);
                 }
             }
         }
     }
 
-    private void addNewStateBasedOn(State cur, Map map, int crate, int crateDestX, int crateDestY) {
-        State s = new State(cur.playerPos(), cur.cratesIndices().clone(), cur);
-        s.cratesIndices()[crate] = crateDestY * map.getWidth() + crateDestX;
-        toProcess.add(s);
-    }
-
     private void findAccessibleCases(int playerPos, Map map) {
         for (int i = 0; i < accessibleCases.length; i++) {
             for (int j = 0; j < accessibleCases[0].length; j++) {
-                accessibleCases[j][i] = false;
+                accessibleCases[i][j] = false;
             }
         }
         findAccessibleCases_aux(map.getX(playerPos), map.getY(playerPos), map);
@@ -135,14 +137,14 @@ public abstract class BasicBrutalSolver extends AbstractSolver {
     private static class DFSSolver extends BasicBrutalSolver {
         @Override
         protected State getNext() {
-            return toProcess.getLast();
+            return toProcess.removeLast();
         }
     }
 
     private static class BFSSolver extends BasicBrutalSolver {
         @Override
         protected State getNext() {
-            return toProcess.getFirst();
+            return toProcess.removeFirst();
         }
     }
 }

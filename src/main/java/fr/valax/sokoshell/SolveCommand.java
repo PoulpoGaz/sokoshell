@@ -1,9 +1,9 @@
 package fr.valax.sokoshell;
 
 import fr.valax.args.api.Option;
-import fr.valax.sokoshell.solver.Level;
-import fr.valax.sokoshell.solver.Pack;
+import fr.valax.sokoshell.solver.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,6 +33,11 @@ public class SolveCommand extends AbstractVoidCommand {
         List<Level> levels = pack.levels();
         Level l = levels.get(index);
 
+        Solver solver = BasicBrutalSolver.newDFSSolver();
+        List<State> solution = new ArrayList<>();
+
+        System.out.println(solver.solve(l, solution));
+        System.out.println(solution);
     }
 
     @Override

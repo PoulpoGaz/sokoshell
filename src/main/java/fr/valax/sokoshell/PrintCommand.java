@@ -44,12 +44,21 @@ public class PrintCommand extends AbstractVoidCommand {
         }
     }
 
-    private void printMap(Level level) {
-        Tile[][] content = level.getMap().getContent();
+    public static void printMap(Level level) {
+        printMap(level.getMap(), level.getPlayerY() * level.getWidth() + level.getPlayerX());
+    }
 
-        for (int y = 0; y < level.getHeight(); y++) {
-            for (int x = 0; x < level.getWidth(); x++) {
-                boolean player = x == level.getPlayerX() && y == level.getPlayerY();
+    public static void printMap(Map map, int playerPos) {
+        Tile[][] content = map.getContent();
+
+        int playerX = playerPos % map.getWidth();
+        int playerY = playerPos / map.getWidth();
+
+        System.out.println(playerX + " - " + playerY);
+
+        for (int y = 0; y < map.getHeight(); y++) {
+            for (int x = 0; x < map.getWidth(); x++) {
+                boolean player = x == playerX && y == playerY;
 
                 switch (content[y][x]) {
                     case WALL -> System.out.print('#');
@@ -67,7 +76,7 @@ public class PrintCommand extends AbstractVoidCommand {
                             System.out.print('+');
                         }
                     }
-                    case CRATE -> System.out.print('@');
+                    case CRATE -> System.out.print('$');
                     case CRATE_ON_TARGET -> System.out.print('*');
                 }
 
