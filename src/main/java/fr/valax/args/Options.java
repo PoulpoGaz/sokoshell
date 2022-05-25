@@ -10,6 +10,7 @@ import java.util.List;
 /**
  * An object containing all options and groups for a command.
  * It also parses arguments of a command
+ * @author PoulpoGaz
  */
 public class Options implements Iterable<OptionSpecification> {
 

@@ -2,6 +2,10 @@ package fr.valax.sokoshell.solver;
 
 import java.util.ArrayList;
 
+/**
+ * @author darth-mole
+ * @author PoulpoGaz
+ */
 public class Map {
     private ArrayList<CaseContent> content = new ArrayList<>();
     private int width;

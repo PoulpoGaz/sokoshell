@@ -10,6 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * @author PoulpoGaz
+ */
 public class Main {
 
     public static final String VERSION = "0.1";

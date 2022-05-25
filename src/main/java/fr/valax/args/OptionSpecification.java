@@ -10,6 +10,7 @@ import java.util.*;
  * It also contains {@link #arguments} and {@link #present} fields.
  * They serve to the parser: to store arguments before converting and
  * checking if an option is required but not present
+ * @author PoulpoGaz
  */
 public class OptionSpecification {
 

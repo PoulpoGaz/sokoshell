@@ -2,6 +2,9 @@ package fr.valax.sokoshell;
 
 import fr.valax.args.api.VoidCommand;
 
+/**
+ * @author PoulpoGaz
+ */
 public class PrintCommand implements VoidCommand {
 
     @Override

@@ -3,6 +3,9 @@ package fr.valax.sokoshell.solver;
 import java.util.ArrayDeque;
 import java.util.HashMap;
 
+/**
+ * @author darth-mole
+ */
 public class BasicBrutalSolver extends AbstractSolver {
     private ArrayDeque<State> toProcess = new ArrayDeque<>();
     private HashMap<State, Boolean> processed = new HashMap<>();

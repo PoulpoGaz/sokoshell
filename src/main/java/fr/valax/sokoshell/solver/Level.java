@@ -1,5 +1,9 @@
 package fr.valax.sokoshell.solver;
 
+/**
+ * @author darth-mole
+ * @author PoulpoGaz
+ */
 public class Level {
     private Map map;
     private State initialState;

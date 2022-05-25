@@ -6,6 +6,7 @@ package fr.valax.args.utils;
  * when converting a value
  *
  * @see TypeException
+ * @author PoulpoGaz
  */
 public class ParseException extends CommandLineException {
 

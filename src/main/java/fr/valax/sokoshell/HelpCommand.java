@@ -6,6 +6,9 @@ import fr.valax.args.api.VoidCommand;
 
 import java.util.Objects;
 
+/**
+ * @author PoulpoGaz
+ */
 public class HelpCommand implements VoidCommand {
 
     private CommandLine cli;

@@ -11,6 +11,9 @@ import java.util.Map;
 
 import static fr.valax.args.utils.ArgsUtils.thrParseExc;
 
+/**
+ * @author PoulpoGaz
+ */
 public class CommandLine {
 
     /**
