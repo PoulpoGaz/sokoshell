@@ -16,6 +16,7 @@ import static fr.valax.args.utils.ArgsUtils.thrExc;
 
 /**
  * An object used to describe a command and for setting fields.
+ * @author PoulpoGaz
  */
 public class CommandSpecification {
 

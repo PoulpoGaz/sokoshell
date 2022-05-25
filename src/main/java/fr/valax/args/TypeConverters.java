@@ -10,6 +10,7 @@ import java.util.function.Function;
  * Basic type converters.
  * They are not added by default. You must use
  * {@link CommandLineBuilder#addDefaultConverters()} to add them
+ * @author PoulpoGaz
  */
 public class TypeConverters {
 

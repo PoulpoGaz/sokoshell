@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
+/**
+ * @author darth-mole
+ */
 public abstract class BasicBrutalSolver extends AbstractSolver {
 
     public static DFSSolver newDFSSolver() {
@@ -23,13 +26,17 @@ public abstract class BasicBrutalSolver extends AbstractSolver {
 
     @Override
     public SolverStatus solve(Level level, ArrayList<State> solution) {
-        Map map = level.getMap();
+        Map map = new Map(level.getMap());
+        State initialState = level.getInitialState();
+
+        map.removeStateCrates(initialState);
+
         State finalState = null;
 
         accessibleCases = new boolean[map.getHeight()][map.getWidth()];
         toProcess.clear();
         processed.clear();
-        toProcess.add(level.getInitialState());
+        toProcess.add(initialState);
 
         while (!toProcess.isEmpty()) {
             State cur = getNext();

@@ -6,6 +6,7 @@ import java.util.List;
 /**
  * A builder to create options without an annotation.
  * For internal usage
+ * @author PoulpoGaz
  */
 public class OptionSpecificationBuilder {
 

@@ -8,6 +8,9 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+/**
+ * @author PoulpoGaz
+ */
 public class ArgsUtils {
 
     public static <T> boolean contains(T[] array, T o) {

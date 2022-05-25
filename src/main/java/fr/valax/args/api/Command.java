@@ -1,5 +1,9 @@
 package fr.valax.args.api;
 
+/**
+ * @param <T> the type of the output
+ * @author PoulpoGaz
+ */
 public interface Command<T> {
 
     /**

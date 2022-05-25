@@ -5,6 +5,7 @@ package fr.valax.args.utils;
  *
  * @see ParseException
  * @see TypeException
+ * @author PoulpoGaz
  */
 public class CommandLineException extends Exception {
 

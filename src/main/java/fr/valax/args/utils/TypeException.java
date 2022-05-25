@@ -5,6 +5,7 @@ import fr.valax.args.TypeConverter;
 /**
  * An exception throws by {@link TypeConverter} when
  * it failed to convert
+ * @author PoulpoGaz
  */
 public class TypeException extends CommandLineException {
 

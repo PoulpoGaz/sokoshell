@@ -10,6 +10,7 @@ import java.lang.annotation.Target;
 /**
  * Declaring a field as VaArgs means that it will receive all
  * arguments that are not attached to an option.
+ * @author PoulpoGaz
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)

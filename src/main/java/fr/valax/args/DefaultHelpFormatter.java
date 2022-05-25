@@ -8,6 +8,9 @@ import fr.valax.args.utils.ParseException;
 import java.util.Comparator;
 import java.util.List;
 
+/**
+ * @author PoulpoGaz
+ */
 public class DefaultHelpFormatter implements HelpFormatter {
 
     private static final String DEFAULT_ARG_NAME = "ARG";

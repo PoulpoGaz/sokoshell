@@ -9,6 +9,7 @@ import java.lang.annotation.Target;
 
 /**
  * Declare a field as an option for a {@link Command}
+ * @author PoulpoGaz
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)

@@ -8,6 +8,7 @@ import java.util.LinkedHashSet;
 /**
  * An internal object used to describe an OptionGroup.
  * It also contains references to his options
+ * @author PoulpoGaz
  */
 class OptionGroupSpecification implements Iterable<OptionSpecification> {
 

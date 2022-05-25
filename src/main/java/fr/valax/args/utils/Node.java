@@ -5,6 +5,7 @@ import java.util.*;
 /**
  * A basic tree class.
  * Don't expect good performance from this
+ * @author PoulpoGaz
  */
 public class Node<V> implements Iterable<Node<V>> {
 

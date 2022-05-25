@@ -8,6 +8,7 @@ import java.lang.annotation.Target;
 /**
  * An option group is only useful for help.
  * It categorizes option.
+ * @author PoulpoGaz
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)

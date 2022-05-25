@@ -1,20 +1,36 @@
 package fr.valax.sokoshell.solver;
 
+/**
+ * @author darth-mole
+ * @author PoulpoGaz
+ */
 public class Map {
-    private Tile[][] content;
-    private int width;
-    private int height;
+
+    public static final int MINIMUM_WIDTH = 5;
+    public static final int MINIMUM_HEIGHT = 5;
+
+    private final Tile[][] content;
+    private final int width;
+    private final int height;
+
+    public Map(Tile[][] content, int width, int height) {
+        this.content = content;
+        this.width = width;
+        this.height = height;
+    }
+
+    public Map(Map other) {
+        this.width = other.width;
+        this.height = other.height;
+        this.content = new Tile[height][width];
+
+        for (int y = 0; y < height; y++) {
+            System.arraycopy(content[y], 0, other.content[y], 0, width);
+        }
+    }
 
     public int getWidth() { return width; }
     public int getHeight() { return height; }
-
-    /**
-     * Loads the map from the given file
-     * @param fileName the file from which the map is loaded
-     */
-    public void load(String fileName) {
-
-    }
 
     public int getX(int index) { return index % width; }
     public int getY(int index) { return index / width; }
@@ -68,6 +84,11 @@ public class Map {
                 setAt(i, Tile.FLOOR);
             }
         }
+    }
+
+    // TODO: change this
+    public Tile[][] getContent() {
+        return content;
     }
 
     /**
