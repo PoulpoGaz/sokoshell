@@ -3,9 +3,11 @@ package fr.valax.sokoshell.solver;
 /**
  * @author darth-mole
  */
-public enum CaseContent {
+public enum Tile {
 
     WALL,
     FLOOR,
-    TARGET
+    TARGET,
+    CRATE,
+    CRATE_ON_TARGET
 }

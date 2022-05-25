@@ -1,26 +1,26 @@
 package fr.valax.sokoshell.solver;
 
-import java.util.ArrayList;
-
 /**
  * @author darth-mole
  * @author PoulpoGaz
  */
 public class Map {
-    private ArrayList<CaseContent> content = new ArrayList<>();
-    private int width;
-    private int height;
 
-    /**
-     * Loads the map from the given file
-     * @param fileName the file from which the map is loaded
-     */
-    public void load(String fileName) {
+    public static final int MINIMUM_WIDTH = 5;
+    public static final int MINIMUM_HEIGHT = 5;
 
+    private final Tile[][] content;
+    private final int width;
+    private final int height;
+
+    public Map(Tile[][] content, int width, int height) {
+        this.content = content;
+        this.width = width;
+        this.height = height;
     }
-    public CaseContent getContentAt(int index) {
-        assert 0 <= index && index <= content.size();
-        return content.get(index);
+
+    public Tile[][] getContent() {
+        return content;
     }
 
     /**
@@ -31,5 +31,13 @@ public class Map {
      */
     public int coordsToIndex(int x, int y) {
         return y * width + x;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
     }
 }
