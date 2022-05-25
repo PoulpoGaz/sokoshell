@@ -1,4 +1,4 @@
-package fr.valax.tipe;
+package fr.valax.sokoshell;
 
 import fr.valax.args.CommandLine;
 import fr.valax.args.CommandLineBuilder;
@@ -54,7 +54,7 @@ public class Main {
 
     private void welcome() {
         System.out.printf("""
-                Welcome to ???? - Version %s
+                Welcome to sokoshell - Version %s
                 Type 'help' to show help
                 """, VERSION);
     }
@@ -67,7 +67,7 @@ public class Main {
         Scanner sc = new Scanner(System.in);
 
         boolean exit = false;
-        System.out.print("--> ");
+        System.out.print("sokoshell> ");
         while (!exit) {
             if (sc.hasNextLine()) {
                 String[] args = splitQuoted(sc.nextLine());
@@ -75,7 +75,7 @@ public class Main {
                 exit = execute(args);
 
                 if (!exit) {
-                    System.out.print("--> ");
+                    System.out.print("sokoshell> ");
                 }
             } else {
                 Thread.onSpinWait();

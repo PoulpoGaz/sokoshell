@@ -1,4 +1,4 @@
-package fr.valax.tipe.solver;
+package fr.valax.sokoshell.solver;
 
 import java.util.HashSet;
 import java.util.Set;

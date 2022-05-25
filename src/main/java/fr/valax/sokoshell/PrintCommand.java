@@ -1,4 +1,4 @@
-package fr.valax.tipe;
+package fr.valax.sokoshell;
 
 import fr.valax.args.api.VoidCommand;
 
