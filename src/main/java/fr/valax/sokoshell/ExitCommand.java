@@ -1,11 +1,13 @@
 package fr.valax.sokoshell;
 
-import fr.valax.args.api.Command;
-
 /**
  * @author PoulpoGaz
  */
-public class ExitCommand implements Command<Boolean> {
+public class ExitCommand extends AbstractCommand<Boolean> {
+
+    public ExitCommand(SokoShellHelper helper) {
+        super(helper);
+    }
 
     @Override
     public Boolean execute() {

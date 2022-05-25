@@ -15,7 +15,7 @@ public class BasicBrutalSolver extends AbstractSolver {
     @Override
     public SolverStatus solve(Level level) {
         toProcess.clear();
-        toProcess.add(level.getInitialState());
+        //toProcess.add(level.getInitialState());
         while (!toProcess.isEmpty()) {
             State cur = getNext();
             if (processed.containsKey(cur) && processed.get(cur))

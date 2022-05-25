@@ -23,6 +23,21 @@ public class Level {
         return map;
     }
 
+    public int getWidth() {
+        return map.getWidth();
+    }
+
+    public int getHeight() {
+        return map.getHeight();
+    }
+
+    public int getPlayerX() {
+        return playerPos % getWidth();
+    }
+
+    public int getPlayerY() {
+        return playerPos % getHeight();
+    }
 
     public static class Builder {
 
@@ -34,10 +49,6 @@ public class Level {
 
         public Level build() {
             Objects.requireNonNull(map);
-
-            if (playerPos < 0 || playerPos > map.length) {
-                throw new BuilderException("Player isn't in the map");
-            }
 
             Map m = new Map(map, width, height);
 

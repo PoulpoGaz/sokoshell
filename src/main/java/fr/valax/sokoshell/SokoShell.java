@@ -6,49 +6,51 @@ import fr.valax.args.utils.CommandLineException;
 import fr.valax.args.utils.ParseException;
 import fr.valax.args.utils.TypeException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * @author PoulpoGaz
  */
-public class Main {
+public class SokoShell {
 
     public static final String VERSION = "0.1";
 
     public static void main(String[] args) {
-        Main main;
+        SokoShell sokoshell;
         try {
-            main = new Main();
+            sokoshell = new SokoShell();
         } catch (CommandLineException e) {
             throw new IllegalStateException("Failed to initialize CLI", e);
         }
 
-        main.welcome();
+        sokoshell.welcome();
         if (args.length > 0) {
-            if (main.execute(args)) {
+            if (sokoshell.execute(args)) {
                 return;
             }
         }
 
         try {
-            main.loop();
+            sokoshell.loop();
         } finally {
-            main.goodbye();
+            sokoshell.goodbye();
         }
     }
 
     private final CommandLine cli;
+    private final SokoShellHelper helper;
 
-    private Main() throws CommandLineException {
+    private SokoShell() throws CommandLineException {
+        helper = new SokoShellHelper();
+
         HelpCommand help = new HelpCommand();
 
         cli = new CommandLineBuilder()
                 .addDefaultConverters()
-                .addCommand(new SolveCommand())
-                .addCommand(new PrintCommand())
-                .addCommand(new ExitCommand())
+                .addCommand(new SolveCommand(helper))
+                .addCommand(new PrintCommand(helper))
+                .addCommand(new LoadCommand(helper))
+                .addCommand(new ExitCommand(helper))
                 .addCommand(help)
                 .build();
 

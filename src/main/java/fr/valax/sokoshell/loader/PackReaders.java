@@ -5,7 +5,7 @@ import fr.valax.sokoshell.solver.Pack;
 import java.io.IOException;
 import java.nio.file.Path;
 
-public class Readers {
+public class PackReaders {
 
     public static Pack read(Path path) throws IOException {
         Reader reader;

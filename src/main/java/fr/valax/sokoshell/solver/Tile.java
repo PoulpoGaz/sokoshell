@@ -5,9 +5,9 @@ package fr.valax.sokoshell.solver;
  */
 public enum Tile {
 
-    WALL,
     FLOOR,
-    TARGET,
+    WALL,
     CRATE,
-    CRATE_ON_TARGET
+    CRATE_ON_TARGET,
+    TARGET
 }
