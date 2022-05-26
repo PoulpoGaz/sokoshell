@@ -8,6 +8,7 @@ import fr.valax.args.utils.TypeException;
 import fr.valax.sokoshell.loader.PackReaders;
 import fr.valax.sokoshell.loader.Reader;
 import fr.valax.sokoshell.solver.*;
+import fr.valax.sokoshell.solver.Map;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -52,6 +53,16 @@ public class SokoShell {
 
             System.out.println(dfs.solve(level, solution));
             System.out.println(solution);
+
+            Map map = level.getMap();
+            // Printing the solution
+            for (State s : solution) {
+                System.out.println("--------------------------------------------");
+                map.addStateCrates(s);
+                PrintCommand.printMap(level.getMap(), s.playerPos());
+                map.removeStateCrates(s);
+            }
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

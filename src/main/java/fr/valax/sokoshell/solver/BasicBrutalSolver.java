@@ -1,11 +1,14 @@
 package fr.valax.sokoshell.solver;
 
-import fr.valax.sokoshell.PrintCommand;
-
 import java.util.*;
 
 /**
  * @author darth-mole
+ *
+ * This class is the base for bruteforce-based solvers, i.e. solvers that use an exhaustive search to try and find a
+ * solution. It serves as a base class for DFS and BFS solvers, as these class are nearly the same -- the only
+ * difference being in the order in which they treat the states (LIFO for DFS and FIFO for BFS).
+ *
  */
 public abstract class BasicBrutalSolver extends AbstractSolver {
 
@@ -18,7 +21,7 @@ public abstract class BasicBrutalSolver extends AbstractSolver {
     }
 
     protected final ArrayDeque<State> toProcess = new ArrayDeque<>();
-    protected boolean[][] accessibleCases;
+    protected boolean[][] reachableCases;
     protected final Set<State> processed = new HashSet<>();
 
     protected abstract State getNext();
@@ -27,12 +30,11 @@ public abstract class BasicBrutalSolver extends AbstractSolver {
     public SolverStatus solve(Level level, List<State> solution) {
         Map map = new Map(level.getMap());
         State initialState = level.getInitialState();
+        State finalState = null;
 
         map.removeStateCrates(initialState);
 
-        State finalState = null;
-
-        accessibleCases = new boolean[map.getHeight()][map.getWidth()];
+        reachableCases = new boolean[map.getHeight()][map.getWidth()];
         toProcess.clear();
         processed.clear();
         toProcess.add(initialState);
@@ -41,12 +43,11 @@ public abstract class BasicBrutalSolver extends AbstractSolver {
             State cur = getNext();
             map.addStateCrates(cur);
 
-            System.out.println("--------------------------------");
-            PrintCommand.printMap(map, cur.playerPos());
             if (map.isCompletedWith(cur)) {
                 finalState = cur;
                 break;
             }
+
             if (processed.add(cur)) {
                 addChildrenStates(cur, map);
             }
@@ -58,6 +59,7 @@ public abstract class BasicBrutalSolver extends AbstractSolver {
             return SolverStatus.NO_SOLUTION;
         } else {
             buildSolution(solution, finalState);
+            solution.add(initialState);
             return SolverStatus.SOLUTION_FOUND;
         }
     }
@@ -84,67 +86,65 @@ public abstract class BasicBrutalSolver extends AbstractSolver {
             int crateY = map.getY(crate);
 
             for (Direction d : Direction.values()) {
+
                 int crateDestX = crateX + d.dirX();
                 int crateDestY = crateY + d.dirY();
-                int persoX = crateX - d.dirX();
-                int persoY = crateY - d.dirY();
                 if (crateDestX < 0 || crateDestX >= map.getWidth()
-                        || crateDestY < 0 || crateDestY >= map.getHeight()
-                        || persoX < 0 || persoX >= map.getWidth()
-                        || persoY < 0 || persoY >= map.getHeight()) {
-                    continue;
+                 || crateDestY < 0 || crateDestY >= map.getHeight()
+                 || !map.isTileEmpty(crateDestX, crateDestY)) {
+                    continue; // The destination case is not empty
                 }
 
-                if (!accessibleCases[persoY][persoX]) {
-                    continue;
+                int playerX = crateX - d.dirX();
+                int playerY = crateY - d.dirY();
+                if (playerX < 0 || playerX >= map.getWidth()
+                 || playerY < 0 || playerY >= map.getHeight()
+                 || !reachableCases[playerY][playerX]
+                 || !map.isTileEmpty(playerX, playerY)) {
+                    continue; // The player cannot reach the case to push the crate
                 }
 
-                if (map.isTileEmpty(crateX - d.dirX(), crateY - d.dirY())) {
-                    State s = new State(persoY * map.getWidth() + persoX, cur.cratesIndices().clone(), cur);
-                    s.cratesIndices()[crateIndex] = crateDestY * map.getWidth() + crateDestX;
-                    toProcess.add(s);
-                }
+                // The new player position is the crate position
+                State s = new State(crate, cur.cratesIndices().clone(), cur);
+                s.cratesIndices()[crateIndex] = crateDestY * map.getWidth() + crateDestX;
+                toProcess.add(s);
             }
         }
     }
 
     private void findAccessibleCases(int playerPos, Map map) {
-        for (int i = 0; i < accessibleCases.length; i++) {
-            for (int j = 0; j < accessibleCases[0].length; j++) {
-                accessibleCases[i][j] = false;
+        for (int i = 0; i < map.getWidth(); i++) {
+            for (int j = 0; j < map.getHeight(); j++) {
+                reachableCases[j][i] = false;
             }
         }
         findAccessibleCases_aux(map.getX(playerPos), map.getY(playerPos), map);
     }
 
     private void findAccessibleCases_aux(int x, int y, Map map) {
-        accessibleCases[y][x] = true;
-        for (int i = x - 1; i <= x + 1; i++) {
-            for (int j = y - 1; j <= y + 1; j++) {
-                if (i < 0 || i >= map.getWidth()
-                 || j < 0 || j >= map.getHeight()) {
-                    continue;
-                }
-                /* the second part of the condition is here check if it has not already been
-                   processed */
-                if (map.isTileEmpty(i, j) && !accessibleCases[j][i]) {
-                    findAccessibleCases_aux(i, j, map);
-                }
+        reachableCases[y][x] = true;
+        for (Direction d : Direction.values()) {
+            int i = x + d.dirX();
+            int j = y + d.dirY();
+            // the second part of the condition avoids to check already processed cases
+            if (map.isTileEmpty(i, j) && !reachableCases[j][i]) {
+                findAccessibleCases_aux(i, j, map);
             }
         }
     }
 
     private static class DFSSolver extends BasicBrutalSolver {
+
         @Override
         protected State getNext() {
-            return toProcess.removeLast();
+            return toProcess.removeLast(); // LIFO
         }
     }
 
     private static class BFSSolver extends BasicBrutalSolver {
         @Override
         protected State getNext() {
-            return toProcess.removeFirst();
+            return toProcess.removeFirst(); // FIFO
         }
     }
 }
