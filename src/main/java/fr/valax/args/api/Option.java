@@ -1,7 +1,5 @@
 package fr.valax.args.api;
 
-import fr.valax.args.TypeConverter;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -34,22 +32,31 @@ public @interface Option {
     boolean allowDuplicate() default false;
 
     /**
+     * If the option doesn't need an argument, the field should be a boolean
+     * @return true if the option need an argument
+     */
+    boolean hasArgument() default false;
+
+    /**
+     * Only the first value is used for allowing null value
      * @return the default value, it will be then parsed
      *         by a TypeConverter if specified
      * @see #converter()
      * @see TypeConverter
      */
-    String defaultValue() default "";
+    String[] defaultValue() default {};
 
     /**
+     * Only the first value is used for allowing null value
      * @return what is the purpose of this command?
      */
-    String description() default "";
+    String[] description() default {};
 
     /**
+     * Only the first value is used for allowing null value
      * @return the name of the argument
      */
-    String argName() default "";
+    String[] argName() default {};
 
     /**
      * It returns a 1-length array containing a TypeConverter.

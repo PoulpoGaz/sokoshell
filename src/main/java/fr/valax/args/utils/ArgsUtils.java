@@ -1,6 +1,6 @@
 package fr.valax.args.utils;
 
-import fr.valax.args.TypeConverter;
+import fr.valax.args.api.TypeConverter;
 
 import java.util.*;
 import java.util.function.Function;
@@ -10,31 +10,6 @@ import java.util.function.Predicate;
  * @author PoulpoGaz
  */
 public class ArgsUtils {
-
-    public static <T> boolean contains(T[] array, T o) {
-        if (o == null) {
-            for (T t : array) {
-                if (t == null) {
-                    return true;
-                }
-            }
-        } else {
-            for (T t : array) {
-                if (o.equals(t)) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    public static <T> T find(Collection<T> list, Predicate<T> predicate) {
-        return list.stream()
-                .filter(predicate)
-                .findFirst()
-                .orElse(null);
-    }
 
     public static <T, U extends Comparable<? super U>> Comparator<T> comparing(
             Function<? super T, ? extends U> keyExtractor) {
@@ -108,5 +83,13 @@ public class ArgsUtils {
         }
 
         return split.toArray(new String[0]);
+    }
+
+    public static <T> T first(T[] array) {
+        if (array == null || array.length == 0) {
+            return null;
+        } else {
+            return array[0];
+        }
     }
 }

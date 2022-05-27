@@ -2,7 +2,7 @@ package fr.valax.sokoshell;
 
 import fr.valax.args.CommandLine;
 import fr.valax.args.CommandLineBuilder;
-import fr.valax.args.ShellCommandRegistry;
+import fr.valax.args.repl.REPLCommandRegistry;
 import fr.valax.args.api.Command;
 import fr.valax.args.utils.CommandLineException;
 import org.jline.console.SystemRegistry;
@@ -13,14 +13,12 @@ import org.jline.reader.LineReaderBuilder;
 import org.jline.reader.Parser;
 import org.jline.reader.impl.DefaultHighlighter;
 import org.jline.reader.impl.DefaultParser;
-import org.jline.reader.impl.completer.SystemCompleter;
 import org.jline.reader.impl.history.DefaultHistory;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.widget.AutosuggestionWidgets;
 import org.jline.widget.TailTipWidgets;
 
-import java.io.Console;
 import java.io.IOException;
 import java.nio.file.Path;
 
@@ -68,7 +66,7 @@ public class SokoShell2 {
                 .build();
 
         Parser parser = new DefaultParser();
-        ShellCommandRegistry shellRegistry = new ShellCommandRegistry(cli);
+        REPLCommandRegistry shellRegistry = new REPLCommandRegistry(cli);
 
         try (Terminal terminal = TerminalBuilder.terminal()) {
             SystemRegistry registry = new SystemRegistryImpl(parser, terminal, () -> Path.of(""), null);

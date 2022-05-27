@@ -2,6 +2,7 @@ package fr.valax.args;
 
 import fr.valax.args.api.Command;
 import fr.valax.args.api.HelpFormatter;
+import fr.valax.args.api.TypeConverter;
 import fr.valax.args.utils.CommandLineException;
 import fr.valax.args.utils.Node;
 

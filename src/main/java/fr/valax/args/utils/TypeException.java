@@ -1,6 +1,6 @@
 package fr.valax.args.utils;
 
-import fr.valax.args.TypeConverter;
+import fr.valax.args.api.TypeConverter;
 
 /**
  * An exception throws by {@link TypeConverter} when

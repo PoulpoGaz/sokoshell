@@ -1,7 +1,5 @@
 package fr.valax.args.api;
 
-import fr.valax.args.TypeConverter;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

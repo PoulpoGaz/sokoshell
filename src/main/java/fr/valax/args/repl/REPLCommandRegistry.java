@@ -1,8 +1,7 @@
-package fr.valax.args;
+package fr.valax.args.repl;
 
-import fr.valax.args.api.Command;
+import fr.valax.args.CommandLine;
 import fr.valax.args.utils.Node;
-import org.jline.console.ArgDesc;
 import org.jline.console.CmdDesc;
 import org.jline.console.CommandRegistry;
 import org.jline.reader.Candidate;
@@ -15,22 +14,22 @@ import org.jline.utils.AttributedString;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ShellCommandRegistry implements CommandRegistry {
+public class REPLCommandRegistry implements CommandRegistry {
 
     private final CommandLine cli;
     private final Set<String> commands;
     private final Map<String, String> aliases;
 
-    public ShellCommandRegistry(CommandLine cli) {
+    public REPLCommandRegistry(CommandLine cli) {
         this.cli = cli;
         commands = new HashSet<>();
         aliases = new HashMap<>();
 
-        Node<CommandSpecification> commandRoot = cli.getRoot();
-        addCommand(commandRoot, null);
+        //Node<CommandSpecification> commandRoot = cli.getRoot();
+        //addCommand(commandRoot, null);
     }
 
-    private void addCommand(Node<CommandSpecification> node, String previousName) {
+    /*private void addCommand(Node<CommandSpecification> node, String previousName) {
         CommandSpecification spec = node.getValue();
 
         if (spec != null) {
@@ -46,7 +45,7 @@ public class ShellCommandRegistry implements CommandRegistry {
         for (Node<CommandSpecification> child : node.getChildren()) {
             addCommand(child, previousName);
         }
-    }
+    }*/
 
     @Override
     public Set<String> commandNames() {
@@ -67,7 +66,7 @@ public class ShellCommandRegistry implements CommandRegistry {
 
     @Override
     public boolean hasCommand(String command) {
-        return cli.getCommand(command) != null;
+        return false;// cli.getCommand(command) != null;
     }
 
     @Override
@@ -81,7 +80,7 @@ public class ShellCommandRegistry implements CommandRegistry {
 
     @Override
     public CmdDesc commandDescription(List<String> args) {
-        CommandSpecification spec = cli.getCommand(args.toArray(new String[0]));
+        /*CommandSpecification spec = cli.getCommand(args.toArray(new String[0]));
 
         if (spec == null) {
             return null;
@@ -113,7 +112,8 @@ public class ShellCommandRegistry implements CommandRegistry {
             options.put(key, value);
         }
 
-        return new CmdDesc(mainDesc, List.of(), options);
+        return new CmdDesc(mainDesc, List.of(), options);*/
+        return null;
     }
 
     @Override

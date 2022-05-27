@@ -1,12 +1,16 @@
 package fr.valax.args;
 
+import fr.valax.args.api.CommandDescriber;
 import fr.valax.args.api.HelpFormatter;
+import fr.valax.args.api.Option;
+import fr.valax.args.api.OptionGroup;
 import fr.valax.args.utils.ArgsUtils;
 import fr.valax.args.utils.Node;
 import fr.valax.args.utils.ParseException;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author PoulpoGaz
@@ -15,11 +19,11 @@ public class DefaultHelpFormatter implements HelpFormatter {
 
     private static final String DEFAULT_ARG_NAME = "ARG";
 
-    private static final Comparator<OptionSpecification> optComparator =
-            ArgsUtils.comparing(OptionSpecification::firstName);
+    private static final Comparator<Option> optComparator =
+            ArgsUtils.comparing((o) -> o.names()[0]);
 
-    private static final Comparator<OptionGroupSpecification> groupComparator =
-            ArgsUtils.comparing(OptionGroupSpecification::getName);
+    private static final Comparator<Map.Entry<OptionGroup, ?>> groupComparator =
+            ArgsUtils.comparing((o) -> o.getKey() == null ? null : o.getKey().name());
 
 
     private int maxTextBlockSize = 100;
@@ -27,57 +31,48 @@ public class DefaultHelpFormatter implements HelpFormatter {
 
 
     @Override
-    public String commandHelp(ParseException error, CommandSpecification spec) {
-        String usage = spec.getCommand().getUsage();
-        Options options = spec.getOptions();
+    public String commandHelp(ParseException error, CommandDescriber command) {
+        Map<OptionGroup, List<Option>> options = command.getOptions();
 
         StringBuilder builder = new StringBuilder();
         if (error != null) {
             builder.append(error.getMessage()).append('\n');
         }
 
-        builder.append("Command: ").append(spec.getName()).append('\n');
+        builder.append("Command: ").append(command.getName()).append('\n');
+
+        String usage = command.getUsage();
         if (usage != null) {
             builder.append("Usage: ").append(usage).append("\n\n");
         }
 
-        OptionGroupSpecification unnamed = options.getGroup(null);
-        if (unnamed != null) {
-            printGroup(builder, unnamed);
-        }
-
-        List<OptionGroupSpecification> groups = options.getOptions()
-                .values()
+        options.entrySet()
                 .stream()
                 .sorted(groupComparator)
-                .toList();
-
-        for (OptionGroupSpecification g : groups) {
-            if (g != unnamed) {
-                printGroup(builder, g);
-            }
-        }
+                .forEach((opt) -> {
+                    printGroup(builder, opt.getKey(), opt.getValue());
+                });
 
         return builder.toString();
     }
 
-    private void printGroup(StringBuilder builder, OptionGroupSpecification group) {
+    private void printGroup(StringBuilder builder, OptionGroup group, List<Option> options) {
         String indent = "";
-        if (group.getName() != null) {
-            builder.append(group.getName()).append(":\n");
+        if (group.name() != null) {
+            builder.append(group.name()).append(":\n");
             indent = " ";
         }
 
-        int width = getWidth(group);
+        int width = getWidth(options);
         String descIndent = indent + " ".repeat(spaceBetweenTextBlockAndName + width);
 
-        List<OptionSpecification> options = group.getOptions().stream().sorted(optComparator).toList();
-        for (OptionSpecification option : options) {
+        List<Option> opt = options.stream().sorted(optComparator).toList();
+        for (Option option : opt) {
             builder.append(indent);
 
             int pos = builder.length();
 
-            String[] names = option.getNames();
+            String[] names = option.names();
             for (int i = 0; i < names.length; i++) {
                 String name = names[i];
 
@@ -90,7 +85,7 @@ public class DefaultHelpFormatter implements HelpFormatter {
 
             // arg
             if (option.hasArgument()) {
-                String arg = option.getArgumentName();
+                String arg = ArgsUtils.first(option.argName());
 
                 builder.append(" <")
                         .append(arg == null ? DEFAULT_ARG_NAME : arg)
@@ -102,20 +97,20 @@ public class DefaultHelpFormatter implements HelpFormatter {
             builder.append(" ".repeat(spaceBetweenTextBlockAndName + width - (pos2 - pos)));
 
             // description
-            String desc = option.getDescription();
+            String desc =  ArgsUtils.first(option.description());
             if (desc != null) {
                 appendTextBlock(builder, desc, descIndent, maxTextBlockSize);
             }
         }
     }
 
-    private int getWidth(OptionGroupSpecification group) {
+    private int getWidth(List<Option> options) {
         int width = 0;
 
-        for (OptionSpecification option : group.getOptions()) {
+        for (Option option : options) {
             int w = 0;
 
-            String[] names = option.getNames();
+            String[] names = option.names();
             for (int i = 0; i < names.length; i++) {
                 String name = names[i];
 
@@ -126,10 +121,10 @@ public class DefaultHelpFormatter implements HelpFormatter {
                 }
             }
 
-            String argName = option.getArgumentName();
-
             if (option.hasArgument()) {
-                if (option.getArgumentName() != null) {
+                String argName = option.argName()[0];
+
+                if (argName != null) {
                     w += argName.length() + 2; // < and >
                 } else {
                     w += DEFAULT_ARG_NAME.length() + 2; // < and >
@@ -143,8 +138,7 @@ public class DefaultHelpFormatter implements HelpFormatter {
     }
 
     @Override
-    public String generalHelp(CommandSpecification parent,
-                              Node<CommandSpecification> commands,
+    public String generalHelp(Node<CommandDescriber> commands,
                               String[] args,
                               boolean unrecognizedCommand) {
 
@@ -172,9 +166,9 @@ public class DefaultHelpFormatter implements HelpFormatter {
         return builder.toString();
     }
 
-    private int getMaxCommandNameSize(Node<CommandSpecification> commands, String fullCommandName) {
+    private int getMaxCommandNameSize(Node<CommandDescriber> commands, String fullCommandName) {
         if (commands.getValue() != null) {
-            CommandSpecification spec = commands.getValue();
+            CommandDescriber spec = commands.getValue();
 
             if (fullCommandName.isBlank()) {
                 fullCommandName = spec.getName();
@@ -185,7 +179,7 @@ public class DefaultHelpFormatter implements HelpFormatter {
 
         int w = fullCommandName.length();
 
-        for (Node<CommandSpecification> child : commands.getChildren()) {
+        for (Node<CommandDescriber> child : commands.getChildren()) {
             w = Math.max(getMaxCommandNameSize(child, fullCommandName), w);
         }
 
@@ -193,11 +187,11 @@ public class DefaultHelpFormatter implements HelpFormatter {
     }
 
     private void addCommand(StringBuilder builder,
-                            Node<CommandSpecification> command,
+                            Node<CommandDescriber> command,
                             String fullCommandName,
                             String usageIdent) {
         if (command.getValue() != null) {
-            CommandSpecification spec = command.getValue();
+            CommandDescriber spec = command.getValue();
 
             if (fullCommandName.isBlank()) {
                 fullCommandName = spec.getName();
@@ -207,7 +201,7 @@ public class DefaultHelpFormatter implements HelpFormatter {
 
             builder.append(fullCommandName);
 
-            String usage = spec.getCommand().getUsage();
+            String usage = spec.getUsage();
             if (usage != null) {
                 builder.append(':');
 
@@ -220,7 +214,7 @@ public class DefaultHelpFormatter implements HelpFormatter {
             }
         }
 
-        for (Node<CommandSpecification> child : command.getChildren()) {
+        for (Node<CommandDescriber> child : command.getChildren()) {
             addCommand(builder, child, fullCommandName, usageIdent);
         }
 
