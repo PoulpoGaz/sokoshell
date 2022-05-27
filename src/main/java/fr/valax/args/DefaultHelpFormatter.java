@@ -215,6 +215,8 @@ public class DefaultHelpFormatter implements HelpFormatter {
                 builder.append(" ".repeat(emptySpaceLength));
 
                 appendTextBlock(builder, usage, usageIdent, maxTextBlockSize);
+            } else {
+                builder.append('\n');
             }
         }
 

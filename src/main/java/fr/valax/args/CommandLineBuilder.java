@@ -67,7 +67,7 @@ public class CommandLineBuilder {
         return this;
     }
 
-    protected CommandLineBuilder subCommand(Command<?> c) throws CommandLineException {
+    public CommandLineBuilder subCommand(Command<?> c) throws CommandLineException {
         CommandSpecification spec = new CommandSpecification(c);
         return new CommandLineBuilder(this, root.addChildren(spec));
     }

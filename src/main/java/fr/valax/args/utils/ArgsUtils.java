@@ -2,9 +2,7 @@ package fr.valax.args.utils;
 
 import fr.valax.args.TypeConverter;
 
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -69,5 +67,46 @@ public class ArgsUtils {
 
     public static void thrParseExc(String format, Object... args) throws ParseException {
         throw new ParseException(format.formatted(args));
+    }
+
+    public static String[] splitQuoted(String line) {
+        List<String> split = new ArrayList<>();
+        StringBuilder builder = new StringBuilder();
+
+        boolean inQuotation = false;
+        boolean escapeNext = false;
+
+        for (int i = 0; i < line.length(); i++) {
+            char c = line.charAt(i);
+
+            boolean escape = escapeNext;
+            escapeNext = false;
+
+            if (escape) {
+                builder.append(c);
+
+            } else if (c == '\\') {
+                escapeNext = true;
+
+            } else if (c == '"') {
+                inQuotation = !inQuotation;
+
+            } else if (c == ' ' && !inQuotation) {
+                if (!builder.isEmpty()) {
+                    split.add(builder.toString());
+                    builder.setLength(0);
+                }
+
+            } else {
+                builder.append(c);
+            }
+
+        }
+
+        if (!builder.isEmpty()) {
+            split.add(builder.toString());
+        }
+
+        return split.toArray(new String[0]);
     }
 }

@@ -2,6 +2,7 @@ package fr.valax.sokoshell;
 
 import fr.valax.args.CommandLine;
 import fr.valax.args.CommandLineBuilder;
+import fr.valax.args.utils.ArgsUtils;
 import fr.valax.args.utils.CommandLineException;
 import fr.valax.args.utils.ParseException;
 import fr.valax.args.utils.TypeException;
@@ -96,7 +97,7 @@ public class SokoShell {
         System.out.print("sokoshell> ");
         while (!exit) {
             if (sc.hasNextLine()) {
-                String[] args = splitQuoted(sc.nextLine());
+                String[] args = ArgsUtils.splitQuoted(sc.nextLine());
 
                 exit = execute(args);
 
@@ -130,46 +131,5 @@ public class SokoShell {
         }  catch (CommandLineException e) {
             throw new IllegalStateException(e);
         }
-    }
-
-    private String[] splitQuoted(String line) {
-        List<String> split = new ArrayList<>();
-        StringBuilder builder = new StringBuilder();
-
-        boolean inQuotation = false;
-        boolean escapeNext = false;
-
-        for (int i = 0; i < line.length(); i++) {
-            char c = line.charAt(i);
-
-            boolean escape = escapeNext;
-            escapeNext = false;
-
-            if (escape) {
-                builder.append(c);
-
-            } else if (c == '\\') {
-                escapeNext = true;
-
-            } else if (c == '"') {
-                inQuotation = !inQuotation;
-
-            } else if (c == ' ' && !inQuotation) {
-                if (!builder.isEmpty()) {
-                    split.add(builder.toString());
-                    builder.setLength(0);
-                }
-
-            } else {
-                builder.append(c);
-            }
-
-        }
-
-        if (!builder.isEmpty()) {
-            split.add(builder.toString());
-        }
-
-        return split.toArray(new String[0]);
     }
 }

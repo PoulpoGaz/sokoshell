@@ -1,6 +1,7 @@
 package fr.valax.args;
 
 import fr.valax.args.api.HelpFormatter;
+import fr.valax.args.utils.ArgsUtils;
 import fr.valax.args.utils.CommandLineException;
 import fr.valax.args.utils.Node;
 import fr.valax.args.utils.ParseException;
@@ -37,39 +38,46 @@ public class CommandLine {
     }
 
     public Object execute(String[] args) throws CommandLineException {
-        return executeSub(root, args, 0);
+        ParseCommand parseCommand = getCommand(root, args, 0);
+
+        CommandSpecification spec = parseCommand.node().getValue();
+
+        if (parseCommand.unrecognized()) {
+            unrecognizedCommand(spec, args);
+            return null;
+        } else {
+            return executeCommand(spec, args, parseCommand.index(), args.length);
+        }
     }
 
-    protected Object executeSub(Node<CommandSpecification> parent, String[] args, int index) throws CommandLineException {
-        if (index >= args.length) {
-            CommandSpecification spec = parent.getValue();
+    private ParseCommand getCommand(Node<CommandSpecification> node, String[] command, int index) {
+        if (index >= command.length) {
+            CommandSpecification spec = node.getValue();
 
             if (spec == null) { // for root
-                unrecognizedCommand(null, args);
+                return new ParseCommand(node, true, index);
             } else {
-                return executeCommand(spec, args, args.length, args.length);
+                return new ParseCommand(node, false, index);
             }
 
         } else {
             Node<CommandSpecification> next = null;
-            for (Node<CommandSpecification> child : parent.getChildren()) {
+            for (Node<CommandSpecification> child : node.getChildren()) {
                 CommandSpecification spec = child.getValue();
-                if (args[index].equals(spec.getName())) {
+                if (command[index].equals(spec.getName())) {
                     next = child;
                     break;
                 }
             }
 
             if (next != null) {
-                return executeSub(next, args, index + 1);
-            } else if (parent.getValue() != null) {
-                return executeCommand(parent.getValue(), args, index, args.length);
+                return getCommand(next, command, index + 1);
+            } else if (node.getValue() != null) {
+                return new ParseCommand(node, false, index);
             } else {
-                unrecognizedCommand(parent.getValue(), args);
+                return new ParseCommand(node, true, index);
             }
         }
-
-        return null;
     }
 
     private void unrecognizedCommand(CommandSpecification last, String[] args) throws ParseException {
@@ -166,4 +174,24 @@ public class CommandLine {
     public void setShowHelp(boolean showHelp) {
         this.showHelp = showHelp;
     }
+
+    Node<CommandSpecification> getRoot() {
+        return root;
+    }
+
+    CommandSpecification getCommand(String[] command) {
+        ParseCommand c = getCommand(root, command, 0);
+
+        if (c.unrecognized()) {
+            return null;
+        } else {
+            return c.node().getValue();
+        }
+    }
+
+    CommandSpecification getCommand(String command) {
+        return getCommand(ArgsUtils.splitQuoted(command));
+    }
+
+    private record ParseCommand(Node<CommandSpecification> node, boolean unrecognized, int index) {}
 }
