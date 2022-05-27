@@ -1,7 +1,6 @@
 package fr.valax.args.repl;
 
 import fr.valax.args.CommandLine;
-import fr.valax.args.utils.Node;
 import org.jline.console.CmdDesc;
 import org.jline.console.CommandRegistry;
 import org.jline.reader.Candidate;
@@ -9,10 +8,8 @@ import org.jline.reader.Completer;
 import org.jline.reader.LineReader;
 import org.jline.reader.ParsedLine;
 import org.jline.reader.impl.completer.SystemCompleter;
-import org.jline.utils.AttributedString;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class REPLCommandRegistry implements CommandRegistry {
 

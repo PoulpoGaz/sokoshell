@@ -5,7 +5,7 @@ import fr.valax.args.api.HelpFormatter;
 import fr.valax.args.api.Option;
 import fr.valax.args.api.OptionGroup;
 import fr.valax.args.utils.ArgsUtils;
-import fr.valax.args.utils.Node;
+import fr.valax.args.utils.INode;
 import fr.valax.args.utils.ParseException;
 
 import java.util.Comparator;
@@ -138,7 +138,7 @@ public class DefaultHelpFormatter implements HelpFormatter {
     }
 
     @Override
-    public String generalHelp(Node<CommandDescriber> commands,
+    public String generalHelp(INode<CommandDescriber> commands,
                               String[] args,
                               boolean unrecognizedCommand) {
 
@@ -166,7 +166,7 @@ public class DefaultHelpFormatter implements HelpFormatter {
         return builder.toString();
     }
 
-    private int getMaxCommandNameSize(Node<CommandDescriber> commands, String fullCommandName) {
+    private int getMaxCommandNameSize(INode<CommandDescriber> commands, String fullCommandName) {
         if (commands.getValue() != null) {
             CommandDescriber spec = commands.getValue();
 
@@ -179,7 +179,7 @@ public class DefaultHelpFormatter implements HelpFormatter {
 
         int w = fullCommandName.length();
 
-        for (Node<CommandDescriber> child : commands.getChildren()) {
+        for (INode<CommandDescriber> child : commands.getChildren()) {
             w = Math.max(getMaxCommandNameSize(child, fullCommandName), w);
         }
 
@@ -187,7 +187,7 @@ public class DefaultHelpFormatter implements HelpFormatter {
     }
 
     private void addCommand(StringBuilder builder,
-                            Node<CommandDescriber> command,
+                            INode<CommandDescriber> command,
                             String fullCommandName,
                             String usageIdent) {
         if (command.getValue() != null) {
@@ -214,7 +214,7 @@ public class DefaultHelpFormatter implements HelpFormatter {
             }
         }
 
-        for (Node<CommandDescriber> child : command.getChildren()) {
+        for (INode<CommandDescriber> child : command.getChildren()) {
             addCommand(builder, child, fullCommandName, usageIdent);
         }
 

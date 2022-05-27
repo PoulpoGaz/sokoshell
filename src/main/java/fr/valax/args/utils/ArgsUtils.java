@@ -2,9 +2,11 @@ package fr.valax.args.utils;
 
 import fr.valax.args.api.TypeConverter;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
 /**
  * @author PoulpoGaz

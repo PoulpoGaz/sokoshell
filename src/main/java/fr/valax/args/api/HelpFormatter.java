@@ -1,6 +1,6 @@
 package fr.valax.args.api;
 
-import fr.valax.args.utils.Node;
+import fr.valax.args.utils.INode;
 import fr.valax.args.utils.ParseException;
 
 /**
@@ -13,7 +13,7 @@ public interface HelpFormatter {
     String commandHelp(ParseException error,
                        CommandDescriber command);
 
-    String generalHelp(Node<CommandDescriber> commands,
+    String generalHelp(INode<CommandDescriber> commands,
                        String[] args,
                        boolean unrecognizedCommand);
 }

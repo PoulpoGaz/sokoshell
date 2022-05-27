@@ -7,12 +7,13 @@ import fr.valax.args.utils.CommandLineException;
 import fr.valax.args.utils.ParseException;
 import fr.valax.args.utils.TypeException;
 import fr.valax.sokoshell.loader.PackReaders;
-import fr.valax.sokoshell.loader.Reader;
 import fr.valax.sokoshell.solver.*;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
 /**
  * @author PoulpoGaz

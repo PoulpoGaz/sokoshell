@@ -3,7 +3,7 @@ package fr.valax.args;
 import fr.valax.args.api.*;
 import fr.valax.args.utils.ArgsUtils;
 import fr.valax.args.utils.CommandLineException;
-import fr.valax.args.utils.Node;
+import fr.valax.args.utils.INode;
 import fr.valax.args.utils.ParseException;
 
 import java.lang.reflect.Array;
@@ -12,7 +12,6 @@ import java.lang.reflect.Modifier;
 import java.util.*;
 
 import static fr.valax.args.utils.ArgsUtils.*;
-import static fr.valax.args.utils.ArgsUtils.thrExc;
 
 /**
  * @author PoulpoGaz
@@ -23,7 +22,8 @@ public class CommandLine {
      * Contains all commands in a tree
      * Only the root node is allowed to have null value
      */
-    private final Node<CommandSpec> root;
+    private final INode<CommandSpec> root;
+    private final INode<Command<?>> commands;
 
     /** A class with type T must be associated with a type converted of the same type */
     private final Map<Class<?>, TypeConverter<?>> converters;
@@ -31,10 +31,11 @@ public class CommandLine {
     private final HelpFormatter helpFormatter;
     private boolean showHelp = true;
 
-    CommandLine(Node<CommandSpec> root,
+    CommandLine(INode<Command<?>> root,
                 Map<Class<?>, TypeConverter<?>> converters,
-                HelpFormatter helpFormatter) {
-        this.root = root;
+                HelpFormatter helpFormatter) throws CommandLineException {
+        this.commands = root.immutableCopy();
+        this.root = commands.mapThrow(CommandSpec::new);
         this.converters = converters;
         this.helpFormatter = helpFormatter;
     }
@@ -52,7 +53,7 @@ public class CommandLine {
         }
     }
 
-    private ParseCommand getCommand(Node<CommandSpec> node, String[] command, int index) {
+    private ParseCommand getCommand(INode<CommandSpec> node, String[] command, int index) {
         if (index >= command.length) {
             CommandSpec spec = node.getValue();
 
@@ -63,8 +64,8 @@ public class CommandLine {
             }
 
         } else {
-            Node<CommandSpec> next = null;
-            for (Node<CommandSpec> child : node.getChildren()) {
+            INode<CommandSpec> next = null;
+            for (INode<CommandSpec> child : node.getChildren()) {
                 CommandSpec spec = child.getValue();
                 if (command[index].equals(spec.getName())) {
                     next = child;
@@ -136,7 +137,7 @@ public class CommandLine {
     }
 
     public String getCommandHelp(String command) {
-        Node<CommandSpec> spec;
+        INode<CommandSpec> spec;
 
         if (command.isBlank()) {
             spec = root;
@@ -153,9 +154,9 @@ public class CommandLine {
         }
     }
 
-    private Node<CommandSpec> getCommandHelp(Node<CommandSpec> node, String[] parts, int index) {
+    private INode<CommandSpec> getCommandHelp(INode<CommandSpec> node, String[] parts, int index) {
         if (index < parts.length) {
-            for (Node<CommandSpec> child : node.getChildren()) {
+            for (INode<CommandSpec> child : node.getChildren()) {
 
                 CommandSpec spec = child.getValue();
                 if (parts[index].equals(spec.getName())) {
@@ -177,7 +178,7 @@ public class CommandLine {
         this.showHelp = showHelp;
     }
 
-    private record ParseCommand(Node<CommandSpec> node, boolean unrecognized, int index) {}
+    private record ParseCommand(INode<CommandSpec> node, boolean unrecognized, int index) {}
 
 
     // ===============

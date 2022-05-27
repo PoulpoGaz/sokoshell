@@ -2,8 +2,8 @@ package fr.valax.sokoshell;
 
 import fr.valax.args.CommandLine;
 import fr.valax.args.CommandLineBuilder;
-import fr.valax.args.repl.REPLCommandRegistry;
 import fr.valax.args.api.Command;
+import fr.valax.args.repl.REPLCommandRegistry;
 import fr.valax.args.utils.CommandLineException;
 import org.jline.console.SystemRegistry;
 import org.jline.console.impl.SystemRegistryImpl;

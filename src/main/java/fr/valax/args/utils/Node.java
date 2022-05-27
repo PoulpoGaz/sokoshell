@@ -1,113 +1,165 @@
 package fr.valax.args.utils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * A basic tree class.
  * Don't expect good performance from this
  * @author PoulpoGaz
  */
-public class Node<V> implements Iterable<Node<V>> {
+public class Node<V> implements INode<V> {
 
-    private final List<Node<V>> children;
-    private Node<V> parent;
+    /** contains {@code Node<V>}*/
+    private final List<INode<V>> children;
+
+    /** contains {@code Node<V>}*/
+    private final List<INode<V>> immutableChildren;
+
+    private INode<V> parent;
+
     private V value;
 
     public Node() {
-        children = new ArrayList<>();
+        this(null);
     }
 
     public Node(V value) {
         this.value = value;
         children = new ArrayList<>();
+
+        // it returns a read-only view of the List
+        immutableChildren = Collections.unmodifiableList(children);
     }
 
-    public Node<V> addChildren(V child) {
-        return addChildren(new Node<>(child));
-    }
-
-    public Node<V> addChildren(Node<V> child) {
-        child.removeFromParent();
-        children.add(child);
-        child.parent = this;
-        return child;
-    }
-
-    public void removeFromParent() {
-        if (parent != null) {
-            parent.removeChildren(this);
-        }
-    }
-
-    public void removeChildren(Node<V> child) {
-        if (children.remove(child)) {
-            child.parent = null;
-        }
-    }
-
-    public Node<V> getRoot() {
-        Node<V> node = this;
-
-        while (node.parent != null) {
-            node = node.parent;
-        }
-
-        return node;
-    }
-
-    public Node<V> getParent() {
-        return parent;
-    }
-
+    @Override
     public V getValue() {
         return value;
     }
 
+    @Override
     public void setValue(V value) {
         this.value = value;
     }
 
-    public List<Node<V>> getChildren() {
-        return Collections.unmodifiableList(children);
-    }
-
-    public boolean hasChildren() {
-        return children.size() > 0;
+    @Override
+    public INode<V> getParent() {
+        return parent;
     }
 
     @Override
-    public Iterator<Node<V>> iterator() {
-        return depthFirstIterator();
+    public List<INode<V>> getChildren() {
+        return immutableChildren;
     }
 
-    public Iterator<Node<V>> depthFirstIterator() {
-        return new DepthFirstIterator();
+    @Override
+    public INode<V> addChild(V child) {
+        return addChild(new Node<>(child));
     }
 
-    private class DepthFirstIterator implements Iterator<Node<V>> {
+    @Override
+    public INode<V> addChild(INode<V> child) {
+        if (!(child instanceof Node<V>)) {
+            throw new IllegalArgumentException("Not a Node<V>");
+        } else if (isAncestor(child)) {
+            throw new IllegalArgumentException("New child is an ancestor");
+        } else {
+            child.removeFromParent();
+            children.add(child);
+            ((Node<V>) child).parent = this;
 
-        private final Stack<Node<V>> stack = new Stack<>();
+            return child;
+        }
+    }
 
-        public DepthFirstIterator() {
-            stack.push(Node.this);
+    @Override
+    public INode<V> removeChild(int index) {
+        if (index < 0 || index >= nChildren()) {
+            throw new IndexOutOfBoundsException(index);
         }
 
-        @Override
-        public boolean hasNext() {
-            return !stack.isEmpty();
+        Node<V> child = (Node<V>) children.get(index);
+        child.parent = null;
+        children.remove(index);
+
+        return child;
+    }
+
+    @Override
+    public boolean removeChild(INode<V> child) {
+        if (child == null) {
+            return false;
         }
 
-        @Override
-        public Node<V> next() {
-            Node<V> next = stack.pop();
+        int i = children.indexOf(child);
 
-            List<Node<V>> nodes = next.children;
-            for (int i = nodes.size() - 1; i >= 0; i--) {
-                Node<V> child = nodes.get(i);
-                stack.push(child);
+        return removeChild(i) == child;
+    }
+
+    @Override
+    public boolean removeChild(V childValue) {
+        for (int i = 0; i < children.size(); i++) {
+            if (Objects.equals(children.get(i).getValue(), childValue)) {
+                removeChild(i);
+                return true;
             }
-
-            return next;
         }
+
+        return false;
+    }
+
+    @Override
+    public <R> INode<R> map(Function<V, R> mapper) {
+        R ret = mapper.apply(value);
+
+        Node<R> newNode = new Node<>(ret);
+
+        for (INode<V> c : children) {
+            Node<R> mappedChild = (Node<R>) c.map(mapper);
+
+            mappedChild.parent = newNode;
+            newNode.children.add(mappedChild);
+        }
+
+        return newNode;
+    }
+
+    @Override
+    public <OUT, THROWABLE extends Throwable> INode<OUT> mapThrow(ThrowFunction<V, OUT, THROWABLE> mapper) throws THROWABLE {
+        OUT ret = mapper.apply(value);
+
+        Node<OUT> newNode = new Node<>(ret);
+
+        for (INode<V> c : children) {
+            Node<OUT> mappedChild = (Node<OUT>) c.mapThrow(mapper);
+
+            mappedChild.parent = newNode;
+            newNode.children.add(mappedChild);
+        }
+
+        return newNode;
+    }
+
+    /**
+     * @return a copy of this node and his descendants
+     */
+    public ImmutableNode<V> immutableCopy() {
+        return immutableCopy(null);
+    }
+
+    private ImmutableNode<V> immutableCopy(ImmutableNode<V> parent) {
+        List<INode<V>> immutableChildren = new ArrayList<>();
+        ImmutableNode<V> node = new ImmutableNode<>(parent, immutableChildren, value);
+
+        for (INode<V> c : children) {
+            Node<V> child = (Node<V>) c;
+
+            immutableChildren.add(child.immutableCopy(node));
+        }
+
+        return node;
     }
 }
