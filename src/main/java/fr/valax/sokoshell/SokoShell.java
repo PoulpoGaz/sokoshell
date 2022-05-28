@@ -6,13 +6,7 @@ import fr.valax.args.utils.ArgsUtils;
 import fr.valax.args.utils.CommandLineException;
 import fr.valax.args.utils.ParseException;
 import fr.valax.args.utils.TypeException;
-import fr.valax.sokoshell.loader.PackReaders;
-import fr.valax.sokoshell.solver.*;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -23,7 +17,7 @@ public class SokoShell {
     public static final String VERSION = "0.1";
 
     public static void main(String[] args) {
-        /*SokoShell sokoshell;
+        SokoShell sokoshell;
         try {
             sokoshell = new SokoShell();
         } catch (CommandLineException e) {
@@ -41,9 +35,9 @@ public class SokoShell {
             sokoshell.loop();
         } finally {
             sokoshell.goodbye();
-        }*/
+        }
 
-        try {
+        /*try {
             Pack pack = PackReaders.read(Path.of("levels/Microba0.8xv"));
             Solver dfs = BasicBrutalSolver.newDFSSolver();
 
@@ -56,7 +50,7 @@ public class SokoShell {
             System.out.println(solution);
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }
+        }*/
     }
 
     private final CommandLine cli;

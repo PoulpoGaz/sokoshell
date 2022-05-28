@@ -5,6 +5,7 @@ import fr.valax.args.api.HelpFormatter;
 import fr.valax.args.api.Option;
 import fr.valax.args.api.OptionGroup;
 import fr.valax.args.utils.ArgsUtils;
+import fr.valax.args.utils.CommandLineException;
 import fr.valax.args.utils.INode;
 import fr.valax.args.utils.ParseException;
 
@@ -31,7 +32,7 @@ public class DefaultHelpFormatter implements HelpFormatter {
 
 
     @Override
-    public String commandHelp(ParseException error, CommandDescriber command) {
+    public String commandHelp(CommandLineException error, CommandDescriber command) {
         Map<OptionGroup, List<Option>> options = command.getOptions();
 
         StringBuilder builder = new StringBuilder();
@@ -58,7 +59,8 @@ public class DefaultHelpFormatter implements HelpFormatter {
 
     private void printGroup(StringBuilder builder, OptionGroup group, List<Option> options) {
         String indent = "";
-        if (group.name() != null) {
+
+        if (group != null) {
             builder.append(group.name()).append(":\n");
             indent = " ";
         }
@@ -101,6 +103,8 @@ public class DefaultHelpFormatter implements HelpFormatter {
             if (desc != null) {
                 appendTextBlock(builder, desc, descIndent, maxTextBlockSize);
             }
+
+            builder.append('\n');
         }
     }
 
@@ -122,7 +126,7 @@ public class DefaultHelpFormatter implements HelpFormatter {
             }
 
             if (option.hasArgument()) {
-                String argName = option.argName()[0];
+                String argName = ArgsUtils.first(option.argName());
 
                 if (argName != null) {
                     w += argName.length() + 2; // < and >
@@ -209,9 +213,9 @@ public class DefaultHelpFormatter implements HelpFormatter {
                 builder.append(" ".repeat(emptySpaceLength));
 
                 appendTextBlock(builder, usage, usageIdent, maxTextBlockSize);
-            } else {
-                builder.append('\n');
             }
+
+            builder.append('\n');
         }
 
         for (INode<CommandDescriber> child : command.getChildren()) {
@@ -240,8 +244,6 @@ public class DefaultHelpFormatter implements HelpFormatter {
                 builder.append("\n").append(indent);
             }
         }
-
-        builder.append('\n');
     }
 
     private int wordLength(String text, int start) {

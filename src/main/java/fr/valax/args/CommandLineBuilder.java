@@ -77,12 +77,21 @@ public class CommandLineBuilder {
         }
 
         converters.put(String.class, TypeConverters.STRING);
+
         converters.put(Byte.class, TypeConverters.BYTE);
         converters.put(Short.class, TypeConverters.SHORT);
         converters.put(Integer.class, TypeConverters.INT);
         converters.put(Long.class, TypeConverters.LONG);
         converters.put(Float.class, TypeConverters.FLOAT);
         converters.put(Double.class, TypeConverters.DOUBLE);
+
+        converters.put(byte.class, TypeConverters.BYTE_PRIMITIVE);
+        converters.put(short.class, TypeConverters.SHORT_PRIMITIVE);
+        converters.put(int.class, TypeConverters.INT_PRIMITIVE);
+        converters.put(long.class, TypeConverters.LONG_PRIMITIVE);
+        converters.put(float.class, TypeConverters.FLOAT_PRIMITIVE);
+        converters.put(double.class, TypeConverters.DOUBLE_PRIMITIVE);
+
         converters.put(Path.class, TypeConverters.PATH);
 
         return this;

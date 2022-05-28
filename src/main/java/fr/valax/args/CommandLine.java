@@ -1,15 +1,15 @@
 package fr.valax.args;
 
 import fr.valax.args.api.*;
-import fr.valax.args.utils.ArgsUtils;
-import fr.valax.args.utils.CommandLineException;
-import fr.valax.args.utils.INode;
-import fr.valax.args.utils.ParseException;
+import fr.valax.args.utils.*;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.*;
+import java.util.function.Supplier;
 
 import static fr.valax.args.utils.ArgsUtils.*;
 
@@ -23,7 +23,7 @@ public class CommandLine {
      * Only the root node is allowed to have null value
      */
     private final INode<CommandSpec> root;
-    private final INode<Command<?>> commands;
+    private final INode<CommandDescriber> commands;
 
     /** A class with type T must be associated with a type converted of the same type */
     private final Map<Class<?>, TypeConverter<?>> converters;
@@ -34,10 +34,11 @@ public class CommandLine {
     CommandLine(INode<Command<?>> root,
                 Map<Class<?>, TypeConverter<?>> converters,
                 HelpFormatter helpFormatter) throws CommandLineException {
-        this.commands = root.immutableCopy();
-        this.root = commands.mapThrow(CommandSpec::new);
         this.converters = converters;
         this.helpFormatter = helpFormatter;
+
+        this.root = root.mapThrow((c) -> c == null ? null : new CommandSpec(c)).immutableCopy();
+        this.commands = this.root.map((c) -> c == null ? null : c.getDescriber());
     }
 
     public Object execute(String[] args) throws CommandLineException {
@@ -85,7 +86,7 @@ public class CommandLine {
 
     private void unrecognizedCommand(String[] args) throws ParseException {
         if (showHelp()) {
-            //System.out.println(helpFormatter.generalHelp(last, root, args, true));
+            System.out.println(helpFormatter.generalHelp(commands, args, true));
         } else {
             thrParseExc("Unrecognized command: %s", Arrays.toString(args));
         }
@@ -97,7 +98,7 @@ public class CommandLine {
 
 
             try {
-                if (spec.getVaargs() != null) {
+                if (spec.hasVaArgs()) {
                     List<String> vaArgs = spec.parseAllowVaArgs(args, start, end);
 
                     spec.setVaArgs(vaArgs);
@@ -106,7 +107,7 @@ public class CommandLine {
                 }
             } catch (ParseException e) {
                 if (showHelp) {
-                    //System.out.println(helpFormatter.commandHelp(e, spec));
+                    System.out.println(helpFormatter.commandHelp(e, spec.getDescriber()));
                     return null;
                 } else {
                     throw e;
@@ -114,11 +115,21 @@ public class CommandLine {
             }
 
             if (spec.getCommand().addHelp() && spec.getHelp().isPresent()) {
-                //System.out.println(helpFormatter.commandHelp(null, spec));
+                System.out.println(helpFormatter.commandHelp(null, spec.getDescriber()));
 
                 return null;
             } else {
-                spec.setOptions();
+                try {
+                    spec.setOptions();
+                } catch (TypeException e) {
+                    if (showHelp) {
+                        System.out.println(helpFormatter.commandHelp(e, spec.getDescriber()));
+                        return null;
+                    } else {
+                        throw e;
+                    }
+                }
+
 
                 return spec.getCommand().execute();
             }
@@ -133,22 +144,22 @@ public class CommandLine {
     }
 
     public String getGeneralHelp() {
-        return null;//helpFormatter.generalHelp(null, root, null, false);
+        return helpFormatter.generalHelp(commands, null, false);
     }
 
     public String getCommandHelp(String command) {
-        INode<CommandSpec> spec;
+        INode<CommandSpec> node;
 
         if (command.isBlank()) {
-            spec = root;
+            node = root;
         } else {
             String[] split = command.split(" ");
 
-            spec = getCommandHelp(root, split, 0);
+            node = getCommandHelp(root, split, 0);
         }
 
-        if (spec != null && spec.getValue() != null) {
-            return null; //helpFormatter.commandHelp(null, spec.getValue());
+        if (node != null && node.getValue() != null) {
+            return helpFormatter.commandHelp(null, node.getValue().getDescriber());
         } else {
             return "Unknown command: " + command;
         }
@@ -178,6 +189,10 @@ public class CommandLine {
         this.showHelp = showHelp;
     }
 
+    // =================
+    // * Inner classes *
+    // =================
+
     private record ParseCommand(INode<CommandSpec> node, boolean unrecognized, int index) {}
 
 
@@ -199,7 +214,7 @@ public class CommandLine {
 
         private final Map<String, OptionSpec> options;
         private final OptionSpec help;
-        private Field vaargs;
+        private final VaArgsSpec vaargs;
 
         public CommandSpec(Command<?> command) throws CommandLineException {
             Objects.requireNonNull(command.getName());
@@ -209,10 +224,7 @@ public class CommandLine {
 
             createOptions(builder);
             if (command.addHelp()) {
-                help = new OptionSpec(
-                        new String[]{"-h", "--help"},
-                        true, false, false,
-                        null, "Print help for this command", null, null);
+                help = new OptionSpec(HELP_OPTION, null);
 
                 if (builder.addOption(help) != null) {
                     thrExc("Two option have same name");
@@ -222,6 +234,7 @@ public class CommandLine {
             }
 
             this.options = builder.getOptions();
+            this.vaargs = builder.getVaArgsSpec();
             this.describer = new CommandDescriberImpl(this, builder.getOptionsByGroup());
         }
 
@@ -258,14 +271,17 @@ public class CommandLine {
                     }
 
                 } else if (field.isAnnotationPresent(VaArgs.class)) {
-                    field.setAccessible(true);
                     if (vaargs != null) {
                         thrExc("Command can't have two 'VaArgs' (%s)", getName());
                     }
+
                     checkNotFinal(field);
                     checkArray(field);
+                    field.setAccessible(true);
 
-                    vaargs = field;
+                    VaArgs v = field.getAnnotation(VaArgs.class);
+
+                    builder.setVaArgsSpec(new VaArgsSpec(v, field));
                 }
             }
         }
@@ -300,7 +316,12 @@ public class CommandLine {
 
                 OptionSpec option;
                 if (arg.startsWith("-")) {
-                    option = options.get(arg.substring(1));
+                    String withoutHyphen = arg.substring(1);
+                    option = options.get(withoutHyphen);
+
+                    if (option == null) {
+                        option = findOption(withoutHyphen);
+                    }
 
                     if (option == null) {
                         throw new ParseException("Unrecognized option: " + arg);
@@ -311,7 +332,10 @@ public class CommandLine {
                     vaargs.add(arg);
                 }
             }
-            checkNotOptionalOption();
+
+            if (help == null || !help.isPresent()) {
+                checkNotOptionalOption();
+            }
 
             return vaargs;
         }
@@ -343,6 +367,14 @@ public class CommandLine {
             return i;
         }
 
+        private OptionSpec findOption(String name) {
+            return options.values()
+                    .stream()
+                    .filter((o) -> ArgsUtils.contains(o.getOption().names(), name))
+                    .findFirst()
+                    .orElse(null);
+        }
+
         private void checkNotOptionalOption() throws ParseException {
             for (OptionSpec opt : options.values()) {
                 if (!opt.isOptional() && !opt.isPresent()) {
@@ -362,22 +394,29 @@ public class CommandLine {
 
         public void setOptions() throws CommandLineException {
             for (OptionSpec opt : options.values()) {
+
+                // only the built-in help is allowed to have a null field
+                if (opt.getField() == null) {
+                    continue;
+                }
+
                 Field field = opt.getField();
+                TypeConverter<?> converter = Objects.requireNonNull(opt.getTypeConverter());
 
                 if (opt.hasArgument()) {
                     List<String> args = opt.getArgumentsList();
 
                     if (opt.allowDuplicate()) {
                         if (opt.isPresent()) {
-                            setArray(field, args.toArray(new String[0]));
+                            setArray(field, converter, args.toArray(new String[0]));
                         } else {
-                            setArray(field, new String[] {opt.getDefaultValue()});
+                            setArray(field, converter, new String[] {opt.getDefaultValue()});
                         }
                     } else {
                         if (opt.isPresent()) {
-                            setValue(field, args.get(0));
+                            setValue(field, converter, args.get(0));
                         } else {
-                            setValue(field, opt.getDefaultValue());
+                            setValue(field, converter, opt.getDefaultValue());
                         }
                     }
                 } else {
@@ -387,42 +426,11 @@ public class CommandLine {
         }
 
         public void setVaArgs(List<String> vaArgs) throws CommandLineException {
-            setArray(vaargs, vaArgs.toArray(new String[0]));
+            Objects.requireNonNull(vaArgs);
+            setArray(vaargs.getField(), vaargs.getConverter(), vaArgs.toArray(new String[0]));
         }
 
-        private TypeConverter<?> getTypeConverterFor(Field field) {
-            // TODO: doesn't work
-            TypeConverter<?> converter = null;
-            if (field.isAnnotationPresent(Option.class)) {
-                Option option = field.getAnnotation(Option.class);
-
-                if (option.converter().length > 0) {
-                    converter = getConverter(option.converter()[0]);
-                }
-            } else if (field.isAnnotationPresent(VaArgs.class)) {
-                VaArgs vaArgs = field.getAnnotation(VaArgs.class);
-
-                if (vaArgs.converter().length > 0) {
-                    converter = getConverter(vaArgs.converter()[0]);
-                }
-            }
-
-            if (converter == null) {
-                Class<?> type = field.getType();
-                if (type.isArray()) {
-                    return getConverter(type.getComponentType());
-                } else {
-                    return getConverter(type);
-                }
-            } else {
-                return converter;
-            }
-        }
-
-        private void setValue(Field field, String value) throws CommandLineException {
-            TypeConverter<?> converter = getTypeConverterFor(field);
-            notNull(converter, "Can't find converter for %s", vaargs);
-
+        private void setValue(Field field, TypeConverter<?> converter, String value) throws CommandLineException {
             Object o = converter.convert(value);
             setValue(field, o);
         }
@@ -430,10 +438,8 @@ public class CommandLine {
         /**
          * Some black magic
          */
-        private void setArray(Field field, String[] values) throws CommandLineException {
+        private void setArray(Field field, TypeConverter<?> converter, String[] values) throws CommandLineException {
             Class<?> type = field.getType().getComponentType();
-            TypeConverter<?> converter = getTypeConverterFor(field);
-            notNull(converter, "Can't find converter for %s", vaargs);
 
             Object[] array = (Object[]) Array.newInstance(type, values.length);
 
@@ -469,6 +475,7 @@ public class CommandLine {
                 thrExc("%s shouldn't be an array (in %s)", field.getName(), getName());
             }
         }
+
         /**
          * @param field check if the type of field is boolean or array of boolean
          */
@@ -491,8 +498,8 @@ public class CommandLine {
             return command;
         }
 
-        public Field getVaargs() {
-            return vaargs;
+        public boolean hasVaArgs() {
+            return vaargs != null;
         }
 
         public OptionSpec getHelp() {
@@ -522,6 +529,8 @@ public class CommandLine {
         private final Map<OptionGroup, List<Option>> optionsByGroup = new HashMap<>();
         private final Map<String, OptionSpec> options = new HashMap<>();
 
+        private VaArgsSpec vaArgsSpec;
+
         public OptionSpec addOption(OptionSpec option) {
             return addOption(null, option);
         }
@@ -539,6 +548,14 @@ public class CommandLine {
             }
 
             return old;
+        }
+
+        public VaArgsSpec getVaArgsSpec() {
+            return vaArgsSpec;
+        }
+
+        public void setVaArgsSpec(VaArgsSpec vaArgsSpec) {
+            this.vaArgsSpec = vaArgsSpec;
         }
 
         public Map<OptionGroup, List<Option>> getOptionsByGroup() {
@@ -562,49 +579,20 @@ public class CommandLine {
      * checking if an option is required but not present
      * @author PoulpoGaz
      */
-    private static class OptionSpec {
+    private class OptionSpec {
 
         private final Option option;
-        private final String[] names;
-        private final boolean optional;
-        private final boolean allowDuplicate;
-        private final boolean hasArgument;
-        private final String defaultValue;
-        private final String description;
-        private final String argumentName;
         private final Field field;
+        private final TypeConverter<?> converter;
 
         private final List<String> arguments = new ArrayList<>();
         private boolean present;
 
-        public OptionSpec(Option option, Field field) {
-            this(option, option.names(), option.optional(), option.allowDuplicate(), option.hasArgument(),
-                    ArgsUtils.first(option.defaultValue()),
-                    ArgsUtils.first(option.description()),
-                    ArgsUtils.first(option.argName()),
-                    field);
-        }
-
-        private OptionSpec(String[] names, boolean optional, boolean allowDuplicate, boolean hasArgument,
-                           String defaultValue, String description, String argName, Field field) {
-            this(null, names, optional, allowDuplicate, hasArgument, description, defaultValue, argName, field);
-        }
-
-        private OptionSpec(Option option, String[] names, boolean optional, boolean allowDuplicate,
-                           boolean hasArgument, String defaultValue, String description, String argName, Field field) {
-            if (names == null || names.length == 0) {
-                throw new IllegalArgumentException("Can't construct an option without a name");
-            }
-
+        public OptionSpec(Option option, Field field) throws CommandLineException {
             this.option = option;
-            this.names = names;
-            this.optional = optional;
-            this.allowDuplicate = allowDuplicate;
-            this.hasArgument = hasArgument;
-            this.defaultValue = defaultValue;
-            this.description = description;
-            this.argumentName = argName;
             this.field = field;
+
+            converter = createTypeConverter(field, first(option.converter()));
         }
 
         public void addArguments(String args) {
@@ -625,35 +613,23 @@ public class CommandLine {
         }
 
         public String firstName() {
-            return names[0];
-        }
-
-        public String[] getNames() {
-            return names;
-        }
-
-        public String getDescription() {
-            return description;
+            return first(option.names());
         }
 
         public boolean isOptional() {
-            return optional;
+            return option.optional();
         }
 
         public boolean allowDuplicate() {
-            return allowDuplicate;
-        }
-
-        public String getArgumentName() {
-            return argumentName;
+            return option.allowDuplicate();
         }
 
         public String getDefaultValue() {
-            return defaultValue;
+            return first(option.defaultValue());
         }
 
         public boolean hasArgument() {
-            return hasArgument;
+            return option.hasArgument();
         }
 
         public Field getField() {
@@ -668,35 +644,85 @@ public class CommandLine {
             return present;
         }
 
+        public TypeConverter<?> getTypeConverter() {
+            return converter;
+        }
+
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-
             OptionSpec that = (OptionSpec) o;
-
-            if (optional != that.optional) return false;
-            if (allowDuplicate != that.allowDuplicate) return false;
-            if (present != that.present) return false;
-            // Probably incorrect - comparing Object[] arrays with Arrays.equals
-            if (!Arrays.equals(names, that.names)) return false;
-            if (!Objects.equals(description, that.description)) return false;
-            if (!Objects.equals(defaultValue, that.defaultValue)) return false;
-            if (!Objects.equals(argumentName, that.argumentName)) return false;
-            return arguments.equals(that.arguments);
+            return option.equals(that.option);
         }
 
         @Override
         public int hashCode() {
-            int result = Arrays.hashCode(names);
-            result = 31 * result + (description != null ? description.hashCode() : 0);
-            result = 31 * result + (optional ? 1 : 0);
-            result = 31 * result + (allowDuplicate ? 1 : 0);
-            result = 31 * result + (defaultValue != null ? defaultValue.hashCode() : 0);
-            result = 31 * result + (argumentName != null ? argumentName.hashCode() : 0);
-            result = 31 * result + arguments.hashCode();
-            result = 31 * result + (present ? 1 : 0);
-            return result;
+            return Objects.hash(option);
+        }
+    }
+
+    // ==============
+    // * VaArgsSpec *
+    // ==============
+
+    public class VaArgsSpec {
+
+        private final VaArgs vaArgs;
+        private final Field field;
+        private final TypeConverter<?> converter;
+
+        public VaArgsSpec(VaArgs vaArgs, Field field) throws CommandLineException {
+            this.vaArgs = vaArgs;
+            this.field = field;
+            this.converter = createTypeConverter(field, first(vaArgs.converter()));
+        }
+
+        public VaArgs getVaArgs() {
+            return vaArgs;
+        }
+
+        public Field getField() {
+            return field;
+        }
+
+        public TypeConverter<?> getConverter() {
+            return converter;
+        }
+    }
+
+    //
+    //
+    //
+
+    private TypeConverter<?> createTypeConverter(Field field,
+                                                 Class<? extends TypeConverter<?>> customConverter)
+            throws CommandLineException {
+        if (field == null) {
+            return null;
+        }
+
+        try {
+            if (customConverter != null) {
+
+                return customConverter.getDeclaredConstructor().newInstance();
+            } else {
+                Class<?> type = field.getType();
+
+                TypeConverter<?> converter;
+                if (type.isArray()) {
+                    converter = getConverter(type.getComponentType());
+                } else {
+                    converter = getConverter(type);
+                }
+
+                notNull(converter, "Can't find converter for %s", field);
+
+                return converter;
+            }
+
+        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            throw new CommandLineException(e);
         }
     }
 
@@ -753,4 +779,52 @@ public class CommandLine {
             return optionsByGroup;
         }
     }
+
+    // Don't know if it's a good or bad practice to instantiate an annotation
+    private static final Option HELP_OPTION = new Option() {
+        @Override
+        public String[] names() {
+            return new String[] {"h", "-help"};
+        }
+
+        @Override
+        public boolean optional() {
+            return true;
+        }
+
+        @Override
+        public boolean allowDuplicate() {
+            return false;
+        }
+
+        @Override
+        public boolean hasArgument() {
+            return false;
+        }
+
+        @Override
+        public String[] defaultValue() {
+            return new String[0];
+        }
+
+        @Override
+        public String[] description() {
+            return new String[] {"Print help"};
+        }
+
+        @Override
+        public String[] argName() {
+            return new String[0];
+        }
+
+        @Override
+        public Class<? extends TypeConverter<?>>[] converter() {
+            return new Class[0];
+        }
+
+        @Override
+        public Class<? extends Annotation> annotationType() {
+            return Option.class;
+        }
+    };
 }

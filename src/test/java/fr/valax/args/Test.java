@@ -1,75 +1,104 @@
 package fr.valax.args;
 
-import fr.valax.args.api.Command;
-import fr.valax.args.api.Option;
+import fr.valax.args.api.*;
+import fr.valax.args.utils.ArgsUtils;
 import fr.valax.args.utils.CommandLineException;
+import fr.valax.args.utils.TypeException;
+import org.jline.reader.impl.completer.SystemCompleter;
+import org.jline.utils.AttributedString;
+import org.jline.utils.AttributedStringBuilder;
+import org.jline.utils.AttributedStyle;
+import org.jline.utils.Colors;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import java.nio.file.Path;
+import java.util.Locale;
 
 public class Test {
 
     @org.junit.jupiter.api.Test
-    void test() {
-        CommandLine cli;
-        try {
-            cli = new CommandLineBuilder()
-                    .addCommand(new Cmd("print"))
-                    .subCommand(new Cmd("init"))
-                        .addCommand(new Cmd("proj"))
-                        .addCommand(new Cmd("debug"))
-                        .endSubCommand()
-                    .addCommand(new Cmd("list"))
-                    .build();
-        } catch (CommandLineException e) {
-            throw new RuntimeException(e);
-        }
+    void test() throws CommandLineException {
+        CommandLine cli = new CommandLineBuilder()
+                .addDefaultConverters()
+                .subCommand(new Init())
+                    .addCommand(new Proj())
+                    .addCommand(new Exec())
+                    .endSubCommand()
+                .subCommand(new Print())
+                    .addCommand(new CoolPrint())
+                    .endSubCommand()
+                .addCommand(new Fibo())
+                .addCommand(new Fibo2())
+                .build();
 
-        try {
-            cli.execute(new String[] {"prit", "-"});
-            System.out.println("---------------");
-            cli.execute(new String[] {"print", "-"});
-            System.out.println("---------------");
-            cli.execute(new String[] {"print", "-h"});
-            cli.execute(new String[] {"print"});
-        } catch (CommandLineException e) {
-            throw new RuntimeException(e);
-        }
+        exec(cli, "init");
+        exec(cli, "init proj");
+        exec(cli, "init fdgs");
+        exec(cli, "init -gdf");
+        exec(cli, "init proj -dsg");
+        exec(cli, "init proj -n hello");
+        exec(cli, "init proj -n hello -l home");
+        exec(cli, "init exec -n hello -l home");
+        exec(cli, "init exec -n hello -l home --exec RUN");
+        exec(cli, "init exec -n hello -l home --exec BFDBSBS");
+        exec(cli, "print hello world!");
+        exec(cli, "print -f \"you have %s IQ\" 0%n");
+        exec(cli, "print cool H E L L O W O R L D");
+        exec(cli, "fibo -n 0");
+        exec(cli, "fibo -n 1");
+        exec(cli, "fibo -n 2");
+        exec(cli, "fibo -n 20");
+        exec(cli, "fibo");
+        exec(cli, "fibo2");
+        exec(cli, "fibo2 -n 20");
 
-        //cli.setShowHelp(false);
-        //assertThrows(ParseException.class, () ->  cli.parse(new String[] {}));
-        //assertDoesNotThrow(() -> cli.parse(new String[] {"print", "-h"}));
-        //assertDoesNotThrow(() -> cli.parse(new String[] {"init", "proj"}));
-        //assertDoesNotThrow(() -> cli.parse(new String[] {"init", "debug"}));
-        //assertDoesNotThrow(() -> cli.parse(new String[] {"list"}));
+        exec(cli, "fibo2 --help");
+        exec(cli, "init proj -h");
     }
 
-    private static class Cmd implements Command<Object> {
+    private void exec(CommandLine cli, String cmd) throws CommandLineException {
+        System.out.println("==> " + cmd);
+        cli.execute(ArgsUtils.splitQuoted(cmd));
+    }
 
-        private final String name;
-
-        @Option(names = "a", description = "The super cool a optional option")
-        private boolean a;
-
-        @Option(names = "b", argName = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", description = "But b is better, it is super giga mega cool!")
-        private String b;
-
-        @Option(names = "c", description =
-                "However, c is god. It is super powerful. He can speed up your productivity by 3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679821480865132823066470938446095505822317253594081284811 percent!!")
-        private boolean c;
-
-        public Cmd(String name) {
-            this.name = name;
-        }
+    private static class Init implements VoidCommand {
 
         @Override
         public String getName() {
-            return name;
+            return "init";
         }
 
         @Override
         public String getUsage() {
-            return (name + " ").repeat(20);
+            return "init the project";
+        }
+
+        @Override
+        public boolean addHelp() {
+            return false;
+        }
+
+        @Override
+        public void run() {
+            System.out.println("Target needed");
+        }
+    }
+
+    private static class Proj implements VoidCommand {
+
+        @Option(names = {"n", "-name"}, hasArgument = true, optional = false)
+        private String projName;
+
+        @Option(names = {"l", "-location"}, hasArgument = true)
+        private Path location;
+
+        @Override
+        public String getName() {
+            return "proj";
+        }
+
+        @Override
+        public String getUsage() {
+            return "Init a new project";
         }
 
         @Override
@@ -78,9 +107,240 @@ public class Test {
         }
 
         @Override
-        public Object execute() {
-            System.out.println(name);
-            return null;
+        public void run() {
+            if (location != null) {
+                System.out.printf("Init project %s at %s%n", projName, location);
+            } else {
+                System.out.printf("Init project %s%n", projName);
+            }
+        }
+    }
+
+    private static class Exec implements VoidCommand {
+
+        @Option(names = {"n", "-name"}, hasArgument = true, optional = false)
+        private String projName;
+
+        @Option(names = {"l", "-location"}, hasArgument = true)
+        private Path location;
+
+        @Option(names = {"e", "-exec"}, hasArgument = true, converter = Execution.Converter.class)
+        private Execution exec;
+
+        @Override
+        public String getName() {
+            return "exec";
+        }
+
+        @Override
+        public String getUsage() {
+            return "Init an execution";
+        }
+
+        @Override
+        public boolean addHelp() {
+            return true;
+        }
+
+        @Override
+        public void run() {
+            System.out.printf("In %s at %s%n", projName, location);
+            if (exec == null) {
+                System.out.println("No execution specified. Setting RUN");
+
+                exec = Execution.RUN;
+            }
+
+            System.out.println("Initializing: " + exec.name().toLowerCase(Locale.ROOT));
+        }
+
+    }
+
+    private enum Execution {
+        RUN,
+        DEBUG,
+        COVERAGE,
+        PROFILER;
+
+        public static class Converter implements TypeConverter<Execution> {
+
+            @Override
+            public Execution convert(String value) throws TypeException {
+                if (value == null) {
+                    return null;
+                }
+
+                return switch (value.toLowerCase(Locale.ROOT)) {
+                    case "run" -> RUN;
+                    case "debug" -> DEBUG;
+                    case "coverage" -> COVERAGE;
+                    case "profiler" -> PROFILER;
+                    default -> throw new TypeException("Unknown execution: " + value);
+                };
+            }
+        }
+    }
+
+    private static class Print implements VoidCommand {
+
+        @Option(names = {"f", "-format"}, hasArgument = true)
+        private String format;
+
+        @VaArgs
+        private String[] vaargs;
+
+        @Override
+        public String getName() {
+            return "print";
+        }
+
+        @Override
+        public String getUsage() {
+            return "print";
+        }
+
+        @Override
+        public boolean addHelp() {
+            return false;
+        }
+
+        @Override
+        public void run() {
+            if (format != null) {
+                System.out.printf(format, (Object[]) vaargs);
+            } else {
+                System.out.println(String.join(" ", vaargs));
+            }
+        }
+    }
+
+    private static class CoolPrint implements VoidCommand {
+
+        @Option(names = {"f", "-format"}, hasArgument = true)
+        private String format;
+
+        @VaArgs(converter = CoolPrint.Converter.class)
+        private String[] vaargs;
+
+        @Override
+        public String getName() {
+            return "cool";
+        }
+
+        @Override
+        public String getUsage() {
+            return "coooooool print";
+        }
+
+        @Override
+        public boolean addHelp() {
+            return false;
+        }
+
+        @Override
+        public void run() {
+            if (format != null) {
+                System.out.printf(format, (Object[]) vaargs);
+            } else {
+                System.out.println(String.join(" ", vaargs));
+            }
+        }
+
+        public static class Converter implements TypeConverter<String> {
+
+            @Override
+            public String convert(String value) throws TypeException {
+                if (value == null) {
+                    return new AttributedStringBuilder()
+                            .style(AttributedStyle.BOLD.foreground(AttributedStyle.RED))
+                            .append("NULL")
+                            .toAnsi();
+                } else {
+                    return new AttributedStringBuilder()
+                            .style(AttributedStyle.DEFAULT.foreground(Colors.rgbColor((int) (Math.random() * 256))))
+                            .append(value)
+                            .toAnsi();
+                }
+            }
+        }
+    }
+
+    private static class Fibo implements Command<Integer> {
+
+        @Option(names = "n", hasArgument = true)
+        private Integer n;
+
+        private int fibo(int nterm, int lastnterm, int n) {
+            if (n == 0) {
+                return nterm;
+            } else {
+                return fibo(nterm + lastnterm, nterm, n - 1);
+            }
+        }
+
+        @Override
+        public Integer execute() {
+            if (n == null) {
+                System.out.println(-1);
+                return -1;
+            } else {
+                int f = fibo(0, 1, n);
+                System.out.println(f);
+
+                return f;
+            }
+        }
+
+        @Override
+        public String getName() {
+            return "fibo";
+        }
+
+        @Override
+        public String getUsage() {
+            return "compute fibo n";
+        }
+
+        @Override
+        public boolean addHelp() {
+            return true;
+        }
+    }
+
+    private static class Fibo2 implements Command<Integer> {
+
+        @Option(names = "n", hasArgument = true)
+        private int n;
+
+        private int fibo(int nterm, int lastnterm, int n) {
+            if (n == 0) {
+                return nterm;
+            } else {
+                return fibo(nterm + lastnterm, nterm, n - 1);
+            }
+        }
+
+        @Override
+        public Integer execute() {
+            int f = fibo(0, 1, n);
+            System.out.println(f);
+
+            return f;
+        }
+
+        @Override
+        public String getName() {
+            return "fibo2";
+        }
+
+        @Override
+        public String getUsage() {
+            return "compute fibo n";
+        }
+
+        @Override
+        public boolean addHelp() {
+            return true;
         }
     }
 }

@@ -15,13 +15,14 @@ public class LoadCommand extends AbstractVoidCommand {
         super(helper);
     }
 
-    @Option(names = {"i", "-input"}, argName = "input file", optional = false)
+    @Option(names = {"i", "-input"}, hasArgument = true, argName = "input file", optional = false)
     private Path input;
 
     @Override
     public void run() {
         if (!Files.exists(input)) {
             System.out.printf("%s doesn't exist%n", input);
+            return;
         }
 
         Pack pack;

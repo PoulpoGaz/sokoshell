@@ -17,7 +17,7 @@ public class PrintCommand extends AbstractVoidCommand {
         super(helper);
     }
 
-    @Option(names = {"p", "-pack"}, argName = "Pack name")
+    @Option(names = {"p", "-pack"}, hasArgument = true, argName = "Pack name")
     private String packName;
 
     @Override

@@ -13,6 +13,24 @@ import java.util.function.Function;
  */
 public class ArgsUtils {
 
+    public static <T> boolean contains(T[] array, T o) {
+        if (o == null) {
+            for (T t : array) {
+                if (t == null) {
+                    return true;
+                }
+            }
+        } else {
+            for (T t : array) {
+                if (o.equals(t)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     public static <T, U extends Comparable<? super U>> Comparator<T> comparing(
             Function<? super T, ? extends U> keyExtractor) {
         Objects.requireNonNull(keyExtractor);

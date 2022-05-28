@@ -1,5 +1,6 @@
 package fr.valax.args.api;
 
+import fr.valax.args.utils.CommandLineException;
 import fr.valax.args.utils.INode;
 import fr.valax.args.utils.ParseException;
 
@@ -10,7 +11,7 @@ import fr.valax.args.utils.ParseException;
  */
 public interface HelpFormatter {
 
-    String commandHelp(ParseException error,
+    String commandHelp(CommandLineException error,
                        CommandDescriber command);
 
     String generalHelp(INode<CommandDescriber> commands,
