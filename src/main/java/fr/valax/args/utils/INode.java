@@ -1,9 +1,6 @@
 package fr.valax.args.utils;
 
-import java.util.ArrayDeque;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 import java.util.function.Function;
 
 public interface INode<V> extends Iterable<INode<V>> {
@@ -111,6 +108,20 @@ public interface INode<V> extends Iterable<INode<V>> {
     <R> INode<R> map(Function<V, R> mapper);
 
     <OUT, THROWABLE extends Throwable> INode<OUT> mapThrow(ThrowFunction<V, OUT, THROWABLE> mapper) throws THROWABLE;
+
+    default INode<V> find(V value) {
+        Iterator<INode<V>> it = depthFirstIterator();
+
+        while (it.hasNext()) {
+            INode<V> next = it.next();
+
+            if (Objects.equals(next.getValue(), value)) {
+                return next;
+            }
+        }
+
+        return null;
+    }
 
     ImmutableNode<V> immutableCopy();
 

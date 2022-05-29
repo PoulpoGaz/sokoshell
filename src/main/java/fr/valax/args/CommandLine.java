@@ -9,7 +9,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.*;
-import java.util.function.Supplier;
 
 import static fr.valax.args.utils.ArgsUtils.*;
 
@@ -25,7 +24,9 @@ public class CommandLine {
     private final INode<CommandSpec> root;
     private final INode<CommandDescriber> commands;
 
-    /** A class with type T must be associated with a type converted of the same type */
+    /**
+     * A class with type T must be associated with a type converted of the same type
+     */
     private final Map<Class<?>, TypeConverter<?>> converters;
 
     private final HelpFormatter helpFormatter;
@@ -42,26 +43,26 @@ public class CommandLine {
     }
 
     public Object execute(String[] args) throws CommandLineException {
-        ParseCommand parseCommand = getCommand(root, args, 0);
+        ParsedCommand parsedCommand = getCommand(root, args, 0);
 
-        CommandSpec spec = parseCommand.node().getValue();
-
-        if (parseCommand.unrecognized()) {
+        if (parsedCommand.node() == null) {
             unrecognizedCommand(args);
             return null;
         } else {
-            return executeCommand(spec, args, parseCommand.index(), args.length);
+            CommandSpec spec = parsedCommand.node().getValue();
+
+            return executeCommand(spec, args, parsedCommand.index(), args.length);
         }
     }
 
-    private ParseCommand getCommand(INode<CommandSpec> node, String[] command, int index) {
+    private ParsedCommand getCommand(INode<CommandSpec> node, String[] command, int index) {
         if (index >= command.length) {
             CommandSpec spec = node.getValue();
 
             if (spec == null) { // for root
-                return new ParseCommand(node, true, index);
+                return new ParsedCommand(null, index);
             } else {
-                return new ParseCommand(node, false, index);
+                return new ParsedCommand(node, index);
             }
 
         } else {
@@ -77,9 +78,9 @@ public class CommandLine {
             if (next != null) {
                 return getCommand(next, command, index + 1);
             } else if (node.getValue() != null) {
-                return new ParseCommand(node, false, index);
+                return new ParsedCommand(node, index);
             } else {
-                return new ParseCommand(node, true, index);
+                return new ParsedCommand(null, index);
             }
         }
     }
@@ -189,12 +190,35 @@ public class CommandLine {
         this.showHelp = showHelp;
     }
 
+    public INode<CommandDescriber> getCommands() {
+        return commands;
+    }
+
+    public ParsedCommandDesc getCommand(String[] command) {
+        return convert(getCommand(root, command, 0));
+    }
+
+    public ParsedCommandDesc getCommand(String command) {
+        return getCommand(splitQuoted(command));
+    }
+
     // =================
     // * Inner classes *
     // =================
 
-    private record ParseCommand(INode<CommandSpec> node, boolean unrecognized, int index) {}
+    private record ParsedCommand(INode<CommandSpec> node, int index) {}
 
+    public record ParsedCommandDesc(INode<CommandDescriber> node, int index) {}
+
+    private ParsedCommandDesc convert(ParsedCommand cmd) {
+        if (cmd.node() == null) {
+            return new ParsedCommandDesc(null, cmd.index());
+        } else {
+            CommandDescriber desc = cmd.node().getValue().getDescriber();
+
+            return new ParsedCommandDesc(commands.find(desc), cmd.index());
+        }
+    }
 
     // ===============
     // * CommandSpec *
@@ -401,9 +425,10 @@ public class CommandLine {
                 }
 
                 Field field = opt.getField();
-                TypeConverter<?> converter = Objects.requireNonNull(opt.getTypeConverter());
 
                 if (opt.hasArgument()) {
+                    TypeConverter<?> converter = Objects.requireNonNull(opt.getTypeConverter());
+
                     List<String> args = opt.getArgumentsList();
 
                     if (opt.allowDuplicate()) {
@@ -592,7 +617,11 @@ public class CommandLine {
             this.option = option;
             this.field = field;
 
-            converter = createTypeConverter(field, first(option.converter()));
+            if (option.hasArgument()) {
+                converter = createTypeConverter(field, first(option.converter()));
+            } else {
+                converter = null;
+            }
         }
 
         public void addArguments(String args) {
@@ -704,7 +733,6 @@ public class CommandLine {
 
         try {
             if (customConverter != null) {
-
                 return customConverter.getDeclaredConstructor().newInstance();
             } else {
                 Class<?> type = field.getType();
@@ -745,6 +773,11 @@ public class CommandLine {
         }
 
         @Override
+        public Command<?> getCommand() {
+            return spec.getCommand();
+        }
+
+        @Override
         public String getName() {
             return spec.getName();
         }
@@ -766,7 +799,13 @@ public class CommandLine {
 
         @Override
         public Option getOption(String name) {
-            return spec.getOptions().get(name).getOption();
+            OptionSpec optSpec = spec.getOptions().get(name);
+
+            if (optSpec == null) {
+                return null;
+            } else {
+                return optSpec.getOption();
+            }
         }
 
         @Override

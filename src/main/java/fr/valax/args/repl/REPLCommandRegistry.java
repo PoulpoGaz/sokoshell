@@ -1,6 +1,11 @@
 package fr.valax.args.repl;
 
 import fr.valax.args.CommandLine;
+import fr.valax.args.api.Command;
+import fr.valax.args.api.CommandDescriber;
+import fr.valax.args.api.Option;
+import fr.valax.args.api.OptionGroup;
+import fr.valax.args.utils.INode;
 import org.jline.console.CmdDesc;
 import org.jline.console.CommandRegistry;
 import org.jline.reader.Candidate;
@@ -8,26 +13,27 @@ import org.jline.reader.Completer;
 import org.jline.reader.LineReader;
 import org.jline.reader.ParsedLine;
 import org.jline.reader.impl.completer.SystemCompleter;
+import org.jline.utils.AttributedString;
 
 import java.util.*;
+import java.util.stream.Collectors;
+
+import static fr.valax.args.utils.ArgsUtils.first;
 
 public class REPLCommandRegistry implements CommandRegistry {
 
     private final CommandLine cli;
     private final Set<String> commands;
-    private final Map<String, String> aliases;
 
     public REPLCommandRegistry(CommandLine cli) {
         this.cli = cli;
         commands = new HashSet<>();
-        aliases = new HashMap<>();
 
-        //Node<CommandSpecification> commandRoot = cli.getRoot();
-        //addCommand(commandRoot, null);
+        addCommand(cli.getCommands(), null);
     }
 
-    /*private void addCommand(Node<CommandSpecification> node, String previousName) {
-        CommandSpecification spec = node.getValue();
+    private void addCommand(INode<CommandDescriber> node, String previousName) {
+        CommandDescriber spec = node.getValue();
 
         if (spec != null) {
             if (previousName == null) {
@@ -39,10 +45,10 @@ public class REPLCommandRegistry implements CommandRegistry {
             commands.add(previousName);
         }
 
-        for (Node<CommandSpecification> child : node.getChildren()) {
+        for (INode<CommandDescriber> child : node.getChildren()) {
             addCommand(child, previousName);
         }
-    }*/
+    }
 
     @Override
     public Set<String> commandNames() {
@@ -51,7 +57,7 @@ public class REPLCommandRegistry implements CommandRegistry {
 
     @Override
     public Map<String, String> commandAliases() {
-        return aliases;
+        return Map.of();
     }
 
     @Override
@@ -63,13 +69,16 @@ public class REPLCommandRegistry implements CommandRegistry {
 
     @Override
     public boolean hasCommand(String command) {
-        return false;// cli.getCommand(command) != null;
+        return true;//cli.getCommand(command) != null;
     }
 
     @Override
     public SystemCompleter compileCompleters() {
         SystemCompleter completer = new SystemCompleter();
-        completer.add(new ArrayList<>(commands), new ShellCompleter());
+
+        for (INode<CommandDescriber> command : cli.getCommands().getChildren()) {
+            completer.add(command.getValue().getName(), new ShellCompleter());
+        }
         completer.compile();
 
         return completer;
@@ -77,13 +86,14 @@ public class REPLCommandRegistry implements CommandRegistry {
 
     @Override
     public CmdDesc commandDescription(List<String> args) {
-        /*CommandSpecification spec = cli.getCommand(args.toArray(new String[0]));
+        INode<CommandDescriber> node = cli.getCommand(String.join(" ", args)).node();
 
-        if (spec == null) {
+        if (node == null || node.getValue() == null) {
             return null;
         }
 
-        String usage = spec.getCommand().getUsage();
+        CommandDescriber desc = node.getValue();
+        String usage = desc.getUsage();
 
         List<AttributedString> mainDesc;
         if (usage != null) {
@@ -96,21 +106,24 @@ public class REPLCommandRegistry implements CommandRegistry {
 
         Map<String, List<AttributedString>> options = new HashMap<>();
 
-        for (OptionSpecification optSpec : spec.getOptions()) {
-            String key = Arrays.stream(optSpec.getNames())
+        for (Option option : desc) {
+            String key = Arrays.stream(option.names())
                     .map(s -> '-' + s)
                     .collect(Collectors.joining(" "));
 
-            List<AttributedString> value = Arrays.stream(optSpec.getDescription().split("[\\n\\r]"))
-                    .map(AttributedString::new)
-                    .toList();
+            String description = first(option.description());
+            if (description != null) {
+                List<AttributedString> value = Arrays.stream(description.split("[\\n\\r]"))
+                        .map(AttributedString::new)
+                        .toList();
 
-
-            options.put(key, value);
+                options.put(key, value);
+            } else {
+                options.put(key, List.of());
+            }
         }
 
-        return new CmdDesc(mainDesc, List.of(), options);*/
-        return null;
+        return new CmdDesc(mainDesc, List.of(), options);
     }
 
     @Override
@@ -129,7 +142,79 @@ public class REPLCommandRegistry implements CommandRegistry {
 
         @Override
         public void complete(LineReader reader, ParsedLine line, List<Candidate> candidates) {
+            String l = line.words().stream()
+                    .limit(line.wordIndex() + 1)
+                    .collect(Collectors.joining(" "));
 
+            CommandLine.ParsedCommandDesc cmd = cli.getCommand(l);
+            INode<CommandDescriber> node = cmd.node();
+
+            if (node != null && node.getValue() != null) {
+                CommandDescriber desc = node.getValue();
+
+                // don't show sub commands if user start to type options
+                if (cmd.index() == line.wordIndex()) {
+                    for (INode<CommandDescriber> child : node.getChildren()) {
+                        candidates.add(new Candidate(child.getValue().getName()));
+                    }
+                }
+
+                Command<?> command = desc.getCommand();
+
+                boolean addHyphenCandidate = desc.nOptions() > 0;
+
+                if (line.words().get(line.wordIndex()).startsWith("-")) {
+                    for (Map.Entry<OptionGroup, List<Option>> options : desc.getOptions().entrySet()) {
+                        completeOption(candidates, options.getKey(), options.getValue());
+                    }
+
+                    addHyphenCandidate = false;
+                } else if (command instanceof REPLCommand<?> replCommand) {
+                    if (completeOptionArgument(reader, line, candidates, desc, replCommand)) {
+                        addHyphenCandidate = false;
+                    }
+                }
+
+                if (addHyphenCandidate) {
+                    candidates.add(new Candidate("-", "-", null, null, null, null, false));
+                }
+            }
+        }
+
+        private void completeOption(List<Candidate> candidates, OptionGroup group, List<Option> options) {
+            for (Option option : options) {
+                String name = '-' + first(option.names());
+                String groupName = group == null ? null : group.name();
+                String description = first(option.description());
+
+                candidates.add(new Candidate(name, name, groupName, description, null, null, true));
+            }
+        }
+
+        /**
+         * @return true if he invokes {@link REPLCommand#completeOption(LineReader, ParsedLine, List, Option)}
+         */
+        private boolean completeOptionArgument(LineReader reader, ParsedLine line, List<Candidate> candidates,
+                                               CommandDescriber desc, REPLCommand<?> replCommand) {
+            if (line.wordIndex() == 0) {
+                return false;
+            }
+
+            String last = line.words().get(line.wordIndex() - 1);
+
+            if (last == null || !last.startsWith("-")) {
+                return false;
+            }
+
+            Option option = desc.getOption(last.substring(1));
+
+            if (option != null && option.hasArgument()) {
+                replCommand.completeOption(reader, line, candidates, option);
+
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 }

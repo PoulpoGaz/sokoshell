@@ -3,32 +3,54 @@ package fr.valax.sokoshell;
 import fr.valax.args.CommandLine;
 import fr.valax.args.CommandLineBuilder;
 import fr.valax.args.api.Command;
+import fr.valax.args.api.Option;
+import fr.valax.args.repl.REPLCommand;
 import fr.valax.args.repl.REPLCommandRegistry;
+import fr.valax.args.utils.ArgsUtils;
 import fr.valax.args.utils.CommandLineException;
 import org.jline.console.SystemRegistry;
 import org.jline.console.impl.SystemRegistryImpl;
-import org.jline.reader.EndOfFileException;
-import org.jline.reader.LineReader;
-import org.jline.reader.LineReaderBuilder;
-import org.jline.reader.Parser;
+import org.jline.reader.*;
 import org.jline.reader.impl.DefaultHighlighter;
 import org.jline.reader.impl.DefaultParser;
 import org.jline.reader.impl.history.DefaultHistory;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.widget.AutosuggestionWidgets;
-import org.jline.widget.TailTipWidgets;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
 
 public class SokoShell2 {
 
     private static Command<?> createDumbCommand(String name) {
-        return new Command<>() {
+        return new REPLCommand<>() {
+
+            @Override
+            public void completeOption(LineReader reader, ParsedLine line, List<Candidate> candidates, Option option) {
+                if (ArgsUtils.contains(option.names(), "opt")) {
+                    candidates.add(new Candidate("0"));
+                    candidates.add(new Candidate("1"));
+                    candidates.add(new Candidate("2"));
+                    candidates.add(new Candidate("42"));
+                    candidates.add(new Candidate("69"));
+                }
+            }
+
+            @Option(names = "opt", hasArgument = true)
+            private int opt;
+
+            @Option(names = "blob")
+            private boolean blob;
+
             @Override
             public Object execute() {
-                System.out.println(name);
+                System.out.printf("%s - opt= %d%n", name, opt);
+
+                if (blob) {
+                    System.out.println("blob");
+                }
                 return null;
             }
 
@@ -55,7 +77,13 @@ public class SokoShell2 {
         CommandLine cli = new CommandLineBuilder()
                 .addDefaultConverters()
                 .subCommand(createDumbCommand("hello"))
-                    .addCommand(createDumbCommand("world"))
+                    .subCommand(createDumbCommand("world"))
+                        .addCommand(createDumbCommand("41"))
+                        .addCommand(createDumbCommand("42"))
+                        .addCommand(createDumbCommand("43"))
+                        .endSubCommand()
+                    .addCommand(createDumbCommand("world2"))
+                    .addCommand(createDumbCommand("world3"))
                     .addCommand(createDumbCommand("you"))
                     .addCommand(createDumbCommand("peter"))
                     .endSubCommand()
@@ -79,13 +107,11 @@ public class SokoShell2 {
                     .highlighter(new DefaultHighlighter())
                     .parser(parser)
                     .completer(shellRegistry.compileCompleters())
+                    .variable(LineReader.HISTORY_FILE, System.getProperty("user.home") + "/.sokoshell_history")  // won't work on windows!!!!
                     .build();
 
             AutosuggestionWidgets autosuggestionWidgets = new AutosuggestionWidgets(reader);
             autosuggestionWidgets.enable();
-
-            TailTipWidgets tailTipWidgets = new TailTipWidgets(reader, registry::commandDescription, 5, TailTipWidgets.TipType.COMPLETER);
-            tailTipWidgets.enable();
 
             while (true) {
                 registry.cleanUp();

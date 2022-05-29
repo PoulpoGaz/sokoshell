@@ -7,7 +7,6 @@ import fr.valax.args.api.OptionGroup;
 import fr.valax.args.utils.ArgsUtils;
 import fr.valax.args.utils.CommandLineException;
 import fr.valax.args.utils.INode;
-import fr.valax.args.utils.ParseException;
 
 import java.util.Comparator;
 import java.util.List;
