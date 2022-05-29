@@ -220,7 +220,6 @@ public class DefaultHelpFormatter implements HelpFormatter {
         for (INode<CommandDescriber> child : command.getChildren()) {
             addCommand(builder, child, fullCommandName, usageIdent);
         }
-
     }
 
     private void appendTextBlock(StringBuilder builder, String text, String indent, int width) {

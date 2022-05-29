@@ -55,9 +55,4 @@ public class LoadCommand extends AbstractVoidCommand {
     public String getUsage() {
         return null;
     }
-
-    @Override
-    public boolean addHelp() {
-        return true;
-    }
 }

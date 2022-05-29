@@ -94,9 +94,4 @@ public class PrintCommand extends AbstractVoidCommand {
     public String getUsage() {
         return "print a state";
     }
-
-    @Override
-    public boolean addHelp() {
-        return true;
-    }
 }

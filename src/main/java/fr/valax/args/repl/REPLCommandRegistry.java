@@ -22,14 +22,25 @@ import static fr.valax.args.utils.ArgsUtils.first;
 
 public class REPLCommandRegistry implements CommandRegistry {
 
+    private final String name;
     private final CommandLine cli;
     private final Set<String> commands;
 
     public REPLCommandRegistry(CommandLine cli) {
+        this(cli, null);
+    }
+
+    public REPLCommandRegistry(CommandLine cli, String name) {
         this.cli = cli;
+        this.name = name == null ? CommandRegistry.super.name() : name;
         commands = new HashSet<>();
 
         addCommand(cli.getCommands(), null);
+    }
+
+    @Override
+    public String name() {
+        return name;
     }
 
     private void addCommand(INode<CommandDescriber> node, String previousName) {
@@ -69,7 +80,7 @@ public class REPLCommandRegistry implements CommandRegistry {
 
     @Override
     public boolean hasCommand(String command) {
-        return true;//cli.getCommand(command) != null;
+        return cli.getCommand(command).node() != null;
     }
 
     @Override
@@ -159,8 +170,6 @@ public class REPLCommandRegistry implements CommandRegistry {
                     }
                 }
 
-                Command<?> command = desc.getCommand();
-
                 boolean addHyphenCandidate = desc.nOptions() > 0;
 
                 if (line.words().get(line.wordIndex()).startsWith("-")) {
@@ -169,8 +178,8 @@ public class REPLCommandRegistry implements CommandRegistry {
                     }
 
                     addHyphenCandidate = false;
-                } else if (command instanceof REPLCommand<?> replCommand) {
-                    if (completeOptionArgument(reader, line, candidates, desc, replCommand)) {
+                } else {
+                    if (completeOptionArgument(reader, line, candidates, desc, desc.getCommand())) {
                         addHyphenCandidate = false;
                     }
                 }
@@ -192,10 +201,10 @@ public class REPLCommandRegistry implements CommandRegistry {
         }
 
         /**
-         * @return true if he invokes {@link REPLCommand#completeOption(LineReader, ParsedLine, List, Option)}
+         * @return true if an option wait for his argument
          */
         private boolean completeOptionArgument(LineReader reader, ParsedLine line, List<Candidate> candidates,
-                                               CommandDescriber desc, REPLCommand<?> replCommand) {
+                                               CommandDescriber desc, Command<?> command) {
             if (line.wordIndex() == 0) {
                 return false;
             }
@@ -209,7 +218,9 @@ public class REPLCommandRegistry implements CommandRegistry {
             Option option = desc.getOption(last.substring(1));
 
             if (option != null && option.hasArgument()) {
-                replCommand.completeOption(reader, line, candidates, option);
+                if (command instanceof REPLCommand<?> replCommand) {
+                    replCommand.completeOption(reader, line, candidates, option);
+                }
 
                 return true;
             } else {

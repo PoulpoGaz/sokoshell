@@ -24,9 +24,4 @@ public class ListCommand extends AbstractVoidCommand {
     public String getUsage() {
         return null;
     }
-
-    @Override
-    public boolean addHelp() {
-        return true;
-    }
 }

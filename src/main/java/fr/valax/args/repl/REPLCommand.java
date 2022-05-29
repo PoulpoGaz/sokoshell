@@ -10,5 +10,19 @@ import java.util.List;
 
 public interface REPLCommand<T> extends Command<T> {
 
-    void completeOption(LineReader reader, ParsedLine line, List<Candidate> candidates, Option option);
+    default void completeOption(LineReader reader, ParsedLine line, List<Candidate> candidates, Option option) {
+
+    }
+
+
+    /**
+     * JLine add by default a help option.
+     * When a user use this option with a command (e.g: help load),
+     * JLine execute this command: load --help. So, it's preferred to
+     * add by default the help option
+     */
+    @Override
+    default boolean addHelp() {
+        return true;
+    }
 }

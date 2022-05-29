@@ -49,9 +49,4 @@ public class SolveCommand extends AbstractVoidCommand {
     public String getUsage() {
         return "solve a sokoban";
     }
-
-    @Override
-    public boolean addHelp() {
-        return true;
-    }
 }
