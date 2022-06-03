@@ -13,6 +13,8 @@ public class Level {
     private final Map map;
     private final int playerPos;
 
+    private Solution solution;
+
     public Level(Map map, int playerPos) {
         this.map = map;
         this.playerPos = playerPos;
@@ -55,6 +57,14 @@ public class Level {
         }
 
         return new State(playerPos, cratesIndicesArray, null);
+    }
+
+    public Solution getSolution() {
+        return solution;
+    }
+
+    public void setSolution(Solution solution) {
+        this.solution = solution;
     }
 
     public static class Builder {

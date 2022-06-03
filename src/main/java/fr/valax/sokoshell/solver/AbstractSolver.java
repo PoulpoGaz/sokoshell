@@ -10,11 +10,6 @@ import java.util.Set;
  */
 public abstract class AbstractSolver implements Solver {
 
-    protected final Set<State> visitedStates = new HashSet<>();
-
-    @Override
-    public abstract SolverStatus solve(Level level, List<State> solution);
-
     @Override
     public void pause() {
 

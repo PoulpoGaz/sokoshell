@@ -42,8 +42,8 @@ public class Map {
         return content[y][x];
     }
 
-    private void setAt(int index, Tile tile) { content[getY(index)][getX(index)] = tile; }
-    private void setAt(int x, int y, Tile tile) {
+    protected void setAt(int index, Tile tile) { content[getY(index)][getX(index)] = tile; }
+    protected void setAt(int x, int y, Tile tile) {
         content[y][x] = tile;
     }
 

@@ -7,7 +7,7 @@ public abstract class AbstractVoidCommand extends AbstractCommand<Void> {
     }
 
     @Override
-    public Void execute() {
+    protected Void executeImpl() {
         run();
         return null;
     }

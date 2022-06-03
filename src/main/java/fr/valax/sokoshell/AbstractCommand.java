@@ -9,4 +9,17 @@ public abstract class AbstractCommand<T> implements REPLCommand<T> {
     public AbstractCommand(SokoShellHelper helper) {
         this.helper = helper;
     }
+
+    @Override
+    public T execute() {
+        helper.lock();
+
+        try {
+            return executeImpl();
+        } finally {
+            helper.unlock();
+        }
+    }
+
+    protected abstract T executeImpl();
 }

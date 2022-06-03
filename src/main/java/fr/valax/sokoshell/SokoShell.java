@@ -78,13 +78,15 @@ public class SokoShell {
     private final SokoShellHelper helper;
 
     private SokoShell() throws CommandLineException {
-        helper = new SokoShellHelper();
+        helper = new SokoShellHelper(this);
 
         cli = new CommandLineBuilder()
                 .addDefaultConverters()
                 .setHelpFormatter(new REPLHelpFormatter())
                 .addCommand(new SolveCommand(helper))
-                .addCommand(new PrintCommand(helper))
+                .subCommand(new PrintCommand(helper))
+                    .addCommand(new SolutionCommand(helper))
+                    .endSubCommand()
                 .addCommand(new LoadCommand(helper))
                 .addCommand(new ListCommand(helper))
                 .build();
@@ -106,6 +108,8 @@ public class SokoShell {
         REPLCommandRegistry shellRegistry = new REPLCommandRegistry(cli, "SokoShell");
 
         try (Terminal terminal = TerminalBuilder.terminal()) {
+            helper.setTerminal(terminal);
+
             SystemRegistry registry = new SystemRegistryImpl(parser, terminal, () -> Path.of(""), null);
             registry.setCommandRegistries(shellRegistry);
 

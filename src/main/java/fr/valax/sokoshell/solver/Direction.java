@@ -17,4 +17,18 @@ public enum Direction {
         this.dirX = dirX;
         this.dirY = dirY;
     }
+
+    public static Direction of(int dirX, int dirY) {
+        if (dirX == 0) {
+            if (dirY < 0) {
+                return UP;
+            } else {
+                return DOWN;
+            }
+        } else if (dirX < 0) {
+            return LEFT;
+        } else {
+            return RIGHT;
+        }
+    }
 }

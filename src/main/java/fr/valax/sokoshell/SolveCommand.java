@@ -1,7 +1,11 @@
 package fr.valax.sokoshell;
 
 import fr.valax.args.api.Option;
+import fr.valax.args.utils.ArgsUtils;
 import fr.valax.sokoshell.solver.*;
+import org.jline.reader.Candidate;
+import org.jline.reader.LineReader;
+import org.jline.reader.ParsedLine;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,14 +34,25 @@ public class SolveCommand extends AbstractVoidCommand {
             return;
         }
 
+        index--;
+        if (index < 0 || index >= pack.levels().size()) {
+            System.out.println("Index out of bounds");
+            return;
+        }
+
         List<Level> levels = pack.levels();
         Level l = levels.get(index);
 
         Solver solver = BasicBrutalSolver.newDFSSolver();
-        List<State> solution = new ArrayList<>();
 
-        System.out.println(solver.solve(l, solution));
-        System.out.println(solution);
+        helper.solve(solver, l);
+    }
+
+    @Override
+    public void completeOption(LineReader reader, ParsedLine line, List<Candidate> candidates, Option option) {
+        if (ArgsUtils.contains(option.names(), "p")) {
+            helper.addPackCandidates(candidates);
+        }
     }
 
     @Override
@@ -47,6 +62,6 @@ public class SolveCommand extends AbstractVoidCommand {
 
     @Override
     public String getUsage() {
-        return "solve a sokoban";
+        return "Solve a sokoban";
     }
 }

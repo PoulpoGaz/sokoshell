@@ -24,10 +24,14 @@ public abstract class BasicBrutalSolver extends AbstractSolver {
     protected boolean[][] reachableCases;
     protected final Set<State> processed = new HashSet<>();
 
+    private Solution solution;
+
     protected abstract State getNext();
 
     @Override
-    public SolverStatus solve(Level level, List<State> solution) {
+    public SolverStatus solve(Level level) {
+        solution = null;
+
         Map map = new Map(level.getMap());
         State initialState = level.getInitialState();
         State finalState = null;
@@ -58,14 +62,15 @@ public abstract class BasicBrutalSolver extends AbstractSolver {
         if (finalState == null) {
             return SolverStatus.NO_SOLUTION;
         } else {
-            buildSolution(solution, finalState);
-            solution.add(initialState);
+            solution = buildSolution(finalState);
+
             return SolverStatus.SOLUTION_FOUND;
         }
     }
 
-    private void buildSolution(List<State> solution, State finalState) {
-        solution.clear();
+    private Solution buildSolution(State finalState) {
+        List<State> solution = new ArrayList<>();
+
         State s = finalState;
         while (s.parent() != null)
         {
@@ -73,6 +78,8 @@ public abstract class BasicBrutalSolver extends AbstractSolver {
             s = s.parent();
         }
         Collections.reverse(solution);
+
+        return new Solution(solution);
     }
 
     private void addChildrenStates(State cur, Map map) {
@@ -131,6 +138,11 @@ public abstract class BasicBrutalSolver extends AbstractSolver {
                 findAccessibleCases_aux(i, j, map);
             }
         }
+    }
+
+    @Override
+    public Solution getSolution() {
+        return solution;
     }
 
     private static class DFSSolver extends BasicBrutalSolver {

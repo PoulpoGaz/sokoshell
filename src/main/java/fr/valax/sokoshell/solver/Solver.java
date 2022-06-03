@@ -1,14 +1,14 @@
 package fr.valax.sokoshell.solver;
 
-import java.util.List;
-
 /**
  * @author darth-mole
  * @author PoulpoGaz
  */
 public interface Solver {
 
-    SolverStatus solve(Level level, List<State> solution);
+    SolverStatus solve(Level level);
+
+    Solution getSolution();
 
     void pause();
 

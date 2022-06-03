@@ -1,10 +1,14 @@
 package fr.valax.sokoshell;
 
 import fr.valax.args.api.Option;
+import fr.valax.args.utils.ArgsUtils;
 import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.solver.Map;
 import fr.valax.sokoshell.solver.Pack;
 import fr.valax.sokoshell.solver.Tile;
+import org.jline.reader.Candidate;
+import org.jline.reader.LineReader;
+import org.jline.reader.ParsedLine;
 
 import java.util.List;
 
@@ -82,6 +86,13 @@ public class PrintCommand extends AbstractVoidCommand {
 
             }
             System.out.println();
+        }
+    }
+
+    @Override
+    public void completeOption(LineReader reader, ParsedLine line, List<Candidate> candidates, Option option) {
+        if (ArgsUtils.contains(option.names(), "p")) {
+            helper.addPackCandidates(candidates);
         }
     }
 
