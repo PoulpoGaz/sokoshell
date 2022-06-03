@@ -45,7 +45,7 @@ public class SolutionCommand extends AbstractVoidCommand {
         Level l = levels.get(index);
 
         if (l.getSolution() == null) {
-            System.out.println("Not solverd");
+            System.out.println("Not solved");
             return;
         }
 
@@ -118,9 +118,14 @@ public class SolutionCommand extends AbstractVoidCommand {
                 int destX = next.playerPos() % map.getWidth() - dir.dirX();
                 int destY = next.playerPos() / map.getWidth() - dir.dirY();
 
-                path = findPath(playerX, playerY, destX, destY);
-                path.add(dir);
+                if (playerX == destX && playerY == destY) {
+                    path = List.of(dir);
+                } else {
+                    path = findPath(playerX, playerY, destX, destY);
+                    path.add(dir);
+                }
                 pathIndex = 0;
+                stateIndex++;
             }
 
             if (path != null) {
@@ -152,7 +157,7 @@ public class SolutionCommand extends AbstractVoidCommand {
 
             switch (curr) {
                 case CRATE -> map.setAt(x, y, Tile.FLOOR);
-                case CRATE_ON_TARGET -> map.setAt(x, y, Tile.CRATE_ON_TARGET);
+                case CRATE_ON_TARGET -> map.setAt(x, y, Tile.TARGET);
             }
 
             if (curr.isCrate()) {
@@ -167,7 +172,7 @@ public class SolutionCommand extends AbstractVoidCommand {
             if (path != null) {
                 return true;
             } else {
-                return stateIndex < states.size();
+                return stateIndex + 1 < states.size();
             }
         }
 
@@ -192,12 +197,12 @@ public class SolutionCommand extends AbstractVoidCommand {
                         continue;
                     }
 
+                    Node child = new Node(node, newX, newY, direction);
                     if (newX == destX && newY == destY) {
-                        solution = node;
+                        solution = child;
                         break;
                     }
 
-                    Node child = new Node(node, newX, newY, direction);
                     if (visited.add(child)) {
                         queue.offer(child);
                     }

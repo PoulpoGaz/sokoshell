@@ -86,11 +86,6 @@ public class Map {
         }
     }
 
-    // TODO: change this
-    public Tile[][] getContent() {
-        return content;
-    }
-
     /**
      * Checks if the map is solved (i.e. all the crates are on a target)
      * /!\ The crates MUST have been put on the map for this function to work as expected.

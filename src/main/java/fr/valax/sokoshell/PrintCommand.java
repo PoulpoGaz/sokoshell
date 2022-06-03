@@ -9,7 +9,10 @@ import fr.valax.sokoshell.solver.Tile;
 import org.jline.reader.Candidate;
 import org.jline.reader.LineReader;
 import org.jline.reader.ParsedLine;
+import org.jline.utils.AttributedStringBuilder;
+import org.jline.utils.AttributedStyle;
 
+import java.text.AttributedString;
 import java.util.List;
 
 /**
@@ -53,40 +56,39 @@ public class PrintCommand extends AbstractVoidCommand {
     }
 
     public static void printMap(Map map, int playerPos) {
-        Tile[][] content = map.getContent();
-
         int playerX = playerPos % map.getWidth();
         int playerY = playerPos / map.getWidth();
 
-        System.out.println(playerX + " - " + playerY);
+        AttributedStringBuilder builder = new AttributedStringBuilder();
 
         for (int y = 0; y < map.getHeight(); y++) {
             for (int x = 0; x < map.getWidth(); x++) {
                 boolean player = x == playerX && y == playerY;
 
-                switch (content[y][x]) {
-                    case WALL -> System.out.print('#');
+                switch (map.getAt(x, y)) {
+                    case WALL -> builder.styled(AttributedStyle.DEFAULT.background(100, 100, 100), " ");
                     case FLOOR -> {
                         if (player) {
-                            System.out.print('@');
+                            builder.styled(AttributedStyle.DEFAULT.background(AttributedStyle.GREEN).foreground(AttributedStyle.BLACK), "o");
                         } else {
-                            System.out.print(' ');
+                            builder.styled(AttributedStyle.DEFAULT.background(AttributedStyle.GREEN), " ");
                         }
                     }
                     case TARGET -> {
                         if (player) {
-                            System.out.print('.');
+                            builder.styled(AttributedStyle.DEFAULT.background(AttributedStyle.RED).foreground(AttributedStyle.BLACK), "o");
                         } else {
-                            System.out.print('+');
+                            builder.styled(AttributedStyle.DEFAULT.background(AttributedStyle.RED), " ");
                         }
                     }
-                    case CRATE -> System.out.print('$');
-                    case CRATE_ON_TARGET -> System.out.print('*');
+                    case CRATE -> builder.styled(AttributedStyle.DEFAULT.background(96, 61, 23), " ");
+                    case CRATE_ON_TARGET -> builder.styled(AttributedStyle.DEFAULT.background(AttributedStyle.YELLOW), " ");
                 }
-
             }
-            System.out.println();
+            builder.append('\n');
         }
+
+        System.out.println(builder.toAnsi());
     }
 
     @Override

@@ -4,7 +4,6 @@ import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.solver.Pack;
 import fr.valax.sokoshell.solver.Solver;
 import fr.valax.sokoshell.solver.SolverStatus;
-import jdk.jshell.JShell;
 import org.jline.reader.Candidate;
 import org.jline.terminal.Terminal;
 

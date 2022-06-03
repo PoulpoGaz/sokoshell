@@ -52,9 +52,9 @@ public abstract class BasicBrutalSolver extends AbstractSolver {
                 break;
             }
 
-            if (processed.add(cur)) {
+            //if (processed.add(cur)) {
                 addChildrenStates(cur, map);
-            }
+            //}
 
             map.removeStateCrates(cur);
         }
@@ -77,6 +77,7 @@ public abstract class BasicBrutalSolver extends AbstractSolver {
             solution.add(s);
             s = s.parent();
         }
+        solution.add(s);
         Collections.reverse(solution);
 
         return new Solution(solution);
@@ -114,7 +115,10 @@ public abstract class BasicBrutalSolver extends AbstractSolver {
                 // The new player position is the crate position
                 State s = new State(crate, cur.cratesIndices().clone(), cur);
                 s.cratesIndices()[crateIndex] = crateDestY * map.getWidth() + crateDestX;
-                toProcess.add(s);
+
+                if (processed.add(s)) {
+                    toProcess.add(s);
+                }
             }
         }
     }

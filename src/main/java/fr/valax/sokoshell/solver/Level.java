@@ -45,7 +45,7 @@ public class Level {
 
         for (int y = 0; y < getHeight(); y++) {
             for (int x = 0; x < getWidth(); x++) {
-                if (map.getAt(x, y) == Tile.CRATE || map.getAt(x, y) == Tile.CRATE_ON_TARGET) {
+                if (map.getAt(x, y).isCrate()) {
                     cratesIndices.add(y * getWidth() + x);
                 }
             }
