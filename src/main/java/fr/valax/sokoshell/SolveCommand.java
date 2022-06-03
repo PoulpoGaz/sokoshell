@@ -11,10 +11,10 @@ import java.util.List;
  */
 public class SolveCommand extends AbstractVoidCommand {
 
-    @Option(names = {"p", "-pack"}, argName = "Pack name", optional = false)
+    @Option(names = {"p", "-pack"}, hasArgument = true, argName = "Pack name", optional = false)
     private String name;
 
-    @Option(names = {"i", "-index"}, argName = "Level index", optional = false)
+    @Option(names = {"i", "-index"}, hasArgument = true, argName = "Level index", optional = false)
     private int index;
 
     public SolveCommand(SokoShellHelper helper) {
@@ -48,10 +48,5 @@ public class SolveCommand extends AbstractVoidCommand {
     @Override
     public String getUsage() {
         return "solve a sokoban";
-    }
-
-    @Override
-    public boolean addHelp() {
-        return true;
     }
 }

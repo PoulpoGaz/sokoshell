@@ -17,7 +17,7 @@ public class PrintCommand extends AbstractVoidCommand {
         super(helper);
     }
 
-    @Option(names = {"p", "-pack"}, argName = "Pack name")
+    @Option(names = {"p", "-pack"}, hasArgument = true, argName = "Pack name")
     private String packName;
 
     @Override
@@ -93,10 +93,5 @@ public class PrintCommand extends AbstractVoidCommand {
     @Override
     public String getUsage() {
         return "print a state";
-    }
-
-    @Override
-    public boolean addHelp() {
-        return true;
     }
 }

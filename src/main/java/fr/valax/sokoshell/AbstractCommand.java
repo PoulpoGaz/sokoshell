@@ -1,8 +1,8 @@
 package fr.valax.sokoshell;
 
-import fr.valax.args.api.Command;
+import fr.valax.args.repl.REPLCommand;
 
-public abstract class AbstractCommand<T> implements Command<T> {
+public abstract class AbstractCommand<T> implements REPLCommand<T> {
 
     protected final SokoShellHelper helper;
 

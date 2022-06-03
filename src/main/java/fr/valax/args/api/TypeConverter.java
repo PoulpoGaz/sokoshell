@@ -1,4 +1,4 @@
-package fr.valax.args;
+package fr.valax.args.api;
 
 import fr.valax.args.utils.TypeException;
 

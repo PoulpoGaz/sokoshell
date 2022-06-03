@@ -1,6 +1,5 @@
 package fr.valax.sokoshell.solver;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**

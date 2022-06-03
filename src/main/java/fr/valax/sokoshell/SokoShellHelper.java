@@ -3,7 +3,6 @@ package fr.valax.sokoshell;
 import fr.valax.sokoshell.solver.Pack;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 
 public class SokoShellHelper {

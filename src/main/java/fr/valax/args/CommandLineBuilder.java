@@ -2,7 +2,9 @@ package fr.valax.args;
 
 import fr.valax.args.api.Command;
 import fr.valax.args.api.HelpFormatter;
+import fr.valax.args.api.TypeConverter;
 import fr.valax.args.utils.CommandLineException;
+import fr.valax.args.utils.INode;
 import fr.valax.args.utils.Node;
 
 import java.nio.file.Path;
@@ -16,7 +18,7 @@ import java.util.Map;
 public class CommandLineBuilder {
 
     private final CommandLineBuilder ancestor;
-    private final Node<CommandSpecification> root;
+    private final INode<Command<?>> root;
 
     /** not null only for the "root" CommandLineBuilder*/
     private final Map<Class<?>, TypeConverter<?>> converters;
@@ -26,11 +28,11 @@ public class CommandLineBuilder {
         this(null, new Node<>());
     }
 
-    public CommandLineBuilder(Command<?> root) throws CommandLineException {
-        this(null, new Node<>(new CommandSpecification(root)));
+    public CommandLineBuilder(Command<?> root) {
+        this(null, new Node<>(root));
     }
 
-    private CommandLineBuilder(CommandLineBuilder ancestor, Node<CommandSpecification> root) {
+    private CommandLineBuilder(CommandLineBuilder ancestor, INode<Command<?>> root) {
         this.ancestor = ancestor;
         this.root = root;
 
@@ -41,7 +43,7 @@ public class CommandLineBuilder {
         }
     }
 
-    public CommandLine build() {
+    public CommandLine build() throws CommandLineException {
         if (ancestor != null) {
             throw new IllegalStateException("Not the root");
         }
@@ -53,23 +55,16 @@ public class CommandLineBuilder {
             cli = new CommandLine(root, converters, new DefaultHelpFormatter());
         }
 
-        for (Node<CommandSpecification> spec : root) {
-            if (spec.getValue() != null) {
-                spec.getValue().setCli(cli);
-            }
-        }
-
         return cli;
     }
 
-    public CommandLineBuilder addCommand(Command<?> c) throws CommandLineException {
-        root.addChildren(new CommandSpecification(c));
+    public CommandLineBuilder addCommand(Command<?> c) {
+        root.addChild(c);
         return this;
     }
 
-    protected CommandLineBuilder subCommand(Command<?> c) throws CommandLineException {
-        CommandSpecification spec = new CommandSpecification(c);
-        return new CommandLineBuilder(this, root.addChildren(spec));
+    public CommandLineBuilder subCommand(Command<?> c) {
+        return new CommandLineBuilder(this, root.addChild(c));
     }
 
     public CommandLineBuilder endSubCommand() {
@@ -82,12 +77,21 @@ public class CommandLineBuilder {
         }
 
         converters.put(String.class, TypeConverters.STRING);
+
         converters.put(Byte.class, TypeConverters.BYTE);
         converters.put(Short.class, TypeConverters.SHORT);
         converters.put(Integer.class, TypeConverters.INT);
         converters.put(Long.class, TypeConverters.LONG);
         converters.put(Float.class, TypeConverters.FLOAT);
         converters.put(Double.class, TypeConverters.DOUBLE);
+
+        converters.put(byte.class, TypeConverters.BYTE_PRIMITIVE);
+        converters.put(short.class, TypeConverters.SHORT_PRIMITIVE);
+        converters.put(int.class, TypeConverters.INT_PRIMITIVE);
+        converters.put(long.class, TypeConverters.LONG_PRIMITIVE);
+        converters.put(float.class, TypeConverters.FLOAT_PRIMITIVE);
+        converters.put(double.class, TypeConverters.DOUBLE_PRIMITIVE);
+
         converters.put(Path.class, TypeConverters.PATH);
 
         return this;

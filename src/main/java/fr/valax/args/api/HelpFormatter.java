@@ -1,8 +1,7 @@
 package fr.valax.args.api;
 
-import fr.valax.args.CommandSpecification;
-import fr.valax.args.utils.Node;
-import fr.valax.args.utils.ParseException;
+import fr.valax.args.utils.CommandLineException;
+import fr.valax.args.utils.INode;
 
 /**
  * Produce help string when the
@@ -11,11 +10,10 @@ import fr.valax.args.utils.ParseException;
  */
 public interface HelpFormatter {
 
-    String commandHelp(ParseException error,
-                       CommandSpecification spec);
+    String commandHelp(CommandLineException error,
+                       CommandDescriber command);
 
-    String generalHelp(CommandSpecification parent,
-                       Node<CommandSpecification> commands,
+    String generalHelp(INode<CommandDescriber> commands,
                        String[] args,
                        boolean unrecognizedCommand);
 }
