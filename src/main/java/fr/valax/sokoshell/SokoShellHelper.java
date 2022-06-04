@@ -6,6 +6,7 @@ import fr.valax.sokoshell.solver.Solver;
 import fr.valax.sokoshell.solver.SolverStatus;
 import fr.valax.sokoshell.utils.MapRenderer;
 import fr.valax.sokoshell.utils.MapStyle;
+import fr.valax.sokoshell.utils.SolverInfo;
 import org.jline.reader.Candidate;
 import org.jline.terminal.Terminal;
 
@@ -29,17 +30,27 @@ public class SokoShellHelper implements Lock {
 
     private Terminal terminal;
 
-    private CompletableFuture<Void> solverFuture;
+    private SolverInfo solverInfo;
 
     private SokoShellHelper() {
         renderer.setStyle(style);
     }
 
-    public void solve(Solver solver, Level level) {
+    public void solve(Solver solver, Pack pack, Level level) {
         Objects.requireNonNull(level);
 
-        solverFuture = CompletableFuture.supplyAsync(() -> solver.solve(level))
-                .thenAccept((status) -> printStatus(solver, level, status));
+        if (solverInfo != null) {
+            System.out.println("Already solving.");
+            return;
+        }
+        CompletableFuture<SolverStatus> f = CompletableFuture.supplyAsync(() -> solver.solve(level));
+
+        solverInfo = new SolverInfo(f, solver, pack, level);
+
+        f.exceptionally((t) -> {
+            t.printStackTrace();
+            return null;
+        }).thenAccept((status) -> printStatus(solver, level, status));
     }
 
     private void printStatus(Solver solver, Level level, SolverStatus status) {
@@ -65,7 +76,8 @@ public class SokoShellHelper implements Lock {
                     }
                 }
             }
-            solverFuture = null;
+
+            solverInfo = null;
         } finally {
             lock.unlock();
         }
@@ -112,12 +124,12 @@ public class SokoShellHelper implements Lock {
         this.terminal = terminal;
     }
 
-    public CompletableFuture<Void> getSolverFuture() {
-        return solverFuture;
+    public SolverInfo getSolverInfo() {
+        return solverInfo;
     }
 
     public boolean isSolving() {
-        return solverFuture != null;
+        return solverInfo != null;
     }
 
     public MapStyle getStyle() {

@@ -149,6 +149,11 @@ public abstract class BasicBrutalSolver extends AbstractSolver {
         return solution;
     }
 
+    @Override
+    public Set<State> getProcessed() {
+        return Collections.unmodifiableSet(processed);
+    }
+
     private static class DFSSolver extends BasicBrutalSolver {
 
         @Override

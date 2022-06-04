@@ -22,13 +22,16 @@ public class SOKReader implements Reader {
 
         List<Level> levels = new ArrayList<>();
 
+        int i = 0;
         String line;
         while ((line = br.readLine()) != null) {
             if (isSokobanLine(line)) {
-                Level level = parseLevel(line, br);
+                Level level = parseLevel(line, i, br);
 
                 if (level != null) {
                     levels.add(level);
+
+                    i++;
                 }
             }
         }
@@ -52,7 +55,7 @@ public class SOKReader implements Reader {
         return true;
     }
 
-    private static Level parseLevel(String firstLine, BufferedReader br) throws IOException {
+    private static Level parseLevel(String firstLine, int index, BufferedReader br) throws IOException {
         int width = firstLine.length();
         int height;
 
@@ -117,6 +120,7 @@ public class SOKReader implements Reader {
             y++;
         }
 
+        builder.setIndex(index);
         return builder.build();
     }
 }

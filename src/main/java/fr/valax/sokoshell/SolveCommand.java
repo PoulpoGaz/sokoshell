@@ -43,7 +43,7 @@ public class SolveCommand extends AbstractVoidCommand {
 
         Solver solver = BasicBrutalSolver.newDFSSolver();
 
-        helper.solve(solver, l);
+        helper.solve(solver, pack, l);
     }
 
     @Override

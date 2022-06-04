@@ -7,6 +7,7 @@ import fr.valax.args.repl.REPLHelpFormatter;
 import fr.valax.args.utils.CommandLineException;
 import fr.valax.args.utils.ParseException;
 import fr.valax.args.utils.TypeException;
+import fr.valax.sokoshell.utils.Utils;
 import org.jline.console.SystemRegistry;
 import org.jline.console.impl.SystemRegistryImpl;
 import org.jline.reader.*;
@@ -45,6 +46,7 @@ public class SokoShell {
             sokoshell.loop();
         } finally {
             sokoshell.goodbye();
+            Utils.SOKOSHELL_EXECUTOR.shutdownNow();
         }
     }
 
@@ -60,6 +62,7 @@ public class SokoShell {
                     .endSubCommand()
                 .addCommand(new LoadCommand())
                 .addCommand(new ListCommand())
+                .addCommand(new StatusCommand())
                 .build();
     }
 

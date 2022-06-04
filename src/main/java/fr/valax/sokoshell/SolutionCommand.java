@@ -2,19 +2,19 @@ package fr.valax.sokoshell;
 
 import fr.valax.args.api.Option;
 import fr.valax.args.utils.ArgsUtils;
-import fr.valax.sokoshell.solver.Map;
 import fr.valax.sokoshell.solver.*;
 import fr.valax.sokoshell.utils.MapRenderer;
+import fr.valax.sokoshell.utils.Utils;
+import fr.valax.sokoshell.utils.View;
+import org.jline.keymap.KeyMap;
 import org.jline.reader.Candidate;
 import org.jline.reader.LineReader;
 import org.jline.reader.ParsedLine;
-import org.jline.terminal.Attributes;
 import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
 import org.jline.utils.AttributedString;
-import org.jline.utils.Display;
+import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.InfoCmp;
-import org.w3c.dom.Attr;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -50,46 +50,10 @@ public class SolutionCommand extends AbstractVoidCommand {
             return;
         }
 
-        showAnimation(new SolutionAnimator(l));
-    }
+        SolutionAnimator animator = new SolutionAnimator(l);
 
-    private void showAnimation(SolutionAnimator animator) {
-        MapRenderer renderer = helper.getRenderer();
-        Terminal terminal = helper.getTerminal();
-
-        Display display = new Display(terminal, true);
-        Attributes attr = terminal.enterRawMode();
-
-        try {
-            terminal.puts(InfoCmp.Capability.enter_ca_mode);
-            terminal.puts(InfoCmp.Capability.keypad_xmit);
-            terminal.writer().flush();
-
-            display.clear();
-            display.reset();
-
-            Map map = animator.getMap();
-            while (animator.hasNext()) {
-                animator.move();
-
-                // reusing the same list doesn't work!!
-                List<AttributedString> draw = renderer.draw(map, animator.getPlayerX(), animator.getPlayerY());
-
-                Size curr = terminal.getSize();
-                display.resize(curr.getRows(), curr.getColumns());
-                display.update(draw, curr.cursorPos(map.getHeight(), map.getWidth()));
-
-                long time = System.currentTimeMillis();
-
-                while (time + 100 > System.currentTimeMillis()) {
-                    Thread.onSpinWait();
-                }
-            }
-        } finally {
-            terminal.setAttributes(attr);
-            terminal.puts(InfoCmp.Capability.exit_ca_mode);
-            terminal.puts(InfoCmp.Capability.keypad_local);
-            terminal.writer().flush();
+        try (SolutionView view = new SolutionView(helper.getTerminal(), animator)) {
+            view.loop();
         }
     }
 
@@ -110,63 +74,191 @@ public class SolutionCommand extends AbstractVoidCommand {
         return "Show a solution";
     }
 
+    private enum Key {
+        ESCAPE,
+        LEFT,
+        RIGHT,
+        DOWN,
+        UP,
+        ENTER,
+        SPACE
+    }
+
+    public class SolutionView extends View<Key> {
+
+        private final SolutionAnimator animator;
+
+        private boolean paused = false;
+
+        private long lastTime;
+
+        // a value between 1 and 40
+        private int speed = 20;
+
+        public SolutionView(Terminal terminal, SolutionAnimator animator) {
+            super(terminal);
+            this.animator = animator;
+        }
+
+        @Override
+        protected void init() {
+            keyMap.bind(Key.LEFT, KeyMap.key(terminal, InfoCmp.Capability.key_left));
+            keyMap.bind(Key.RIGHT, KeyMap.key(terminal, InfoCmp.Capability.key_right));
+            keyMap.bind(Key.DOWN, KeyMap.key(terminal, InfoCmp.Capability.key_down));
+            keyMap.bind(Key.UP, KeyMap.key(terminal, InfoCmp.Capability.key_up));
+            keyMap.bind(Key.ENTER, "\r");
+            keyMap.bind(Key.SPACE, " ");
+            keyMap.bind(Key.ESCAPE, KeyMap.esc());
+            keyMap.setAmbiguousTimeout(100L);
+        }
+
+        @Override
+        protected void render(Size size) {
+            // reusing the same list doesn't work!!
+            List<AttributedString> draw = render(animator);
+
+            int cursorX = draw.get(draw.size() - 1).columnLength();
+            int cursorY = draw.size() - 1;
+
+            display.update(draw, size.cursorPos(cursorY, cursorX));
+        }
+
+        private List<AttributedString> render(SolutionAnimator animator) {
+            MapRenderer renderer = helper.getRenderer();
+            List<AttributedString> draw = renderer.draw(animator.getMap(), animator.getPlayerX(), animator.getPlayerY());
+
+            int totalMoveLength = Utils.nDigit(animator.getTotalMove());
+            int totalPushLength = Utils.nDigit(animator.getTotalMove());
+
+            int moveLength = Utils.nDigit(animator.getMoveCount());
+            int pushLength = Utils.nDigit(animator.getPushCount());
+
+            AttributedStringBuilder builder = new AttributedStringBuilder();
+            // moves:  XX/XXX
+            builder.append("Moves: ").append(" ".repeat(totalMoveLength - moveLength))
+                    .append(String.valueOf(animator.getMoveCount())).append('/')
+                    .append(String.valueOf(animator.getTotalMove()));
+
+            builder.append(" | ");
+
+            // pushes: XX/XXX
+            builder.append("Pushes: ").append(" ".repeat(totalPushLength - pushLength))
+                    .append(String.valueOf(animator.getPushCount())).append('/')
+                    .append(String.valueOf(animator.getTotalPush()));
+
+            // speed
+            builder.append(" | Speed: ").append(String.valueOf(speed));
+
+            draw.add(builder.toAttributedString());
+
+            if (paused) {
+                draw.add(new AttributedString("Paused"));
+            }
+
+            draw.add(new AttributedString("FPS: " + getFPS()));
+            draw.add(new AttributedString("TPS: " + getTPS()));
+
+            return draw;
+        }
+
+        /**
+         * f(x) = e^(ax²+bx+c)
+         * f(1) = 5000
+         * f(20) = 100
+         * f(40) = 1000 / View.TPS
+         */
+        private int speedToMillis() {
+            double a = 0.0011166751;
+            double b = -0.1920345101;
+            double c = 8.708111026;
+
+            return (int) Math.exp(
+                a * speed * speed + b * speed + c
+            );
+        }
+
+        @Override
+        protected void update() {
+            if (lastTime + speedToMillis() < System.currentTimeMillis()) {
+                if (animator.hasNext() && !paused) {
+                    animator.move();
+
+                    lastTime = System.currentTimeMillis();
+
+                    if (!animator.hasNext()) {
+                        paused = true;
+                    }
+                }
+            }
+
+            if (pressed(Key.ESCAPE)) {
+                running = false;
+            } else if (pressed(Key.ENTER) && !animator.hasNext()) {
+                running = false;
+            } else if (pressed(Key.SPACE)) {
+                paused = !paused;
+                lastTime = 0;
+            } else if (pressed(Key.LEFT) && paused) {
+
+                if (animator.hasPrevious()) {
+                    animator.moveBackward();
+                }
+
+            } else if (pressed(Key.RIGHT) && paused) {
+
+                if (animator.hasNext()) {
+                    animator.move();
+                }
+            } else if (pressed(Key.UP)) {
+                if (speed < 40) {
+                    speed++;
+                }
+
+            } else if (pressed(Key.DOWN)) {
+                if (speed > 1) {
+                    speed--;
+                }
+            }
+        }
+    }
+
     public static class SolutionAnimator {
 
         private final MutableMap map;
         private final List<State> states;
-        private int stateIndex = -1;
 
-        private List<Direction> path;
+        private final List<Move> path;
         private int pathIndex;
 
         private int playerX;
         private int playerY;
+
+        private int move;
+        private int push;
 
         public SolutionAnimator(Level level) {
             this.states = level.getSolution().getStates();
             this.map = new MutableMap(level.getMap());
             this.playerX = level.getPlayerX();
             this.playerY = level.getPlayerY();
+
+            path = computeFullPath();
         }
 
         public void move() {
-            if (stateIndex < 0) {
-                stateIndex = 0;
-            } else if (path == null) {
-                State current = states.get(stateIndex);
-                State next = states.get(stateIndex + 1);
-                Direction dir = getDirection(current, next);
-
-                int destX = next.playerPos() % map.getWidth() - dir.dirX();
-                int destY = next.playerPos() / map.getWidth() - dir.dirY();
-
-                if (playerX == destX && playerY == destY) {
-                    path = List.of(dir);
-                } else {
-                    path = findPath(playerX, playerY, destX, destY);
-                    path.add(dir);
-                }
-                pathIndex = 0;
-                stateIndex++;
+            if (!hasNext()) {
+                return;
             }
 
-            if (path != null) {
-                Direction dir = path.get(pathIndex);
+            Direction dir = path.get(pathIndex).direction();
 
-                move(dir);
-
-                pathIndex++;
-                if (pathIndex >= path.size()) {
-                    path = null;
-                }
-            }
-        }
-
-        private void move(Direction dir) {
             playerX += dir.dirX();
             playerY += dir.dirY();
+            move++;
 
             moveCrate(playerX, playerY, dir);
+
+            pathIndex++;
         }
 
         // move crate if needed
@@ -183,6 +275,8 @@ public class SolutionCommand extends AbstractVoidCommand {
             }
 
             if (curr.isCrate()) {
+                push++;
+
                 switch (next) {
                     case FLOOR -> map.setAt(newX, newY, Tile.CRATE);
                     case TARGET -> map.setAt(newX, newY, Tile.CRATE_ON_TARGET);
@@ -191,17 +285,85 @@ public class SolutionCommand extends AbstractVoidCommand {
         }
 
         public boolean hasNext() {
-            if (path != null) {
-                return true;
-            } else {
-                return stateIndex + 1 < states.size();
+            return pathIndex < path.size();
+        }
+
+        public void moveBackward() {
+            if (!hasPrevious()) {
+                return;
             }
+
+            pathIndex--;
+            Move move = path.get(pathIndex);
+
+            Direction dir = move.direction();
+
+            if (move.moveCrate()) {
+                int crateX = playerX + dir.dirX();
+                int crateY = playerY + dir.dirY();
+
+                Tile crate = map.getAt(crateX, crateY);
+
+                switch (crate) {
+                    case CRATE -> map.setAt(crateX, crateY, Tile.FLOOR);
+                    case CRATE_ON_TARGET -> map.setAt(crateX, crateY, Tile.TARGET);
+                }
+
+                switch (map.getAt(playerX, playerY)) {
+                    case FLOOR -> map.setAt(playerX, playerY, Tile.CRATE);
+                    case TARGET -> map.setAt(playerX, playerY, Tile.CRATE_ON_TARGET);
+                }
+
+                push--;
+            }
+
+            this.move--;
+            playerX -= dir.dirX();
+            playerY -= dir.dirY();
+        }
+
+        public boolean hasPrevious() {
+            return pathIndex > 0;
+        }
+
+        private List<Move> computeFullPath() {
+            List<Move> path = new ArrayList<>();
+
+            for (int i = 0; i < states.size() - 1; i++) {
+                State current = states.get(i);
+
+                if (i != 0) {
+                    map.addStateCrates(current);
+                }
+
+                int playerX = map.getX(current.playerPos());
+                int playerY = map.getY(current.playerPos());
+
+                State next = states.get(i + 1);
+                Direction dir = getDirection(current, next);
+
+                int destX = next.playerPos() % map.getWidth() - dir.dirX();
+                int destY = next.playerPos() / map.getWidth() - dir.dirY();
+
+                if (playerX != destX || playerY != destY) {
+                    path.addAll(findPath(playerX, playerY, destX, destY));
+                }
+
+                path.add(new Move(dir, true));
+
+                map.removeStateCrates(current);
+            }
+
+            // reset
+            map.addStateCrates(states.get(0));
+
+            return path;
         }
 
         /**
          * Doesn't move any crates
          */
-        public List<Direction> findPath(int fromX, int fromY, int destX, int destY) {
+        private List<Move> findPath(int fromX, int fromY, int destX, int destY) {
             Set<Node> visited = new HashSet<>();
             Queue<Node> queue = new ArrayDeque<>();
             queue.offer(new Node(null, fromX, fromY, null));
@@ -232,13 +394,13 @@ public class SolutionCommand extends AbstractVoidCommand {
             }
 
             if (solution == null) {
-                throw new IllegalStateException("Can't find path betwen two states");
+                throw new IllegalStateException("Can't find path between two states");
             } else {
-                List<Direction> directions = new ArrayList<>();
+                List<Move> directions = new ArrayList<>();
 
                 Node n = solution;
                 while (n.parent != null) {
-                    directions.add(n.dir);
+                    directions.add(new Move(n.dir, false));
 
                     n = n.parent;
                 }
@@ -249,7 +411,7 @@ public class SolutionCommand extends AbstractVoidCommand {
             }
         }
 
-        public Direction getDirection(State from, State to) {
+        private Direction getDirection(State from, State to) {
             List<Integer> state1Crates = Arrays.stream(from.cratesIndices()).boxed().collect(Collectors.toList());
             List<Integer> state2Crates = Arrays.stream(to.cratesIndices()).boxed().collect(Collectors.toList());
 
@@ -283,8 +445,20 @@ public class SolutionCommand extends AbstractVoidCommand {
             return playerY;
         }
 
-        public int getPlayerIndex() {
-            return playerY * map.getWidth() + playerX;
+        public int getMoveCount() {
+            return move;
+        }
+
+        public int getPushCount() {
+            return push;
+        }
+
+        public int getTotalMove() {
+            return path.size();
+        }
+
+        public int getTotalPush() {
+            return states.size() - 1;
         }
     }
 
@@ -308,4 +482,6 @@ public class SolutionCommand extends AbstractVoidCommand {
             return result;
         }
     }
+
+    private record Move(Direction direction, boolean moveCrate) {}
 }

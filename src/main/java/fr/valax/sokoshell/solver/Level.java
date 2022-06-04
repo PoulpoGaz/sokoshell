@@ -12,12 +12,14 @@ public class Level {
 
     private final Map map;
     private final int playerPos;
+    private final int index;
 
     private Solution solution;
 
-    public Level(Map map, int playerPos) {
+    public Level(Map map, int playerPos, int index) {
         this.map = map;
         this.playerPos = playerPos;
+        this.index = index;
     }
 
     public Map getMap() {
@@ -67,6 +69,10 @@ public class Level {
         this.solution = solution;
     }
 
+    public int getIndex() {
+        return index;
+    }
+
     public static class Builder {
 
         private int playerPos;
@@ -74,13 +80,14 @@ public class Level {
         private Tile[][] map = new Tile[0][0];
         private int width;
         private int height;
+        private int index;
 
         public Level build() {
             Objects.requireNonNull(map);
 
             Map m = new Map(map, width, height);
 
-            return new Level(m, playerPos);
+            return new Level(m, playerPos, index);
         }
 
         public int getPlayerPos() {
@@ -146,6 +153,14 @@ public class Level {
             }
 
             return map[y][x];
+        }
+
+        public int getIndex() {
+            return index;
+        }
+
+        public void setIndex(int index) {
+            this.index = index;
         }
     }
 }

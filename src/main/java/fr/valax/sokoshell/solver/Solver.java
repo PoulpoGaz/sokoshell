@@ -1,5 +1,7 @@
 package fr.valax.sokoshell.solver;
 
+import java.util.Set;
+
 /**
  * @author darth-mole
  * @author PoulpoGaz
@@ -15,4 +17,6 @@ public interface Solver {
     void resume();
 
     void stop();
+
+    Set<State> getProcessed();
 }

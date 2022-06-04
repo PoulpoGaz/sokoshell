@@ -65,6 +65,7 @@ public class IsekaiReader implements Reader {
         List<Level> levels = new ArrayList<>();
         for (int i = 0; i < nLevels; i++) {
             Level.Builder builder = new Level.Builder();
+            builder.setIndex(i);
 
             int x = is.read();
             int y = is.read();
