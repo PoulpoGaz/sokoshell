@@ -4,6 +4,8 @@ import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.solver.Pack;
 import fr.valax.sokoshell.solver.Solver;
 import fr.valax.sokoshell.solver.SolverStatus;
+import fr.valax.sokoshell.utils.MapRenderer;
+import fr.valax.sokoshell.utils.MapStyle;
 import org.jline.reader.Candidate;
 import org.jline.terminal.Terminal;
 
@@ -16,18 +18,21 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class SokoShellHelper implements Lock {
 
+    public static final SokoShellHelper INSTANCE = new SokoShellHelper();
+
     private final ReentrantLock lock = new ReentrantLock();
 
-    private final SokoShell shell;
-    private final Map<String, Pack> packs;
+    private final Map<String, Pack> packs = new HashMap<>();
+
+    private final MapStyle style = new MapStyle();
+    private final MapRenderer renderer = new MapRenderer();
 
     private Terminal terminal;
 
     private CompletableFuture<Void> solverFuture;
 
-    public SokoShellHelper(SokoShell shell) {
-        this.shell = shell;
-        packs = new HashMap<>();
+    private SokoShellHelper() {
+        renderer.setStyle(style);
     }
 
     public void solve(Solver solver, Level level) {
@@ -115,7 +120,13 @@ public class SokoShellHelper implements Lock {
         return solverFuture != null;
     }
 
+    public MapStyle getStyle() {
+        return style;
+    }
 
+    public MapRenderer getRenderer() {
+        return renderer;
+    }
 
     @Override
     public void lock() {

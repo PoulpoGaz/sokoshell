@@ -7,7 +7,6 @@ import fr.valax.args.repl.REPLHelpFormatter;
 import fr.valax.args.utils.CommandLineException;
 import fr.valax.args.utils.ParseException;
 import fr.valax.args.utils.TypeException;
-import fr.valax.sokoshell.utils.YesNoSelector;
 import org.jline.console.SystemRegistry;
 import org.jline.console.impl.SystemRegistryImpl;
 import org.jline.reader.*;
@@ -47,48 +46,20 @@ public class SokoShell {
         } finally {
             sokoshell.goodbye();
         }
-
-        /*try {
-            Pack pack = PackReaders.read(Path.of("levels/Microba0.8xv"));
-            Solver dfs = BasicBrutalSolver.newDFSSolver();
-
-            Level level = pack.levels().get(0);
-
-            PrintCommand.printMap(level);
-            List<State> solution = new ArrayList<>();
-
-            System.out.println(dfs.solve(level, solution));
-            System.out.println(solution);
-
-            Map map = level.getMap();
-            // Printing the solution
-            for (State s : solution) {
-                System.out.println("--------------------------------------------");
-                map.addStateCrates(s);
-                PrintCommand.printMap(level.getMap(), s.playerPos());
-                map.removeStateCrates(s);
-            }
-
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }*/
     }
 
     private final CommandLine cli;
-    private final SokoShellHelper helper;
 
     private SokoShell() throws CommandLineException {
-        helper = new SokoShellHelper(this);
-
         cli = new CommandLineBuilder()
                 .addDefaultConverters()
                 .setHelpFormatter(new REPLHelpFormatter())
-                .addCommand(new SolveCommand(helper))
-                .subCommand(new PrintCommand(helper))
-                    .addCommand(new SolutionCommand(helper))
+                .addCommand(new SolveCommand())
+                .subCommand(new PrintCommand())
+                    .addCommand(new SolutionCommand())
                     .endSubCommand()
-                .addCommand(new LoadCommand(helper))
-                .addCommand(new ListCommand(helper))
+                .addCommand(new LoadCommand())
+                .addCommand(new ListCommand())
                 .build();
     }
 
@@ -108,7 +79,7 @@ public class SokoShell {
         REPLCommandRegistry shellRegistry = new REPLCommandRegistry(cli, "SokoShell");
 
         try (Terminal terminal = TerminalBuilder.terminal()) {
-            helper.setTerminal(terminal);
+            SokoShellHelper.INSTANCE.setTerminal(terminal);
 
             SystemRegistry registry = new SystemRegistryImpl(parser, terminal, () -> Path.of(""), null);
             registry.setCommandRegistries(shellRegistry);

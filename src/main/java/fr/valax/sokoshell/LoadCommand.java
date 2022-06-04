@@ -6,7 +6,6 @@ import fr.valax.sokoshell.loader.PackReaders;
 import fr.valax.sokoshell.solver.Pack;
 import fr.valax.sokoshell.utils.ScanUtils;
 import fr.valax.sokoshell.utils.Utils;
-import org.jline.builtins.Completers;
 import org.jline.reader.Candidate;
 import org.jline.reader.LineReader;
 import org.jline.reader.ParsedLine;
@@ -17,10 +16,6 @@ import java.nio.file.Path;
 import java.util.List;
 
 public class LoadCommand extends AbstractVoidCommand {
-
-    public LoadCommand(SokoShellHelper helper) {
-        super(helper);
-    }
 
     @Option(names = {"i", "-input"}, hasArgument = true, argName = "input file", optional = false)
     private Path input;

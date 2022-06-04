@@ -2,12 +2,14 @@ package fr.valax.sokoshell;
 
 import fr.valax.args.api.Option;
 import fr.valax.args.utils.ArgsUtils;
-import fr.valax.sokoshell.solver.*;
+import fr.valax.sokoshell.solver.BasicBrutalSolver;
+import fr.valax.sokoshell.solver.Level;
+import fr.valax.sokoshell.solver.Pack;
+import fr.valax.sokoshell.solver.Solver;
 import org.jline.reader.Candidate;
 import org.jline.reader.LineReader;
 import org.jline.reader.ParsedLine;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,10 +22,6 @@ public class SolveCommand extends AbstractVoidCommand {
 
     @Option(names = {"i", "-index"}, hasArgument = true, argName = "Level index", optional = false)
     private int index;
-
-    public SolveCommand(SokoShellHelper helper) {
-        super(helper);
-    }
 
     @Override
     public void run() {

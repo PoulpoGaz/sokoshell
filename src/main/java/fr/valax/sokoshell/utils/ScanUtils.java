@@ -15,10 +15,10 @@ public class ScanUtils {
         System.out.print(question);
 
         switch (defaultValue) {
-            case DEFAULT_YES -> System.out.print("[Y/n]:");
-            case DEFAULT_NO -> System.out.print("[y/N]:");
+            case DEFAULT_YES -> System.out.print(" [Y/n]:");
+            case DEFAULT_NO -> System.out.print(" [y/N]:");
             default -> {
-                System.out.print("[y/n]:");
+                System.out.print(" [y/n]:");
                 defaultValue = NO_DEFAULT;
             }
         }
@@ -34,7 +34,7 @@ public class ScanUtils {
                 } else if (line.equals("n")) {
                     return false;
                 } else {
-                    System.out.println(question + "[y/N]:");
+                    System.out.println(question + " [y/N]:");
                 }
             }
         }

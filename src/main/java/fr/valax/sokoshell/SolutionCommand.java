@@ -2,14 +2,19 @@ package fr.valax.sokoshell;
 
 import fr.valax.args.api.Option;
 import fr.valax.args.utils.ArgsUtils;
-import fr.valax.sokoshell.solver.*;
 import fr.valax.sokoshell.solver.Map;
-import org.jline.console.impl.Builtins;
+import fr.valax.sokoshell.solver.*;
+import fr.valax.sokoshell.utils.MapRenderer;
 import org.jline.reader.Candidate;
 import org.jline.reader.LineReader;
 import org.jline.reader.ParsedLine;
+import org.jline.terminal.Attributes;
+import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
+import org.jline.utils.AttributedString;
+import org.jline.utils.Display;
 import org.jline.utils.InfoCmp;
+import org.w3c.dom.Attr;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -21,10 +26,6 @@ public class SolutionCommand extends AbstractVoidCommand {
 
     @Option(names = {"i", "-index"}, hasArgument = true, argName = "Level index", optional = false)
     private int index;
-
-    public SolutionCommand(SokoShellHelper helper) {
-        super(helper);
-    }
 
     @Override
     public void run() {
@@ -53,20 +54,42 @@ public class SolutionCommand extends AbstractVoidCommand {
     }
 
     private void showAnimation(SolutionAnimator animator) {
+        MapRenderer renderer = helper.getRenderer();
         Terminal terminal = helper.getTerminal();
 
-        while (animator.hasNext()) {
-            animator.move();
+        Display display = new Display(terminal, true);
+        Attributes attr = terminal.enterRawMode();
 
-            terminal.puts(InfoCmp.Capability.clear_screen);
-            terminal.flush();
-            PrintCommand.printMap(animator.getMap(), animator.getPlayerIndex());
+        try {
+            terminal.puts(InfoCmp.Capability.enter_ca_mode);
+            terminal.puts(InfoCmp.Capability.keypad_xmit);
+            terminal.writer().flush();
 
-            long time = System.currentTimeMillis();
+            display.clear();
+            display.reset();
 
-            while (time + 100 > System.currentTimeMillis()) {
-                Thread.onSpinWait();
+            Map map = animator.getMap();
+            while (animator.hasNext()) {
+                animator.move();
+
+                // reusing the same list doesn't work!!
+                List<AttributedString> draw = renderer.draw(map, animator.getPlayerX(), animator.getPlayerY());
+
+                Size curr = terminal.getSize();
+                display.resize(curr.getRows(), curr.getColumns());
+                display.update(draw, curr.cursorPos(map.getHeight(), map.getWidth()));
+
+                long time = System.currentTimeMillis();
+
+                while (time + 100 > System.currentTimeMillis()) {
+                    Thread.onSpinWait();
+                }
             }
+        } finally {
+            terminal.setAttributes(attr);
+            terminal.puts(InfoCmp.Capability.exit_ca_mode);
+            terminal.puts(InfoCmp.Capability.keypad_local);
+            terminal.writer().flush();
         }
     }
 
@@ -104,7 +127,6 @@ public class SolutionCommand extends AbstractVoidCommand {
             this.map = new MutableMap(level.getMap());
             this.playerX = level.getPlayerX();
             this.playerY = level.getPlayerY();
-            stateIndex = 0;
         }
 
         public void move() {
