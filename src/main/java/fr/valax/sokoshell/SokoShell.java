@@ -63,6 +63,7 @@ public class SokoShell {
                 .addCommand(new LoadCommand())
                 .addCommand(new ListCommand())
                 .addCommand(new StatusCommand())
+                .addCommand(new PlayCommand())
                 .build();
     }
 
