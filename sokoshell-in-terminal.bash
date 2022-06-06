@@ -4,21 +4,24 @@
 
 DEBUG=0
 MAIN_CLASS=fr.valax.sokoshell.SokoShell
+N=0
 
 while getopts dm: opt; do
   case "$opt" in
     d)
       DEBUG=1
-      shift
+      ((N++))
       ;;
     m)
       MAIN_CLASS="$OPTARG"
-      shift 2
+      ((N += 2))
       ;;
     \?)
       exit 1
   esac
 done
+
+shift $N
 
 # compile and run
 
@@ -31,7 +34,7 @@ JVM_ARGS="-Dfile.encoding=UTF-8 -classpath ${CLASSPATH} ${MAIN_CLASS}"
 # word splitting is very important
 if [ $DEBUG -ne 0 ]
 then
-  java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 $JVM_ARGS $*
+  java -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005 $JVM_ARGS $*
 else
   java $JVM_ARGS $*
 fi

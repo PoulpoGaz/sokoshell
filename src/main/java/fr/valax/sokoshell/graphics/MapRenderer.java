@@ -1,5 +1,6 @@
-package fr.valax.sokoshell.utils;
+package fr.valax.sokoshell.graphics;
 
+import fr.valax.sokoshell.solver.Direction;
 import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.solver.Map;
 import fr.valax.sokoshell.solver.Tile;
@@ -77,6 +78,30 @@ public class MapRenderer {
 
             out.add(builder.toAttributedString());
             builder.setLength(0);
+        }
+    }
+
+    public void draw(Graphics g,
+                     int x, int y, int size,
+                     Map map, int playerX, int playerY, Direction playerDir) {
+        if (style == null) {
+            throw new IllegalStateException("Please, set style before");
+        }
+
+        int s = style.findBestSize(size);
+
+        if (s < 0) {
+            s = size;
+        }
+
+        for (int y2 = 0; y2 < map.getHeight(); y2++) {
+            for (int x2 = 0; x2 < map.getWidth(); x2++) {
+                boolean player = playerY == y2 && playerX == x2;
+
+                Tile tile = map.getAt(x2, y2);
+
+                style.draw(g, x2 * s + x, y2 * s + y, s, tile, player ? playerDir : null);
+            }
         }
     }
 
