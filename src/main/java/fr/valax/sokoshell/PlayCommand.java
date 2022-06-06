@@ -1,10 +1,14 @@
 package fr.valax.sokoshell;
 
 import fr.valax.args.api.Option;
+import fr.valax.args.utils.ArgsUtils;
 import fr.valax.sokoshell.solver.*;
 import fr.valax.sokoshell.utils.MapRenderer;
 import fr.valax.sokoshell.utils.View;
 import org.jline.keymap.KeyMap;
+import org.jline.reader.Candidate;
+import org.jline.reader.LineReader;
+import org.jline.reader.ParsedLine;
 import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
 import org.jline.utils.AttributedString;
@@ -48,6 +52,13 @@ public class PlayCommand extends AbstractVoidCommand {
 
     @Override
     public String getUsage() { return "Allows you to play the Sokoban game"; }
+
+    @Override
+    public void completeOption(LineReader reader, ParsedLine line, List<Candidate> candidates, Option option) {
+        if (ArgsUtils.contains(option.names(), "p")) {
+            helper.addPackCandidates(candidates);
+        }
+    }
 
     private enum Key {
 
@@ -107,6 +118,10 @@ public class PlayCommand extends AbstractVoidCommand {
 
             draw.add(builder.toAttributedString());
 
+            if (controller.isMapCompleted()) {
+                draw.add(new AttributedString("Completed!"));
+            }
+
             return draw;
         }
 
@@ -130,9 +145,10 @@ public class PlayCommand extends AbstractVoidCommand {
         MutableMap map;
         private int playerX;
         private int playerY;
-
         int moves;
         int push;
+
+        private boolean mapCompleted = false;
 
         GameController(Level level) {
             this.map = new MutableMap(level.getMap());
@@ -154,8 +170,10 @@ public class PlayCommand extends AbstractVoidCommand {
                     if (map.caseExists(nextNextX, nextNextY) && map.isTileEmpty(nextNextX, nextNextY)) {
                         movePlayer(nextX, nextY);
                         moveCrate(nextX, nextY, nextNextX, nextNextY);
+                        if (map.isCompleted()) {
+                            mapCompleted = true;
+                        }
                     }
-
                 }
             }
         }
@@ -206,5 +224,7 @@ public class PlayCommand extends AbstractVoidCommand {
 
         public int getPushCount() { return push; }
         public int getMoveCount() { return moves; }
+
+        public boolean isMapCompleted() { return mapCompleted; }
     }
 }
