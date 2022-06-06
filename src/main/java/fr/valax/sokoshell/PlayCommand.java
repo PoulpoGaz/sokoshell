@@ -2,9 +2,10 @@ package fr.valax.sokoshell;
 
 import fr.valax.args.api.Option;
 import fr.valax.args.utils.ArgsUtils;
+import fr.valax.sokoshell.graphics.MapRenderer;
+import fr.valax.sokoshell.graphics.View;
 import fr.valax.sokoshell.solver.*;
-import fr.valax.sokoshell.utils.MapRenderer;
-import fr.valax.sokoshell.utils.View;
+import fr.valax.sokoshell.utils.Utils;
 import org.jline.keymap.KeyMap;
 import org.jline.reader.Candidate;
 import org.jline.reader.LineReader;
@@ -92,37 +93,43 @@ public class PlayCommand extends AbstractVoidCommand {
 
         @Override
         protected void render(Size size) {
-            List<AttributedString> draw = render();
+            surface.clear();
 
-            int cursorX = draw.get(draw.size() - 1).columnLength();
-            int cursorY = draw.size() - 1;
+            int width = drawInfo(size.getColumns(), size.getRows());
 
-            display.update(draw, size.cursorPos(cursorY, cursorX));
-        }
-
-        private List<AttributedString> render() {
             MapRenderer renderer = helper.getRenderer();
-            List<AttributedString> draw = renderer.draw(controller.getMap(),
-                    controller.getPlayerX(),
-                    controller.getPlayerY());
+            Map map = controller.getMap();
 
-            AttributedStringBuilder builder = new AttributedStringBuilder();
-
-            // moves:  XX/XXX
-            builder.append("Moves: ").append(String.valueOf(controller.getMoveCount()));
-
-            builder.append(" | ");
-
-            // pushes: XX/XXX
-            builder.append("Pushes: ").append(String.valueOf(controller.getPushCount()));
-
-            draw.add(builder.toAttributedString());
-
-            if (controller.isMapCompleted()) {
-                draw.add(new AttributedString("Completed!"));
+            Direction lastMove = controller.getLastDir();
+            if (lastMove == null) {
+                lastMove = Direction.DOWN;
             }
 
-            return draw;
+            double yRatio = (double) size.getRows() / map.getHeight();
+            double xRatio = (double) (size.getColumns() - width) / map.getWidth();
+
+            int s = (int) Math.min(xRatio, yRatio);
+
+            renderer.draw(graphics, 0, 0, s,
+                    controller.getMap(), controller.getPlayerX(), controller.getPlayerY(), lastMove);
+
+            surface.drawBuffer(display, 0);
+        }
+
+        private int drawInfo(int width, int height) {
+            String moves = "Moves: " + controller.getMoveCount();
+            surface.draw(moves, width - moves.length(), 0);
+
+            String pushes = "Pushes: " + controller.getPushCount();
+            surface.draw(pushes, width - pushes.length(), 1);
+
+            String fps = "FPS: " + getFPS();
+            surface.draw(fps, width - fps.length(), 4);
+
+            String tps = "TPS: " + getTPS();
+            surface.draw(tps, width - tps.length(), 5);
+
+            return Math.max(moves.length(), pushes.length());
         }
 
         @Override
@@ -148,6 +155,8 @@ public class PlayCommand extends AbstractVoidCommand {
         int moves;
         int push;
 
+        Direction lastDir;
+
         private boolean mapCompleted = false;
 
         GameController(Level level) {
@@ -159,6 +168,7 @@ public class PlayCommand extends AbstractVoidCommand {
         public void move(Direction dir) {
             final int nextX = playerX + dir.dirX();
             final int nextY = playerY + dir.dirY();
+            lastDir = dir;
 
             if (map.caseExists(nextX, nextY) && map.isTileEmpty(nextX, nextY)) {
                 movePlayer(nextX, nextY);
@@ -221,6 +231,8 @@ public class PlayCommand extends AbstractVoidCommand {
 
         public int getPlayerX() { return playerX; }
         public int getPlayerY() { return playerY; }
+
+        public Direction getLastDir() { return lastDir; }
 
         public int getPushCount() { return push; }
         public int getMoveCount() { return moves; }
