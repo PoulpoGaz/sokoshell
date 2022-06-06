@@ -3,9 +3,10 @@ package fr.valax.sokoshell;
 import fr.valax.args.api.Option;
 import fr.valax.args.utils.ArgsUtils;
 import fr.valax.sokoshell.solver.*;
-import fr.valax.sokoshell.utils.MapRenderer;
+import fr.valax.sokoshell.graphics.MapRenderer;
+import fr.valax.sokoshell.solver.Map;
 import fr.valax.sokoshell.utils.Utils;
-import fr.valax.sokoshell.utils.View;
+import fr.valax.sokoshell.graphics.View;
 import org.jline.keymap.KeyMap;
 import org.jline.reader.Candidate;
 import org.jline.reader.LineReader;
@@ -114,51 +115,58 @@ public class SolutionCommand extends AbstractVoidCommand {
 
         @Override
         protected void render(Size size) {
-            // reusing the same list doesn't work!!
-            List<AttributedString> draw = render(animator);
+            surface.clear();
 
-            int cursorX = draw.get(draw.size() - 1).columnLength();
-            int cursorY = draw.size() - 1;
+            int width = drawInfo(size.getColumns(), size.getRows());
 
-            display.update(draw, size.cursorPos(cursorY, cursorX));
+            MapRenderer renderer = helper.getRenderer();
+            Map map = animator.getMap();
+
+            Direction lastMove = animator.getLastMove();
+            if (lastMove == null) {
+                lastMove = Direction.DOWN;
+            }
+
+            double yRatio = (double) size.getRows() / map.getHeight();
+            double xRatio = (double) (size.getColumns() - width) / map.getWidth();
+
+            int s = (int) Math.min(xRatio, yRatio);
+
+            renderer.draw(graphics, 0, 0, s,
+                    animator.getMap(), animator.getPlayerX(), animator.getPlayerY(), lastMove);
+
+            surface.drawBuffer(display, 0);
         }
 
-        private List<AttributedString> render(SolutionAnimator animator) {
-            MapRenderer renderer = helper.getRenderer();
-            List<AttributedString> draw = renderer.draw(animator.getMap(), animator.getPlayerX(), animator.getPlayerY());
-
+        private int drawInfo(int width, int height) {
             int totalMoveLength = Utils.nDigit(animator.getTotalMove());
             int totalPushLength = Utils.nDigit(animator.getTotalMove());
 
             int moveLength = Utils.nDigit(animator.getMoveCount());
             int pushLength = Utils.nDigit(animator.getPushCount());
 
-            AttributedStringBuilder builder = new AttributedStringBuilder();
-            // moves:  XX/XXX
-            builder.append("Moves: ").append(" ".repeat(totalMoveLength - moveLength))
-                    .append(String.valueOf(animator.getMoveCount())).append('/')
-                    .append(String.valueOf(animator.getTotalMove()));
+            int speedLength = Utils.nDigit(speed);
 
-            builder.append(" | ");
+            int moveInfoLength = 8 + 2 * totalMoveLength;
+            int pushInfoLength = 9 + 2 * totalPushLength;
+            int speedInfoLength = 7 + speedLength;
 
-            // pushes: XX/XXX
-            builder.append("Pushes: ").append(" ".repeat(totalPushLength - pushLength))
-                    .append(String.valueOf(animator.getPushCount())).append('/')
-                    .append(String.valueOf(animator.getTotalPush()));
+            surface.draw("Moves:", width - moveInfoLength, 0);
+            surface.draw("%d/%d".formatted(animator.getMoveCount(), animator.getTotalMove()), width - totalMoveLength - moveLength - 1, 0);
 
-            // speed
-            builder.append(" | Speed: ").append(String.valueOf(speed));
+            surface.draw("Pushes:", width - pushInfoLength, 1);
+            surface.draw("%d/%d".formatted(animator.getPushCount(), animator.getTotalPush()), width - totalPushLength - pushLength - 1, 1);
 
-            draw.add(builder.toAttributedString());
+            surface.draw("Speed:", width - 7 - speedLength, 2);
+            surface.draw(String.valueOf(speed), width - speedLength, 2);
 
-            if (paused) {
-                draw.add(new AttributedString("Paused"));
-            }
+            String fps = "FPS: " + getFPS();
+            surface.draw(fps, width - fps.length(), 4);
 
-            draw.add(new AttributedString("FPS: " + getFPS()));
-            draw.add(new AttributedString("TPS: " + getTPS()));
+            String tps = "TPS: " + getTPS();
+            surface.draw(tps, width - tps.length(), 5);
 
-            return draw;
+            return Math.max(moveInfoLength, Math.max(pushInfoLength, speedInfoLength));
         }
 
         /**
@@ -459,6 +467,14 @@ public class SolutionCommand extends AbstractVoidCommand {
 
         public int getTotalPush() {
             return states.size() - 1;
+        }
+
+        public Direction getLastMove() {
+            if (pathIndex == 0) {
+                return null;
+            }
+
+            return path.get(pathIndex - 1).direction();
         }
     }
 

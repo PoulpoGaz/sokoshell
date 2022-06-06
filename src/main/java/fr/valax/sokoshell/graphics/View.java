@@ -1,10 +1,12 @@
-package fr.valax.sokoshell.utils;
+package fr.valax.sokoshell.graphics;
 
+import fr.valax.sokoshell.utils.Utils;
 import org.jline.keymap.BindingReader;
 import org.jline.keymap.KeyMap;
 import org.jline.terminal.Attributes;
 import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
+import org.jline.utils.AttributedString;
 import org.jline.utils.Display;
 import org.jline.utils.InfoCmp;
 
@@ -23,6 +25,8 @@ public abstract class View<T> implements AutoCloseable {
     // drawing
     protected final Terminal terminal;
     protected final Display display;
+    protected final Surface surface;
+    protected final Graphics graphics;
 
     // input
     private final Object LOCK = new Object();
@@ -61,6 +65,10 @@ public abstract class View<T> implements AutoCloseable {
 
         display.clear();
         display.reset();
+
+        surface = new Surface();
+        surface.resize(terminal.getSize());
+        graphics = new Graphics(surface);
     }
 
     // INPUT
@@ -134,6 +142,7 @@ public abstract class View<T> implements AutoCloseable {
 
             Size size = terminal.getSize();
             display.resize(size.getRows(), size.getColumns());
+            surface.resize(size.getColumns(), size.getRows());
 
             if (lastSize != null && !lastSize.equals(size)) {
                 display.clear();
