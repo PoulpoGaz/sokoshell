@@ -1,6 +1,7 @@
 package fr.valax.sokoshell;
 
 import fr.valax.args.api.Option;
+import fr.valax.sokoshell.solver.Direction;
 import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.solver.MutableMap;
 import fr.valax.sokoshell.solver.Pack;
@@ -104,14 +105,13 @@ public class PlayCommand extends AbstractVoidCommand {
             if (pressed(PlayCommand.Key.ESCAPE) || pressed(PlayCommand.Key.ENTER)) {
                 running = false;
             } else if (pressed(PlayCommand.Key.LEFT)) {
-
-
+                controller.move(Direction.LEFT);
             } else if (pressed(PlayCommand.Key.RIGHT)) {
-
+                controller.move(Direction.RIGHT);
             } else if (pressed(PlayCommand.Key.UP)) {
-
+                controller.move(Direction.UP);
             } else if (pressed(PlayCommand.Key.DOWN)) {
-
+                controller.move(Direction.DOWN);
             }
         }
     }
@@ -125,6 +125,16 @@ public class PlayCommand extends AbstractVoidCommand {
             this.map = new MutableMap(level.getMap());
             this.playerX = level.getPlayerX();
             this.playerY = level.getPlayerY();
+        }
+
+        public void move(Direction dir) {
+            int nextX = playerX + dir.dirX();
+            int nextY = playerY + dir.dirY();
+
+            if (map.isTileEmpty(nextX, nextY)) {
+                playerX = nextX;
+                playerY = nextY;
+            }
         }
 
         public MutableMap getMap() { return map; }
