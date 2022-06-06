@@ -1,16 +1,14 @@
 package fr.valax.sokoshell;
 
 import fr.valax.args.api.Option;
-import fr.valax.sokoshell.solver.Direction;
-import fr.valax.sokoshell.solver.Level;
-import fr.valax.sokoshell.solver.MutableMap;
-import fr.valax.sokoshell.solver.Pack;
+import fr.valax.sokoshell.solver.*;
 import fr.valax.sokoshell.utils.MapRenderer;
 import fr.valax.sokoshell.utils.View;
 import org.jline.keymap.KeyMap;
 import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
 import org.jline.utils.AttributedString;
+import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.InfoCmp;
 
 import java.util.List;
@@ -97,6 +95,18 @@ public class PlayCommand extends AbstractVoidCommand {
                     controller.getPlayerX(),
                     controller.getPlayerY());
 
+            AttributedStringBuilder builder = new AttributedStringBuilder();
+
+            // moves:  XX/XXX
+            builder.append("Moves: ").append(String.valueOf(controller.getMoveCount()));
+
+            builder.append(" | ");
+
+            // pushes: XX/XXX
+            builder.append("Pushes: ").append(String.valueOf(controller.getPushCount()));
+
+            draw.add(builder.toAttributedString());
+
             return draw;
         }
 
@@ -121,6 +131,9 @@ public class PlayCommand extends AbstractVoidCommand {
         private int playerX;
         private int playerY;
 
+        int moves;
+        int push;
+
         GameController(Level level) {
             this.map = new MutableMap(level.getMap());
             this.playerX = level.getPlayerX();
@@ -128,12 +141,61 @@ public class PlayCommand extends AbstractVoidCommand {
         }
 
         public void move(Direction dir) {
-            int nextX = playerX + dir.dirX();
-            int nextY = playerY + dir.dirY();
+            final int nextX = playerX + dir.dirX();
+            final int nextY = playerY + dir.dirY();
 
-            if (map.isTileEmpty(nextX, nextY)) {
-                playerX = nextX;
-                playerY = nextY;
+            if (map.caseExists(nextX, nextY) && map.isTileEmpty(nextX, nextY)) {
+                movePlayer(nextX, nextY);
+            } else {
+                final Tile next = map.getAt(nextX, nextY);
+                if (next == Tile.CRATE || next == Tile.CRATE_ON_TARGET) {
+                    final int nextNextX = nextX + dir.dirX();
+                    final int nextNextY = nextY + dir.dirY();
+                    if (map.caseExists(nextNextX, nextNextY) && map.isTileEmpty(nextNextX, nextNextY)) {
+                        movePlayer(nextX, nextY);
+                        moveCrate(nextX, nextY, nextNextX, nextNextY);
+                    }
+
+                }
+            }
+        }
+
+
+        /**
+         * Moves the player to the given coordinates. The move MUST be valid (no check preformed).
+         * @param x x-coordinate
+         * @param y y-coordinate
+         */
+        private void movePlayer(int x, int y) {
+            playerX = x;
+            playerY = y;
+            moves++;
+        }
+
+        /**
+         * Moves a crate from (x,y) to (nextX, nextY). The move MUST be valid (no check preformed).
+         * @param x x-coordinate
+         * @param y y-coordinate
+         * @param nextX new x-coordinate
+         * @param nextY new y-coordinate
+         */
+        private void moveCrate(int x, int y, int nextX, int nextY) {
+
+            Tile curr = map.getAt(x, y);
+            Tile next = map.getAt(nextX, nextY);
+
+            switch (curr) {
+                case CRATE -> map.setAt(x, y, Tile.FLOOR);
+                case CRATE_ON_TARGET -> map.setAt(x, y, Tile.TARGET);
+            }
+
+            if (curr.isCrate()) {
+                push++;
+
+                switch (next) {
+                    case FLOOR -> map.setAt(nextX, nextY, Tile.CRATE);
+                    case TARGET -> map.setAt(nextX, nextY, Tile.CRATE_ON_TARGET);
+                }
             }
         }
 
@@ -141,5 +203,8 @@ public class PlayCommand extends AbstractVoidCommand {
 
         public int getPlayerX() { return playerX; }
         public int getPlayerY() { return playerY; }
+
+        public int getPushCount() { return push; }
+        public int getMoveCount() { return moves; }
     }
 }

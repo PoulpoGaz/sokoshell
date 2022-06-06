@@ -48,6 +48,25 @@ public class Map {
     }
 
     /**
+     * Tells whether the case at (x,y) exists or not (i.e. if the case is in the map)
+     * @param x x-coordinate
+     * @param y y-coordinate
+     * @return true if the case exists, false otherwise
+     */
+    public boolean caseExists(int x, int y) {
+        return (0 <= x && x < width) && (0 <= y && y < height);
+    }
+
+    /**
+     * Same than caseExists(x, y) but with an index
+     * @param index index of the case
+     * @return true if the case exists, false otherwise
+     */
+    public boolean caseExists(int index) {
+        return caseExists(getX(index), getY(index));
+    }
+
+    /**
      * Tells whether the tile at the given coordinates is empty or not.
      * @param x x coordinate of the case
      * @param y y coordinate of the case
