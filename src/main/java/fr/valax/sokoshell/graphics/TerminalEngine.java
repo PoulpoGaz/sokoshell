@@ -6,16 +6,45 @@ import org.jline.keymap.KeyMap;
 import org.jline.terminal.Attributes;
 import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
-import org.jline.utils.AttributedString;
 import org.jline.utils.Display;
 import org.jline.utils.InfoCmp;
 
 import java.io.IOError;
 import java.io.InterruptedIOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Future;
 
-public abstract class View<T> implements AutoCloseable {
+/**
+ * TerminalEngine is an object used to facilitate drawing
+ * and input reading.
+ *
+ * It's divided in three methods: {@link TerminalEngine#init()},
+ * {@link TerminalEngine#render(Size)} and {@link TerminalEngine#update()}
+ *
+ * In the init method, you define shortcuts.
+ * In render, you draw things with {@link Surface} and {@link Graphics} objects.
+ * After drawing, you should call {@link Surface#drawBuffer(Display, int)}
+ * In update method, you can read key events.
+ *
+ * Input:
+ * Implementations declare in the init method the binding.
+ * They associate to an object (which type is defined by the generic)
+ * a string that represents a shortcut. For complex shortcut like ctrl+A,
+ * you can use functions in {@link KeyMap}
+ *
+ * Usage of implementations:
+ * <pre>
+ *     try (MyEngine engine = new MyEngine(terminal) {
+ *         engine.loop();
+ *     }
+ * </pre>
+ *
+ * @param <T> type of binding
+ */
+public abstract class TerminalEngine<T> implements AutoCloseable {
 
     public static final int TPS = 60;
 
@@ -45,7 +74,7 @@ public abstract class View<T> implements AutoCloseable {
     private int fps;
     private int tps;
 
-    public View(Terminal terminal) {
+    public TerminalEngine(Terminal terminal) {
         this.terminal = terminal;
         this.display = new Display(terminal, true);
         display.setDelayLineWrap(false);
@@ -112,8 +141,17 @@ public abstract class View<T> implements AutoCloseable {
         occurrences.clear();
     }
 
-    // LOOP
-
+    /**
+     * The main loop.
+     * It calls 60 times the update function.
+     * The render function is not regulated.
+     *
+     * It automatically, resize the surface and the display.
+     * The terminal is also cleared.
+     *
+     * After updating, key events are reset and then pooled from
+     * the input thread.
+     */
     public void loop() {
         long lastTime = System.nanoTime();
         double ns = 1000000000.0 / TPS;

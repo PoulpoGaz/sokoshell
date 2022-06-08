@@ -14,7 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * A class used by {@link View} to draw.
+ * A class used by {@link TerminalEngine} to draw.
  * It doesn't support character with column with not equal to 1
  *
  * @see org.jline.utils.WCWidth
@@ -181,7 +181,7 @@ public class Surface {
         DOWN
     }
 
-    private static class TestClass extends View<KeyEvent> {
+    private static class TestClass extends TerminalEngine<KeyEvent> {
 
         private Surface surface;
         private Graphics g;

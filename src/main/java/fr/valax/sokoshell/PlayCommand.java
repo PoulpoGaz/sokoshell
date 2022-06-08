@@ -3,17 +3,14 @@ package fr.valax.sokoshell;
 import fr.valax.args.api.Option;
 import fr.valax.args.utils.ArgsUtils;
 import fr.valax.sokoshell.graphics.MapRenderer;
-import fr.valax.sokoshell.graphics.View;
+import fr.valax.sokoshell.graphics.TerminalEngine;
 import fr.valax.sokoshell.solver.*;
-import fr.valax.sokoshell.utils.Utils;
 import org.jline.keymap.KeyMap;
 import org.jline.reader.Candidate;
 import org.jline.reader.LineReader;
 import org.jline.reader.ParsedLine;
 import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
-import org.jline.utils.AttributedString;
-import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.InfoCmp;
 
 import java.util.List;
@@ -71,9 +68,9 @@ public class PlayCommand extends AbstractVoidCommand {
         ENTER
     }
 
-    public class PlayView extends View<Key> {
+    public class PlayView extends TerminalEngine<Key> {
 
-        private GameController controller;
+        private final GameController controller;
 
         public PlayView(Terminal terminal, GameController controller) {
             super(terminal);

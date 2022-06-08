@@ -36,12 +36,6 @@
             <artifactId>jline</artifactId>
             <version>3.21.0</version>
         </dependency>
-
-        <dependency>
-            <groupId>com.diogonunes</groupId>
-            <artifactId>JColor</artifactId>
-            <version>5.5.1</version>
-        </dependency>
     </dependencies>
 
     <dependencyManagement>

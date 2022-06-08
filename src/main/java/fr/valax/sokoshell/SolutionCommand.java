@@ -6,15 +6,13 @@ import fr.valax.sokoshell.solver.*;
 import fr.valax.sokoshell.graphics.MapRenderer;
 import fr.valax.sokoshell.solver.Map;
 import fr.valax.sokoshell.utils.Utils;
-import fr.valax.sokoshell.graphics.View;
+import fr.valax.sokoshell.graphics.TerminalEngine;
 import org.jline.keymap.KeyMap;
 import org.jline.reader.Candidate;
 import org.jline.reader.LineReader;
 import org.jline.reader.ParsedLine;
 import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
-import org.jline.utils.AttributedString;
-import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.InfoCmp;
 
 import java.util.*;
@@ -85,7 +83,7 @@ public class SolutionCommand extends AbstractVoidCommand {
         SPACE
     }
 
-    public class SolutionView extends View<Key> {
+    public class SolutionView extends TerminalEngine<Key> {
 
         private final SolutionAnimator animator;
 
