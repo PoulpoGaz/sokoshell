@@ -66,7 +66,7 @@ public abstract class BasicBrutalSolver extends AbstractSolver {
     }
 
     private void addChildrenStates(State cur, Map map) {
-        findAccessibleCases(cur.playerPos(), map);
+        findReachableCases(cur.playerPos(), map);
 
         int[] cratesIndices = cur.cratesIndices();
         for (int crateIndex = 0; crateIndex < cratesIndices.length; crateIndex++) {
