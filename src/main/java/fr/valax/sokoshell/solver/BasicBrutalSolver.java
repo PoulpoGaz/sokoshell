@@ -21,7 +21,6 @@ public abstract class BasicBrutalSolver extends AbstractSolver {
     }
 
     protected final ArrayDeque<State> toProcess = new ArrayDeque<>();
-    protected boolean[][] reachableCases;
     protected final Set<State> processed = new HashSet<>();
 
     private Solution solution;
@@ -52,9 +51,7 @@ public abstract class BasicBrutalSolver extends AbstractSolver {
                 break;
             }
 
-            //if (processed.add(cur)) {
-                addChildrenStates(cur, map);
-            //}
+            addChildrenStates(cur, map);
 
             map.removeStateCrates(cur);
         }
@@ -66,21 +63,6 @@ public abstract class BasicBrutalSolver extends AbstractSolver {
 
             return SolverStatus.SOLUTION_FOUND;
         }
-    }
-
-    private Solution buildSolution(State finalState) {
-        List<State> solution = new ArrayList<>();
-
-        State s = finalState;
-        while (s.parent() != null)
-        {
-            solution.add(s);
-            s = s.parent();
-        }
-        solution.add(s);
-        Collections.reverse(solution);
-
-        return new Solution(solution);
     }
 
     private void addChildrenStates(State cur, Map map) {
@@ -119,27 +101,6 @@ public abstract class BasicBrutalSolver extends AbstractSolver {
                 if (processed.add(s)) {
                     toProcess.add(s);
                 }
-            }
-        }
-    }
-
-    private void findAccessibleCases(int playerPos, Map map) {
-        for (int i = 0; i < map.getWidth(); i++) {
-            for (int j = 0; j < map.getHeight(); j++) {
-                reachableCases[j][i] = false;
-            }
-        }
-        findAccessibleCases_aux(map.getX(playerPos), map.getY(playerPos), map);
-    }
-
-    private void findAccessibleCases_aux(int x, int y, Map map) {
-        reachableCases[y][x] = true;
-        for (Direction d : Direction.values()) {
-            int i = x + d.dirX();
-            int j = y + d.dirY();
-            // the second part of the condition avoids to check already processed cases
-            if (map.isTileEmpty(i, j) && !reachableCases[j][i]) {
-                findAccessibleCases_aux(i, j, map);
             }
         }
     }
