@@ -37,7 +37,7 @@ import java.util.concurrent.Future;
  *
  * Usage of implementations:
  * <pre>
- *     try (MyEngine engine = new MyEngine(terminal) {
+ *     try (MyEngine engine = new MyEngine(terminal)) {
  *         engine.loop();
  *     }
  * </pre>

@@ -15,6 +15,9 @@ import org.jline.utils.InfoCmp;
 
 import java.util.List;
 
+/**
+ * @author darth-mole
+ */
 public class PlayCommand extends AbstractVoidCommand {
 
     @Option(names = {"p", "-pack"}, hasArgument = true, argName = "Pack name", optional = false)
@@ -146,13 +149,13 @@ public class PlayCommand extends AbstractVoidCommand {
     }
 
     public class GameController {
-        MutableMap map;
+        private MutableMap map;
         private int playerX;
         private int playerY;
-        int moves;
-        int push;
+        private int moves;
+        private int push;
 
-        Direction lastDir;
+        private Direction lastDir;
 
         private boolean mapCompleted = false;
 
@@ -184,7 +187,6 @@ public class PlayCommand extends AbstractVoidCommand {
                 }
             }
         }
-
 
         /**
          * Moves the player to the given coordinates. The move MUST be valid (no check preformed).
