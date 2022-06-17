@@ -54,7 +54,7 @@ public abstract class AbstractSolver implements Solver {
      * @param y y-coordinate
      * @param map the map
      */
-    protected void findNonDeadCases(int x, int y, Map map, Direction lastDir) {
+    private void findNonDeadCases(int x, int y, Map map, Direction lastDir) {
         deadPositions[y][x] = false;
         for (Direction d : Direction.values()) {
             if (d == lastDir) { // do not go backwards
@@ -92,7 +92,7 @@ public abstract class AbstractSolver implements Solver {
         findReachableCases_aux(map.getX(playerPos), map.getY(playerPos), map);
     }
 
-    protected void findReachableCases_aux(int x, int y, Map map) {
+    private void findReachableCases_aux(int x, int y, Map map) {
         reachableCases[y][x] = true;
         for (Direction d : Direction.values()) {
             int i = x + d.dirX();
