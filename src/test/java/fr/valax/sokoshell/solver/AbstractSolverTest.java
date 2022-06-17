@@ -11,10 +11,10 @@ import java.nio.file.Path;
 public class AbstractSolverTest {
 
     @Test
-    void test() {
+    void deadPositionsDetectionTest() {
         Pack pack;
         try {
-            pack = PackReaders.read(Path.of("levels/Microba0.8xv")); // "levels/Original.8xv"
+            pack = PackReaders.read(Path.of("levels/Original.8xv"));
         } catch (IOException e) {
             e.printStackTrace();
             System.out.println("Failed to read pack");
@@ -26,15 +26,18 @@ public class AbstractSolverTest {
         map.removeStateCrates(level.getInitialState());
         MapRenderer mR = new MapRenderer();
         mR.setStyle(new MapStyle());
+        mR.toggleDeadPositionShow();
         mR.sysPrint(level);
-        System.out.println("Computing dead locks...");
+        System.out.println("Computing dead positions...");
         BasicBrutalSolver solver = BasicBrutalSolver.newBFSSolver();
         boolean[][] dp = solver.computeDeadPositions(level.getMap());
+        mR.sysPrint(level);
+
         int count = 0;
         for (int y = 0; y < dp.length; y++) {
             for (int x = 0; x < dp[y].length; x++) {
                 if (dp[y][x] && map.getAt(x, y) != Tile.WALL) {
-                    System.out.printf("Dead lock at (%d;%d)%n", x, y);
+                    System.out.printf("Dead position at (%d;%d)%n", x, y);
                     count++;
                 }
             }

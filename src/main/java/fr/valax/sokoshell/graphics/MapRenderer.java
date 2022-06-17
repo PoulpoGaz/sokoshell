@@ -12,8 +12,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.jline.utils.AttributedStyle.*;
+
 public class MapRenderer {
 
+    /**
+     * To know if we show the dead positions or not (see {@link this#draw(Map, int, int, List)}
+     */
+    private boolean showDeadPos;
     private MapStyle style;
 
     public void sysPrint(Level level) {
@@ -73,7 +79,14 @@ public class MapRenderer {
                 boolean player = playerY == y && playerX == x;
 
                 Tile tile = map.getAt(x, y);
-                builder.append(style.getStyle(tile, player));
+
+                // A little ugly, I admit. Feel free to improve this!
+                if (showDeadPos && map.isDeadPosition(x, y)) {
+                    // dead pos are shown with a blue 'X'
+                    builder.append(new AttributedString("X", DEFAULT.background(BLUE)));
+                } else {
+                    builder.append(style.getStyle(tile, player));
+                }
             }
 
             out.add(builder.toAttributedString());
@@ -111,5 +124,13 @@ public class MapRenderer {
 
     public void setStyle(MapStyle style) {
         this.style = style;
+    }
+
+    /**
+     * Enables (or disables) the {@link this#draw(Map, int, int, List)} function to show the dead
+     * positions when printing the map (debugging purposes mainly).
+     */
+    public void toggleDeadPositionShow() {
+        showDeadPos = !showDeadPos;
     }
 }

@@ -1,6 +1,9 @@
 package fr.valax.sokoshell.solver;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author darth-mole
@@ -17,23 +20,31 @@ public abstract class AbstractSolver implements Solver {
      * when a crate is put on them.
      * After this function has been called, to check if a given crate at (x,y) is a dead position,
      * you can use {@link AbstractSolver#deadPositions}[y][x] to check in constant time.
-     * @param map The map. It MUST have NO CRATES for this function to work.
+     * @param map The map. It MUST have NO CRATES for this function to work. NOTE: This function modifies the map's
+     *            dead positions array {@link Map#setDeadPositions(boolean[][])}
      */
     protected void findDeadPositions(Map map) {
         deadPositions = new boolean[map.getHeight()][map.getWidth()];
+        for (boolean[] row : deadPositions) {
+            Arrays.fill(row, true);
+        }
         for (int y = 0; y < map.getHeight(); y++) {
             for (int x = 0; x < map.getWidth(); x++) {
                 final Tile tile = map.getAt(x, y);
-                deadPositions[y][x] = !tile.isCrate();
+                if (!deadPositions[y][x]) {
+                    continue;
+                }
+                if (tile.isCrate()) {
+                    deadPositions[y][x] = false;
+                    continue;
+                }
                 if (map.getAt(x, y) != Tile.TARGET) {
                     continue;
                 }
-                MutableMap mutMap = new MutableMap(map);
-                mutMap.setAt(x, y, Tile.CRATE_ON_TARGET);
-                findNonDeadCases(x, y, mutMap);
-                mutMap.setAt(x, y, Tile.TARGET);
+                findNonDeadCases(x, y, map, null);
             }
         }
+        map.setDeadPositions(deadPositions); // @TODO if it's ok to store it in the map, we could remove it from this class
     }
 
     /**
@@ -43,33 +54,22 @@ public abstract class AbstractSolver implements Solver {
      * @param y y-coordinate
      * @param map the map
      */
-    protected void findNonDeadCases(int x, int y, MutableMap map) {
+    protected void findNonDeadCases(int x, int y, Map map, Direction lastDir) {
         deadPositions[y][x] = false;
         for (Direction d : Direction.values()) {
+            if (d == lastDir) { // do not go backwards
+                continue;
+            }
+
             final int nextX = x + d.dirX();
             final int nextY = y + d.dirY();
+            final int nextNextX = nextX + d.dirX();
+            final int nextNextY = nextY + d.dirY();
 
-            // the last part of the condition avoids to check already processed cases
-            if (map.isTileEmpty(nextX, nextY) && map.isTileEmpty(nextX + d.dirX(), nextY + d.dirY()) && deadPositions[nextY][nextX]) {
-                /*map.setAt(x, y,
-                    switch (map.getAt(x, y)) {
-                        case CRATE_ON_TARGET -> Tile.TARGET;
-                        default -> Tile.FLOOR;
-                });*/
-
-                map.setAt(nextX, nextY,
-                        switch (map.getAt(nextX, nextY)) {
-                            case TARGET -> Tile.CRATE_ON_TARGET;
-                            default -> Tile.CRATE;
-                });
-
-                findNonDeadCases(nextX, nextY, map);
-
-                /*map.setAt(nextX, nextY,
-                        switch (map.getAt(nextX, nextY)) {
-                            case CRATE_ON_TARGET -> Tile.TARGET;
-                            default -> Tile.FLOOR;
-                  -      });*/
+            if (deadPositions[nextY][nextX] // avoids to check already processed cases
+             && map.isTileEmpty(nextX, nextY)
+             && map.isTileEmpty(nextNextX, nextNextY)) {
+                findNonDeadCases(nextX, nextY, map, Direction.opposite(d));
             }
         }
     }
