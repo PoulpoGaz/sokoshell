@@ -9,13 +9,18 @@ import fr.valax.args.utils.ParseException;
 import fr.valax.args.utils.TypeException;
 import fr.valax.sokoshell.utils.Utils;
 import org.jline.console.SystemRegistry;
+import org.jline.console.impl.Builtins;
 import org.jline.console.impl.SystemRegistryImpl;
 import org.jline.reader.*;
 import org.jline.reader.impl.DefaultHighlighter;
 import org.jline.reader.impl.DefaultParser;
+import org.jline.reader.impl.LineReaderImpl;
 import org.jline.reader.impl.history.DefaultHistory;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
+import org.jline.terminal.impl.AbstractWindowsTerminal;
+import org.jline.terminal.impl.DumbTerminal;
+import org.jline.utils.InfoCmp;
 import org.jline.widget.AutosuggestionWidgets;
 
 import java.io.IOException;
@@ -51,6 +56,8 @@ public class SokoShell {
     }
 
     private final CommandLine cli;
+    private LineReaderImpl reader;
+    private Terminal terminal;
 
     private SokoShell() throws CommandLineException {
         cli = new CommandLineBuilder()
@@ -64,6 +71,7 @@ public class SokoShell {
                 .addCommand(new ListCommand())
                 .addCommand(new StatusCommand())
                 .addCommand(new PlayCommand())
+                .addCommand(AbstractVoidCommand.newCommand(this::clear, "clear", "Clear screen"))
                 .build();
     }
 
@@ -83,12 +91,18 @@ public class SokoShell {
         REPLCommandRegistry shellRegistry = new REPLCommandRegistry(cli, "SokoShell");
 
         try (Terminal terminal = TerminalBuilder.terminal()) {
+            this.terminal = terminal;
+
+            if (terminal instanceof AbstractWindowsTerminal) {
+                System.err.println("[WARNING]. Your terminal isn't supported");
+            }
+
             SokoShellHelper.INSTANCE.setTerminal(terminal);
 
             SystemRegistry registry = new SystemRegistryImpl(parser, terminal, () -> Path.of(""), null);
             registry.setCommandRegistries(shellRegistry);
 
-            LineReader reader = LineReaderBuilder.builder()
+            reader = (LineReaderImpl) LineReaderBuilder.builder()
                     .terminal(terminal)
                     .appName("sokoshell")
                     .history(new DefaultHistory())
@@ -119,6 +133,12 @@ public class SokoShell {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void clear() {
+        if (reader != null) {
+            reader.clearScreen();
         }
     }
 

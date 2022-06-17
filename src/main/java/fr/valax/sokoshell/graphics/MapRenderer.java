@@ -12,6 +12,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * A class used to print or draw a map on a terminal or a surface
+ * or even on system output. It uses a {@link MapStyle} to know how
+ * to draw.
+ */
 public class MapRenderer {
 
     private MapStyle style;

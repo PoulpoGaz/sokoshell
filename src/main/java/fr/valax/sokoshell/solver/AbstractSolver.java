@@ -9,8 +9,6 @@ import java.util.*;
 public abstract class AbstractSolver implements Solver {
 
     protected boolean[][] reachableCases;
-    protected boolean[][] deadTiles;
-
     protected boolean[][] deadPositions;
 
     /**
@@ -159,8 +157,8 @@ public abstract class AbstractSolver implements Solver {
         if (left == Tile.WALL || right == Tile.WALL) {
             deadlock = true;
 
-        } else if ((left == null || deadTiles[leftY][leftX]) &&
-                (right == null || deadTiles[rightY][leftY])) { // rule 2
+        } else if ((left == null || deadPositions[leftY][leftX]) &&
+                (right == null || deadPositions[rightY][leftY])) { // rule 2
 
             deadlock = true;
         } else { // rule 3

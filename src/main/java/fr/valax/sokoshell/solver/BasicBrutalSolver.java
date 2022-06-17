@@ -46,10 +46,10 @@ public abstract class BasicBrutalSolver extends AbstractSolver {
             State cur = getNext();
             map.addStateCrates(cur);
 
-            if (checkFreezeDeadlock(map, cur)) {
+            /*if (checkFreezeDeadlock(map, cur)) {
                 map.removeStateCrates(cur);
                 continue;
-            }
+            }*/
 
             if (map.isCompletedWith(cur)) {
                 finalState = cur;
