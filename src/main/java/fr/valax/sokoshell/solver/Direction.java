@@ -7,6 +7,10 @@ public enum Direction {
     RIGHT(1, 0),
     DOWN(0, 1);
 
+    public static final Direction[] HORIZONTAL = new Direction[] {UP, DOWN};
+
+    public static final Direction[] VERTICAL = new Direction[] {LEFT, DOWN};
+
     private final int dirX;
     private final int dirY;
 
@@ -16,6 +20,15 @@ public enum Direction {
     Direction(int dirX, int dirY) {
         this.dirX = dirX;
         this.dirY = dirY;
+    }
+
+    public Direction negate() {
+        return switch (this) {
+            case DOWN -> UP;
+            case UP -> DOWN;
+            case LEFT -> RIGHT;
+            case RIGHT -> LEFT;
+        };
     }
 
     public static Direction of(int dirX, int dirY) {

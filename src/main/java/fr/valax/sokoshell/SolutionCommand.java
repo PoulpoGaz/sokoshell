@@ -230,7 +230,7 @@ public class SolutionCommand extends AbstractVoidCommand {
 
     public static class SolutionAnimator {
 
-        private final MutableMap map;
+        private final Map map;
         private final List<State> states;
 
         private final List<Move> path;
@@ -244,7 +244,7 @@ public class SolutionCommand extends AbstractVoidCommand {
 
         public SolutionAnimator(Level level) {
             this.states = level.getSolution().getStates();
-            this.map = new MutableMap(level.getMap());
+            this.map = new Map(level.getMap());
             this.playerX = level.getPlayerX();
             this.playerY = level.getPlayerY();
 
@@ -439,7 +439,7 @@ public class SolutionCommand extends AbstractVoidCommand {
             return Direction.of(dirX, dirY);
         }
 
-        public MutableMap getMap() {
+        public Map getMap() {
             return map;
         }
 

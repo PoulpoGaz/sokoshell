@@ -149,7 +149,7 @@ public class PlayCommand extends AbstractVoidCommand {
     }
 
     public class GameController {
-        private MutableMap map;
+        private Map map;
         private int playerX;
         private int playerY;
         private int moves;
@@ -160,7 +160,7 @@ public class PlayCommand extends AbstractVoidCommand {
         private boolean mapCompleted = false;
 
         GameController(Level level) {
-            this.map = new MutableMap(level.getMap());
+            this.map = new Map(level.getMap());
             this.playerX = level.getPlayerX();
             this.playerY = level.getPlayerY();
         }
@@ -226,7 +226,7 @@ public class PlayCommand extends AbstractVoidCommand {
             }
         }
 
-        public MutableMap getMap() { return map; }
+        public Map getMap() { return map; }
 
         public int getPlayerX() { return playerX; }
         public int getPlayerY() { return playerY; }
