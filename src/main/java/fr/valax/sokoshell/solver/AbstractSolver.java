@@ -29,7 +29,7 @@ public abstract class AbstractSolver implements Solver {
                 if (map.getAt(x, y) != Tile.TARGET) {
                     continue;
                 }
-                MutableMap mutMap = new MutableMap(map);
+                Map mutMap = new Map(map);
                 mutMap.setAt(x, y, Tile.CRATE_ON_TARGET);
                 findNonDeadCases(x, y, mutMap);
                 mutMap.setAt(x, y, Tile.TARGET);
@@ -44,7 +44,7 @@ public abstract class AbstractSolver implements Solver {
      * @param y y-coordinate
      * @param map the map
      */
-    protected void findNonDeadCases(int x, int y, MutableMap map) {
+    protected void findNonDeadCases(int x, int y, Map map) {
         deadPositions[y][x] = false;
         for (Direction d : Direction.values()) {
             final int nextX = x + d.dirX();
