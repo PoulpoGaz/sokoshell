@@ -7,6 +7,8 @@ import fr.valax.args.repl.REPLHelpFormatter;
 import fr.valax.args.utils.CommandLineException;
 import fr.valax.args.utils.ParseException;
 import fr.valax.args.utils.TypeException;
+import fr.valax.sokoshell.solver.Level;
+import fr.valax.sokoshell.solver.Pack;
 import fr.valax.sokoshell.solver.SolverTask;
 import fr.valax.sokoshell.utils.Utils;
 import org.jline.console.SystemRegistry;
@@ -21,6 +23,9 @@ import org.jline.terminal.TerminalBuilder;
 import org.jline.terminal.impl.AbstractWindowsTerminal;
 import org.jline.widget.AutosuggestionWidgets;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
@@ -78,6 +83,7 @@ public class SokoShell {
                 .addCommand(AbstractVoidCommand.newCommand(this::clear, "clear", "Clear screen"))
                 .addCommand(AbstractVoidCommand.newCommand(this::stopSolver, "stop", "Stop the solver"))
                 .addCommand(AbstractVoidCommand.newCommand(this::gc, "gc", "Run garbage collector.\nYou may want to use this after solving a sokoban"))
+                .addCommand(AbstractVoidCommand.newCommand(this::stats, "stats", ""))
                 .build();
     }
 
@@ -176,5 +182,17 @@ public class SokoShell {
 
     private void gc() {
         Runtime.getRuntime().gc();
+    }
+
+    private void stats() {
+        Pack pack = SokoShellHelper.INSTANCE.getPack("Original & Extra");
+        Level level = pack.levels().get(0);
+        BufferedImage img = level.getSolution().createGraph();
+
+        try {
+            ImageIO.write(img, "png", new File("test.png"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

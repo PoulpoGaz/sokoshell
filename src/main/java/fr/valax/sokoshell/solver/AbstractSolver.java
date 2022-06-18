@@ -117,15 +117,15 @@ public abstract class AbstractSolver implements Solver {
         solution.add(s);
         Collections.reverse(solution);
 
-        return new Solution(getSolverType(), params, stats, solution, Solution.SOLVED);
+        return new Solution(getSolverType(), params, stats, solution, SolverStatus.SOLUTION_FOUND);
     }
 
     protected Solution createNoSolution(SolverParameters params, SolverStatistics stats) {
-        return new Solution(getSolverType(), params, stats, null, Solution.NO_SOLUTION);
+        return new Solution(getSolverType(), params, stats, null, SolverStatus.NO_SOLUTION);
     }
 
     protected Solution createStopped(SolverParameters params, SolverStatistics stats) {
-        return new Solution(getSolverType(), params, stats, null, Solution.STOPPED);
+        return new Solution(getSolverType(), params, stats, null, SolverStatus.STOPPED);
     }
 
     // http://www.sokobano.de/wiki/index.php?title=How_to_detect_deadlocks

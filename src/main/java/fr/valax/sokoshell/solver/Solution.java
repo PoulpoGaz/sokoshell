@@ -1,13 +1,14 @@
 package fr.valax.sokoshell.solver;
 
+import fr.valax.graph.Label;
+import fr.valax.graph.ScatterPlot;
+import fr.valax.graph.Series;
+
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.List;
 
 public class Solution {
-
-    public static final int SOLVED = 1;
-    public static final int NO_SOLUTION = 2;
-    public static final int STOPPED = 3;
-    public static final int PAUSED = 4;
 
     private final SolverType type;
     private final SolverParameters parameters;
@@ -15,18 +16,47 @@ public class Solution {
 
     private final List<State> states;
 
-    private final int status;
+    private final SolverStatus status;
 
     public Solution(SolverType type,
                     SolverParameters parameters,
                     SolverStatistics statistics,
                     List<State> states,
-                    int status) {
+                    SolverStatus status) {
         this.type = type;
         this.parameters = parameters;
         this.statistics = statistics;
         this.states = states;
         this.status = status;
+    }
+
+    public BufferedImage createGraph() {
+        Series state = createSeries("State explored/s", statistics.getStateExploredByTimeUnit());
+        state.setColor(new Color(0, 175, 244));
+
+        Series queue = createSeries("Queue size/s", statistics.getQueueSizeByTimeUnit());
+        queue.setColor(new Color(59, 165, 93));
+
+        ScatterPlot plot = new ScatterPlot();
+        plot.addSeries(state);
+        plot.addSeries(queue);
+        plot.setShowLegend(true);
+        plot.setTitle(new Label("Statistics"));
+
+        return plot.createAtOrigin(1000, 500);
+    }
+
+    private Series createSeries(String name, List<Integer> values) {
+        Series series = new Series();
+        series.setName(name);
+
+        for (int i = 0; i < values.size(); i++) {
+            int v = values.get(i);
+
+            series.addPoint(new Point(i, v));
+        }
+
+        return series;
     }
 
     public SolverType getType() {
@@ -46,22 +76,22 @@ public class Solution {
     }
 
     public boolean isSolved() {
-        return status == SOLVED;
+        return status == SolverStatus.SOLUTION_FOUND;
     }
 
     public boolean hasNoSolution() {
-        return status == NO_SOLUTION;
+        return status == SolverStatus.NO_SOLUTION;
     }
 
     public boolean isStopped() {
-        return status == STOPPED;
+        return status == SolverStatus.STOPPED;
     }
 
     public boolean isPaused() {
-        return status == PAUSED;
+        return status == SolverStatus.PAUSED;
     }
 
-    public int getStatus() {
+    public SolverStatus getStatus() {
         return status;
     }
 }

@@ -114,7 +114,7 @@ public class SolverTask {
             SolverStatistics statistics = new SolverStatistics();
             statistics.setTimeStarted(trackable.timeStarted());
             statistics.setTimeEnded(trackable.timeEnded());
-            statistics.setNodeExploredByTimeUnit(statePerSecond);
+            statistics.setStateExploredByTimeUnit(statePerSecond);
             statistics.setQueueSizeByTimeUnit(queueSizePerSecond);
             statistics.setTimeUnit(1);
 
