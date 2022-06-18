@@ -3,6 +3,11 @@ package fr.valax.sokoshell.solver;
 import java.util.Collections;
 import java.util.Map;
 
+/**
+ * Solver parameters.
+ * Some parameters (tracker) are used by {@link SolverTask}.
+ * Using them with only a {@link Solver} has no effect.
+ */
 public class SolverParameters {
 
     public static final String TIMEOUT = "timeout";
@@ -10,6 +15,10 @@ public class SolverParameters {
 
     private final Level level;
     private final Map<String, Object> parameters;
+
+    public SolverParameters(Level level) {
+        this(level, Map.of());
+    }
 
     public SolverParameters(Level level, Map<String, Object> parameters) {
         this.level = level;

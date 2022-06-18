@@ -7,6 +7,7 @@ import fr.valax.args.repl.REPLHelpFormatter;
 import fr.valax.args.utils.CommandLineException;
 import fr.valax.args.utils.ParseException;
 import fr.valax.args.utils.TypeException;
+import fr.valax.sokoshell.solver.SolverTask;
 import fr.valax.sokoshell.utils.Utils;
 import org.jline.console.SystemRegistry;
 import org.jline.console.impl.SystemRegistryImpl;
@@ -47,8 +48,14 @@ public class SokoShell {
 
             sokoshell.loop();
         } finally {
+            SolverTask task = SokoShellHelper.INSTANCE.getSolverTask();
+            if (task != null) {
+                task.stop();
+            }
+
+            Utils.shutdownExecutors();
+
             sokoshell.goodbye();
-            Utils.SOKOSHELL_EXECUTOR.shutdownNow();
         }
     }
 
@@ -69,6 +76,8 @@ public class SokoShell {
                 .addCommand(new StatusCommand())
                 .addCommand(new PlayCommand())
                 .addCommand(AbstractVoidCommand.newCommand(this::clear, "clear", "Clear screen"))
+                .addCommand(AbstractVoidCommand.newCommand(this::stopSolver, "stop", "Stop the solver"))
+                .addCommand(AbstractVoidCommand.newCommand(this::gc, "gc", "Run garbage collector.\nYou may want to use this after solving a sokoban"))
                 .build();
     }
 
@@ -133,12 +142,6 @@ public class SokoShell {
         }
     }
 
-    private void clear() {
-        if (reader != null) {
-            reader.clearScreen();
-        }
-    }
-
     private void execute(String[] args) {
         try {
             System.out.println("sokoshell> " + String.join(" ", args));
@@ -155,5 +158,23 @@ public class SokoShell {
         String home = System.getProperty("user.home");
 
         return Path.of(home + "/.sokoshell_history");
+    }
+
+    private void clear() {
+        if (reader != null) {
+            reader.clearScreen();
+        }
+    }
+
+    private void stopSolver() {
+        SolverTask task = SokoShellHelper.INSTANCE.getSolverTask();
+
+        if (task != null) {
+            task.stop();
+        }
+    }
+
+    private void gc() {
+        Runtime.getRuntime().gc();
     }
 }

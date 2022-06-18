@@ -9,8 +9,8 @@ import java.util.List;
  */
 public class SolverStatistics {
 
-    private final List<Integer> nodeExploredByTimeUnit;
-    private final List<Integer> queueSizeByTimeUnit;
+    private List<Integer> nodeExploredByTimeUnit;
+    private List<Integer> queueSizeByTimeUnit;
     private int timeUnit; // in sec
 
     private long timeStarted; // in millis
@@ -33,6 +33,14 @@ public class SolverStatistics {
 
     public List<Integer> getQueueSizeByTimeUnit() {
         return queueSizeByTimeUnit;
+    }
+
+    public void setNodeExploredByTimeUnit(List<Integer> nodeExploredByTimeUnit) {
+        this.nodeExploredByTimeUnit = nodeExploredByTimeUnit;
+    }
+
+    public void setQueueSizeByTimeUnit(List<Integer> queueSizeByTimeUnit) {
+        this.queueSizeByTimeUnit = queueSizeByTimeUnit;
     }
 
     public int getTimeUnit() {

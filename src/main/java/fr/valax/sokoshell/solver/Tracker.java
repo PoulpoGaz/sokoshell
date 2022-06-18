@@ -5,9 +5,13 @@ package fr.valax.sokoshell.solver;
  */
 public interface Tracker {
 
+    String TRACKER_PARAM = "tracker";
+
+    void updateStatistics(Trackable trackable);
+
     /**
      * It is called once at the end of research.
      * @return the statistics
      */
-    SolverStatistics getStatistics();
+    SolverStatistics getStatistics(Trackable trackable);
 }

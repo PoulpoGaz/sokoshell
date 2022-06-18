@@ -1,6 +1,8 @@
 package fr.valax.sokoshell.solver;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author darth-mole
@@ -120,6 +122,10 @@ public abstract class AbstractSolver implements Solver {
 
     protected Solution createNoSolution(SolverParameters params, SolverStatistics stats) {
         return new Solution(getSolverType(), params, stats, null, Solution.NO_SOLUTION);
+    }
+
+    protected Solution createStopped(SolverParameters params, SolverStatistics stats) {
+        return new Solution(getSolverType(), params, stats, null, Solution.STOPPED);
     }
 
     // http://www.sokobano.de/wiki/index.php?title=How_to_detect_deadlocks

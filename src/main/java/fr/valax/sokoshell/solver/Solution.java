@@ -6,7 +6,8 @@ public class Solution {
 
     public static final int SOLVED = 1;
     public static final int NO_SOLUTION = 2;
-    public static final int PAUSED = 3;
+    public static final int STOPPED = 3;
+    public static final int PAUSED = 4;
 
     private final SolverType type;
     private final SolverParameters parameters;
@@ -52,7 +53,15 @@ public class Solution {
         return status == NO_SOLUTION;
     }
 
+    public boolean isStopped() {
+        return status == STOPPED;
+    }
+
     public boolean isPaused() {
         return status == PAUSED;
+    }
+
+    public int getStatus() {
+        return status;
     }
 }

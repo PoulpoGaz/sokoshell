@@ -1,17 +1,13 @@
 package fr.valax.sokoshell;
 
-import fr.valax.sokoshell.solver.Level;
-import fr.valax.sokoshell.solver.Pack;
-import fr.valax.sokoshell.solver.Solver;
-import fr.valax.sokoshell.solver.SolverStatus;
 import fr.valax.sokoshell.graphics.MapRenderer;
 import fr.valax.sokoshell.graphics.MapStyle;
-import fr.valax.sokoshell.utils.SolverInfo;
+import fr.valax.sokoshell.solver.*;
 import org.jline.reader.Candidate;
 import org.jline.terminal.Terminal;
 
+import java.util.Map;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -30,54 +26,49 @@ public class SokoShellHelper implements Lock {
 
     private Terminal terminal;
 
-    private SolverInfo solverInfo;
+    private SolverTask task;
 
     private SokoShellHelper() {
         renderer.setStyle(style);
     }
 
-    public void solve(Solver solver, Pack pack, Level level) {
-        Objects.requireNonNull(level);
+    public void solve(Solver solver, SolverParameters parameters) {
+        Objects.requireNonNull(parameters);
+        Objects.requireNonNull(solver);
 
-        if (solverInfo != null) {
+        if (task != null) {
             System.out.println("Already solving.");
             return;
         }
-        /*CompletableFuture<SolverStatus> f = CompletableFuture.supplyAsync(() -> solver.solve(level));
 
-        solverInfo = new SolverInfo(f, solver, pack, level);
-
-        f.exceptionally((t) -> {
-            t.printStackTrace();
-            return null;
-        }).thenAccept((status) -> printStatus(solver, level, status));*/
+        task = new SolverTask(solver, parameters);
+        task.start();
+        task.onEnd(this::printSolution);
     }
 
-    private void printStatus(Solver solver, Level level, SolverStatus status) {
+    private void printSolution(Solution solution) {
         lock.lock();
 
         try {
-            if (status == null) {
-                System.out.println("Error, status is null");
+            if (solution == null) {
+                System.out.println("An error has occured. Failed to find solution");
+
             } else {
-                switch (status) {
-                    case NO_SOLUTION -> {
-                        System.out.println("No solution found");
-                    }
-                    case SOLUTION_FOUND -> {
-                        System.out.println("Solution found. Use 'print solution' to print the solution");
-                        //level.setSolution(solver.getSolution());
-                    }
-                    case PAUSED -> {
-                        System.out.println("Paused");
-                    }
-                    case STOPPED -> {
-                        System.out.println("Stopped");
-                    }
+                if (solution.isSolved()) {
+                    System.out.println("Solution found. Use 'print solution' to print the solution");
+
+                } else if (solution.hasNoSolution()) {
+                    System.out.println("No solution found");
+
+                } else if (solution.isStopped()) {
+                    System.out.println("Research stopped");
                 }
+
+                Level level = solution.getParameters().getLevel();
+                level.setSolution(solution);
             }
 
-            solverInfo = null;
+            task = null;
         } finally {
             lock.unlock();
         }
@@ -124,12 +115,12 @@ public class SokoShellHelper implements Lock {
         this.terminal = terminal;
     }
 
-    public SolverInfo getSolverInfo() {
-        return solverInfo;
+    public SolverTask getSolverTask() {
+        return task;
     }
 
     public boolean isSolving() {
-        return solverInfo != null;
+        return task != null;
     }
 
     public MapStyle getStyle() {

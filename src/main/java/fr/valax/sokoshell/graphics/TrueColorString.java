@@ -4,8 +4,6 @@ import org.jline.terminal.Terminal;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;
 
-import java.util.Objects;
-
 /**
  * A helper class to force use of "truecolor" (24 bits color)
  * when supported by the terminal

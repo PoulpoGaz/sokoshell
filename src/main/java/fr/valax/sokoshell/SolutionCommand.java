@@ -2,11 +2,11 @@ package fr.valax.sokoshell;
 
 import fr.valax.args.api.Option;
 import fr.valax.args.utils.ArgsUtils;
-import fr.valax.sokoshell.solver.*;
 import fr.valax.sokoshell.graphics.MapRenderer;
-import fr.valax.sokoshell.solver.Map;
-import fr.valax.sokoshell.utils.Utils;
 import fr.valax.sokoshell.graphics.TerminalEngine;
+import fr.valax.sokoshell.solver.Map;
+import fr.valax.sokoshell.solver.*;
+import fr.valax.sokoshell.utils.Utils;
 import org.jline.keymap.KeyMap;
 import org.jline.reader.Candidate;
 import org.jline.reader.LineReader;

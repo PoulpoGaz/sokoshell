@@ -3,14 +3,11 @@ package fr.valax.sokoshell;
 import fr.valax.args.api.Option;
 import fr.valax.args.utils.ArgsUtils;
 import fr.valax.sokoshell.solver.Level;
-import fr.valax.sokoshell.solver.Map;
 import fr.valax.sokoshell.solver.Pack;
 import org.jline.reader.Candidate;
 import org.jline.reader.LineReader;
 import org.jline.reader.ParsedLine;
 import org.jline.terminal.Terminal;
-import org.jline.utils.AttributedStringBuilder;
-import org.jline.utils.AttributedStyle;
 
 import java.util.List;
 

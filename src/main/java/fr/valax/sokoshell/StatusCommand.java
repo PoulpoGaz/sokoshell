@@ -1,7 +1,6 @@
 package fr.valax.sokoshell;
 
 import fr.valax.sokoshell.solver.*;
-import fr.valax.sokoshell.utils.SolverInfo;
 
 import java.math.BigInteger;
 
@@ -12,15 +11,15 @@ public class StatusCommand extends AbstractVoidCommand {
         if (!helper.isSolving()) {
             System.out.println("Solver isn't running");
         } else {
-            SolverInfo info = helper.getSolverInfo();
+            SolverTask info = helper.getSolverTask();
 
-            Solver solver = info.solver();
-            Pack pack = info.pack();
-            Level level = info.level();
+            Solver solver = info.getSolver();
+            Level level = info.getParameters().getLevel();
 
             BigInteger maxState = estimateMaxNumberOfStates(level);
 
-            System.out.printf("Solving level n°%d from %s by %s%n", level.getIndex(), pack.name(), pack.author());
+            //System.out.printf("Solving level n°%d from %s by %s%n", level.getIndex(), pack.name(), pack.author());
+            System.out.printf("Solving level n°%d%n", level.getIndex());
 
             if (solver instanceof Trackable t) {
                 System.out.printf("Number of state processed: %d%n", t.nStateExplored());

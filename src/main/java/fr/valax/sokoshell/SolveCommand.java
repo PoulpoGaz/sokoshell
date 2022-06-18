@@ -2,10 +2,7 @@ package fr.valax.sokoshell;
 
 import fr.valax.args.api.Option;
 import fr.valax.args.utils.ArgsUtils;
-import fr.valax.sokoshell.solver.BasicBrutalSolver;
-import fr.valax.sokoshell.solver.Level;
-import fr.valax.sokoshell.solver.Pack;
-import fr.valax.sokoshell.solver.Solver;
+import fr.valax.sokoshell.solver.*;
 import org.jline.reader.Candidate;
 import org.jline.reader.LineReader;
 import org.jline.reader.ParsedLine;
@@ -43,7 +40,7 @@ public class SolveCommand extends AbstractVoidCommand {
 
         Solver solver = BasicBrutalSolver.newDFSSolver();
 
-        helper.solve(solver, pack, l);
+        helper.solve(solver, new SolverParameters(l));
     }
 
     @Override

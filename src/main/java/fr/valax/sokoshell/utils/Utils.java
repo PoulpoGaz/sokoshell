@@ -24,4 +24,9 @@ public class Utils {
             return (int) (1 + Math.log10(v));
         }
     }
+
+    public static void shutdownExecutors() {
+        SOKOSHELL_EXECUTOR.shutdown();
+        SCHEDULED_EXECUTOR.shutdown();
+    }
 }

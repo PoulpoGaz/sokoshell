@@ -1,7 +1,9 @@
 package fr.valax.sokoshell.solver;
 
-import javax.sound.midi.Track;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author darth-mole
@@ -23,6 +25,8 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
 
     protected final ArrayDeque<State> toProcess = new ArrayDeque<>();
     protected final Set<State> processed = new HashSet<>();
+
+    private boolean stopped = false;
 
     // statistics
     private long timeStart = -1;
@@ -51,7 +55,7 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
         processed.clear();
         toProcess.add(initialState);
 
-        while (!toProcess.isEmpty()) {
+        while (!toProcess.isEmpty() && !stopped) {
             State cur = getNext();
             map.addStateCrates(cur);
 
@@ -78,7 +82,9 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
         processed.clear();
         toProcess.clear();
 
-        if (finalState != null) {
+        if (stopped) {
+            return createStopped(params, getStatistics());
+        } else if (finalState != null) {
             return buildSolution(finalState, params, getStatistics());
         } else {
             return createNoSolution(params, getStatistics());
@@ -125,12 +131,16 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
         }
     }
 
+    @Override
+    public void stop() {
+        stopped = true;
+    }
 
     private SolverStatistics getStatistics() {
         SolverStatistics stats;
 
         if (tracker != null) {
-            stats = Objects.requireNonNull(tracker.getStatistics());
+            stats = Objects.requireNonNull(tracker.getStatistics(this));
         } else {
             stats = new SolverStatistics();
             stats.setTimeStarted(timeStart);

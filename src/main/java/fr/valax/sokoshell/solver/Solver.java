@@ -9,4 +9,6 @@ public interface Solver {
     Solution solve(SolverParameters params);
 
     SolverType getSolverType();
+
+    void stop();
 }
