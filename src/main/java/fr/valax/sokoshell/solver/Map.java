@@ -13,6 +13,8 @@ public class Map {
     private final int width;
     private final int height;
 
+    private boolean[][] deadPositions;
+
     public Map(Tile[][] content, int width, int height) {
         this.content = content;
         this.width = width;
@@ -28,6 +30,24 @@ public class Map {
             System.arraycopy(other.content[y], 0, content[y], 0, width);
         }
     }
+
+    /*
+        \begin{UGLY CODE}
+        @TODO make this a little prettier (create a TileInfo class or something)
+     */
+    public void setDeadPositions(boolean[][] deadPositions) {
+        this.deadPositions = deadPositions;
+    }
+
+    public boolean isDeadPosition(int x, int y) {
+        if (deadPositions == null) {
+            return false;
+        }
+        // the walls are not dead positions
+        return (!getAt(x, y).isSolid()) && deadPositions[y][x];
+    }
+
+    /* \end{UGLY CODE} */
 
     public int getWidth() { return width; }
     public int getHeight() { return height; }

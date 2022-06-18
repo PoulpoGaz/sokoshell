@@ -55,6 +55,8 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
 
         map.removeStateCrates(initialState);
 
+        findDeadPositions(map);
+
         reachableCases = new boolean[map.getHeight()][map.getWidth()];
         toProcess.clear();
         processed.clear();
@@ -121,6 +123,10 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
                  || crateDestY < 0 || crateDestY >= map.getHeight()
                  || !map.isTileEmpty(crateDestX, crateDestY)) {
                     continue; // The destination case is not empty
+                }
+
+                if (deadPositions[crateDestY][crateDestX]) {
+                    continue; // Useless to push a crate on a dead position
                 }
 
                 int playerX = crateX - d.dirX();
