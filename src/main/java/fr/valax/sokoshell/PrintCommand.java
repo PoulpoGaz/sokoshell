@@ -39,7 +39,7 @@ public class PrintCommand extends AbstractVoidCommand {
         for (int i = 0; i < levels.size(); i++) {
             Level l = levels.get(i);
 
-            System.out.printf("<===== Level n°%d =====>%n", i + 1);
+            terminal.writer().printf("<===== Level n°%d =====>%n", i + 1);
             helper.getRenderer().print(terminal, l);
         }
     }

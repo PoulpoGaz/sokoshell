@@ -1,6 +1,8 @@
 package fr.valax.sokoshell;
 
 import fr.valax.sokoshell.solver.*;
+import fr.valax.sokoshell.solver.tasks.ISolverTask;
+import fr.valax.sokoshell.solver.tasks.SolverTask;
 
 import java.math.BigInteger;
 
@@ -11,20 +13,22 @@ public class StatusCommand extends AbstractVoidCommand {
         if (!helper.isSolving()) {
             System.out.println("Solver isn't running");
         } else {
-            SolverTask info = helper.getSolverTask();
+            ISolverTask<?> solverTask = helper.getSolverTask();
 
-            Solver solver = info.getSolver();
-            Level level = info.getParameters().getLevel();
+            if (solverTask instanceof SolverTask task) {
+                Solver solver = task.getSolver();
+                Level level = task.getParameters().getLevel();
 
-            BigInteger maxState = estimateMaxNumberOfStates(level);
+                BigInteger maxState = estimateMaxNumberOfStates(level);
 
-            //System.out.printf("Solving level n°%d from %s by %s%n", level.getIndex(), pack.name(), pack.author());
-            System.out.printf("Solving level n°%d%n", level.getIndex());
+                //System.out.printf("Solving level n°%d from %s by %s%n", level.getIndex(), pack.name(), pack.author());
+                System.out.printf("Solving level n°%d%n", level.getIndex());
 
-            if (solver instanceof Trackable t) {
-                System.out.printf("Number of state processed: %d%n", t.nStateExplored());
+                if (solver instanceof Trackable t) {
+                    System.out.printf("Number of state processed: %d%n", t.nStateExplored());
+                }
+                System.out.printf("Estimated maximal number of state: %d%n", maxState);
             }
-            System.out.printf("Estimated maximal number of state: %d%n", maxState);
         }
     }
 

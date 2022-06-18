@@ -7,47 +7,32 @@ import org.jline.reader.Candidate;
 import org.jline.reader.LineReader;
 import org.jline.reader.ParsedLine;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author PoulpoGaz
  */
-public class SolveCommand extends AbstractVoidCommand {
+public class SolveCommand extends LevelCommand {
 
-    @Option(names = {"p", "-pack"}, hasArgument = true, argName = "Pack name", optional = false)
-    private String name;
-
-    @Option(names = {"i", "-index"}, hasArgument = true, argName = "Level index", optional = false)
-    private int index;
+    @Option(names = {"t", "-timeout"}, hasArgument = true, argName = "Timeout", defaultValue = "-1")
+    private long timeout;
 
     @Override
     public void run() {
-        Pack pack = helper.getPack(name);
+        Level l = getLevel();
 
-        if (pack == null) {
-            System.out.printf("No pack named %s exists%n", name);
+        if (l == null) {
             return;
         }
 
-        index--;
-        if (index < 0 || index >= pack.levels().size()) {
-            System.out.println("Index out of bounds");
-            return;
-        }
-
-        List<Level> levels = pack.levels();
-        Level l = levels.get(index);
+        Map<String, Object> params = new HashMap<>();
+        params.put(SolverParameters.TIMEOUT, timeout);
 
         Solver solver = BasicBrutalSolver.newDFSSolver();
 
-        helper.solve(solver, new SolverParameters(l));
-    }
-
-    @Override
-    public void completeOption(LineReader reader, ParsedLine line, List<Candidate> candidates, Option option) {
-        if (ArgsUtils.contains(option.names(), "p")) {
-            helper.addPackCandidates(candidates);
-        }
+        helper.solve(solver, new SolverParameters(l, params));
     }
 
     @Override

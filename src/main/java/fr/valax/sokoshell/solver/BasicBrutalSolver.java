@@ -39,6 +39,11 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
 
     @Override
     public Solution solve(SolverParameters params) {
+        stopped = false;
+
+        long timeout = getTimeout(params);
+        boolean hasTimedOut = false;
+
         Level level = params.getLevel();
 
         timeStart = System.currentTimeMillis();
@@ -56,6 +61,11 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
         toProcess.add(initialState);
 
         while (!toProcess.isEmpty() && !stopped) {
+            if (!checkTimeout(timeout)) {
+                hasTimedOut = true;
+                break;
+            }
+
             State cur = getNext();
             map.addStateCrates(cur);
 
@@ -82,12 +92,14 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
         processed.clear();
         toProcess.clear();
 
-        if (stopped) {
-            return createStopped(params, getStatistics());
+        if (hasTimedOut) {
+            return create(params, getStatistics(), SolverStatus.TIMEOUT);
+        } else if (stopped) {
+            return create(params, getStatistics(), SolverStatus.STOPPED);
         } else if (finalState != null) {
             return buildSolution(finalState, params, getStatistics());
         } else {
-            return createNoSolution(params, getStatistics());
+            return create(params, getStatistics(), SolverStatus.NO_SOLUTION);
         }
     }
 
@@ -129,6 +141,10 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
                 }
             }
         }
+    }
+
+    protected boolean checkTimeout(long timeout) {
+        return timeout <= 0 || timeout + timeStart > System.currentTimeMillis();
     }
 
     @Override

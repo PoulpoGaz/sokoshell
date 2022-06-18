@@ -9,6 +9,8 @@ public interface Tracker {
 
     void updateStatistics(Trackable trackable);
 
+    void reset();
+
     /**
      * It is called once at the end of research.
      * @return the statistics

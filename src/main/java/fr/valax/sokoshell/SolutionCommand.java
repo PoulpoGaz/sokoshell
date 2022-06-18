@@ -18,31 +18,15 @@ import org.jline.utils.InfoCmp;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class SolutionCommand extends AbstractVoidCommand {
-
-    @Option(names = {"p", "-pack"}, hasArgument = true, argName = "Pack name", optional = false)
-    private String name;
-
-    @Option(names = {"i", "-index"}, hasArgument = true, argName = "Level index", optional = false)
-    private int index;
+public class SolutionCommand extends LevelCommand {
 
     @Override
     public void run() {
-        Pack pack = helper.getPack(name);
+        Level l = getLevel();
 
-        if (pack == null) {
-            System.out.printf("No pack named %s exists%n", name);
+        if (l == null) {
             return;
         }
-
-        index--;
-        if (index < 0 || index >= pack.levels().size()) {
-            System.out.println("Index out of bounds");
-            return;
-        }
-
-        List<Level> levels = pack.levels();
-        Level l = levels.get(index);
 
         if (l.getSolution() == null) {
             System.out.println("Not solved");
@@ -53,13 +37,6 @@ public class SolutionCommand extends AbstractVoidCommand {
 
         try (SolutionView view = new SolutionView(helper.getTerminal(), animator)) {
             view.loop();
-        }
-    }
-
-    @Override
-    public void completeOption(LineReader reader, ParsedLine line, List<Candidate> candidates, Option option) {
-        if (ArgsUtils.contains(option.names(), "p")) {
-            helper.addPackCandidates(candidates);
         }
     }
 

@@ -120,12 +120,8 @@ public abstract class AbstractSolver implements Solver {
         return new Solution(getSolverType(), params, stats, solution, SolverStatus.SOLUTION_FOUND);
     }
 
-    protected Solution createNoSolution(SolverParameters params, SolverStatistics stats) {
-        return new Solution(getSolverType(), params, stats, null, SolverStatus.NO_SOLUTION);
-    }
-
-    protected Solution createStopped(SolverParameters params, SolverStatistics stats) {
-        return new Solution(getSolverType(), params, stats, null, SolverStatus.STOPPED);
+    protected Solution create(SolverParameters params, SolverStatistics stats, SolverStatus status) {
+        return new Solution(getSolverType(), params, stats, null, status);
     }
 
     // http://www.sokobano.de/wiki/index.php?title=How_to_detect_deadlocks
@@ -187,5 +183,15 @@ public abstract class AbstractSolver implements Solver {
         }
 
         return deadlock;
+    }
+
+    protected long getTimeout(SolverParameters params) {
+        Object timeout = params.get(SolverParameters.TIMEOUT);
+
+        if (timeout instanceof Long l) {
+            return l;
+        } else {
+            return -1;
+        }
     }
 }

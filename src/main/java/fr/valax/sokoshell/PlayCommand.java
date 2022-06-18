@@ -18,29 +18,15 @@ import java.util.List;
 /**
  * @author darth-mole
  */
-public class PlayCommand extends AbstractVoidCommand {
-
-    @Option(names = {"p", "-pack"}, hasArgument = true, argName = "Pack name", optional = false)
-    private String name;
-
-    @Option(names = {"i", "-index"}, hasArgument = true, argName = "Level index", optional = false)
-    private int index;
+public class PlayCommand extends LevelCommand {
 
     public void run() {
-        Pack pack = helper.getPack(name);
+        Level l = getLevel();
 
-        if (pack == null) {
-            System.out.printf("No pack named %s exists%n", name);
+        if (l == null) {
             return;
         }
 
-        index--;
-        if (index < 0 || index >= pack.levels().size()) {
-            System.out.println("Index out of bounds");
-            return;
-        }
-
-        Level l = pack.levels().get(index);
         PlayCommand.GameController controller = new PlayCommand.GameController(l);
 
         try (PlayCommand.PlayView view = new PlayCommand.PlayView(helper.getTerminal(), controller)) {
@@ -53,13 +39,6 @@ public class PlayCommand extends AbstractVoidCommand {
 
     @Override
     public String getUsage() { return "Allows you to play the Sokoban game"; }
-
-    @Override
-    public void completeOption(LineReader reader, ParsedLine line, List<Candidate> candidates, Option option) {
-        if (ArgsUtils.contains(option.names(), "p")) {
-            helper.addPackCandidates(candidates);
-        }
-    }
 
     private enum Key {
 

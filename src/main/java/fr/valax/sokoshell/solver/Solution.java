@@ -31,10 +31,10 @@ public class Solution {
     }
 
     public BufferedImage createGraph() {
-        Series state = createSeries("State explored/s", statistics.getStateExploredByTimeUnit());
+        Series state = createSeries("State explored(t)", statistics.getStateExplored());
         state.setColor(new Color(0, 175, 244));
 
-        Series queue = createSeries("Queue size/s", statistics.getQueueSizeByTimeUnit());
+        Series queue = createSeries("Queue size(t)", statistics.getQueueSize());
         queue.setColor(new Color(59, 165, 93));
 
         ScatterPlot plot = new ScatterPlot();

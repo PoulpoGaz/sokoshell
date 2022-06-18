@@ -3,6 +3,9 @@ package fr.valax.sokoshell;
 import fr.valax.sokoshell.graphics.MapRenderer;
 import fr.valax.sokoshell.graphics.MapStyle;
 import fr.valax.sokoshell.solver.*;
+import fr.valax.sokoshell.solver.tasks.BenchmarkTask;
+import fr.valax.sokoshell.solver.tasks.ISolverTask;
+import fr.valax.sokoshell.solver.tasks.SolverTask;
 import org.jline.reader.Candidate;
 import org.jline.terminal.Terminal;
 
@@ -26,7 +29,7 @@ public class SokoShellHelper implements Lock {
 
     private Terminal terminal;
 
-    private SolverTask task;
+    private ISolverTask<?> task;
 
     private SokoShellHelper() {
         renderer.setStyle(style);
@@ -41,9 +44,10 @@ public class SokoShellHelper implements Lock {
             return;
         }
 
-        task = new SolverTask(solver, parameters);
+        SolverTask task = new SolverTask(solver, parameters);
         task.start();
         task.onEnd(this::printSolution);
+        this.task = task;
     }
 
     private void printSolution(Solution solution) {
@@ -51,7 +55,7 @@ public class SokoShellHelper implements Lock {
 
         try {
             if (solution == null) {
-                System.out.println("An error has occured. Failed to find solution");
+                System.out.println("An error has occurred. Failed to find solution");
 
             } else {
                 if (solution.isSolved()) {
@@ -62,6 +66,9 @@ public class SokoShellHelper implements Lock {
 
                 } else if (solution.isStopped()) {
                     System.out.println("Research stopped");
+
+                } else if (solution.getStatus() == SolverStatus.TIMEOUT) {
+                    System.out.println("Timeout");
                 }
 
                 Level level = solution.getParameters().getLevel();
@@ -72,6 +79,25 @@ public class SokoShellHelper implements Lock {
         } finally {
             lock.unlock();
         }
+    }
+
+    public void benchmark(Solver solver, Map<String, Object> params, Pack pack) {
+        Objects.requireNonNull(params);
+        Objects.requireNonNull(pack);
+
+        BenchmarkTask task = new BenchmarkTask(solver, params, pack);
+        task.start();
+        task.onEnd((solutions -> {
+
+            if (solutions == null) {
+                System.out.println("An error has occurred.");
+            } else {
+                for (int i = 0; i < solutions.size(); i++) {
+                    System.out.print("Level n°" + i + ": ");
+                    printSolution(solutions.get(i));
+                }
+            }
+        }));
     }
 
     /**
@@ -103,6 +129,47 @@ public class SokoShellHelper implements Lock {
         }
     }
 
+    public void println(String s) {
+        lock();
+
+        try {
+            terminal.writer().println(s);
+            terminal.writer().flush();
+        } finally {
+            unlock();
+        }
+    }
+
+    public void tryPrintln(String s) {
+        if (tryLock()) {
+
+            try {
+                terminal.writer().println(s);
+                terminal.writer().flush();
+            } finally {
+                unlock();
+            }
+        }
+    }
+
+    public void tryPrintln(String s, long time, TimeUnit unit) {
+        try {
+            if (!tryLock(time, unit)) {
+                return;
+            }
+        } catch (InterruptedException e) {
+            return;
+        }
+
+        try {
+            terminal.writer().println(s);
+            terminal.writer().flush();
+        } finally {
+            unlock();
+        }
+    }
+
+
     public Collection<Pack> getPacks() {
         return packs.values();
     }
@@ -115,7 +182,7 @@ public class SokoShellHelper implements Lock {
         this.terminal = terminal;
     }
 
-    public SolverTask getSolverTask() {
+    public ISolverTask<?> getSolverTask() {
         return task;
     }
 

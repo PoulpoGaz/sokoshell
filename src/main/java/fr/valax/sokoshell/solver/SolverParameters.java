@@ -1,5 +1,7 @@
 package fr.valax.sokoshell.solver;
 
+import fr.valax.sokoshell.solver.tasks.SolverTask;
+
 import java.util.Collections;
 import java.util.Map;
 

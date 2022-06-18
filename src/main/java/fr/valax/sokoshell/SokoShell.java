@@ -7,9 +7,8 @@ import fr.valax.args.repl.REPLHelpFormatter;
 import fr.valax.args.utils.CommandLineException;
 import fr.valax.args.utils.ParseException;
 import fr.valax.args.utils.TypeException;
-import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.solver.Pack;
-import fr.valax.sokoshell.solver.SolverTask;
+import fr.valax.sokoshell.solver.tasks.ISolverTask;
 import fr.valax.sokoshell.utils.Utils;
 import org.jline.console.SystemRegistry;
 import org.jline.console.impl.SystemRegistryImpl;
@@ -23,9 +22,6 @@ import org.jline.terminal.TerminalBuilder;
 import org.jline.terminal.impl.AbstractWindowsTerminal;
 import org.jline.widget.AutosuggestionWidgets;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
@@ -53,7 +49,7 @@ public class SokoShell {
 
             sokoshell.loop();
         } finally {
-            SolverTask task = SokoShellHelper.INSTANCE.getSolverTask();
+            ISolverTask<?> task = SokoShellHelper.INSTANCE.getSolverTask();
             if (task != null) {
                 task.stop();
             }
@@ -65,6 +61,7 @@ public class SokoShell {
     }
 
     private final CommandLine cli;
+    private final SokoShellHelper helper = SokoShellHelper.INSTANCE;
     private LineReaderImpl reader;
     private Terminal terminal;
 
@@ -73,17 +70,18 @@ public class SokoShell {
                 .addDefaultConverters()
                 .setHelpFormatter(new REPLHelpFormatter())
                 .addCommand(new SolveCommand())
+                .addCommand(new BenchmarkCommand())
                 .subCommand(new PrintCommand())
                     .addCommand(new SolutionCommand())
                     .endSubCommand()
                 .addCommand(new LoadCommand())
-                .addCommand(new ListCommand())
                 .addCommand(new StatusCommand())
                 .addCommand(new PlayCommand())
+                .addCommand(new StatsCommand())
                 .addCommand(AbstractVoidCommand.newCommand(this::clear, "clear", "Clear screen"))
                 .addCommand(AbstractVoidCommand.newCommand(this::stopSolver, "stop", "Stop the solver"))
                 .addCommand(AbstractVoidCommand.newCommand(this::gc, "gc", "Run garbage collector.\nYou may want to use this after solving a sokoban"))
-                .addCommand(AbstractVoidCommand.newCommand(this::stats, "stats", ""))
+                .addCommand(AbstractVoidCommand.newCommand(this::list, "list", "List all packs"))
                 .build();
     }
 
@@ -173,7 +171,7 @@ public class SokoShell {
     }
 
     private void stopSolver() {
-        SolverTask task = SokoShellHelper.INSTANCE.getSolverTask();
+        ISolverTask<?> task = helper.getSolverTask();
 
         if (task != null) {
             task.stop();
@@ -184,15 +182,9 @@ public class SokoShell {
         Runtime.getRuntime().gc();
     }
 
-    private void stats() {
-        Pack pack = SokoShellHelper.INSTANCE.getPack("Original & Extra");
-        Level level = pack.levels().get(0);
-        BufferedImage img = level.getSolution().createGraph();
-
-        try {
-            ImageIO.write(img, "png", new File("test.png"));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+    private void list() {
+        for (Pack pack : helper.getPacks()) {
+            System.out.println(pack.name());
         }
     }
 }

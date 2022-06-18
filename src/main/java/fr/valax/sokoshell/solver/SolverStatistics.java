@@ -5,42 +5,42 @@ import java.util.List;
 
 /**
  * An object that contains various statistics about a solution, including
- * time start and end, number of node explored and queue size by time unit
+ * time start and end, number of node explored and queue size every time unit
  */
 public class SolverStatistics {
 
-    private List<Integer> stateExploredByTimeUnit;
-    private List<Integer> queueSizeByTimeUnit;
+    private List<Integer> stateExplored;
+    private List<Integer> queueSize;
     private int timeUnit; // in sec
 
     private long timeStarted; // in millis
     private long timeEnded; // in millis
 
     public SolverStatistics() {
-        stateExploredByTimeUnit = new ArrayList<>();
-        queueSizeByTimeUnit = new ArrayList<>();
+        stateExplored = new ArrayList<>();
+        queueSize = new ArrayList<>();
         timeUnit = -1;
     }
 
     public void add(int nodeExplored, int queueSize) {
-        stateExploredByTimeUnit.add(nodeExplored);
-        queueSizeByTimeUnit.add(queueSize);
+        stateExplored.add(nodeExplored);
+        this.queueSize.add(queueSize);
     }
 
-    public List<Integer> getStateExploredByTimeUnit() {
-        return stateExploredByTimeUnit;
+    public List<Integer> getStateExplored() {
+        return stateExplored;
     }
 
-    public List<Integer> getQueueSizeByTimeUnit() {
-        return queueSizeByTimeUnit;
+    public List<Integer> getQueueSize() {
+        return queueSize;
     }
 
-    public void setStateExploredByTimeUnit(List<Integer> stateExploredByTimeUnit) {
-        this.stateExploredByTimeUnit = stateExploredByTimeUnit;
+    public void setStateExplored(List<Integer> stateExplored) {
+        this.stateExplored = stateExplored;
     }
 
-    public void setQueueSizeByTimeUnit(List<Integer> queueSizeByTimeUnit) {
-        this.queueSizeByTimeUnit = queueSizeByTimeUnit;
+    public void setQueueSize(List<Integer> queueSize) {
+        this.queueSize = queueSize;
     }
 
     public int getTimeUnit() {
