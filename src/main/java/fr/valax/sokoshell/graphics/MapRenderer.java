@@ -14,6 +14,12 @@ import java.util.stream.Collectors;
 
 import static org.jline.utils.AttributedStyle.*;
 
+
+/**
+ * A class used to print or draw a map on a terminal or a surface
+ * or even on system output. It uses a {@link MapStyle} to know how
+ * to draw.
+ */
 public class MapRenderer {
 
     /**

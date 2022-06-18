@@ -62,8 +62,31 @@ public class Map {
         return content[y][x];
     }
 
-    protected void setAt(int index, Tile tile) { content[getY(index)][getX(index)] = tile; }
-    protected void setAt(int x, int y, Tile tile) {
+    public Tile safeGetAt(int x, int y, Tile ifOutside) {
+        if (caseExists(x, y)) {
+            return getAt(x, y);
+        } else {
+            return ifOutside;
+        }
+    }
+
+    public Tile safeGetAt(int x, int y) {
+        return safeGetAt(x, y, Tile.WALL);
+    }
+
+    public Tile safeGetAt(int x, int y, Direction dir, Tile ifOutside) {
+        int x2 = x + dir.dirX();
+        int y2 = y + dir.dirY();
+
+        return safeGetAt(x2, y2, ifOutside);
+    }
+
+    public Tile safeGetAt(int x, int y, Direction dir) {
+        return safeGetAt(x, y, dir, Tile.WALL);
+    }
+
+    public void setAt(int index, Tile tile) { content[getY(index)][getX(index)] = tile; }
+    public void setAt(int x, int y, Tile tile) {
         content[y][x] = tile;
     }
 
@@ -134,6 +157,21 @@ public class Map {
         for (int i : s.cratesIndices()) {
             if (getAt(i) != Tile.CRATE_ON_TARGET) {
                 return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Checks if the map is completed (i.e. all the crates are on a target)
+     * @return true if completed, false otherwise
+     */
+    public boolean isCompleted() {
+        for (int y = 0; y < getHeight(); y++) {
+            for (int x = 0; x < getWidth(); x++) {
+                if (getAt(x, y) == Tile.CRATE) {
+                    return false;
+                }
             }
         }
         return true;

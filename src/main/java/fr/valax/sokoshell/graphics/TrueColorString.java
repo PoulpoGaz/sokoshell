@@ -4,7 +4,24 @@ import org.jline.terminal.Terminal;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;
 
+import java.util.Objects;
+
+/**
+ * A helper class to force use of "truecolor" (24 bits color)
+ * when supported by the terminal
+ */
 public class TrueColorString extends AttributedString {
+
+    public static boolean SUPPORTED = false;
+
+    static {
+        String str = System.getenv("COLORTERM");
+
+        if (str != null && str.equalsIgnoreCase("truecolor")) {
+            SUPPORTED = true;
+        }
+    }
+
 
     public TrueColorString(CharSequence str) {
         super(str);
@@ -29,6 +46,10 @@ public class TrueColorString extends AttributedString {
 
     @Override
     public String toAnsi(Terminal terminal) {
-        return super.toAnsi(TRUE_COLORS, ForceMode.ForceTrueColors);
+        if (SUPPORTED) {
+            return super.toAnsi(TRUE_COLORS, ForceMode.ForceTrueColors);
+        } else {
+            return super.toAnsi(terminal);
+        }
     }
 }

@@ -12,6 +12,12 @@ import org.jline.utils.InfoCmp;
 
 import static org.jline.keymap.KeyMap.key;
 
+/**
+ * A yes/no selector. Not used because it doesn't work properly.
+ * I will maybe, continue it one day.
+ *
+ * @author PoulpoGaz
+ */
 public class YesNoSelector {
 
     public enum Answer {

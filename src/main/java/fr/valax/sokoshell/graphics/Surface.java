@@ -7,6 +7,7 @@ import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.*;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,7 +16,11 @@ import java.util.List;
 
 /**
  * A class used by {@link TerminalEngine} to draw.
- * It doesn't support character with column with not equal to 1
+ * It doesn't support character with column with not equal to 1.
+ *
+ * You can draw text at any position in the terminal. Drawing at
+ * a (x, y) fills at left with "background char". It doesn't erase
+ * previously drawn text.
  *
  * @see org.jline.utils.WCWidth
  */
@@ -32,10 +37,19 @@ public class Surface {
         builders = new AttributedStringBuilder[0];
     }
 
+    /**
+     * Resize the buffered
+     * @param size new size
+     */
     public void resize(Size size) {
         resize(size.getColumns(), size.getRows());
     }
 
+    /**
+     * Resize the buffer to width; height
+     * @param width new width
+     * @param height new height
+     */
     public void resize(int width, int height) {
         if (width < 0 || height < 0) {
             return;
@@ -53,6 +67,11 @@ public class Surface {
         this.height = height;
     }
 
+    /**
+     * Draw the surface on the display and put the cursor at cursorPos
+     * @param display the display to draw on
+     * @param cursorPos cursor position
+     */
     public void drawBuffer(Display display, int cursorPos) {
         List<AttributedString> strings = new ArrayList<>();
 
@@ -63,12 +82,22 @@ public class Surface {
         display.update(strings, cursorPos);
     }
 
+    /**
+     * Clear the buffer.
+     * It doesn't clear the screen
+     */
     public void clear() {
         for (AttributedStringBuilder builder : builders) {
             builder.setLength(0);
         }
     }
 
+    /**
+     * Set at (x, y) the string. It should be a one-column length string
+     * @param str the string to draw
+     * @param x destination x
+     * @param y destination y
+     */
     public void set(AttributedString str, int x, int y) {
         if (str.columnLength() == 1) {
             draw(str, x, y);
@@ -77,14 +106,32 @@ public class Surface {
         }
     }
 
+    /**
+     * Set at (x, y) the char c
+     * @param c the char to draw
+     * @param x destination x
+     * @param y destination y
+     */
     public void set(char c, AttributedStyle style, int x, int y) {
         draw(new AttributedString(String.valueOf(c), style), x, y);
     }
 
+    /**
+     * Draw the string at (x; y).
+     * @param str the string to draw
+     * @param x destination x
+     * @param y destination y
+     */
     public void draw(String str, int x, int y) {
         draw(new AttributedString(str), x, y);
     }
 
+    /**
+     * Draw the string at (x; y).
+     * @param str the string to draw
+     * @param x destination x
+     * @param y destination y
+     */
     public void draw(AttributedString str, int x, int y) {
         if (str.length() != str.columnLength()) {
             throw new IllegalArgumentException("Attempting to draw a string that contains non 1-column-length char");
@@ -112,7 +159,10 @@ public class Surface {
     }
 
     /**
-     * Doesn't check if the text can fill in the screen
+     * Draw the string at (x; y) with checking if the text can fill in the screen
+     * @param str the string to draw
+     * @param x destination x
+     * @param y destination y
      */
     private void drawUnchecked(AttributedString str, int x, int y) {
         AttributedStringBuilder b = builders[y];
@@ -138,22 +188,31 @@ public class Surface {
         }
     }
 
-    private boolean outside(int x, int y) {
-        return x < 0 || x >= width || y < 0 || y >= height;
-    }
-
+    /**
+     * @return the width of the buffer
+     */
     public int getWidth() {
         return width;
     }
 
+    /**
+     * @return the height of the buffer
+     */
     public int getHeight() {
         return height;
     }
 
+    /**
+     * @return the background char
+     */
     public AttributedString getBackground() {
         return background;
     }
 
+    /**
+     * Set the new background string. It should be a one-column length string
+     * @param background new background
+     */
     public void setBackground(AttributedString background) {
         if (background != null && background.columnLength() == 1) {
             this.background = background;
@@ -181,6 +240,9 @@ public class Surface {
         DOWN
     }
 
+    /**
+     * A test class
+     */
     private static class TestClass extends TerminalEngine<KeyEvent> {
 
         private Surface surface;
@@ -252,12 +314,60 @@ public class Surface {
             g.drawImage(img, 50, 20);
 
 
+            g.setPaint(new RadialGradient(Color.RED, Color.BLUE));
+            g.fillRectangle(0, 40, 20, 20);
+
             surface.drawBuffer(display, 0);
         }
 
         @Override
         protected void update() {
             surface.resize(terminal.getWidth(), terminal.getHeight());
+        }
+    }
+
+    /**
+     * From box center
+     */
+    private static class RadialGradient implements Graphics.Paint {
+
+        private final Color from;
+        private final Color to;
+
+        public RadialGradient(Color from, Color to) {
+            this.from = from;
+            this.to = to;
+        }
+
+        @Override
+        public AttributedString at(int x, int y, Rectangle box) {
+            double x2 = x - box.x;
+            double y2 = y - box.y;
+
+            double cx = box.width / 2d;
+            double cy = box.height / 2d;
+
+            double gradRadius = Math.sqrt(cx * cx + cy * cy);
+            double radius = Math.sqrt((x2 - cx) * (x2 - cx) + (y2 - cy) * (y2 - cy));
+
+            double factor = radius / gradRadius;
+
+            int newRed   = (int) ((1 - factor) * from.getRed() + factor * to.getRed());
+            int newGreen = (int) ((1 - factor) * from.getGreen() + factor * to.getGreen());
+            int newBlue  = (int) ((1 - factor) * from.getBlue() + factor * to.getBlue());
+
+            return new AttributedString(" ", AttributedStyle.DEFAULT.background(newRed, newGreen, newBlue));
+        }
+
+        @Override
+        public AttributedString fromTo(int x, int y, int width, Rectangle box) {
+            AttributedStringBuilder builder = new AttributedStringBuilder();
+
+            for (int x2 = x; x2 <= x + width; x2++) {
+                builder.append(at(x2, y, box));
+            }
+
+            return builder.toAttributedString();
         }
     }
 }

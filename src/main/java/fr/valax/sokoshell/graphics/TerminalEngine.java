@@ -19,7 +19,7 @@ import java.util.concurrent.Future;
 
 /**
  * TerminalEngine is an object used to facilitate drawing
- * and input reading.
+ * and input reading in fullscreen mode.
  *
  * It's divided in three methods: {@link TerminalEngine#init()},
  * {@link TerminalEngine#render(Size)} and {@link TerminalEngine#update()}
@@ -102,6 +102,11 @@ public abstract class TerminalEngine<T> implements AutoCloseable {
 
     // INPUT
 
+    /**
+     * Read bindings and add them to the keyEvents list.
+     * Because {@link BindingReader#readBinding(KeyMap)} block
+     * the thread, it is executed in another thread.
+     */
     private void read() {
         try {
             while (running) {
@@ -120,6 +125,9 @@ public abstract class TerminalEngine<T> implements AutoCloseable {
         }
     }
 
+    /**
+     * Count occurrences of all key events and clear all key events
+     */
     private void pollEvents() {
         synchronized (LOCK) {
 
@@ -137,6 +145,9 @@ public abstract class TerminalEngine<T> implements AutoCloseable {
         }
     }
 
+    /**
+     * Clear occurrences
+     */
     private void resetOccurrences() {
         occurrences.clear();
     }
@@ -202,30 +213,64 @@ public abstract class TerminalEngine<T> implements AutoCloseable {
         }
     }
 
+    /**
+     * The init method is called once by the constructor.
+     * It is used to bind keys
+     */
     protected abstract void init();
 
+    /**
+     * Called as often as possible by {@link #loop()}.
+     * It is used to draw on the screen. Implementations can use
+     * the {@link Surface} and {@link Graphics} object
+     *
+     * @param size terminal size
+     */
     protected abstract void render(Size size);
 
+    /**
+     * Called 60 times per seconds by {@link #loop()}.
+     * It is used to read binding and update objets
+     */
     protected abstract void update();
 
+    /**
+     * @param t the key
+     * @return true if t is pressed
+     */
     protected boolean pressed(T t) {
         return pressedNTime(t) > 0;
     }
 
+    /**
+     * @param t the key
+     * @return the number of time t was pressed
+     * between now and the last time the update function
+     * was called
+     */
     protected int pressedNTime(T t) {
         Integer v = occurrences.get(t);
 
         return v == null ? 0 : v;
     }
 
+    /**
+     * @return frame per second
+     */
     public int getFPS() {
         return fps;
     }
 
+    /**
+     * @return tick per seconds. It should be around 60
+     */
     public int getTPS() {
         return tps;
     }
 
+    /**
+     * Disable fullscreen mode and stop {@link #loop()}
+     */
     @Override
     public void close() {
         running = false;
