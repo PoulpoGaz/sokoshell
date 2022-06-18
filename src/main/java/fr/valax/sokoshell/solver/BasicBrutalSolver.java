@@ -1,5 +1,6 @@
 package fr.valax.sokoshell.solver;
 
+import javax.sound.midi.Track;
 import java.util.*;
 
 /**
@@ -10,7 +11,7 @@ import java.util.*;
  * difference being in the order in which they treat the states (LIFO for DFS and FIFO for BFS).
  *
  */
-public abstract class BasicBrutalSolver extends AbstractSolver {
+public abstract class BasicBrutalSolver extends AbstractSolver implements Trackable {
 
     public static DFSSolver newDFSSolver() {
         return new DFSSolver();
@@ -23,13 +24,21 @@ public abstract class BasicBrutalSolver extends AbstractSolver {
     protected final ArrayDeque<State> toProcess = new ArrayDeque<>();
     protected final Set<State> processed = new HashSet<>();
 
-    private Solution solution;
+    // statistics
+    private long timeStart = -1;
+    private long timeEnd = -1;
+    private int nStateProcessed = -1;
+    private int queueSize = -1;
+    private Tracker tracker;
 
     protected abstract State getNext();
 
     @Override
-    public SolverStatus solve(Level level) {
-        solution = null;
+    public Solution solve(SolverParameters params) {
+        Level level = params.getLevel();
+
+        timeStart = System.currentTimeMillis();
+        timeEnd = -1;
 
         Map map = new Map(level.getMap());
         State initialState = level.getInitialState();
@@ -61,12 +70,18 @@ public abstract class BasicBrutalSolver extends AbstractSolver {
             map.removeStateCrates(cur);
         }
 
-        if (finalState == null) {
-            return SolverStatus.NO_SOLUTION;
-        } else {
-            solution = buildSolution(finalState);
+        timeEnd = System.currentTimeMillis();
+        nStateProcessed = processed.size();
+        queueSize = toProcess.size();
 
-            return SolverStatus.SOLUTION_FOUND;
+        // free ram
+        processed.clear();
+        toProcess.clear();
+
+        if (finalState != null) {
+            return buildSolution(finalState, params, getStatistics());
+        } else {
+            return createNoSolution(params, getStatistics());
         }
     }
 
@@ -110,14 +125,61 @@ public abstract class BasicBrutalSolver extends AbstractSolver {
         }
     }
 
-    @Override
-    public Solution getSolution() {
-        return solution;
+
+    private SolverStatistics getStatistics() {
+        SolverStatistics stats;
+
+        if (tracker != null) {
+            stats = Objects.requireNonNull(tracker.getStatistics());
+        } else {
+            stats = new SolverStatistics();
+            stats.setTimeStarted(timeStart);
+            stats.setTimeEnded(timeEnd);
+        }
+
+        return stats;
     }
 
     @Override
-    public Set<State> getProcessed() {
-        return Collections.unmodifiableSet(processed);
+    public int nStateExplored() {
+        if (timeStart < 0) {
+            return -1;
+        } else if (timeEnd < 0) {
+            return processed.size();
+        } else {
+            return nStateProcessed;
+        }
+    }
+
+    @Override
+    public int currentQueueSize() {
+        if (timeStart < 0) {
+            return -1;
+        } else if (timeEnd < 0) {
+            return toProcess.size();
+        } else {
+            return queueSize;
+        }
+    }
+
+    @Override
+    public long timeStarted() {
+        return timeStart;
+    }
+
+    @Override
+    public long timeEnded() {
+        return timeEnd;
+    }
+
+    @Override
+    public void setTacker(Tracker tracker) {
+        this.tracker = tracker;
+    }
+
+    @Override
+    public Tracker getTracker() {
+        return null;
     }
 
     private static class DFSSolver extends BasicBrutalSolver {
@@ -126,12 +188,22 @@ public abstract class BasicBrutalSolver extends AbstractSolver {
         protected State getNext() {
             return toProcess.removeLast(); // LIFO
         }
+
+        @Override
+        public SolverType getSolverType() {
+            return SolverType.DFS;
+        }
     }
 
     private static class BFSSolver extends BasicBrutalSolver {
         @Override
         protected State getNext() {
             return toProcess.removeFirst(); // FIFO
+        }
+
+        @Override
+        public SolverType getSolverType() {
+            return SolverType.BFS;
         }
     }
 }

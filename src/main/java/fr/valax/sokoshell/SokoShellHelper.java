@@ -43,14 +43,14 @@ public class SokoShellHelper implements Lock {
             System.out.println("Already solving.");
             return;
         }
-        CompletableFuture<SolverStatus> f = CompletableFuture.supplyAsync(() -> solver.solve(level));
+        /*CompletableFuture<SolverStatus> f = CompletableFuture.supplyAsync(() -> solver.solve(level));
 
         solverInfo = new SolverInfo(f, solver, pack, level);
 
         f.exceptionally((t) -> {
             t.printStackTrace();
             return null;
-        }).thenAccept((status) -> printStatus(solver, level, status));
+        }).thenAccept((status) -> printStatus(solver, level, status));*/
     }
 
     private void printStatus(Solver solver, Level level, SolverStatus status) {
@@ -66,7 +66,7 @@ public class SokoShellHelper implements Lock {
                     }
                     case SOLUTION_FOUND -> {
                         System.out.println("Solution found. Use 'print solution' to print the solution");
-                        level.setSolution(solver.getSolution());
+                        //level.setSolution(solver.getSolution());
                     }
                     case PAUSED -> {
                         System.out.println("Paused");

@@ -21,7 +21,10 @@ public class StatusCommand extends AbstractVoidCommand {
             BigInteger maxState = estimateMaxNumberOfStates(level);
 
             System.out.printf("Solving level n°%d from %s by %s%n", level.getIndex(), pack.name(), pack.author());
-            System.out.printf("Number of state processed: %d%n", solver.getProcessed().size());
+
+            if (solver instanceof Trackable t) {
+                System.out.printf("Number of state processed: %d%n", t.nStateExplored());
+            }
             System.out.printf("Estimated maximal number of state: %d%n", maxState);
         }
     }

@@ -9,7 +9,6 @@ import fr.valax.args.utils.ParseException;
 import fr.valax.args.utils.TypeException;
 import fr.valax.sokoshell.utils.Utils;
 import org.jline.console.SystemRegistry;
-import org.jline.console.impl.Builtins;
 import org.jline.console.impl.SystemRegistryImpl;
 import org.jline.reader.*;
 import org.jline.reader.impl.DefaultHighlighter;
@@ -19,8 +18,6 @@ import org.jline.reader.impl.history.DefaultHistory;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.terminal.impl.AbstractWindowsTerminal;
-import org.jline.terminal.impl.DumbTerminal;
-import org.jline.utils.InfoCmp;
 import org.jline.widget.AutosuggestionWidgets;
 
 import java.io.IOException;

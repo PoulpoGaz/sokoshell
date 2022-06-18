@@ -103,7 +103,7 @@ public abstract class AbstractSolver implements Solver {
         }
     }
 
-    protected Solution buildSolution(State finalState) {
+    protected Solution buildSolution(State finalState, SolverParameters params, SolverStatistics stats) {
         List<State> solution = new ArrayList<>();
 
         State s = finalState;
@@ -115,7 +115,11 @@ public abstract class AbstractSolver implements Solver {
         solution.add(s);
         Collections.reverse(solution);
 
-        return new Solution(solution);
+        return new Solution(getSolverType(), params, stats, solution, Solution.SOLVED);
+    }
+
+    protected Solution createNoSolution(SolverParameters params, SolverStatistics stats) {
+        return new Solution(getSolverType(), params, stats, null, Solution.NO_SOLUTION);
     }
 
     // http://www.sokobano.de/wiki/index.php?title=How_to_detect_deadlocks
@@ -177,20 +181,5 @@ public abstract class AbstractSolver implements Solver {
         }
 
         return deadlock;
-    }
-
-    @Override
-    public void pause() {
-
-    }
-
-    @Override
-    public void resume() {
-
-    }
-
-    @Override
-    public void stop() {
-
     }
 }

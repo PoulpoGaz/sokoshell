@@ -4,10 +4,14 @@ import org.jline.builtins.Completers;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 public class Utils {
 
     public static final ExecutorService SOKOSHELL_EXECUTOR = Executors.newCachedThreadPool();
+    public static final ScheduledExecutorService SCHEDULED_EXECUTOR =
+            Executors.newScheduledThreadPool(
+                    Math.max(1, Runtime.getRuntime().availableProcessors() / 4));
 
     public static final Completers.FileNameCompleter FILE_NAME_COMPLETER = new Completers.FileNameCompleter();
 
