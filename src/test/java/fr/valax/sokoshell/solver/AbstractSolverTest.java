@@ -1,6 +1,5 @@
 package fr.valax.sokoshell.solver;
 
-import fr.valax.sokoshell.AbstractCommand;
 import fr.valax.sokoshell.graphics.MapRenderer;
 import fr.valax.sokoshell.graphics.MapStyle;
 import fr.valax.sokoshell.loader.PackReaders;
@@ -9,7 +8,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Objects;
 
 public class AbstractSolverTest {
 
@@ -32,20 +30,20 @@ public class AbstractSolverTest {
         mR.toggleDeadPositionShow();
         mR.sysPrint(level);
         System.out.println("Computing dead positions...");
-        BasicBrutalSolver solver = BasicBrutalSolver.newBFSSolver();
-        boolean[][] dp = solver.computeDeadPositions(level.getMap());
+
+        map.computeDeadTiles();
         mR.sysPrint(level);
 
-        int count = 0;
-        for (int y = 0; y < dp.length; y++) {
-            for (int x = 0; x < dp[y].length; x++) {
-                if (dp[y][x] && map.getAt(x, y) != Tile.WALL) {
-                    System.out.printf("Dead position at (%d;%d)%n", x, y);
-                    count++;
-                }
+        final int[] count = {0};
+
+        map.forEach((t) -> {
+            if (t.isDeadTile() && !t.isWall()) {
+                System.out.printf("Dead position at (%d;%d)%n", t.getX(), t.getY());
+                count[0] = count[0] + 1;
             }
-        }
-        System.out.println(count + " dead positions found.");
+        });
+
+        System.out.println(count[0] + " dead positions found.");
     }
 
     @Test
@@ -64,8 +62,9 @@ public class AbstractSolverTest {
             Map map = level.getMap();
             State init = level.getInitialState();
 
+            solver.it.setMap(map);
             map.removeStateCrates(init);
-            solver.computeDeadPositions(level.getMap());
+            map.computeDeadTiles();
             map.addStateCrates(init);
 
             System.out.println(solver.checkFreezeDeadlock(map, level.getInitialState()));

@@ -1,93 +1,208 @@
 package fr.valax.sokoshell.solver;
 
-/**
- * @author darth-mole
- * @author PoulpoGaz
- */
+import java.util.function.Consumer;
+
 public class Map {
 
     public static final int MINIMUM_WIDTH = 5;
     public static final int MINIMUM_HEIGHT = 5;
 
-    private final Tile[][] content;
+    private final TileInfo[][] content;
     private final int width;
     private final int height;
 
-    private boolean[][] deadPositions;
-
     public Map(Tile[][] content, int width, int height) {
-        this.content = content;
         this.width = width;
         this.height = height;
+
+        this.content = new TileInfo[height][width];
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                this.content[y][x] = new TileInfo(this, content[y][x], x, y);
+            }
+        }
     }
 
     public Map(Map other) {
         this.width = other.width;
         this.height = other.height;
-        this.content = new Tile[height][width];
+        this.content = new TileInfo[height][width];
 
         for (int y = 0; y < height; y++) {
             System.arraycopy(other.content[y], 0, content[y], 0, width);
         }
     }
 
-    /*
-        \begin{UGLY CODE}
-        @TODO make this a little prettier (create a TileInfo class or something)
+    /**
+     * Puts the crates of the given state in the content array.
+     * @param state The state with the crates
      */
-    public void setDeadPositions(boolean[][] deadPositions) {
-        this.deadPositions = deadPositions;
-    }
-
-    public boolean isDeadPosition(int x, int y) {
-        if (deadPositions == null) {
-            return false;
+    public void addStateCrates(State state) {
+        for (int i : state.cratesIndices()) {
+            if (getAt(i).isTarget()) {
+                setAt(i, Tile.CRATE_ON_TARGET);
+            } else {
+                setAt(i, Tile.CRATE);
+            }
         }
-        // the walls are not dead positions
-        return (!getAt(x, y).isSolid()) && deadPositions[y][x];
     }
 
-    /* \end{UGLY CODE} */
+    /**
+     * Removes the crates of the given state from the content array.
+     * @param state The state with the crates
+     */
+    public void removeStateCrates(State state) {
+        for (int i : state.cratesIndices()) {
+            if (getAt(i).isCrateOnTarget()) {
+                setAt(i, Tile.TARGET);
+            } else {
+                setAt(i, Tile.FLOOR);
+            }
+        }
+    }
+
+
+    public void forEach(Consumer<TileInfo> consumer) {
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                consumer.accept(content[y][x]);
+            }
+        }
+    }
+
+
+    // ************
+    // * ANALYSIS *
+    // ************
+
+
+    /**
+     * Reset reachable flag
+     */
+    public void resetDynamicInformation() {
+        forEach(TileInfo::resetDynamicInformation);
+    }
+
+
+    // * STATIC *
+
+    /**
+     * Detects the dead positions of a level. Dead positions are cases that make the level unsolvable
+     * when a crate is put on them.
+     * After this function has been called, to check if a given crate at (x,y) is a dead position,
+     * you can use {@link TileInfo#isDeadTile()} to check in constant time.
+     * The map <strong>MUST</strong> have <strong>NO CRATES</strong> for this function to work.
+     */
+    public void computeDeadTiles() {
+        // reset
+        forEach((tile) -> tile.setDeadTile(true));
+
+        // loop
+        forEach((tile) -> {
+            if (!tile.isDeadTile()) {
+                return;
+            }
+
+            if (tile.anyCrate()) {
+                tile.setDeadTile(true);
+                return;
+            }
+
+            if (!tile.isTarget()) {
+                return;
+            }
+
+            findNonDeadCases(tile, null);
+        });
+    }
+    /**
+     * Discovers all the reachable cases from (x, y) to find dead positions, as described
+     * <a href="www.sokobano.de/wiki/index.php?title=How_to_detect_deadlocks#Detecting_simple_deadlocks">here</a>
+     */
+    private void findNonDeadCases(TileInfo tile, Direction lastDir) {
+        tile.setDeadTile(false);
+        for (Direction d : Direction.values()) {
+            if (d == lastDir) { // do not go backwards
+                continue;
+            }
+
+            final int nextX = tile.getX() + d.dirX();
+            final int nextY = tile.getY() + d.dirY();
+            final int nextNextX = nextX + d.dirX();
+            final int nextNextY = nextY + d.dirY();
+
+            if (getAt(nextX, nextY).isDeadTile()    // avoids to check already processed cases
+                    && isTileEmpty(nextX, nextY)
+                    && isTileEmpty(nextNextX, nextNextY)) {
+                findNonDeadCases(getAt(nextX, nextY), Direction.opposite(d));
+            }
+        }
+    }
+
+    // * DYNAMIC *
+
+    protected void findReachableCases(int playerPos, boolean reset) {
+        if (reset) {
+            forEach((t) -> t.setReachable(false));
+        }
+
+        findReachableCases_aux(getAt(playerPos));
+    }
+
+    private void findReachableCases_aux(TileInfo tile) {
+        tile.setReachable(true);
+        for (Direction d : Direction.values()) {
+            TileInfo adjacent = tile.adjacent(d);
+
+            // the second part of the condition avoids to check already processed cases
+            if (!adjacent.isSolid() && !adjacent.isReachable()) {
+                findReachableCases_aux(adjacent);
+            }
+        }
+    }
+
+
+    // *********************
+    // * GETTERS / SETTERS *
+    // *********************
+
 
     public int getWidth() { return width; }
+
     public int getHeight() { return height; }
 
     public int getX(int index) { return index % width; }
+
     public int getY(int index) { return index / width; }
 
-    public Tile getAt(int index) {
+    public TileInfo getAt(int index) {
         return content[getY(index)][getX(index)];
     }
-    public Tile getAt(int x, int y) {
+
+    public TileInfo getAt(int x, int y) {
         return content[y][x];
     }
 
-    public Tile safeGetAt(int x, int y, Tile ifOutside) {
+    public TileInfo safeGetAt(int x, int y) {
         if (caseExists(x, y)) {
             return getAt(x, y);
         } else {
-            return ifOutside;
+            return null;
         }
     }
 
-    public Tile safeGetAt(int x, int y) {
-        return safeGetAt(x, y, Tile.WALL);
-    }
-
-    public Tile safeGetAt(int x, int y, Direction dir, Tile ifOutside) {
+    public TileInfo safeGetAt(int x, int y, Direction dir) {
         int x2 = x + dir.dirX();
         int y2 = y + dir.dirY();
 
-        return safeGetAt(x2, y2, ifOutside);
+        return safeGetAt(x2, y2);
     }
 
-    public Tile safeGetAt(int x, int y, Direction dir) {
-        return safeGetAt(x, y, dir, Tile.WALL);
-    }
+    public void setAt(int index, Tile tile) { content[getY(index)][getX(index)].setTile(tile); }
 
-    public void setAt(int index, Tile tile) { content[getY(index)][getX(index)] = tile; }
     public void setAt(int x, int y, Tile tile) {
-        content[y][x] = tile;
+        content[y][x].setTile(tile);
     }
 
     /**
@@ -116,36 +231,8 @@ public class Map {
      * @return true if empty, false otherwise
      */
     public boolean isTileEmpty(int x, int y) {
-        Tile t = getAt(x, y);
-        return (t != Tile.WALL && t != Tile.CRATE && t != Tile.CRATE_ON_TARGET);
-    }
-
-    /**
-     * Puts the crates of the given state in the content array.
-     * @param state The state with the crates
-     */
-    public void addStateCrates(State state) {
-        for (int i : state.cratesIndices()) {
-            if (getAt(i) == Tile.TARGET) {
-                setAt(i, Tile.CRATE_ON_TARGET);
-            } else {
-                setAt(i, Tile.CRATE);
-            }
-        }
-    }
-
-    /**
-     * Removes the crates of the given state from the content array.
-     * @param state The state with the crates
-     */
-    public void removeStateCrates(State state) {
-        for (int i : state.cratesIndices()) {
-            if (getAt(i) == Tile.CRATE_ON_TARGET) {
-                setAt(i, Tile.TARGET);
-            } else {
-                setAt(i, Tile.FLOOR);
-            }
-        }
+        TileInfo t = getAt(x, y);
+        return !t.isSolid();
     }
 
     /**
@@ -155,7 +242,7 @@ public class Map {
      */
     public boolean isCompletedWith(State s) {
         for (int i : s.cratesIndices()) {
-            if (getAt(i) != Tile.CRATE_ON_TARGET) {
+            if (!getAt(i).isCrateOnTarget()) {
                 return false;
             }
         }
@@ -169,7 +256,7 @@ public class Map {
     public boolean isCompleted() {
         for (int y = 0; y < getHeight(); y++) {
             for (int x = 0; x < getWidth(); x++) {
-                if (getAt(x, y) == Tile.CRATE) {
+                if (getAt(x, y).isCrate()) {
                     return false;
                 }
             }

@@ -39,25 +39,30 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
 
     @Override
     public Solution solve(SolverParameters params) {
+        // init statistics, timeout and stop
+
         stopped = false;
 
         long timeout = getTimeout(params);
         boolean hasTimedOut = false;
 
-        Level level = params.getLevel();
-
         timeStart = System.currentTimeMillis();
         timeEnd = -1;
 
-        Map map = new Map(level.getMap());
+
+        // init the research
+
+        Level level = params.getLevel();
+
         State initialState = level.getInitialState();
         State finalState = null;
 
+        Map map = new Map(level.getMap());
         map.removeStateCrates(initialState);
+        it.setMap(map);
 
-        findDeadPositions(map);
+        map.computeDeadTiles();
 
-        reachableCases = new boolean[map.getHeight()][map.getWidth()];
         toProcess.clear();
         processed.clear();
         toProcess.add(initialState);
@@ -71,11 +76,6 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
             State cur = getNext();
             map.addStateCrates(cur);
 
-            /*if (checkFreezeDeadlock(map, cur)) {
-                map.removeStateCrates(cur);
-                continue;
-            }*/
-
             if (map.isCompletedWith(cur)) {
                 finalState = cur;
                 break;
@@ -85,6 +85,9 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
 
             map.removeStateCrates(cur);
         }
+
+
+        // END OF RESEARCH
 
         timeEnd = System.currentTimeMillis();
         nStateProcessed = processed.size();
@@ -106,7 +109,7 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
     }
 
     private void addChildrenStates(State cur, Map map) {
-        findReachableCases(cur.playerPos(), map);
+        map.findReachableCases(cur.playerPos(), true);
 
         int[] cratesIndices = cur.cratesIndices();
         for (int crateIndex = 0; crateIndex < cratesIndices.length; crateIndex++) {
@@ -125,7 +128,7 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
                     continue; // The destination case is not empty
                 }
 
-                if (deadPositions[crateDestY][crateDestX]) {
+                if (map.getAt(crateX, crateY).isDeadTile()) {
                     continue; // Useless to push a crate on a dead position
                 }
 
@@ -133,7 +136,7 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
                 int playerY = crateY - d.dirY();
                 if (playerX < 0 || playerX >= map.getWidth()
                  || playerY < 0 || playerY >= map.getHeight()
-                 || !reachableCases[playerY][playerX]
+                 || !map.getAt(playerX, playerY).isReachable()
                  || !map.isTileEmpty(playerX, playerY)) {
                     continue; // The player cannot reach the case to push the crate
                 }

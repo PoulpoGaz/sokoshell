@@ -152,7 +152,7 @@ public class PlayCommand extends LevelCommand {
             if (map.caseExists(nextX, nextY) && map.isTileEmpty(nextX, nextY)) {
                 movePlayer(nextX, nextY);
             } else {
-                final Tile next = map.getAt(nextX, nextY);
+                final Tile next = map.getAt(nextX, nextY).getTile();
                 if (next == Tile.CRATE || next == Tile.CRATE_ON_TARGET) {
                     final int nextNextX = nextX + dir.dirX();
                     final int nextNextY = nextY + dir.dirY();
@@ -187,8 +187,8 @@ public class PlayCommand extends LevelCommand {
          */
         private void moveCrate(int x, int y, int nextX, int nextY) {
 
-            Tile curr = map.getAt(x, y);
-            Tile next = map.getAt(nextX, nextY);
+            Tile curr = map.getAt(x, y).getTile();
+            Tile next = map.getAt(nextX, nextY).getTile();
 
             switch (curr) {
                 case CRATE -> map.setAt(x, y, Tile.FLOOR);

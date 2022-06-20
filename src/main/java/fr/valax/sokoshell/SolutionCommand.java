@@ -1,16 +1,11 @@
 package fr.valax.sokoshell;
 
-import fr.valax.args.api.Option;
-import fr.valax.args.utils.ArgsUtils;
 import fr.valax.sokoshell.graphics.MapRenderer;
 import fr.valax.sokoshell.graphics.TerminalEngine;
 import fr.valax.sokoshell.solver.Map;
 import fr.valax.sokoshell.solver.*;
 import fr.valax.sokoshell.utils.Utils;
 import org.jline.keymap.KeyMap;
-import org.jline.reader.Candidate;
-import org.jline.reader.LineReader;
-import org.jline.reader.ParsedLine;
 import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
 import org.jline.utils.InfoCmp;
@@ -249,8 +244,8 @@ public class SolutionCommand extends LevelCommand {
             int newX = x + dir.dirX();
             int newY = y + dir.dirY();
 
-            Tile curr = map.getAt(x, y);
-            Tile next = map.getAt(newX, newY);
+            Tile curr = map.getAt(x, y).getTile();
+            Tile next = map.getAt(newX, newY).getTile();
 
             switch (curr) {
                 case CRATE -> map.setAt(x, y, Tile.FLOOR);
@@ -285,14 +280,14 @@ public class SolutionCommand extends LevelCommand {
                 int crateX = playerX + dir.dirX();
                 int crateY = playerY + dir.dirY();
 
-                Tile crate = map.getAt(crateX, crateY);
+                Tile crate = map.getAt(crateX, crateY).getTile();
 
                 switch (crate) {
                     case CRATE -> map.setAt(crateX, crateY, Tile.FLOOR);
                     case CRATE_ON_TARGET -> map.setAt(crateX, crateY, Tile.TARGET);
                 }
 
-                switch (map.getAt(playerX, playerY)) {
+                switch (map.getAt(playerX, playerY).getTile()) {
                     case FLOOR -> map.setAt(playerX, playerY, Tile.CRATE);
                     case TARGET -> map.setAt(playerX, playerY, Tile.CRATE_ON_TARGET);
                 }

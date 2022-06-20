@@ -1,9 +1,6 @@
 package fr.valax.sokoshell.graphics;
 
-import fr.valax.sokoshell.solver.Direction;
-import fr.valax.sokoshell.solver.Level;
-import fr.valax.sokoshell.solver.Map;
-import fr.valax.sokoshell.solver.Tile;
+import fr.valax.sokoshell.solver.*;
 import org.jline.terminal.Terminal;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStringBuilder;
@@ -84,14 +81,15 @@ public class MapRenderer {
             for (int x = 0; x < map.getWidth(); x++) {
                 boolean player = playerY == y && playerX == x;
 
-                Tile tile = map.getAt(x, y);
+                TileInfo tile = map.getAt(x, y);
 
                 // A little ugly, I admit. Feel free to improve this!
-                if (showDeadPos && map.isDeadPosition(x, y)) {
+                // grrrrrrrr
+                if (showDeadPos && tile.isDeadTile() && !tile.isWall()) {
                     // dead pos are shown with a blue 'X'
                     builder.append(new AttributedString("X", DEFAULT.background(BLUE)));
                 } else {
-                    builder.append(style.getStyle(tile, player));
+                    builder.append(style.getStyle(tile.getTile(), player));
                 }
             }
 
@@ -117,7 +115,7 @@ public class MapRenderer {
             for (int x2 = 0; x2 < map.getWidth(); x2++) {
                 boolean player = playerY == y2 && playerX == x2;
 
-                Tile tile = map.getAt(x2, y2);
+                Tile tile = map.getAt(x2, y2).getTile();
 
                 style.draw(g, x2 * s + x, y2 * s + y, s, tile, player ? playerDir : null);
             }
