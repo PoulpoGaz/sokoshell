@@ -7,6 +7,8 @@ import fr.valax.sokoshell.solver.Tile;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -16,9 +18,17 @@ public class SOKReader implements Reader {
 
     private static final String SYMBOLS = "#@+$*. -_";
 
+
     @Override
     public Pack read(Path path) throws IOException {
-        BufferedReader br = Files.newBufferedReader(path);
+        try (InputStream is = Files.newInputStream(path)) {
+            return read(is);
+        }
+    }
+
+    @Override
+    public Pack read(InputStream is) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(is));
 
         List<Level> levels = new ArrayList<>();
 
@@ -80,6 +90,7 @@ public class SOKReader implements Reader {
         }
 
         Level.Builder builder = new Level.Builder();
+        builder.setSize(width, height);
         builder.setPlayerPos(width - 1, height - 1);
 
         int y = 0;

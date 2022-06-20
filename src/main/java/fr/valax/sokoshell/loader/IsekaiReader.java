@@ -19,10 +19,20 @@ public class IsekaiReader implements Reader {
 
     @Override
     public Pack read(Path path) throws IOException {
-        byte[] fileBytes = Files.readAllBytes(path);
+        try (InputStream is = Files.newInputStream(path)) {
+            return read(is);
+        }
+    }
+
+    @Override
+    public Pack read(InputStream is) throws IOException {
+        byte[] fileBytes = is.readAllBytes();
 
         byte[] data = Converter.extract(fileBytes);
-        byte[] fileName = Converter.extractFileName(fileBytes);
+
+        if (data == null) {
+            throw new IOException("Not 8xv format");
+        }
 
         ByteArrayInputStream bais = new ByteArrayInputStream(data);
 

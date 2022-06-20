@@ -44,7 +44,7 @@ public abstract class AbstractSolver implements Solver {
                 findNonDeadCases(x, y, map, null);
             }
         }
-        map.setDeadPositions(deadPositions); // @TODO if it's ok to store it in the map, we could remove it from this class
+        map.setDeadPositions(deadPositions); // TODO if it's ok to store it in the map, we could remove it from this class
     }
 
     /**
@@ -54,7 +54,6 @@ public abstract class AbstractSolver implements Solver {
      * @param y y-coordinate
      * @param map the map
      */
-
     private void findNonDeadCases(int x, int y, Map map, Direction lastDir) {
         deadPositions[y][x] = false;
         for (Direction d : Direction.values()) {
@@ -156,11 +155,11 @@ public abstract class AbstractSolver implements Solver {
         int rightX = crateX - axis.dirX();
         int rightY = crateY - axis.dirY();
 
+        Tile current = map.getAt(crateX, crateY);
         Tile left = map.safeGetAt(leftX, leftY);
         Tile right = map.safeGetAt(rightX, rightY);
 
-        // rule 1
-        if (left == Tile.WALL || right == Tile.WALL) {
+        if (left == Tile.WALL || right == Tile.WALL) { // rule 1
             deadlock = true;
 
         } else if ((left == null || deadPositions[leftY][leftX]) &&
@@ -168,21 +167,21 @@ public abstract class AbstractSolver implements Solver {
 
             deadlock = true;
         } else { // rule 3
+            map.setAt(crateX, crateY, Tile.WALL);
 
             if (left != null && left.isCrate()) {
-                map.setAt(leftX, leftY, Tile.WALL);
                 deadlock = checkFreezeDeadlock(map, leftX, leftY);
-                map.setAt(leftX, leftY, left);
             }
 
             if (!deadlock && right != null && right.isCrate()) {
-                map.setAt(rightX, rightY, Tile.WALL);
                 deadlock = checkFreezeDeadlock(map, rightX, rightY);
-                map.setAt(rightX, rightY, right);
             }
+
+            map.setAt(crateX, crateY, current);
         }
 
-        return deadlock;
+        // ultimate check, the crate is frozen if it is only a crate and not a crate on target
+        return deadlock && current == Tile.CRATE;
     }
 
     protected long getTimeout(SolverParameters params) {
