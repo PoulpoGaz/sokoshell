@@ -14,23 +14,13 @@ import java.util.List;
 /**
  * @author PoulpoGaz
  */
-public class PrintCommand extends AbstractVoidCommand {
-
-    @Option(names = {"p", "-pack"}, hasArgument = true, argName = "Pack name")
-    private String packName;
+public class PrintCommand extends PackCommand {
 
     @Override
     public void run() {
-        if (packName != null && !packName.isBlank()) {
-            printPack(packName);
-        }
-    }
-
-    private void printPack(String name) {
-        Pack pack = helper.getPack(name);
+        Pack pack = getPack();
 
         if (pack == null) {
-            System.out.println("Can't find a pack named " + name);
             return;
         }
 

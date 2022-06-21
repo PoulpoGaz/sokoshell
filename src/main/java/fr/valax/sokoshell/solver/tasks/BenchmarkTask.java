@@ -38,9 +38,9 @@ public class BenchmarkTask extends AbstractSolverTask<List<Solution>> {
             List<Solution> solutions = new ArrayList<>(levels.size());
 
             for (Level level : levels) {
-                SokoShellHelper.INSTANCE.tryPrintln("Solving level n°" + level.getIndex(), 5, TimeUnit.MILLISECONDS);
+                SokoShellHelper.INSTANCE.tryPrintln("Solving level n°" + (level.getIndex() + 1), 5, TimeUnit.MILLISECONDS);
 
-                SolverParameters parameters = new SolverParameters(level, params);
+                SolverParameters parameters = new SolverParameters(solver.getSolverType(), level, params);
 
                 Solution solution = solver.solve(parameters);
 

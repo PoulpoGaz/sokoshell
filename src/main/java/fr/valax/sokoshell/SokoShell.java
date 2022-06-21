@@ -78,6 +78,7 @@ public class SokoShell {
                 .addCommand(new StatusCommand())
                 .addCommand(new PlayCommand())
                 .addCommand(new StatsCommand())
+                .addCommand(new SaveCommand())
                 .addCommand(AbstractVoidCommand.newCommand(this::clear, "clear", "Clear screen"))
                 .addCommand(AbstractVoidCommand.newCommand(this::stopSolver, "stop", "Stop the solver"))
                 .addCommand(AbstractVoidCommand.newCommand(this::gc, "gc", "Run garbage collector.\nYou may want to use this after solving a sokoban"))

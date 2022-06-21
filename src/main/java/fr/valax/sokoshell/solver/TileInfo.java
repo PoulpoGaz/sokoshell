@@ -25,6 +25,16 @@ public class TileInfo {
         this.y = y;
     }
 
+    public TileInfo(Map map, TileInfo tile) {
+        this.map = map;
+        this.x = tile.x;
+        this.y = tile.y;
+        this.tile = tile.tile;
+        this.deadTile = tile.deadTile;
+        this.reachable = tile.reachable;
+        this.mark = tile.mark;
+    }
+
     public TileInfo adjacent(Direction dir) {
         return map.getAt(x + dir.dirX(), y + dir.dirY());
     }

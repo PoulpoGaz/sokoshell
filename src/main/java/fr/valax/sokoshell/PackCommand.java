@@ -2,7 +2,6 @@ package fr.valax.sokoshell;
 
 import fr.valax.args.api.Option;
 import fr.valax.args.utils.ArgsUtils;
-import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.solver.Pack;
 import org.jline.reader.Candidate;
 import org.jline.reader.LineReader;
@@ -10,25 +9,20 @@ import org.jline.reader.ParsedLine;
 
 import java.util.List;
 
-public abstract class LevelCommand extends PackCommand {
+public abstract class PackCommand extends AbstractVoidCommand {
 
-    @Option(names = {"i", "-index"}, hasArgument = true, argName = "Level index", optional = false)
-    protected int index;
+    @Option(names = {"p", "-pack"}, hasArgument = true, argName = "Pack name", optional = false)
+    protected String name;
 
-    protected Level getLevel() {
-        Pack pack = getPack();
+    protected Pack getPack() {
+        Pack pack = helper.getPack(name);
 
         if (pack == null) {
+            System.out.printf("No pack named %s exists%n", name);
             return null;
         }
 
-        index--;
-        if (index < 0 || index >= pack.levels().size()) {
-            System.out.println("Index out of bounds");
-            return null;
-        }
-
-        return pack.levels().get(index);
+        return pack;
     }
 
     @Override

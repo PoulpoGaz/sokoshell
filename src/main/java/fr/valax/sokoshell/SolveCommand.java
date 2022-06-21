@@ -32,7 +32,7 @@ public class SolveCommand extends LevelCommand {
 
         Solver solver = BasicBrutalSolver.newDFSSolver();
 
-        helper.solve(solver, new SolverParameters(l, params));
+        helper.solve(solver, new SolverParameters(solver.getSolverType(), l, params));
     }
 
     @Override

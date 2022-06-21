@@ -1,11 +1,14 @@
 package fr.valax.sokoshell.solver;
 
+import fr.poulpogaz.json.IJsonWriter;
+import fr.poulpogaz.json.JsonException;
 import fr.valax.graph.Label;
 import fr.valax.graph.ScatterPlot;
 import fr.valax.graph.Series;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.List;
 
 public class Solution {
@@ -28,6 +31,32 @@ public class Solution {
         this.statistics = statistics;
         this.states = states;
         this.status = status;
+    }
+
+    public void writeSolution(IJsonWriter jw) throws JsonException, IOException {
+        jw.field("status", status.name());
+        jw.key("parameters");
+        parameters.append(jw);
+
+        if (states != null) {
+            jw.key("solution").beginArray();
+
+            for (State s : states) {
+                jw.beginObject();
+
+                jw.field("player", s.playerPos());
+                jw.key("crates").beginArray();
+
+                for (int crate : s.cratesIndices()) {
+                    jw.value(crate);
+                }
+
+                jw.endArray();
+                jw.endObject();
+            }
+
+            jw.endArray();
+        }
     }
 
     public BufferedImage createGraph() {

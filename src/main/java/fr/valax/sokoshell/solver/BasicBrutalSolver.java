@@ -48,7 +48,12 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
 
         timeStart = System.currentTimeMillis();
         timeEnd = -1;
+        nStateProcessed = 0;
+        queueSize = 0;
 
+        if (tracker != null) {
+            tracker.reset();
+        }
 
         // init the research
 
@@ -60,6 +65,7 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
         Map map = new Map(level.getMap());
         map.removeStateCrates(initialState);
         it.setMap(map);
+        it.reset();
 
         map.computeDeadTiles();
 
@@ -128,9 +134,9 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
                     continue; // The destination case is not empty
                 }
 
-                if (map.getAt(crateX, crateY).isDeadTile()) {
-                    continue; // Useless to push a crate on a dead position
-                }
+                //if (map.getAt(crateX, crateY).isDeadTile()) {
+                //    continue; // Useless to push a crate on a dead position
+                //}
 
                 int playerX = crateX - d.dirX();
                 int playerY = crateY - d.dirY();

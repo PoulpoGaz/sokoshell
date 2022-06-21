@@ -20,7 +20,10 @@ public class IsekaiReader implements Reader {
     @Override
     public Pack read(Path path) throws IOException {
         try (InputStream is = Files.newInputStream(path)) {
-            return read(is);
+            Pack p = read(is);
+            p.setSourcePath(path);
+
+            return p;
         }
     }
 

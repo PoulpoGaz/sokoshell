@@ -18,11 +18,11 @@ public class StatusCommand extends AbstractVoidCommand {
             if (solverTask instanceof SolverTask task) {
                 Solver solver = task.getSolver();
                 Level level = task.getParameters().getLevel();
+                Pack pack = level.getPack();
 
                 BigInteger maxState = estimateMaxNumberOfStates(level);
 
-                //System.out.printf("Solving level n°%d from %s by %s%n", level.getIndex(), pack.name(), pack.author());
-                System.out.printf("Solving level n°%d%n", level.getIndex());
+                System.out.printf("Solving level n°%d from %s by %s%n", level.getIndex(), pack.name(), pack.author());
 
                 if (solver instanceof Trackable t) {
                     System.out.printf("Number of state processed: %d%n", t.nStateExplored());

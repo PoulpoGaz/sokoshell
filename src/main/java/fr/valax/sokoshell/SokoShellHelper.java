@@ -72,7 +72,7 @@ public class SokoShellHelper implements Lock {
                 }
 
                 Level level = solution.getParameters().getLevel();
-                level.setSolution(solution);
+                level.addSolution(solution);
             }
 
             task = null;
@@ -93,7 +93,7 @@ public class SokoShellHelper implements Lock {
                 System.out.println("An error has occurred.");
             } else {
                 for (int i = 0; i < solutions.size(); i++) {
-                    System.out.print("Level n°" + i + ": ");
+                    System.out.print("Level n°" + (i + 1) + ": ");
                     printSolution(solutions.get(i));
                 }
             }

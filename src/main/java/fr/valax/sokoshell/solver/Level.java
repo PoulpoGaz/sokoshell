@@ -1,5 +1,9 @@
 package fr.valax.sokoshell.solver;
 
+import fr.poulpogaz.json.IJsonWriter;
+import fr.poulpogaz.json.JsonException;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -10,17 +14,33 @@ import java.util.Objects;
  */
 public class Level {
 
+    // package private
+    Pack pack;
     private final Map map;
     private final int playerPos;
     private final int index;
 
-    private Solution solution;
+    private final List<Solution> solutions;
 
     public Level(Map map, int playerPos, int index) {
         this.map = map;
         this.playerPos = playerPos;
         this.index = index;
+
+        solutions = new ArrayList<>();
     }
+
+    public void writeSolutions(IJsonWriter jw) throws JsonException, IOException {
+        for (Solution solution : solutions) {
+
+            if (solution.isSolved() || solution.hasNoSolution() || solution.getStatus() == SolverStatus.TIMEOUT) {
+                jw.beginObject();
+                solution.writeSolution(jw);
+                jw.endObject();
+            }
+        }
+    }
+
 
     public Map getMap() {
         return map;
@@ -47,7 +67,7 @@ public class Level {
 
         for (int y = 0; y < getHeight(); y++) {
             for (int x = 0; x < getWidth(); x++) {
-                if (map.getAt(x, y).isCrate()) {
+                if (map.getAt(x, y).anyCrate()) {
                     cratesIndices.add(y * getWidth() + x);
                 }
             }
@@ -62,15 +82,27 @@ public class Level {
     }
 
     public Solution getSolution() {
-        return solution;
+        if (solutions.isEmpty()) {
+            return null;
+        }
+
+        return solutions.get(0);
     }
 
-    public void setSolution(Solution solution) {
-        this.solution = solution;
+    public void addSolution(Solution solution) {
+        solutions.add(solution);
+    }
+
+    public boolean hasSolution() {
+        return solutions.size() > 0;
     }
 
     public int getIndex() {
         return index;
+    }
+
+    public Pack getPack() {
+        return pack;
     }
 
     public static class Builder {

@@ -13,20 +13,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class BenchmarkCommand extends AbstractVoidCommand {
-
-    @Option(names = {"p", "-pack"}, hasArgument = true, argName = "Pack name")
-    private String packName;
+public class BenchmarkCommand extends PackCommand {
 
     @Option(names = {"t", "-timeout"}, hasArgument = true, argName = "Timeout")
     private Long timeout;
 
     @Override
     public void run() {
-        Pack pack = helper.getPack(packName);
+        Pack pack = getPack();
 
         if (pack == null) {
-            System.out.println("Can't find a pack named " + packName);
             return;
         }
 
@@ -52,12 +48,5 @@ public class BenchmarkCommand extends AbstractVoidCommand {
     @Override
     public String getUsage() {
         return "Try to solve all level of a pack";
-    }
-
-    @Override
-    public void completeOption(LineReader reader, ParsedLine line, List<Candidate> candidates, Option option) {
-        if (ArgsUtils.contains(option.names(), "p")) {
-            helper.addPackCandidates(candidates);
-        }
     }
 }

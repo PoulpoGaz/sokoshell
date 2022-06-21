@@ -30,7 +30,9 @@ public class Map {
         this.content = new TileInfo[height][width];
 
         for (int y = 0; y < height; y++) {
-            System.arraycopy(other.content[y], 0, content[y], 0, width);
+            for (int x = 0; x < width; x++) {
+                this.content[y][x] = new TileInfo(this, other.content[y][x]);
+            }
         }
     }
 
