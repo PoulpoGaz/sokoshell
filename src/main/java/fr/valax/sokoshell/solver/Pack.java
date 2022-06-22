@@ -4,15 +4,15 @@ import fr.poulpogaz.json.IJsonWriter;
 import fr.poulpogaz.json.JsonException;
 import fr.poulpogaz.json.JsonPrettyWriter;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.nio.Buffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.zip.GZIPOutputStream;
 
 public final class Pack {
 
@@ -41,30 +41,33 @@ public final class Pack {
 
     public void writeSolutions(Path out) throws IOException, JsonException {
         if (out == null) {
-            out = Path.of(sourcePath.toString() + ".solutions.json");
+            out = Path.of(sourcePath.toString() + ".solutions.json.gz");
         }
 
-        try (BufferedWriter bw = Files.newBufferedWriter(out, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
-            IJsonWriter jw = new JsonPrettyWriter(bw);
+        try (OutputStream os = Files.newOutputStream(out, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+            BufferedWriter bw = new BufferedWriter(
+                    new OutputStreamWriter(new GZIPOutputStream(os)));
 
-            jw.beginObject();
-            jw.field("pack", name);
-            jw.field("author", author);
+            JsonPrettyWriter jpw = new JsonPrettyWriter(bw);
+
+            jpw.beginObject();
+            jpw.field("pack", name);
+            jpw.field("author", author);
 
             for (Level level : levels) {
                 if (level.hasSolution()) {
 
-                    jw.key(String.valueOf(level.getIndex()));
-                    jw.beginArray();
+                    jpw.key(String.valueOf(level.getIndex()));
+                    jpw.beginArray();
 
-                    level.writeSolutions(jw);
+                    level.writeSolutions(jpw);
 
-                    jw.endArray();
+                    jpw.endArray();
                 }
             }
 
-            jw.endObject();
-            jw.close();
+            jpw.endObject();
+            jpw.close();
         }
     }
 

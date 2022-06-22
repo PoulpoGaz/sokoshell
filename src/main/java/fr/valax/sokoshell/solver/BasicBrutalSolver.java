@@ -134,9 +134,9 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
                     continue; // The destination case is not empty
                 }
 
-                //if (map.getAt(crateX, crateY).isDeadTile()) {
-                //    continue; // Useless to push a crate on a dead position
-                //}
+                if (map.getAt(crateX, crateY).isDeadTile()) {
+                    continue; // Useless to push a crate on a dead position
+                }
 
                 int playerX = crateX - d.dirX();
                 int playerY = crateY - d.dirY();

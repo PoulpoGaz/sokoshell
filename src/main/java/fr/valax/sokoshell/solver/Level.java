@@ -1,7 +1,7 @@
 package fr.valax.sokoshell.solver;
 
-import fr.poulpogaz.json.IJsonWriter;
 import fr.poulpogaz.json.JsonException;
+import fr.poulpogaz.json.JsonPrettyWriter;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -30,13 +30,13 @@ public class Level {
         solutions = new ArrayList<>();
     }
 
-    public void writeSolutions(IJsonWriter jw) throws JsonException, IOException {
+    public void writeSolutions(JsonPrettyWriter jpw) throws JsonException, IOException {
         for (Solution solution : solutions) {
 
             if (solution.isSolved() || solution.hasNoSolution() || solution.getStatus() == SolverStatus.TIMEOUT) {
-                jw.beginObject();
-                solution.writeSolution(jw);
-                jw.endObject();
+                jpw.beginObject();
+                solution.writeSolution(jpw);
+                jpw.endObject();
             }
         }
     }

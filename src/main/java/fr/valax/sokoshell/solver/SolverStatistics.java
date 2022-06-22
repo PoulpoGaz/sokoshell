@@ -1,5 +1,11 @@
 package fr.valax.sokoshell.solver;
 
+import fr.poulpogaz.json.JsonException;
+import fr.poulpogaz.json.JsonPrettyWriter;
+import fr.poulpogaz.json.utils.Pair;
+
+import java.io.IOException;
+import java.lang.instrument.Instrumentation;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,46 +15,48 @@ import java.util.List;
  */
 public class SolverStatistics {
 
-    private List<Integer> stateExplored;
-    private List<Integer> queueSize;
-    private int timeUnit; // in sec
+    private final List<InstantStatistic> statistics;
 
     private long timeStarted; // in millis
     private long timeEnded; // in millis
 
     public SolverStatistics() {
-        stateExplored = new ArrayList<>();
-        queueSize = new ArrayList<>();
-        timeUnit = -1;
+        statistics = new ArrayList<>();
+    }
+
+    public void writeStatistics(JsonPrettyWriter jpw) throws JsonException, IOException {
+        jpw.beginObject();
+        jpw.field("start", timeStarted);
+        jpw.field("end", timeEnded);
+
+        jpw.setInline(JsonPrettyWriter.Inline.ARRAY);
+        jpw.key("stats").beginArray();
+
+        for (InstantStatistic s : statistics) {
+            jpw.beginArray();
+            jpw.value((Number) s.time).value(s.nodeExplored).value(s.queueSize);
+            jpw.endArray();
+        }
+
+        jpw.endArray();
+        jpw.setInline(JsonPrettyWriter.Inline.NONE);
+
+        jpw.endObject();
     }
 
     public void add(int nodeExplored, int queueSize) {
-        stateExplored.add(nodeExplored);
-        this.queueSize.add(queueSize);
+        long time = System.currentTimeMillis();
+
+        statistics.add(new InstantStatistic(time, nodeExplored, queueSize));
     }
 
-    public List<Integer> getStateExplored() {
-        return stateExplored;
+    public void setStatistics(List<InstantStatistic> statistics) {
+        this.statistics.clear();
+        this.statistics.addAll(statistics);
     }
 
-    public List<Integer> getQueueSize() {
-        return queueSize;
-    }
-
-    public void setStateExplored(List<Integer> stateExplored) {
-        this.stateExplored = stateExplored;
-    }
-
-    public void setQueueSize(List<Integer> queueSize) {
-        this.queueSize = queueSize;
-    }
-
-    public int getTimeUnit() {
-        return timeUnit;
-    }
-
-    public void setTimeUnit(int timeUnit) {
-        this.timeUnit = timeUnit;
+    public List<InstantStatistic> getStatistics() {
+        return statistics;
     }
 
     public long getTimeStarted() {
@@ -65,5 +73,12 @@ public class SolverStatistics {
 
     public void setTimeEnded(long timeEnded) {
         this.timeEnded = timeEnded;
+    }
+
+    /**
+     * Contains statistics at a given instant
+     */
+    public record InstantStatistic(long time, int nodeExplored, int queueSize) {
+
     }
 }

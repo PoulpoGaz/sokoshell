@@ -2,6 +2,7 @@ package fr.valax.sokoshell.solver;
 
 import fr.poulpogaz.json.IJsonWriter;
 import fr.poulpogaz.json.JsonException;
+import fr.poulpogaz.json.JsonPrettyWriter;
 import fr.valax.graph.Label;
 import fr.valax.graph.ScatterPlot;
 import fr.valax.graph.Series;
@@ -33,42 +34,49 @@ public class Solution {
         this.status = status;
     }
 
-    public void writeSolution(IJsonWriter jw) throws JsonException, IOException {
-        jw.field("status", status.name());
-        jw.key("parameters");
-        parameters.append(jw);
+    public void writeSolution(JsonPrettyWriter jpw) throws JsonException, IOException {
+        jpw.field("status", status.name());
+        jpw.key("parameters");
+        parameters.append(jpw);
 
         if (states != null) {
-            jw.key("solution").beginArray();
+            jpw.key("solution").beginArray();
 
             for (State s : states) {
-                jw.beginObject();
+                jpw.beginObject();
 
-                jw.field("player", s.playerPos());
-                jw.key("crates").beginArray();
+                jpw.setInline(JsonPrettyWriter.Inline.ALL);
+                jpw.field("player", s.playerPos());
+
+                jpw.key("crates").beginArray();
 
                 for (int crate : s.cratesIndices()) {
-                    jw.value(crate);
+                    jpw.value(crate);
                 }
 
-                jw.endArray();
-                jw.endObject();
+                jpw.endArray();
+
+                jpw.endObject();
+                jpw.setInline(JsonPrettyWriter.Inline.NONE);
             }
 
-            jw.endArray();
+            jpw.endArray();
         }
+
+        jpw.key("statistics");
+        statistics.writeStatistics(jpw);
     }
 
     public BufferedImage createGraph() {
-        Series state = createSeries("State explored(t)", statistics.getStateExplored());
+        /*Series state = createSeries("State explored(t)", statistics.getStateExplored());
         state.setColor(new Color(0, 175, 244));
 
         Series queue = createSeries("Queue size(t)", statistics.getQueueSize());
-        queue.setColor(new Color(59, 165, 93));
+        queue.setColor(new Color(59, 165, 93));*/
 
         ScatterPlot plot = new ScatterPlot();
-        plot.addSeries(state);
-        plot.addSeries(queue);
+        //plot.addSeries(state);
+        //plot.addSeries(queue);
         plot.setShowLegend(true);
         plot.setTitle(new Label("Statistics"));
 

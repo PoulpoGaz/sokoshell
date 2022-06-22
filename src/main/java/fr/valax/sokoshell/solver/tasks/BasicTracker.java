@@ -9,11 +9,12 @@ import java.util.List;
 
 public class BasicTracker implements Tracker {
 
-    private final List<Integer> state = new ArrayList<>();
-    private final List<Integer> queueSize = new ArrayList<>();
+    private final List<SolverStatistics.InstantStatistic> stats = new ArrayList<>();
 
     @Override
     public void updateStatistics(Trackable trackable) {
+        long time = System.currentTimeMillis();
+
         int state = trackable.nStateExplored();
         int queue = trackable.currentQueueSize();
 
@@ -22,26 +23,23 @@ public class BasicTracker implements Tracker {
             return;
         }
 
-        this.state.add(state);
-        queueSize.add(queue);
+        stats.add(new SolverStatistics.InstantStatistic(time, state, queue));
     }
 
     @Override
     public void reset() {
-        state.clear();
-        queueSize.clear();
+        stats.clear();
     }
 
     @Override
     public SolverStatistics getStatistics(Trackable trackable) {
+        long end = trackable.timeEnded();
+        stats.add(new SolverStatistics.InstantStatistic(end, trackable.nStateExplored(), trackable.currentQueueSize()));
+
         SolverStatistics statistics = new SolverStatistics();
         statistics.setTimeStarted(trackable.timeStarted());
         statistics.setTimeEnded(trackable.timeEnded());
-        statistics.setStateExplored(state);
-        statistics.setQueueSize(queueSize);
-        statistics.setTimeUnit(1);
-
-        statistics.add(trackable.nStateExplored(), trackable.currentQueueSize());
+        statistics.setStatistics(stats);
 
         return statistics;
     }
