@@ -4,6 +4,7 @@ import fr.valax.args.api.Option;
 import fr.valax.args.utils.ArgsUtils;
 import fr.valax.sokoshell.loader.PackReaders;
 import fr.valax.sokoshell.solver.Pack;
+import fr.valax.sokoshell.utils.GlobIterator;
 import fr.valax.sokoshell.utils.ScanUtils;
 import fr.valax.sokoshell.utils.Utils;
 import org.jline.reader.Candidate;
@@ -18,28 +19,46 @@ import java.util.List;
 public class LoadCommand extends AbstractVoidCommand {
 
     @Option(names = {"i", "-input"}, hasArgument = true, argName = "input file", optional = false)
-    private Path input;
+    private String input;
 
     @Override
     public void run() {
-        if (!Files.exists(input)) {
-            System.out.printf("%s doesn't exist%n", input);
-            return;
+        try (GlobIterator it = new GlobIterator(input)) {
+
+            boolean loaded = false;
+
+            while (it.hasNext()) {
+                load(it.next());
+
+                loaded = true;
+            }
+
+            if (!loaded) {
+                System.out.println("No pack loaded");
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Failed to load packs");
         }
+    }
+
+    private void load(Path input) {
+        System.out.println("Loading " + input);
 
         Pack pack;
         try {
             pack = PackReaders.read(input);
         } catch (IOException e) {
             e.printStackTrace();
-            System.out.println("Failed to read pack");
+            System.out.println("Failed to read pack at " + input);
 
             return;
         }
 
         if (!helper.addPack(pack)) {
             boolean answer = ScanUtils.yesNoQuestion(
-                    "A pack with this name already exists. Did you want to overwrite it?",
+                    "A pack with named %s already exists. Did you want to overwrite it?".formatted(pack.name()),
                     ScanUtils.DEFAULT_NO);
 
             if (answer) {

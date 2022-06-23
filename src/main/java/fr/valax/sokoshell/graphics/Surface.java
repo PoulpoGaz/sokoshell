@@ -219,6 +219,21 @@ public class Surface {
         }
     }
 
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = 0; i < builders.length; i++) {
+            AttributedStringBuilder asb = builders[i];
+            sb.append(asb.toAnsi());
+
+            if (i + 1 < builders.length) {
+                sb.append('\n');
+            }
+        }
+
+        return sb.toString();
+    }
+
     public static void main(String[] args) {
 
         try (Terminal terminal = TerminalBuilder.terminal()) {

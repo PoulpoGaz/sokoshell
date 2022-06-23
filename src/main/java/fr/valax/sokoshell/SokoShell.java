@@ -9,6 +9,7 @@ import fr.valax.args.utils.ParseException;
 import fr.valax.args.utils.TypeException;
 import fr.valax.sokoshell.solver.Pack;
 import fr.valax.sokoshell.solver.tasks.ISolverTask;
+import fr.valax.sokoshell.utils.PrettyTable;
 import fr.valax.sokoshell.utils.Utils;
 import org.jline.console.SystemRegistry;
 import org.jline.console.impl.SystemRegistryImpl;
@@ -22,8 +23,15 @@ import org.jline.terminal.TerminalBuilder;
 import org.jline.terminal.impl.AbstractWindowsTerminal;
 import org.jline.widget.AutosuggestionWidgets;
 
+import javax.security.auth.callback.PasswordCallback;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 /**
  * @author PoulpoGaz
@@ -184,8 +192,33 @@ public class SokoShell {
     }
 
     private void list() {
-        for (Pack pack : helper.getPacks()) {
-            System.out.println(pack.name());
+        List<Pack> packs = helper.getPacks().stream()
+                .sorted(Comparator.comparing(Pack::name))
+                .toList();
+
+        BiFunction<Integer, Integer, PrettyTable.Cell> extractor = (x, y) -> {
+            Pack pack = packs.get(y);
+
+            return switch (x) {
+                case 0 -> new PrettyTable.Cell(pack.name());
+                case 1 -> new PrettyTable.Cell(pack.author());
+                case 2 -> new PrettyTable.Cell(String.valueOf(pack.levels().size()));
+                default -> throw new IllegalArgumentException();
+            };
+        };
+
+        String table = PrettyTable.create(
+                3, packs.size(), new String[] {"Pack", "Author", "Number of levels"},
+                extractor);
+
+        System.out.println(table);
+
+        int totalLevels = 0;
+        for (Pack p : packs) {
+            totalLevels += p.levels().size();
         }
+
+        System.out.println();
+        System.out.printf("Total packs: %d - Total levels: %d%n", packs.size(), totalLevels);
     }
 }

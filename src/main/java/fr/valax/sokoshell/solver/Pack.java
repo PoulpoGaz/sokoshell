@@ -1,17 +1,17 @@
 package fr.valax.sokoshell.solver;
 
-import fr.poulpogaz.json.IJsonWriter;
 import fr.poulpogaz.json.JsonException;
 import fr.poulpogaz.json.JsonPrettyWriter;
 
-import java.io.*;
-import java.nio.Buffer;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.zip.GZIPOutputStream;
 
 public final class Pack {
