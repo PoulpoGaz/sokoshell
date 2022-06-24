@@ -10,22 +10,24 @@ import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
 import org.jline.utils.InfoCmp;
 
+import java.io.InputStream;
+import java.io.PrintStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class SolutionCommand extends LevelCommand {
 
     @Override
-    public void run() {
+    protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
         Level l = getLevel();
 
         if (l == null) {
-            return;
+            return FAILURE;
         }
 
         if (l.getSolution() == null) {
             System.out.println("Not solved");
-            return;
+            return FAILURE;
         }
 
         SolutionAnimator animator = new SolutionAnimator(l);
@@ -33,6 +35,8 @@ public class SolutionCommand extends LevelCommand {
         try (SolutionView view = new SolutionView(helper.getTerminal(), animator)) {
             view.loop();
         }
+
+        return SUCCESS;
     }
 
     @Override

@@ -12,17 +12,19 @@ import org.jline.reader.LineReader;
 import org.jline.reader.ParsedLine;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-public class LoadCommand extends AbstractVoidCommand {
+public class LoadCommand extends AbstractCommand {
 
     @Option(names = {"i", "-input"}, hasArgument = true, argName = "input file", optional = false)
     private String input;
 
     @Override
-    public void run() {
+    public int executeImpl(InputStream in, PrintStream out, PrintStream err) {
         try (GlobIterator it = new GlobIterator(input)) {
 
             boolean loaded = false;
@@ -37,9 +39,12 @@ public class LoadCommand extends AbstractVoidCommand {
                 System.out.println("No pack loaded");
             }
 
+            return SUCCESS;
         } catch (IOException e) {
             e.printStackTrace();
             System.out.println("Failed to load packs");
+
+            return FAILURE;
         }
     }
 

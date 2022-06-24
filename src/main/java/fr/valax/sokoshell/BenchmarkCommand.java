@@ -9,6 +9,8 @@ import org.jline.reader.Candidate;
 import org.jline.reader.LineReader;
 import org.jline.reader.ParsedLine;
 
+import java.io.InputStream;
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,11 +21,11 @@ public class BenchmarkCommand extends PackCommand {
     private Long timeout;
 
     @Override
-    public void run() {
+    protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
         Pack pack = getPack();
 
         if (pack == null) {
-            return;
+            return FAILURE;
         }
 
         if (timeout == null) {
@@ -38,6 +40,8 @@ public class BenchmarkCommand extends PackCommand {
         params.put(SolverParameters.TIMEOUT, timeout);
 
         helper.benchmark(BasicBrutalSolver.newDFSSolver(), params, pack);
+
+        return SUCCESS;
     }
 
     @Override

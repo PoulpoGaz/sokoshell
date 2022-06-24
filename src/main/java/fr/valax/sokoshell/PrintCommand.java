@@ -9,6 +9,8 @@ import org.jline.reader.LineReader;
 import org.jline.reader.ParsedLine;
 import org.jline.terminal.Terminal;
 
+import java.io.InputStream;
+import java.io.PrintStream;
 import java.util.List;
 
 /**
@@ -17,11 +19,11 @@ import java.util.List;
 public class PrintCommand extends PackCommand {
 
     @Override
-    public void run() {
+    protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
         Pack pack = getPack();
 
         if (pack == null) {
-            return;
+            return FAILURE;
         }
 
         Terminal terminal = helper.getTerminal();
@@ -32,6 +34,8 @@ public class PrintCommand extends PackCommand {
             terminal.writer().printf("<===== Level n°%d =====>%n", i + 1);
             helper.getRenderer().print(terminal, l);
         }
+
+        return SUCCESS;
     }
 
     @Override

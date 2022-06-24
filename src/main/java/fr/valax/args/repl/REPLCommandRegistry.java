@@ -204,7 +204,7 @@ public class REPLCommandRegistry implements CommandRegistry {
          * @return true if an option wait for his argument
          */
         private boolean completeOptionArgument(LineReader reader, ParsedLine line, List<Candidate> candidates,
-                                               CommandDescriber desc, Command<?> command) {
+                                               CommandDescriber desc, Command command) {
             if (line.wordIndex() == 0) {
                 return false;
             }
@@ -218,7 +218,7 @@ public class REPLCommandRegistry implements CommandRegistry {
             Option option = desc.getOption(last.substring(1));
 
             if (option != null && option.hasArgument()) {
-                if (command instanceof REPLCommand<?> replCommand) {
+                if (command instanceof REPLCommand replCommand) {
                     replCommand.completeOption(reader, line, candidates, option);
                 }
 

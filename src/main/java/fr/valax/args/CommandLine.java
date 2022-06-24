@@ -3,13 +3,18 @@ package fr.valax.args;
 import fr.valax.args.api.*;
 import fr.valax.args.utils.*;
 
+import java.io.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 
+import static fr.valax.args.Redirect.OutputFile.STD_ERR;
+import static fr.valax.args.Redirect.OutputFile.STD_OUT;
 import static fr.valax.args.utils.ArgsUtils.*;
 
 /**
@@ -32,7 +37,25 @@ public class CommandLine {
     private final HelpFormatter helpFormatter;
     private boolean showHelp = true;
 
-    CommandLine(INode<Command<?>> root,
+    private InputStream stdIn = System.in;
+    private PrintStream stdOut = System.out;
+    private PrintStream stdErr = System.err;
+
+    // variables used when executing a command
+    private InputStream currIn;
+    private PrintStream currOut;
+    private PrintStream currErr;
+
+    private Redirect output = Redirect.NONE;
+    private Redirect input = Redirect.NONE;
+
+    private Tokenizer tokenizer;
+    private String error;
+    private INode<CommandSpec> command;
+    private List<String> args;
+    private boolean appendingArgs;
+
+    CommandLine(INode<Command> root,
                 Map<Class<?>, TypeConverter<?>> converters,
                 HelpFormatter helpFormatter) throws CommandLineException {
         this.converters = converters;
@@ -40,6 +63,207 @@ public class CommandLine {
 
         this.root = root.mapThrow((c) -> c == null ? null : new CommandSpec(c)).immutableCopy();
         this.commands = this.root.map((c) -> c == null ? null : c.getDescriber());
+    }
+
+    public int execute(String commandStr) throws CommandLineException {
+        currIn = stdIn;
+        currOut = stdOut;
+        currErr = stdErr;
+
+        tokenizer = new Tokenizer(commandStr);
+
+        error = null;
+        command = root;
+        args = new ArrayList<>();
+        appendingArgs = false;
+
+        int last = 0;
+        while (tokenizer.hasNext()) {
+
+            Token next = tokenizer.next();
+
+            if (next.keyword()) {
+
+                last = parseKeyword(next.value());
+
+            } else if (error != null) { // unrecognized command, skipping
+                continue;
+
+            } else if (appendingArgs) { // add args
+                args.add(next.value());
+
+            } else { // find command
+                INode<CommandSpec> sub = subCommand(command, next.value());
+
+                if (sub == null) {
+
+                    if (command.getValue() == null) {
+                        error = "Unrecognized command: " + next.value();
+                    } else {
+                        appendingArgs = true;
+                        args.add(next.value());
+                    }
+
+                } else {
+                    command = sub;
+                }
+            }
+        }
+
+        if (command.getValue() != null) {
+            return executeCommand();
+        } else {
+            return last;
+        }
+    }
+
+    private INode<CommandSpec> subCommand(INode<CommandSpec> node, String name) {
+        for (INode<CommandSpec> child : node.getChildren()) {
+            if (child.getValue() != null && child.getValue().getName().equals(name)) {
+                return child;
+            }
+        }
+
+        return null;
+    }
+
+    private Integer parseKeyword(String keyword) throws CommandLineException {
+        switch (keyword) {
+            case ">>" -> redirectOutput(">>", STD_OUT, true);
+            case ">" -> redirectOutput(">", STD_OUT, false);
+            case "2>>" -> redirectOutput("2>>", STD_ERR, true);
+            case "2>" -> redirectOutput("2>", STD_ERR, false);
+            case "2>&1" -> output = Redirect.ERROR_IN_OUTPUT;
+            case "<" -> {
+                String file = getFile("<");
+
+                if (file == null) {
+                    return null;
+                }
+
+                Path path = Path.of(file);
+                if (!Files.exists(path)) {
+                    error = "File " + path + " doesn't exist";
+                    return null;
+                }
+
+                output = Redirect.INPUT_FILE;
+                Redirect.INPUT_FILE.setPath(path);
+            }
+            case "|" -> {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                currOut = new PrintStream(baos);
+
+                int ret = executeCommand();
+
+                currIn = new ByteArrayInputStream(baos.toByteArray());
+
+                return ret;
+            }
+        }
+
+        return null;
+    }
+
+    private void redirectOutput(String keyword, int redirect, boolean append) {
+        String file = getFile(keyword);
+
+        if (file == null) {
+            return;
+        }
+
+        output = Redirect.OUTPUT_FILE;
+        Redirect.OUTPUT_FILE.set(Path.of(file), redirect, append);
+    }
+
+    /**
+     * @return the file after a keyword or null
+     */
+    private String getFile(String keyword) {
+        if (!tokenizer.hasNext()) {
+            error = "expected file after " + keyword;
+            return null;
+        }
+
+        Token file = tokenizer.next();
+
+        if (file.keyword()) {
+            error = "expected file after %s. not keyword".formatted(keyword);
+            return null;
+        }
+
+        return file.value();
+    }
+
+    public int executeCommand() throws CommandLineException {
+        try {
+            // redirect
+            doRedirect();
+
+            if (error != null) {
+                currErr.println(error);
+                return Command.FAILURE;
+            }
+
+            CommandSpec spec = command.getValue();
+
+
+            // parsing
+            try {
+                if (spec.hasVaArgs()) {
+                    List<String> vaArgs = spec.parseAllowVaArgs(args.toArray(new String[0]), 0, args.size());
+
+                    spec.setVaArgs(vaArgs);
+                } else {
+                    spec.parse(args.toArray(new String[0]), 0, args.size());
+                }
+            } catch (ParseException e) {
+                currErr.println(error);
+                return Command.FAILURE;
+            }
+
+
+            // help
+            if (spec.getCommand().addHelp() && spec.getHelp().isPresent()) {
+                currOut.println(helpFormatter.commandHelp(null, spec.getDescriber()));
+
+                return Command.SUCCESS;
+            } else {
+
+                // reflection
+                try {
+                    spec.setOptions();
+                } catch (TypeException e) {
+                    currErr.println(error);
+                    return Command.FAILURE;
+                }
+
+                return spec.getCommand().execute(currIn, currOut, currErr);
+            }
+        } finally {
+            reset();
+        }
+    }
+
+    private void doRedirect() {
+        InputStream in = input.redirectIn(currIn);
+        PrintStream out = output.redirectOut(currOut, currErr);
+        PrintStream err = output.redirectOut(currOut, currErr);
+
+        this.currIn = in;
+        this.currOut = out;
+        this.currErr = err;
+    }
+
+    private void reset() {
+        if (command.getValue() != null) {
+            command.getValue().reset();
+        }
+
+        error = null;
+        command = root;
+        args.clear();
+        appendingArgs = false;
     }
 
     public Object execute(String[] args) throws CommandLineException {
@@ -132,7 +356,7 @@ public class CommandLine {
                 }
 
 
-                return spec.getCommand().execute();
+                return spec.getCommand().execute(System.in, System.out, System.err);
             }
         } finally {
             spec.reset();
@@ -233,14 +457,14 @@ public class CommandLine {
      */
     private class CommandSpec {
 
-        private final Command<?> command;
+        private final Command command;
         private final CommandDescriber describer;
 
         private final Map<String, OptionSpec> options;
         private final OptionSpec help;
         private final VaArgsSpec vaargs;
 
-        public CommandSpec(Command<?> command) throws CommandLineException {
+        public CommandSpec(Command command) throws CommandLineException {
             Objects.requireNonNull(command.getName());
             this.command = command;
 
@@ -519,7 +743,7 @@ public class CommandLine {
             return command.getName();
         }
 
-        public Command<?> getCommand() {
+        public Command getCommand() {
             return command;
         }
 
@@ -773,7 +997,7 @@ public class CommandLine {
         }
 
         @Override
-        public Command<?> getCommand() {
+        public Command getCommand() {
             return spec.getCommand();
         }
 

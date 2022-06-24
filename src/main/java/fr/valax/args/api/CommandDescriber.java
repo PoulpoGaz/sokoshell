@@ -6,7 +6,7 @@ import java.util.Map;
 
 public interface CommandDescriber extends Iterable<Option> {
 
-    Command<?> getCommand();
+    Command getCommand();
 
     String getName();
 

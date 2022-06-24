@@ -1,5 +1,6 @@
 package fr.valax.args.utils;
 
+import fr.valax.args.Tokenizer;
 import fr.valax.args.api.TypeConverter;
 
 import java.util.ArrayList;
@@ -65,44 +66,14 @@ public class ArgsUtils {
     }
 
     public static String[] splitQuoted(String line) {
-        List<String> split = new ArrayList<>();
-        StringBuilder builder = new StringBuilder();
+        List<String> strings = new ArrayList<>();
 
-        boolean inQuotation = false;
-        boolean escapeNext = false;
-
-        for (int i = 0; i < line.length(); i++) {
-            char c = line.charAt(i);
-
-            boolean escape = escapeNext;
-            escapeNext = false;
-
-            if (escape) {
-                builder.append(c);
-
-            } else if (c == '\\') {
-                escapeNext = true;
-
-            } else if (c == '"') {
-                inQuotation = !inQuotation;
-
-            } else if (c == ' ' && !inQuotation) {
-                if (!builder.isEmpty()) {
-                    split.add(builder.toString());
-                    builder.setLength(0);
-                }
-
-            } else {
-                builder.append(c);
-            }
-
+        Tokenizer t = new Tokenizer(line);
+        while (t.hasNext()) {
+            strings.add(t.next().value());
         }
 
-        if (!builder.isEmpty()) {
-            split.add(builder.toString());
-        }
-
-        return split.toArray(new String[0]);
+        return strings.toArray(new String[0]);
     }
 
     public static <T> T first(T[] array) {

@@ -1,15 +1,20 @@
 package fr.valax.args.api;
 
+import java.io.InputStream;
+import java.io.PrintStream;
+
 /**
- * @param <T> the type of the output
  * @author PoulpoGaz
  */
-public interface Command<T> {
+public interface Command {
+
+    int SUCCESS = 0;
+    int FAILURE = 1;
 
     /**
      * @return the output of this command
      */
-    T execute();
+    int execute(InputStream in, PrintStream out, PrintStream err);
 
     /**
      * @return the name of the command

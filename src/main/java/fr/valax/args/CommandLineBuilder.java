@@ -18,7 +18,7 @@ import java.util.Map;
 public class CommandLineBuilder {
 
     private final CommandLineBuilder ancestor;
-    private final INode<Command<?>> root;
+    private final INode<Command> root;
 
     /** not null only for the "root" CommandLineBuilder*/
     private final Map<Class<?>, TypeConverter<?>> converters;
@@ -28,11 +28,11 @@ public class CommandLineBuilder {
         this(null, new Node<>());
     }
 
-    public CommandLineBuilder(Command<?> root) {
+    public CommandLineBuilder(Command root) {
         this(null, new Node<>(root));
     }
 
-    private CommandLineBuilder(CommandLineBuilder ancestor, INode<Command<?>> root) {
+    private CommandLineBuilder(CommandLineBuilder ancestor, INode<Command> root) {
         this.ancestor = ancestor;
         this.root = root;
 
@@ -58,12 +58,12 @@ public class CommandLineBuilder {
         return cli;
     }
 
-    public CommandLineBuilder addCommand(Command<?> c) {
+    public CommandLineBuilder addCommand(Command c) {
         root.addChild(c);
         return this;
     }
 
-    public CommandLineBuilder subCommand(Command<?> c) {
+    public CommandLineBuilder subCommand(Command c) {
         return new CommandLineBuilder(this, root.addChild(c));
     }
 

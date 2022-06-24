@@ -4,15 +4,17 @@ import fr.poulpogaz.json.JsonException;
 import fr.valax.sokoshell.solver.Pack;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintStream;
 
 public class SaveCommand extends PackCommand {
 
     @Override
-    public void run() {
+    protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
         Pack pack = getPack();
 
         if (pack == null) {
-            return;
+            return FAILURE;
         }
 
         try {
@@ -20,7 +22,11 @@ public class SaveCommand extends PackCommand {
         } catch (IOException | JsonException e) {
             e.printStackTrace();
             System.out.println("Failed to save solutions");
+
+            return FAILURE;
         }
+
+        return SUCCESS;
     }
 
     @Override

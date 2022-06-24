@@ -1,30 +1,30 @@
 package fr.valax.sokoshell;
 
-import fr.valax.args.api.Option;
-import fr.valax.args.utils.ArgsUtils;
 import fr.valax.sokoshell.graphics.MapRenderer;
 import fr.valax.sokoshell.graphics.TerminalEngine;
-import fr.valax.sokoshell.solver.*;
+import fr.valax.sokoshell.solver.Direction;
+import fr.valax.sokoshell.solver.Level;
+import fr.valax.sokoshell.solver.Map;
+import fr.valax.sokoshell.solver.Tile;
 import org.jline.keymap.KeyMap;
-import org.jline.reader.Candidate;
-import org.jline.reader.LineReader;
-import org.jline.reader.ParsedLine;
 import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
 import org.jline.utils.InfoCmp;
 
-import java.util.List;
+import java.io.InputStream;
+import java.io.PrintStream;
 
 /**
  * @author darth-mole
  */
 public class PlayCommand extends LevelCommand {
 
-    public void run() {
+    @Override
+    protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
         Level l = getLevel();
 
         if (l == null) {
-            return;
+            return FAILURE;
         }
 
         PlayCommand.GameController controller = new PlayCommand.GameController(l);
@@ -32,6 +32,8 @@ public class PlayCommand extends LevelCommand {
         try (PlayCommand.PlayView view = new PlayCommand.PlayView(helper.getTerminal(), controller)) {
             view.loop();
         }
+
+        return SUCCESS;
     }
 
     @Override

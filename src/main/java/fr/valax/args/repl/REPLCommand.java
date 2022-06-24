@@ -8,7 +8,7 @@ import org.jline.reader.ParsedLine;
 
 import java.util.List;
 
-public interface REPLCommand<T> extends Command<T> {
+public interface REPLCommand extends Command {
 
     default void completeOption(LineReader reader, ParsedLine line, List<Candidate> candidates, Option option) {
 

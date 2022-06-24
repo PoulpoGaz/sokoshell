@@ -10,6 +10,9 @@ import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
 import org.jline.utils.Colors;
 
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.nio.file.Path;
 import java.util.Locale;
 
@@ -60,7 +63,7 @@ public class Test {
         cli.execute(ArgsUtils.splitQuoted(cmd));
     }
 
-    private static class Init implements VoidCommand {
+    private static class Init implements Command {
 
         @Override
         public String getName() {
@@ -78,12 +81,13 @@ public class Test {
         }
 
         @Override
-        public void run() {
+        public int execute(InputStream in, PrintStream out, PrintStream err) {
             System.out.println("Target needed");
+            return SUCCESS;
         }
     }
 
-    private static class Proj implements VoidCommand {
+    private static class Proj implements Command {
 
         @Option(names = {"n", "-name"}, hasArgument = true, optional = false)
         private String projName;
@@ -107,16 +111,18 @@ public class Test {
         }
 
         @Override
-        public void run() {
+        public int execute(InputStream in, PrintStream out, PrintStream err) {
             if (location != null) {
                 System.out.printf("Init project %s at %s%n", projName, location);
             } else {
                 System.out.printf("Init project %s%n", projName);
             }
+
+            return SUCCESS;
         }
     }
 
-    private static class Exec implements VoidCommand {
+    private static class Exec implements Command {
 
         @Option(names = {"n", "-name"}, hasArgument = true, optional = false)
         private String projName;
@@ -143,7 +149,7 @@ public class Test {
         }
 
         @Override
-        public void run() {
+        public int execute(InputStream in, PrintStream out, PrintStream err) {
             System.out.printf("In %s at %s%n", projName, location);
             if (exec == null) {
                 System.out.println("No execution specified. Setting RUN");
@@ -152,6 +158,8 @@ public class Test {
             }
 
             System.out.println("Initializing: " + exec.name().toLowerCase(Locale.ROOT));
+
+            return SUCCESS;
         }
 
     }
@@ -181,7 +189,7 @@ public class Test {
         }
     }
 
-    private static class Print implements VoidCommand {
+    private static class Print implements Command {
 
         @Option(names = {"f", "-format"}, hasArgument = true)
         private String format;
@@ -205,16 +213,18 @@ public class Test {
         }
 
         @Override
-        public void run() {
+        public int execute(InputStream in, PrintStream out, PrintStream err) {
             if (format != null) {
-                System.out.printf(format, (Object[]) vaargs);
+                out.printf(format, (Object[]) vaargs);
             } else {
-                System.out.println(String.join(" ", vaargs));
+                out.println(String.join(" ", vaargs));
             }
+
+            return SUCCESS;
         }
     }
 
-    private static class CoolPrint implements VoidCommand {
+    private static class CoolPrint implements Command {
 
         @Option(names = {"f", "-format"}, hasArgument = true)
         private String format;
@@ -238,18 +248,20 @@ public class Test {
         }
 
         @Override
-        public void run() {
+        public int execute(InputStream in, PrintStream out, PrintStream err) {
             if (format != null) {
                 System.out.printf(format, (Object[]) vaargs);
             } else {
                 System.out.println(String.join(" ", vaargs));
             }
+
+            return SUCCESS;
         }
 
         public static class Converter implements TypeConverter<String> {
 
             @Override
-            public String convert(String value) throws TypeException {
+            public String convert(String value) {
                 if (value == null) {
                     return new AttributedStringBuilder()
                             .style(AttributedStyle.BOLD.foreground(AttributedStyle.RED))
@@ -265,7 +277,7 @@ public class Test {
         }
     }
 
-    private static class Fibo implements Command<Integer> {
+    private static class Fibo implements Command {
 
         @Option(names = "n", hasArgument = true)
         private Integer n;
@@ -279,15 +291,15 @@ public class Test {
         }
 
         @Override
-        public Integer execute() {
+        public int execute(InputStream in, PrintStream out, PrintStream err){
             if (n == null) {
                 System.out.println(-1);
-                return -1;
+                return FAILURE;
             } else {
                 int f = fibo(0, 1, n);
                 System.out.println(f);
 
-                return f;
+                return SUCCESS;
             }
         }
 
@@ -307,7 +319,7 @@ public class Test {
         }
     }
 
-    private static class Fibo2 implements Command<Integer> {
+    private static class Fibo2 implements Command {
 
         @Option(names = "n", hasArgument = true)
         private int n;
@@ -321,11 +333,11 @@ public class Test {
         }
 
         @Override
-        public Integer execute() {
+        public int execute(InputStream in, PrintStream out, PrintStream err) {
             int f = fibo(0, 1, n);
             System.out.println(f);
 
-            return f;
+            return SUCCESS;
         }
 
         @Override

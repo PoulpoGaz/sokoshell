@@ -2,6 +2,7 @@ package fr.valax.sokoshell;
 
 import fr.valax.args.CommandLine;
 import fr.valax.args.CommandLineBuilder;
+import fr.valax.args.api.Command;
 import fr.valax.args.repl.REPLCommandRegistry;
 import fr.valax.args.repl.REPLHelpFormatter;
 import fr.valax.args.utils.CommandLineException;
@@ -25,6 +26,8 @@ import org.jline.widget.AutosuggestionWidgets;
 
 import javax.security.auth.callback.PasswordCallback;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintStream;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Comparator;
@@ -87,10 +90,10 @@ public class SokoShell {
                 .addCommand(new PlayCommand())
                 .addCommand(new StatsCommand())
                 .addCommand(new SaveCommand())
-                .addCommand(AbstractVoidCommand.newCommand(this::clear, "clear", "Clear screen"))
-                .addCommand(AbstractVoidCommand.newCommand(this::stopSolver, "stop", "Stop the solver"))
-                .addCommand(AbstractVoidCommand.newCommand(this::gc, "gc", "Run garbage collector.\nYou may want to use this after solving a sokoban"))
-                .addCommand(AbstractVoidCommand.newCommand(this::list, "list", "List all packs"))
+                .addCommand(AbstractCommand.newCommand(this::clear, "clear", "Clear screen"))
+                .addCommand(AbstractCommand.newCommand(this::stopSolver, "stop", "Stop the solver"))
+                .addCommand(AbstractCommand.newCommand(this::gc, "gc", "Run garbage collector.\nYou may want to use this after solving a sokoban"))
+                .addCommand(AbstractCommand.newCommand(this::list, "list", "List all packs"))
                 .build();
     }
 
@@ -173,25 +176,31 @@ public class SokoShell {
         return Path.of(home + "/.sokoshell_history");
     }
 
-    private void clear() {
+    private int clear(InputStream in, PrintStream out, PrintStream err) {
         if (reader != null) {
             reader.clearScreen();
         }
+
+        return Command.SUCCESS;
     }
 
-    private void stopSolver() {
+    private int stopSolver(InputStream in, PrintStream out, PrintStream err) {
         ISolverTask<?> task = helper.getSolverTask();
 
         if (task != null) {
             task.stop();
         }
+
+        return Command.SUCCESS;
     }
 
-    private void gc() {
+    private int gc(InputStream in, PrintStream out, PrintStream err) {
         Runtime.getRuntime().gc();
+
+        return Command.SUCCESS;
     }
 
-    private void list() {
+    private int list(InputStream in, PrintStream out, PrintStream err) {
         List<Pack> packs = helper.getPacks().stream()
                 .sorted(Comparator.comparing(Pack::name))
                 .toList();
@@ -220,5 +229,7 @@ public class SokoShell {
 
         System.out.println();
         System.out.printf("Total packs: %d - Total levels: %d%n", packs.size(), totalLevels);
+
+        return Command.SUCCESS;
     }
 }

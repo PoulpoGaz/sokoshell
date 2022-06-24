@@ -7,6 +7,8 @@ import org.jline.reader.Candidate;
 import org.jline.reader.LineReader;
 import org.jline.reader.ParsedLine;
 
+import java.io.InputStream;
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,11 +22,11 @@ public class SolveCommand extends LevelCommand {
     private long timeout;
 
     @Override
-    public void run() {
+    protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
         Level l = getLevel();
 
         if (l == null) {
-            return;
+            return FAILURE;
         }
 
         Map<String, Object> params = new HashMap<>();
@@ -33,6 +35,8 @@ public class SolveCommand extends LevelCommand {
         Solver solver = BasicBrutalSolver.newDFSSolver();
 
         helper.solve(solver, new SolverParameters(solver.getSolverType(), l, params));
+
+        return SUCCESS;
     }
 
     @Override

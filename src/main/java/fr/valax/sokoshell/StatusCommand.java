@@ -4,12 +4,14 @@ import fr.valax.sokoshell.solver.*;
 import fr.valax.sokoshell.solver.tasks.ISolverTask;
 import fr.valax.sokoshell.solver.tasks.SolverTask;
 
+import java.io.InputStream;
+import java.io.PrintStream;
 import java.math.BigInteger;
 
-public class StatusCommand extends AbstractVoidCommand {
+public class StatusCommand extends AbstractCommand {
 
     @Override
-    public void run() {
+    protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
         if (!helper.isSolving()) {
             System.out.println("Solver isn't running");
         } else {
@@ -30,6 +32,8 @@ public class StatusCommand extends AbstractVoidCommand {
                 System.out.printf("Estimated maximal number of state: %d%n", maxState);
             }
         }
+
+        return SUCCESS;
     }
 
     /**
