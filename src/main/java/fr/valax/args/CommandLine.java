@@ -22,6 +22,8 @@ import static fr.valax.args.utils.ArgsUtils.*;
  */
 public class CommandLine {
 
+    private String name = "cli";
+
     /**
      * Contains all commands in a tree
      * Only the root node is allowed to have null value
@@ -50,6 +52,8 @@ public class CommandLine {
     private Redirect input = Redirect.NONE;
 
     private Tokenizer tokenizer;
+
+    // An error due to a redirect
     private String error;
     private INode<CommandSpec> command;
     private List<String> args;
@@ -65,7 +69,7 @@ public class CommandLine {
         this.commands = this.root.map((c) -> c == null ? null : c.getDescriber());
     }
 
-    public int execute(String commandStr) throws CommandLineException {
+    public int execute(String commandStr) throws CommandLineException, IOException {
         currIn = stdIn;
         currOut = stdOut;
         currErr = stdErr;
@@ -84,7 +88,11 @@ public class CommandLine {
 
             if (next.keyword()) {
 
-                last = parseKeyword(next.value());
+                Integer v = parseKeyword(next.value());
+
+                if (v != null) {
+                    last = v;
+                }
 
             } else if (error != null) { // unrecognized command, skipping
                 continue;
@@ -98,7 +106,7 @@ public class CommandLine {
                 if (sub == null) {
 
                     if (command.getValue() == null) {
-                        error = "Unrecognized command: " + next.value();
+                        error = next.value() + ": command not found";
                     } else {
                         appendingArgs = true;
                         args.add(next.value());
@@ -113,7 +121,12 @@ public class CommandLine {
         if (command.getValue() != null) {
             return executeCommand();
         } else {
-            return last;
+            if (error != null) {
+                printError();
+                return Command.FAILURE;
+            } else {
+                return last;
+            }
         }
     }
 
@@ -127,7 +140,7 @@ public class CommandLine {
         return null;
     }
 
-    private Integer parseKeyword(String keyword) throws CommandLineException {
+    private Integer parseKeyword(String keyword) throws CommandLineException, IOException {
         switch (keyword) {
             case ">>" -> redirectOutput(">>", STD_OUT, true);
             case ">" -> redirectOutput(">", STD_OUT, false);
@@ -135,6 +148,10 @@ public class CommandLine {
             case "2>" -> redirectOutput("2>", STD_ERR, false);
             case "2>&1" -> output = Redirect.ERROR_IN_OUTPUT;
             case "<" -> {
+                if (error != null) {
+                    return null;
+                }
+
                 String file = getFile("<");
 
                 if (file == null) {
@@ -143,11 +160,19 @@ public class CommandLine {
 
                 Path path = Path.of(file);
                 if (!Files.exists(path)) {
-                    error = "File " + path + " doesn't exist";
+                    error = path + ": No such file or directory";
                     return null;
                 }
 
-                output = Redirect.INPUT_FILE;
+                if (Files.isDirectory(path)) {
+                    error = path + ": is a directory";
+                }
+
+                if (!Files.isReadable(path)) {
+                    error = path + ": Permission denied";
+                }
+
+                input = Redirect.INPUT_FILE;
                 Redirect.INPUT_FILE.setPath(path);
             }
             case "|" -> {
@@ -156,9 +181,13 @@ public class CommandLine {
 
                 int ret = executeCommand();
 
+                currOut = stdOut;
                 currIn = new ByteArrayInputStream(baos.toByteArray());
 
                 return ret;
+            }
+            case ";" -> {
+                return executeCommand();
             }
         }
 
@@ -166,14 +195,32 @@ public class CommandLine {
     }
 
     private void redirectOutput(String keyword, int redirect, boolean append) {
+        if (error != null) {
+            return;
+        }
+
         String file = getFile(keyword);
 
         if (file == null) {
             return;
         }
 
+        Path path = Path.of(file);
+
+        if (Files.exists(path)) {
+            if (Files.isDirectory(path)) {
+                error = path + ": is a directory";
+                return;
+            }
+
+            if (!Files.isWritable(path)) {
+                error = path + ": Permission denied";
+                return;
+            }
+        }
+
         output = Redirect.OUTPUT_FILE;
-        Redirect.OUTPUT_FILE.set(Path.of(file), redirect, append);
+        Redirect.OUTPUT_FILE.set(path, redirect, append);
     }
 
     /**
@@ -181,32 +228,31 @@ public class CommandLine {
      */
     private String getFile(String keyword) {
         if (!tokenizer.hasNext()) {
-            error = "expected file after " + keyword;
+            error = "Expecting file after " + keyword;
             return null;
         }
 
         Token file = tokenizer.next();
 
         if (file.keyword()) {
-            error = "expected file after %s. not keyword".formatted(keyword);
+            error = "Expecting file after %s. not keyword".formatted(keyword);
             return null;
         }
 
         return file.value();
     }
 
-    public int executeCommand() throws CommandLineException {
+    private int executeCommand() throws CommandLineException, IOException {
         try {
-            // redirect
-            doRedirect();
-
             if (error != null) {
-                currErr.println(error);
+                printError();
                 return Command.FAILURE;
             }
 
-            CommandSpec spec = command.getValue();
+            // redirect
+            doRedirect();
 
+            CommandSpec spec = command.getValue();
 
             // parsing
             try {
@@ -248,14 +294,36 @@ public class CommandLine {
     private void doRedirect() {
         InputStream in = input.redirectIn(currIn);
         PrintStream out = output.redirectOut(currOut, currErr);
-        PrintStream err = output.redirectOut(currOut, currErr);
+        PrintStream err = output.redirectErr(currOut, currErr);
 
         this.currIn = in;
         this.currOut = out;
         this.currErr = err;
     }
 
-    private void reset() {
+    private void reset() throws IOException {
+        if (input == Redirect.INPUT_FILE) {
+            currIn.close();
+            currIn = stdIn;
+        }
+
+        if (output == Redirect.OUTPUT_FILE) {
+
+            if (Redirect.OUTPUT_FILE.isRedirectingStdOut()) {
+                currOut.close();
+                currOut = stdOut;
+            }
+
+            if (Redirect.OUTPUT_FILE.isRedirectingStdErr()) {
+                currErr.close();
+                currErr = stdErr;
+            }
+
+        } else if (output == Redirect.ERROR_IN_OUTPUT) {
+            currOut = stdOut;
+            currErr = stdErr;
+        }
+
         if (command.getValue() != null) {
             command.getValue().reset();
         }
@@ -264,6 +332,10 @@ public class CommandLine {
         command = root;
         args.clear();
         appendingArgs = false;
+    }
+
+    private void printError() {
+        currErr.printf("%s: %s%n", name, error);
     }
 
     public Object execute(String[] args) throws CommandLineException {
@@ -426,6 +498,14 @@ public class CommandLine {
         return getCommand(splitQuoted(command));
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     // =================
     // * Inner classes *
     // =================
@@ -442,6 +522,30 @@ public class CommandLine {
 
             return new ParsedCommandDesc(commands.find(desc), cmd.index());
         }
+    }
+
+    public InputStream getStdIn() {
+        return stdIn;
+    }
+
+    public void setStdIn(InputStream stdIn) {
+        this.stdIn = stdIn;
+    }
+
+    public PrintStream getStdOut() {
+        return stdOut;
+    }
+
+    public void setStdOut(PrintStream stdOut) {
+        this.stdOut = stdOut;
+    }
+
+    public PrintStream getStdErr() {
+        return stdErr;
+    }
+
+    public void setStdErr(PrintStream stdErr) {
+        this.stdErr = stdErr;
     }
 
     // ===============

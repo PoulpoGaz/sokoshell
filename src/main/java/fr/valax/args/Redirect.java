@@ -1,9 +1,6 @@
 package fr.valax.args;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -35,7 +32,7 @@ public interface Redirect {
         @Override
         public InputStream redirectIn(InputStream in) {
             try {
-                return Files.newInputStream(path);
+                return new BufferedInputStream(Files.newInputStream(path));
             } catch (IOException e) {
                 throw new IllegalStateException(e);
             }
@@ -52,9 +49,9 @@ public interface Redirect {
 
     class OutputFile implements Redirect {
 
-        public static final int STD_OUT = 0;
-        public static final int STD_ERR = 1;
-        public static final int BOTH = 2;
+        public static final int STD_OUT = 1;
+        public static final int STD_ERR = 2;
+        public static final int BOTH = 4;
 
         private Path out;
         private int redirect;
@@ -74,7 +71,7 @@ public interface Redirect {
             if ((redirect & STD_ERR) != 0) {
                 return createPrintStream();
             } else {
-                return Redirect.super.redirectOut(out, err);
+                return Redirect.super.redirectErr(out, err);
             }
         }
 
@@ -121,6 +118,14 @@ public interface Redirect {
 
         public void setAppend(boolean append) {
             this.append = append;
+        }
+
+        public boolean isRedirectingStdOut() {
+            return (redirect & STD_OUT) != 0;
+        }
+
+        public boolean isRedirectingStdErr() {
+            return (redirect & STD_ERR) != 0;
         }
     }
 

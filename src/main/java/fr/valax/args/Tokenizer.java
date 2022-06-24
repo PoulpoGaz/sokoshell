@@ -15,8 +15,7 @@ public class Tokenizer implements Iterator<Token> {
             "<<",
             "<",
             "|",
-            "&&",
-            "||"
+            ";"
     };
 
     private final char[] chars;
