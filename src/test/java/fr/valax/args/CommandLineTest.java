@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -26,24 +27,201 @@ public class CommandLineTest {
             """;
 
     @Test
-    void unrecognizedCommand() throws CommandLineException, IOException {
+    void argError() throws CommandLineException, IOException {
         ByteArrayOutputStream stdout = new ByteArrayOutputStream();
-        ByteArrayOutputStream stdErr = new ByteArrayOutputStream();
+        ByteArrayOutputStream stderr = new ByteArrayOutputStream();
 
         CommandLine cli = Utils.newCLI();
         cli.setStdOut(new PrintStream(stdout));
-        cli.setStdErr(new PrintStream(stdErr));
+        cli.setStdErr(new PrintStream(stderr));
+
+        Assertions.assertEquals(Command.FAILURE, cli.execute("apt -bla"));
+        Assertions.assertEquals("", stdout.toString());
+        Assertions.assertEquals("apt: -bla: No such option\n", stderr.toString());
+
+        stdout.reset();
+        stderr.reset();
+
+        Assertions.assertEquals(Command.FAILURE, cli.execute("apt vaargs"));
+        Assertions.assertEquals("", stdout.toString());
+        Assertions.assertEquals("apt: VaArgs not allowed\n", stderr.toString());
+
+        stdout.reset();
+        stderr.reset();
+
+        Assertions.assertEquals(Command.FAILURE, cli.execute("add -a 5 -a 10 -a 15"));
+        Assertions.assertEquals("", stdout.toString());
+        Assertions.assertEquals("add: a: Duplicate parameter\n", stderr.toString());
+
+        stdout.reset();
+        stderr.reset();
+
+        Assertions.assertEquals(Command.FAILURE, cli.execute("add -a 5 -b 10 -c << hello"));
+        Assertions.assertEquals("", stdout.toString());
+        Assertions.assertEquals("add: c: expecting string not keyword\n", stderr.toString());
+
+        stdout.reset();
+        stderr.reset();
+
+        Assertions.assertEquals(Command.FAILURE, cli.execute("apt remove -p"));
+        Assertions.assertEquals("", stdout.toString());
+        Assertions.assertEquals("apt remove: -package: Parameter required\n", stderr.toString());
+
+        stdout.reset();
+        stderr.reset();
+
+        Assertions.assertEquals(Command.FAILURE, cli.execute("apt remove"));
+        Assertions.assertEquals("", stdout.toString());
+        Assertions.assertEquals("apt remove: -package: required\n", stderr.toString());
+    }
+
+    @Test
+    void aptTest() throws CommandLineException, IOException {
+        ByteArrayOutputStream stdout = new ByteArrayOutputStream();
+        ByteArrayOutputStream stderr = new ByteArrayOutputStream();
+
+        CommandLine cli = Utils.newCLI();
+        cli.setStdOut(new PrintStream(stdout));
+        cli.setStdErr(new PrintStream(stderr));
+
+        Assertions.assertEquals(Command.SUCCESS, cli.execute("apt"));
+        Assertions.assertEquals("apt\n", stdout.toString());
+        Assertions.assertEquals("", stderr.toString());
+
+        stdout.reset();
+        stderr.reset();
+
+        Assertions.assertEquals(Command.SUCCESS, cli.execute("apt install -p hello\\ world -p test"));
+        Assertions.assertEquals("Installing hello world\nInstalling test\n", stdout.toString());
+        Assertions.assertEquals("", stderr.toString());
+
+        stdout.reset();
+        stderr.reset();
+
+        Assertions.assertEquals(Command.SUCCESS, cli.execute("apt list --installed"));
+        Assertions.assertEquals("hello world\ntest\n", stdout.toString());
+        Assertions.assertEquals("", stderr.toString());
+
+        stdout.reset();
+        stderr.reset();
+
+        Assertions.assertEquals(Command.SUCCESS, cli.execute("apt list"));
+        Assertions.assertEquals("bla bla bla\n", stdout.toString());
+        Assertions.assertEquals("", stderr.toString());
+
+        stdout.reset();
+        stderr.reset();
+
+        Assertions.assertEquals(Command.SUCCESS, cli.execute("apt remove -p \"hello world\""));
+        Assertions.assertEquals("Removing hello world\n", stdout.toString());
+        Assertions.assertEquals("", stderr.toString());
+
+        stdout.reset();
+        stderr.reset();
+
+        Assertions.assertEquals(Command.SUCCESS, cli.execute("apt list --installed"));
+        Assertions.assertEquals("test\n", stdout.toString());
+        Assertions.assertEquals("", stderr.toString());
+    }
+
+    @Test
+    void pipeAndArgs() throws CommandLineException, IOException {
+        ByteArrayOutputStream stdout = new ByteArrayOutputStream();
+        ByteArrayOutputStream stderr = new ByteArrayOutputStream();
+
+        CommandLine cli = Utils.newCLI();
+        cli.setStdOut(new PrintStream(stdout));
+        cli.setStdErr(new PrintStream(stderr));
+
+        Assertions.assertEquals(Command.SUCCESS, cli.execute("add -a 5 -b \\-10"));
+        Assertions.assertEquals("-5\n", stdout.toString());
+        Assertions.assertEquals("", stderr.toString());
+
+        stdout.reset();
+        stderr.reset();
+
+        Assertions.assertEquals(Command.SUCCESS, cli.execute("add -a 5 -c 15 | add -a 1000 -b -1000 -c 5 -i"));
+        Assertions.assertEquals("", stderr.toString());
+        Assertions.assertEquals("25\n", stdout.toString());
+
+        stdout.reset();
+        stderr.reset();
+
+        Path path = Path.of("src/test/add.txt");
+        try {
+            write("255", path);
+
+            Assertions.assertEquals(Command.SUCCESS, cli.execute("< src/test/add.txt add -i -a 5 -c 15 | add -a 1000 -b -1000 -c 5 -i"));
+            Assertions.assertEquals("", stderr.toString());
+            Assertions.assertEquals("280\n", stdout.toString());
+
+            stdout.reset();
+            stderr.reset();
+        } finally {
+            delete(path);
+        }
+    }
+
+    @Test
+    void typeException() throws CommandLineException, IOException {
+        ByteArrayOutputStream stdout = new ByteArrayOutputStream();
+        ByteArrayOutputStream stderr = new ByteArrayOutputStream();
+
+        CommandLine cli = Utils.newCLI();
+        cli.setStdOut(new PrintStream(stdout));
+        cli.setStdErr(new PrintStream(stderr));
+
+        Assertions.assertEquals(Command.FAILURE, cli.execute("add -a abc"));
+        Assertions.assertEquals("", stdout.toString());
+        Assertions.assertEquals("add: java.lang.NumberFormatException: For input string: \"abc\"\n", stderr.toString());
+
+        stdout.reset();
+        stderr.reset();
+    }
+
+    @Test
+    void help() throws CommandLineException, IOException {
+        ByteArrayOutputStream stdout = new ByteArrayOutputStream();
+        ByteArrayOutputStream stderr = new ByteArrayOutputStream();
+
+        CommandLine cli = Utils.newCLI();
+        cli.setStdOut(new PrintStream(stdout));
+        cli.setStdErr(new PrintStream(stderr));
+
+        Assertions.assertEquals(Command.SUCCESS, cli.execute("cat --help"));
+        Assertions.assertEquals("""
+                Command: cat
+                Usage: cat
+                                
+                Vaargs: Files to read\s
+                -h, --help          Print help\s
+
+                """, stdout.toString());
+        Assertions.assertEquals("", stderr.toString());
+
+        stdout.reset();
+        stderr.reset();
+    }
+
+    @Test
+    void unrecognizedCommand() throws CommandLineException, IOException {
+        ByteArrayOutputStream stdout = new ByteArrayOutputStream();
+        ByteArrayOutputStream stderr = new ByteArrayOutputStream();
+
+        CommandLine cli = Utils.newCLI();
+        cli.setStdOut(new PrintStream(stdout));
+        cli.setStdErr(new PrintStream(stderr));
 
         Assertions.assertEquals(Command.FAILURE, cli.execute("a-super-cool-command"));
         Assertions.assertEquals("", stdout.toString());
-        Assertions.assertEquals("cli: a-super-cool-command: command not found\n", stdErr.toString());
+        Assertions.assertEquals("cli: a-super-cool-command: command not found\n", stderr.toString());
 
         stdout.reset();
-        stdErr.reset();
+        stderr.reset();
 
         Assertions.assertEquals(Command.SUCCESS, cli.execute("a-super-cool-command; echo hello; ffff; echo hello2"));
         Assertions.assertEquals("hello\nhello2\n", stdout.toString());
-        Assertions.assertEquals("cli: a-super-cool-command: command not found\ncli: ffff: command not found\n", stdErr.toString());
+        Assertions.assertEquals("cli: a-super-cool-command: command not found\ncli: ffff: command not found\n", stderr.toString());
     }
 
     @Test
@@ -116,16 +294,21 @@ public class CommandLineTest {
             writeTestFiles();
 
             ByteArrayOutputStream stdout = new ByteArrayOutputStream();
+            ByteArrayOutputStream stderr = new ByteArrayOutputStream();
 
             CommandLine cli = Utils.newCLI();
             cli.setStdOut(new PrintStream(stdout));
+            cli.setStdErr(new PrintStream(stderr));
 
             Assertions.assertEquals(Command.SUCCESS, cli.execute("cat < src/test/file1.txt"));
             Assertions.assertEquals(FILE_1, stdout.toString());
+            Assertions.assertEquals("", stderr.toString());
 
             stdout.reset();
+            stderr.reset();
             Assertions.assertEquals(Command.SUCCESS, cli.execute("cat < src/test/file2.txt"));
             Assertions.assertEquals(FILE_2, stdout.toString());
+            Assertions.assertEquals("", stderr.toString());
 
         } finally {
             deleteTestFiles();
@@ -138,21 +321,21 @@ public class CommandLineTest {
             writeTestFiles();
 
             ByteArrayOutputStream stdout = new ByteArrayOutputStream();
-            ByteArrayOutputStream stdErr = new ByteArrayOutputStream();
+            ByteArrayOutputStream stderr = new ByteArrayOutputStream();
 
             CommandLine cli = Utils.newCLI();
             cli.setStdOut(new PrintStream(stdout));
-            cli.setStdErr(new PrintStream(stdErr));
+            cli.setStdErr(new PrintStream(stderr));
 
             Assertions.assertEquals(Command.FAILURE, cli.execute("cat < blablabla"));
             Assertions.assertEquals("", stdout.toString());
-            Assertions.assertEquals("cli: blablabla: No such file or directory\n", stdErr.toString());
+            Assertions.assertEquals("cli: blablabla: No such file or directory\n", stderr.toString());
 
             stdout.reset();
-            stdErr.reset();
+            stderr.reset();
 
             Assertions.assertEquals(Command.FAILURE, cli.execute("2>&1 cat blablabla"));
-            Assertions.assertEquals("", stdErr.toString());
+            Assertions.assertEquals("", stderr.toString());
             Assertions.assertEquals("cat: blablabla: No such file or directory\n", stdout.toString());
 
         } finally {
@@ -161,56 +344,56 @@ public class CommandLineTest {
     }
 
     @Test
-    void stdOutToFile() throws CommandLineException, IOException {
+    void stdoutToFile() throws CommandLineException, IOException {
         try {
             ByteArrayOutputStream stdout = new ByteArrayOutputStream();
-            ByteArrayOutputStream stdErr = new ByteArrayOutputStream();
+            ByteArrayOutputStream stderr = new ByteArrayOutputStream();
 
             CommandLine cli = Utils.newCLI();
             cli.setStdOut(new PrintStream(stdout));
-            cli.setStdErr(new PrintStream(stdErr));
+            cli.setStdErr(new PrintStream(stderr));
 
             Assertions.assertEquals(Command.SUCCESS, cli.execute("echo hello world > src/test/file1.txt"));
             Assertions.assertEquals("", stdout.toString());
-            Assertions.assertEquals("", stdErr.toString());
+            Assertions.assertEquals("", stderr.toString());
 
             Assertions.assertEquals("hello world\n", Files.readString(Path.of("src/test/file1.txt")));
 
             stdout.reset();
-            stdErr.reset();
+            stderr.reset();
 
             Assertions.assertEquals(Command.FAILURE, cli.execute("cat < bla > src/test/file2.txt"));
             Assertions.assertEquals("", stdout.toString());
-            Assertions.assertEquals("cli: bla: No such file or directory\n", stdErr.toString());
+            Assertions.assertEquals("cli: bla: No such file or directory\n", stderr.toString());
         } finally {
             deleteTestFiles();
         }
     }
 
     @Test
-    void stdOutToFileAppend() throws CommandLineException, IOException {
+    void stdoutToFileAppend() throws CommandLineException, IOException {
         Path out = Path.of("src/test/file1.txt");
 
         try {
             ByteArrayOutputStream stdout = new ByteArrayOutputStream();
-            ByteArrayOutputStream stdErr = new ByteArrayOutputStream();
+            ByteArrayOutputStream stderr = new ByteArrayOutputStream();
 
             CommandLine cli = Utils.newCLI();
             cli.setStdOut(new PrintStream(stdout));
-            cli.setStdErr(new PrintStream(stdErr));
+            cli.setStdErr(new PrintStream(stderr));
 
             Assertions.assertEquals(Command.SUCCESS, cli.execute("echo hello world >> src/test/file1.txt"));
             Assertions.assertEquals("", stdout.toString());
-            Assertions.assertEquals("", stdErr.toString());
+            Assertions.assertEquals("", stderr.toString());
 
             Assertions.assertEquals("hello world\n", Files.readString(out));
 
             stdout.reset();
-            stdErr.reset();
+            stderr.reset();
 
             Assertions.assertEquals(Command.SUCCESS, cli.execute("echo hello peter >> src/test/file1.txt"));
             Assertions.assertEquals("", stdout.toString());
-            Assertions.assertEquals("", stdErr.toString());
+            Assertions.assertEquals("", stderr.toString());
 
             Assertions.assertEquals("hello world\nhello peter\n", Files.readString(out));
         } finally {
@@ -219,56 +402,56 @@ public class CommandLineTest {
     }
 
     @Test
-    void stdErrToFile() throws CommandLineException, IOException {
+    void stderrToFile() throws CommandLineException, IOException {
         try {
             ByteArrayOutputStream stdout = new ByteArrayOutputStream();
-            ByteArrayOutputStream stdErr = new ByteArrayOutputStream();
+            ByteArrayOutputStream stderr = new ByteArrayOutputStream();
 
             CommandLine cli = Utils.newCLI();
             cli.setStdOut(new PrintStream(stdout));
-            cli.setStdErr(new PrintStream(stdErr));
+            cli.setStdErr(new PrintStream(stderr));
 
             Assertions.assertEquals(Command.FAILURE, cli.execute("cat t 2> src/test/file1.txt"));
             Assertions.assertEquals("", stdout.toString());
-            Assertions.assertEquals("", stdErr.toString());
+            Assertions.assertEquals("", stderr.toString());
 
             Assertions.assertEquals("cat: t: No such file or directory\n", Files.readString(Path.of("src/test/file1.txt")));
 
             stdout.reset();
-            stdErr.reset();
+            stderr.reset();
 
             Assertions.assertEquals(Command.FAILURE, cli.execute("cat < bla 2> src/test/file2.txt"));
             Assertions.assertEquals("", stdout.toString());
-            Assertions.assertEquals("cli: bla: No such file or directory\n", stdErr.toString());
+            Assertions.assertEquals("cli: bla: No such file or directory\n", stderr.toString());
         } finally {
             deleteTestFiles();
         }
     }
 
     @Test
-    void stdErrToFileAppend() throws CommandLineException, IOException {
+    void stderrToFileAppend() throws CommandLineException, IOException {
         Path out = Path.of("src/test/file1.txt");
 
         try {
             ByteArrayOutputStream stdout = new ByteArrayOutputStream();
-            ByteArrayOutputStream stdErr = new ByteArrayOutputStream();
+            ByteArrayOutputStream stderr = new ByteArrayOutputStream();
 
             CommandLine cli = Utils.newCLI();
             cli.setStdOut(new PrintStream(stdout));
-            cli.setStdErr(new PrintStream(stdErr));
+            cli.setStdErr(new PrintStream(stderr));
 
             Assertions.assertEquals(Command.FAILURE, cli.execute("cat t 2>> src/test/file1.txt"));
             Assertions.assertEquals("", stdout.toString());
-            Assertions.assertEquals("", stdErr.toString());
+            Assertions.assertEquals("", stderr.toString());
 
             Assertions.assertEquals("cat: t: No such file or directory\n", Files.readString(out));
 
             stdout.reset();
-            stdErr.reset();
+            stderr.reset();
 
             Assertions.assertEquals(Command.SUCCESS, cli.execute("grep \"b\" file 2>> src/test/file1.txt"));
             Assertions.assertEquals("", stdout.toString());
-            Assertions.assertEquals("", stdErr.toString());
+            Assertions.assertEquals("", stderr.toString());
 
             Assertions.assertEquals("cat: t: No such file or directory\ngrep: file: No such file or directory\n", Files.readString(out));
         } finally {
@@ -282,22 +465,22 @@ public class CommandLineTest {
             writeTestFiles();
 
             ByteArrayOutputStream stdout = new ByteArrayOutputStream();
-            ByteArrayOutputStream stdErr = new ByteArrayOutputStream();
+            ByteArrayOutputStream stderr = new ByteArrayOutputStream();
 
             CommandLine cli = Utils.newCLI();
             cli.setStdOut(new PrintStream(stdout));
-            cli.setStdErr(new PrintStream(stdErr));
+            cli.setStdErr(new PrintStream(stderr));
 
             Assertions.assertEquals(Command.SUCCESS, cli.execute("echo hello world | cat"));
             Assertions.assertEquals("hello world\n", stdout.toString());
-            Assertions.assertEquals("", stdErr.toString());
+            Assertions.assertEquals("", stderr.toString());
 
             stdout.reset();
-            stdErr.reset();
+            stderr.reset();
 
             Assertions.assertEquals(Command.SUCCESS, cli.execute("cat < src/test/file1.txt | grep o | grep h"));
             Assertions.assertEquals("sum sum sum hello\n", stdout.toString());
-            Assertions.assertEquals("", stdErr.toString());
+            Assertions.assertEquals("", stderr.toString());
         } finally {
             deleteTestFiles();
         }
@@ -309,22 +492,22 @@ public class CommandLineTest {
             writeTestFiles();
 
             ByteArrayOutputStream stdout = new ByteArrayOutputStream();
-            ByteArrayOutputStream stdErr = new ByteArrayOutputStream();
+            ByteArrayOutputStream stderr = new ByteArrayOutputStream();
 
             CommandLine cli = Utils.newCLI();
             cli.setStdOut(new PrintStream(stdout));
-            cli.setStdErr(new PrintStream(stdErr));
+            cli.setStdErr(new PrintStream(stderr));
 
             Assertions.assertEquals(Command.SUCCESS, cli.execute("echo hello world; echo hello peter"));
             Assertions.assertEquals("hello world\nhello peter\n", stdout.toString());
-            Assertions.assertEquals("", stdErr.toString());
+            Assertions.assertEquals("", stderr.toString());
 
             stdout.reset();
-            stdErr.reset();
+            stderr.reset();
 
             Assertions.assertEquals(Command.SUCCESS, cli.execute("cat < test; cat < src/test/file1.txt; cat < src/test/file1.txt | grep o | grep h"));
             Assertions.assertEquals(FILE_1 + "sum sum sum hello\n", stdout.toString());
-            Assertions.assertEquals("cli: test: No such file or directory\n", stdErr.toString());
+            Assertions.assertEquals("cli: test: No such file or directory\n", stderr.toString());
         } finally {
             deleteTestFiles();
         }
@@ -340,9 +523,9 @@ public class CommandLineTest {
         delete(Path.of("src/test/file2.txt"));
     }
 
-    private void write(String file, Path out) {
+    private void write(String str, Path out) {
         try {
-            Files.writeString(out, file, StandardOpenOption.CREATE);
+            Files.writeString(out, str, StandardOpenOption.CREATE);
         } catch (IOException e) {
             // ignored
         }

@@ -48,7 +48,7 @@ public @interface Option {
 
     /**
      * Only the first value is used for allowing null value
-     * @return what is the purpose of this command?
+     * @return what is the purpose of this option?
      */
     String[] description() default {};
 

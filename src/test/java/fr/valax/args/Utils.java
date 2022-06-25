@@ -1,15 +1,20 @@
 package fr.valax.args;
 
 import fr.valax.args.api.Command;
+import fr.valax.args.api.Option;
 import fr.valax.args.api.VaArgs;
 import fr.valax.args.utils.CommandLineException;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 public class Utils {
+
+    private static final List<String> installed = new ArrayList<>();
 
     public static CommandLine newCLI() throws CommandLineException {
         return new CommandLineBuilder()
@@ -17,7 +22,184 @@ public class Utils {
                 .addCommand(new Echo())
                 .addCommand(new Cat())
                 .addCommand(new Grep())
+                .subCommand(new Apt())
+                    .addCommand(new Install())
+                    .addCommand(new Remove())
+                    .addCommand(new ListCmd())
+                    .endSubCommand()
+                .addCommand(new Add())
                 .build();
+    }
+
+    public static class Add implements Command {
+
+        @Option(names = "a", hasArgument = true)
+        private int a;
+
+        @Option(names = "b", hasArgument = true)
+        private int b;
+
+        @Option(names = "c", hasArgument = true)
+        private int c;
+
+        @Option(names = {"-stdin", "i"})
+        private boolean readInput;
+
+        @Override
+        public int execute(InputStream in, PrintStream out, PrintStream err) {
+            if (readInput) {
+                try {
+                    byte[] bytes = in.readAllBytes();
+                    String str = new String(bytes);
+
+                    // remove line separator
+                    int i = Integer.parseInt(str.replaceAll(System.lineSeparator(), ""));
+
+                    out.println(a + b + c + i);
+                } catch (IOException | NumberFormatException e) {
+                    e.printStackTrace(err);
+                }
+            } else {
+                out.println(a + b + c);
+            }
+
+            return 0;
+        }
+
+        @Override
+        public String getName() {
+            return "add";
+        }
+
+        @Override
+        public String getUsage() {
+            return null;
+        }
+
+        @Override
+        public boolean addHelp() {
+            return false;
+        }
+    }
+
+    public static class Apt implements Command {
+
+        @Override
+        public int execute(InputStream in, PrintStream out, PrintStream err) {
+            out.println("apt");
+            return 0;
+        }
+
+        @Override
+        public String getName() {
+            return "apt";
+        }
+
+        @Override
+        public String getUsage() {
+            return "apt-usage";
+        }
+
+        @Override
+        public boolean addHelp() {
+            return false;
+        }
+    }
+
+    public static class Install implements Command {
+
+        @Option(names = {"-package", "p"}, optional = false, allowDuplicate = true, hasArgument = true)
+        private String[] packages;
+
+        @Override
+        public int execute(InputStream in, PrintStream out, PrintStream err) {
+            for (String str : packages) {
+                out.println("Installing " + str);
+                installed.add(str);
+            }
+
+            return 0;
+        }
+
+        @Override
+        public String getName() {
+            return "install";
+        }
+
+        @Override
+        public String getUsage() {
+            return "install";
+        }
+
+        @Override
+        public boolean addHelp() {
+            return false;
+        }
+    }
+
+    public static class Remove implements Command {
+
+        @Option(names = {"-package", "p"}, optional = false, allowDuplicate = true, hasArgument = true)
+        private String[] packages;
+
+        @Override
+        public int execute(InputStream in, PrintStream out, PrintStream err) {
+            for (String p : packages) {
+                out.println("Removing " + p);
+                installed.remove(p);
+            }
+
+            return 0;
+        }
+
+        @Override
+        public String getName() {
+            return "remove";
+        }
+
+        @Override
+        public String getUsage() {
+            return "remove packages";
+        }
+
+        @Override
+        public boolean addHelp() {
+            return false;
+        }
+    }
+
+    public static class ListCmd implements Command {
+
+        @Option(names = "-installed")
+        private boolean installed;
+
+        @Override
+        public int execute(InputStream in, PrintStream out, PrintStream err) {
+            if (installed) {
+                for (String str : Utils.installed) {
+                    out.println(str);
+                }
+            } else {
+                out.println("bla bla bla");
+            }
+
+            return 0;
+        }
+
+        @Override
+        public String getName() {
+            return "list";
+        }
+
+        @Override
+        public String getUsage() {
+            return null;
+        }
+
+        @Override
+        public boolean addHelp() {
+            return false;
+        }
     }
 
     public static class Echo implements Command {
@@ -58,7 +240,7 @@ public class Utils {
 
     public static class Cat implements Command {
 
-        @VaArgs
+        @VaArgs(description = "Files to read")
         private Path[] files;
 
         @Override
@@ -112,7 +294,7 @@ public class Utils {
 
         @Override
         public boolean addHelp() {
-            return false;
+            return true;
         }
     }
 

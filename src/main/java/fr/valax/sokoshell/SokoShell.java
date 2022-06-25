@@ -159,7 +159,7 @@ public class SokoShell {
     }
 
     private void execute(String[] args) {
-        try {
+        /*try {
             System.out.println("sokoshell> " + String.join(" ", args));
             cli.execute(args);
 
@@ -167,7 +167,7 @@ public class SokoShell {
             System.out.println(e.getMessage());
         }  catch (CommandLineException e) {
             throw new IllegalStateException(e);
-        }
+        }*/
     }
 
     private Path getHistoryPath() {

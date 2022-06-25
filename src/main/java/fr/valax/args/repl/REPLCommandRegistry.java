@@ -80,7 +80,7 @@ public class REPLCommandRegistry implements CommandRegistry {
 
     @Override
     public boolean hasCommand(String command) {
-        return cli.getCommand(command).node() != null;
+        return cli.getCommand(command) != null;
     }
 
     @Override
@@ -97,7 +97,7 @@ public class REPLCommandRegistry implements CommandRegistry {
 
     @Override
     public CmdDesc commandDescription(List<String> args) {
-        INode<CommandDescriber> node = cli.getCommand(String.join(" ", args)).node();
+        INode<CommandDescriber> node = cli.getCommand(String.join(" ", args));
 
         if (node == null || node.getValue() == null) {
             return null;
@@ -139,14 +139,16 @@ public class REPLCommandRegistry implements CommandRegistry {
 
     @Override
     public Object invoke(CommandSession session, String command, Object... args) throws Exception {
-        String[] arguments = new String[1 + args.length];
+        /*String[] arguments = new String[1 + args.length];
         arguments[0] = command;
 
         for (int i = 0; i < args.length; i++) {
             arguments[i + 1] = args[i].toString();
         }
 
-        return cli.execute(arguments);
+        return cli.execute(arguments);*/
+
+        return null;
     }
 
     private class ShellCompleter implements Completer {
@@ -157,7 +159,7 @@ public class REPLCommandRegistry implements CommandRegistry {
                     .limit(line.wordIndex() + 1)
                     .collect(Collectors.joining(" "));
 
-            CommandLine.ParsedCommandDesc cmd = cli.getCommand(l);
+            /*CommandLine.ParsedCommandDesc cmd = cli.getCommand(l);
             INode<CommandDescriber> node = cmd.node();
 
             if (node != null && node.getValue() != null) {
@@ -187,7 +189,7 @@ public class REPLCommandRegistry implements CommandRegistry {
                 if (addHyphenCandidate) {
                     candidates.add(new Candidate("-", "-", null, null, null, null, false));
                 }
-            }
+            }*/
         }
 
         private void completeOption(List<Candidate> candidates, OptionGroup group, List<Option> options) {

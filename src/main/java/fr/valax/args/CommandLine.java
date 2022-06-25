@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
+import static fr.valax.args.Redirect.NONE;
 import static fr.valax.args.Redirect.OutputFile.STD_ERR;
 import static fr.valax.args.Redirect.OutputFile.STD_OUT;
 import static fr.valax.args.utils.ArgsUtils.*;
@@ -37,7 +38,6 @@ public class CommandLine {
     private final Map<Class<?>, TypeConverter<?>> converters;
 
     private final HelpFormatter helpFormatter;
-    private boolean showHelp = true;
 
     private InputStream stdIn = System.in;
     private PrintStream stdOut = System.out;
@@ -53,11 +53,21 @@ public class CommandLine {
 
     private Tokenizer tokenizer;
 
-    // An error due to a redirect
-    private String error;
+    /**
+     * An error due to a redirect.
+     * It can be syntax error (eg: missing file after >) or io error (eg: file doesn't exist).
+     * These errors are not redirected.
+     */
+    private String redirectError;
+
+    /**
+     * An error due to an option.
+     * It can be a missing option, not allowed usage of vaargs, etc.
+     * These errors are redirected.
+     */
+    private String optionError;
     private INode<CommandSpec> command;
-    private List<String> args;
-    private boolean appendingArgs;
+    private boolean parsingArgs;
 
     CommandLine(INode<Command> root,
                 Map<Class<?>, TypeConverter<?>> converters,
@@ -76,10 +86,9 @@ public class CommandLine {
 
         tokenizer = new Tokenizer(commandStr);
 
-        error = null;
+        redirectError = null;
         command = root;
-        args = new ArrayList<>();
-        appendingArgs = false;
+        parsingArgs = false;
 
         int last = 0;
         while (tokenizer.hasNext()) {
@@ -94,26 +103,26 @@ public class CommandLine {
                     last = v;
                 }
 
-            } else if (error != null) { // unrecognized command, skipping
-                continue;
+            } else if (!hasError()) { // unrecognized command, skipping
 
-            } else if (appendingArgs) { // add args
-                args.add(next.value());
+                if (parsingArgs) { // add args
+                    parseOption(next.value());
 
-            } else { // find command
-                INode<CommandSpec> sub = subCommand(command, next.value());
+                } else { // find command
+                    INode<CommandSpec> sub = subCommand(command, next.value());
 
-                if (sub == null) {
+                    if (sub == null) {
 
-                    if (command.getValue() == null) {
-                        error = next.value() + ": command not found";
+                        if (command.getValue() == null) {
+                            redirectError = next.value() + ": command not found";
+                        } else {
+                            parsingArgs = true;
+                            parseOption(next.value());
+                        }
+
                     } else {
-                        appendingArgs = true;
-                        args.add(next.value());
+                        command = sub;
                     }
-
-                } else {
-                    command = sub;
                 }
             }
         }
@@ -121,8 +130,8 @@ public class CommandLine {
         if (command.getValue() != null) {
             return executeCommand();
         } else {
-            if (error != null) {
-                printError();
+            if (redirectError != null) {
+                printRedirectError();
                 return Command.FAILURE;
             } else {
                 return last;
@@ -148,7 +157,7 @@ public class CommandLine {
             case "2>" -> redirectOutput("2>", STD_ERR, false);
             case "2>&1" -> output = Redirect.ERROR_IN_OUTPUT;
             case "<" -> {
-                if (error != null) {
+                if (redirectError != null) {
                     return null;
                 }
 
@@ -160,22 +169,24 @@ public class CommandLine {
 
                 Path path = Path.of(file);
                 if (!Files.exists(path)) {
-                    error = path + ": No such file or directory";
+                    redirectError = path + ": No such file or directory";
                     return null;
                 }
 
                 if (Files.isDirectory(path)) {
-                    error = path + ": is a directory";
+                    redirectError = path + ": is a directory";
                 }
 
                 if (!Files.isReadable(path)) {
-                    error = path + ": Permission denied";
+                    redirectError = path + ": Permission denied";
                 }
 
                 input = Redirect.INPUT_FILE;
                 Redirect.INPUT_FILE.setPath(path);
             }
             case "|" -> {
+                // a little hard coded
+
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 currOut = new PrintStream(baos);
 
@@ -183,6 +194,7 @@ public class CommandLine {
 
                 currOut = stdOut;
                 currIn = new ByteArrayInputStream(baos.toByteArray());
+                input = NONE;
 
                 return ret;
             }
@@ -195,7 +207,7 @@ public class CommandLine {
     }
 
     private void redirectOutput(String keyword, int redirect, boolean append) {
-        if (error != null) {
+        if (redirectError != null) {
             return;
         }
 
@@ -209,12 +221,12 @@ public class CommandLine {
 
         if (Files.exists(path)) {
             if (Files.isDirectory(path)) {
-                error = path + ": is a directory";
+                redirectError = path + ": is a directory";
                 return;
             }
 
             if (!Files.isWritable(path)) {
-                error = path + ": Permission denied";
+                redirectError = path + ": Permission denied";
                 return;
             }
         }
@@ -228,24 +240,86 @@ public class CommandLine {
      */
     private String getFile(String keyword) {
         if (!tokenizer.hasNext()) {
-            error = "Expecting file after " + keyword;
+            redirectError = "Expecting file after " + keyword;
             return null;
         }
 
         Token file = tokenizer.next();
 
         if (file.keyword()) {
-            error = "Expecting file after %s. not keyword".formatted(keyword);
+            redirectError = "Expecting file after %s. not keyword".formatted(keyword);
             return null;
         }
 
         return file.value();
     }
 
+
+    private void parseOption(String name) {
+        CommandSpec spec = command.getValue();
+
+        if (name.startsWith("-")) { // this is an option
+            String withoutHyphen = name.substring(1);
+
+            OptionSpec opt = spec.findOption(withoutHyphen);
+
+            if (opt == null) {
+                optionError = name + ": No such option";
+                return;
+            }
+
+            addArgumentToOption(opt);
+
+        } else if (spec.hasVaArgs()) {
+            VaArgsSpec vaArgsSpec = spec.getVaargs();
+
+            vaArgsSpec.addValue(name);
+        } else {
+            optionError = "VaArgs not allowed";
+        }
+    }
+
+    private void addArgumentToOption(OptionSpec opt) {
+        if (opt.isPresent() && !opt.allowDuplicate()) {
+            optionError = opt.firstName() + ": Duplicate parameter";
+            return;
+        }
+
+        Token nextPeeked = tokenizer.peek();
+
+        if (tokenizer.hasNext()) {
+            if (opt.hasArgument()) {
+                Token next = tokenizer.next();
+
+                if (next.keyword()) {
+                    optionError = opt.firstName() + ": expecting string not keyword";
+                    return;
+                }
+
+                opt.addArgument(next.value());
+
+            } else if (!nextPeeked.keyword() && !nextPeeked.value().startsWith("-")) {
+                optionError = opt.firstName() + ": Parameter not required";
+                return;
+            }
+
+        } else if (opt.hasArgument()) {
+            if (opt.getDefaultValue() == null || opt.getDefaultValue().isEmpty()) {
+                optionError = opt.firstName() + ": Parameter required";
+                return;
+            } else {
+                opt.addArgument(opt.getDefaultValue());
+            }
+        }
+
+        opt.markPresent();
+    }
+
+
     private int executeCommand() throws CommandLineException, IOException {
         try {
-            if (error != null) {
-                printError();
+            if (redirectError != null) {
+                printRedirectError();
                 return Command.FAILURE;
             }
 
@@ -253,24 +327,19 @@ public class CommandLine {
             doRedirect();
 
             CommandSpec spec = command.getValue();
+            Command command = spec.getCommand();
 
-            // parsing
-            try {
-                if (spec.hasVaArgs()) {
-                    List<String> vaArgs = spec.parseAllowVaArgs(args.toArray(new String[0]), 0, args.size());
+            if (optionError == null) {
+                optionError = spec.checkNotOptionalOption();
+            }
 
-                    spec.setVaArgs(vaArgs);
-                } else {
-                    spec.parse(args.toArray(new String[0]), 0, args.size());
-                }
-            } catch (ParseException e) {
-                currErr.println(error);
+            if (optionError != null) {
+                printOptionError();
                 return Command.FAILURE;
             }
 
-
             // help
-            if (spec.getCommand().addHelp() && spec.getHelp().isPresent()) {
+            if (command.addHelp() && spec.getHelp().isPresent()) {
                 currOut.println(helpFormatter.commandHelp(null, spec.getDescriber()));
 
                 return Command.SUCCESS;
@@ -280,18 +349,18 @@ public class CommandLine {
                 try {
                     spec.setOptions();
                 } catch (TypeException e) {
-                    currErr.println(error);
+                    currErr.printf("%s: %s%n", command.getName(), e.getMessage());
                     return Command.FAILURE;
                 }
 
-                return spec.getCommand().execute(currIn, currOut, currErr);
+                return command.execute(currIn, currOut, currErr);
             }
         } finally {
             reset();
         }
     }
 
-    private void doRedirect() {
+    private void doRedirect() throws IOException {
         InputStream in = input.redirectIn(currIn);
         PrintStream out = output.redirectOut(currOut, currErr);
         PrintStream err = output.redirectErr(currOut, currErr);
@@ -328,111 +397,49 @@ public class CommandLine {
             command.getValue().reset();
         }
 
-        error = null;
+        redirectError = null;
+        optionError = null;
         command = root;
-        args.clear();
-        appendingArgs = false;
+        parsingArgs = false;
     }
 
-    private void printError() {
-        currErr.printf("%s: %s%n", name, error);
+    private void printRedirectError() {
+        currErr.printf("%s: %s%n", name, redirectError);
     }
 
-    public Object execute(String[] args) throws CommandLineException {
-        ParsedCommand parsedCommand = getCommand(root, args, 0);
+    private void printOptionError() {
+        CommandSpec spec = command.getValue();
 
-        if (parsedCommand.node() == null) {
-            unrecognizedCommand(args);
-            return null;
+        if (spec != null) {
+            List<String> names = new ArrayList<>(command.getDepth());
+
+            INode<CommandSpec> node = command;
+            while (node != null) {
+                if (node.getValue() != null) {
+                    names.add(node.getValue().getName());
+                }
+
+                node = node.getParent();
+            }
+
+            StringBuilder name = new StringBuilder();
+
+            for (int i = names.size() - 1; i >= 0; i--) {
+                name.append(names.get(i));
+
+                if (i - 1 >= 0) {
+                    name.append(" ");
+                }
+            }
+
+            currErr.printf("%s: %s%n", name, optionError);
         } else {
-            CommandSpec spec = parsedCommand.node().getValue();
-
-            return executeCommand(spec, args, parsedCommand.index(), args.length);
+            currErr.printf("'root command': %s%n", optionError);
         }
     }
 
-    private ParsedCommand getCommand(INode<CommandSpec> node, String[] command, int index) {
-        if (index >= command.length) {
-            CommandSpec spec = node.getValue();
-
-            if (spec == null) { // for root
-                return new ParsedCommand(null, index);
-            } else {
-                return new ParsedCommand(node, index);
-            }
-
-        } else {
-            INode<CommandSpec> next = null;
-            for (INode<CommandSpec> child : node.getChildren()) {
-                CommandSpec spec = child.getValue();
-                if (command[index].equals(spec.getName())) {
-                    next = child;
-                    break;
-                }
-            }
-
-            if (next != null) {
-                return getCommand(next, command, index + 1);
-            } else if (node.getValue() != null) {
-                return new ParsedCommand(node, index);
-            } else {
-                return new ParsedCommand(null, index);
-            }
-        }
-    }
-
-    private void unrecognizedCommand(String[] args) throws ParseException {
-        if (showHelp()) {
-            System.out.println(helpFormatter.generalHelp(commands, args, true));
-        } else {
-            thrParseExc("Unrecognized command: %s", Arrays.toString(args));
-        }
-    }
-
-    protected Object executeCommand(CommandSpec spec, String[] args, int start, int end)
-            throws CommandLineException {
-        try {
-
-
-            try {
-                if (spec.hasVaArgs()) {
-                    List<String> vaArgs = spec.parseAllowVaArgs(args, start, end);
-
-                    spec.setVaArgs(vaArgs);
-                } else {
-                    spec.parse(args, start, end);
-                }
-            } catch (ParseException e) {
-                if (showHelp) {
-                    System.out.println(helpFormatter.commandHelp(e, spec.getDescriber()));
-                    return null;
-                } else {
-                    throw e;
-                }
-            }
-
-            if (spec.getCommand().addHelp() && spec.getHelp().isPresent()) {
-                System.out.println(helpFormatter.commandHelp(null, spec.getDescriber()));
-
-                return null;
-            } else {
-                try {
-                    spec.setOptions();
-                } catch (TypeException e) {
-                    if (showHelp) {
-                        System.out.println(helpFormatter.commandHelp(e, spec.getDescriber()));
-                        return null;
-                    } else {
-                        throw e;
-                    }
-                }
-
-
-                return spec.getCommand().execute(System.in, System.out, System.err);
-            }
-        } finally {
-            spec.reset();
-        }
+    private boolean hasError() {
+        return redirectError != null || optionError != null;
     }
 
     @SuppressWarnings("unchecked")
@@ -478,24 +485,31 @@ public class CommandLine {
         }
     }
 
-    public boolean showHelp() {
-        return showHelp;
-    }
-
-    public void setShowHelp(boolean showHelp) {
-        this.showHelp = showHelp;
-    }
-
     public INode<CommandDescriber> getCommands() {
         return commands;
     }
 
-    public ParsedCommandDesc getCommand(String[] command) {
-        return convert(getCommand(root, command, 0));
-    }
+    public INode<CommandDescriber> getCommand(String command) {
+        Tokenizer tokenizer = new Tokenizer(command);
 
-    public ParsedCommandDesc getCommand(String command) {
-        return getCommand(splitQuoted(command));
+        INode<CommandSpec> cmd = root;
+        while (tokenizer.hasNext()) {
+            Token next = tokenizer.next();
+
+            if (next.keyword()) {
+                break;
+            }
+
+            INode<CommandSpec> sub = subCommand(cmd, next.value());
+
+            if (sub == null) {
+                break;
+            } else {
+                cmd = sub;
+            }
+        }
+
+        return commands.find(cmd.getValue().getDescriber());
     }
 
     public String getName() {
@@ -504,24 +518,6 @@ public class CommandLine {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    // =================
-    // * Inner classes *
-    // =================
-
-    private record ParsedCommand(INode<CommandSpec> node, int index) {}
-
-    public record ParsedCommandDesc(INode<CommandDescriber> node, int index) {}
-
-    private ParsedCommandDesc convert(ParsedCommand cmd) {
-        if (cmd.node() == null) {
-            return new ParsedCommandDesc(null, cmd.index());
-        } else {
-            CommandDescriber desc = cmd.node().getValue().getDescriber();
-
-            return new ParsedCommandDesc(commands.find(desc), cmd.index());
-        }
     }
 
     public InputStream getStdIn() {
@@ -651,93 +647,37 @@ public class CommandLine {
             return fields;
         }
 
-        // * PARSING * //
+        public OptionSpec findOption(String name) {
+            OptionSpec spec = options.get(name);
 
-        public void parse(String[] args, int start, int end) throws ParseException {
-            List<String> str = parseAllowVaArgs(args, start, end);
-
-            if (str.size() > 0) {
-                throw new ParseException("Unrecognized parameters: " + str);
+            if (spec == null) {
+                spec = options.values()
+                        .stream()
+                        .filter((o) -> ArgsUtils.contains(o.getOption().names(), name))
+                        .findFirst()
+                        .orElse(null);
             }
+
+            return spec;
         }
 
-        public List<String> parseAllowVaArgs(String[] args, int start, int end) throws ParseException {
-            List<String> vaargs = new ArrayList<>();
-            for (int i = start; i < end; i++) {
-                String arg = args[i];
-
-                OptionSpec option;
-                if (arg.startsWith("-")) {
-                    String withoutHyphen = arg.substring(1);
-                    option = options.get(withoutHyphen);
-
-                    if (option == null) {
-                        option = findOption(withoutHyphen);
-                    }
-
-                    if (option == null) {
-                        throw new ParseException("Unrecognized option: " + arg);
-                    }
-
-                    i = parseOption(option, args, i, end);
-                } else {
-                    vaargs.add(arg);
-                }
-            }
-
-            if (help == null || !help.isPresent()) {
-                checkNotOptionalOption();
-            }
-
-            return vaargs;
-        }
-
-        private int parseOption(OptionSpec option, String[] args, int i, int end) throws ParseException {
-            String arg = args[i];
-
-            if (option.isPresent() && !option.allowDuplicate()) {
-                throw new ParseException("Duplicate parameter: " + option.firstName());
-            }
-
-            if (i + 1 < end && !args[i + 1].startsWith("-")) {
-                if (option.hasArgument()) {
-                    i++;
-                    option.addArguments(args[i]);
-                } else {
-                    throw new ParseException("Option %s doesn't require a parameter".formatted(arg));
-                }
-            } else if (option.hasArgument()) {
-                if (option.getDefaultValue() == null || option.getDefaultValue().isEmpty()) {
-                    throw new ParseException("Option %s require a parameter".formatted(arg));
-                } else {
-                    option.addArguments(option.getDefaultValue());
-                }
-            }
-
-            option.markPresent();
-
-            return i;
-        }
-
-        private OptionSpec findOption(String name) {
-            return options.values()
-                    .stream()
-                    .filter((o) -> ArgsUtils.contains(o.getOption().names(), name))
-                    .findFirst()
-                    .orElse(null);
-        }
-
-        private void checkNotOptionalOption() throws ParseException {
+        public String checkNotOptionalOption() {
             for (OptionSpec opt : options.values()) {
                 if (!opt.isOptional() && !opt.isPresent()) {
-                    throw new ParseException(opt.firstName() + " is required");
+                    return opt.firstName() + ": required";
                 }
             }
+
+            return null;
         }
 
         public void reset() {
             for (OptionSpec opt : options.values()) {
                 opt.reset();
+            }
+
+            if (vaargs != null) {
+                vaargs.reset();
             }
         }
 
@@ -776,11 +716,10 @@ public class CommandLine {
                     setValue(field, opt.isPresent());
                 }
             }
-        }
 
-        public void setVaArgs(List<String> vaArgs) throws CommandLineException {
-            Objects.requireNonNull(vaArgs);
-            setArray(vaargs.getField(), vaargs.getConverter(), vaArgs.toArray(new String[0]));
+            if (hasVaArgs()) {
+                setArray(vaargs.getField(), vaargs.getConverter(), vaargs.getValues().toArray(new String[0]));
+            }
         }
 
         private void setValue(Field field, TypeConverter<?> converter, String value) throws CommandLineException {
@@ -853,6 +792,10 @@ public class CommandLine {
 
         public boolean hasVaArgs() {
             return vaargs != null;
+        }
+
+        public VaArgsSpec getVaargs() {
+            return vaargs;
         }
 
         public OptionSpec getHelp() {
@@ -952,7 +895,7 @@ public class CommandLine {
             }
         }
 
-        public void addArguments(String args) {
+        public void addArgument(String args) {
             arguments.add(args);
         }
 
@@ -1029,10 +972,24 @@ public class CommandLine {
         private final Field field;
         private final TypeConverter<?> converter;
 
+        private final List<String> values = new ArrayList<>();
+
         public VaArgsSpec(VaArgs vaArgs, Field field) throws CommandLineException {
             this.vaArgs = vaArgs;
             this.field = field;
             this.converter = createTypeConverter(field, first(vaArgs.converter()));
+        }
+
+        public void addValue(String value) {
+            values.add(value);
+        }
+
+        public void reset() {
+            values.clear();
+        }
+
+        public List<String> getValues() {
+            return values;
         }
 
         public VaArgs getVaArgs() {
@@ -1118,6 +1075,16 @@ public class CommandLine {
         @Override
         public boolean hasDefaultHelp() {
             return spec.getCommand().addHelp();
+        }
+
+        @Override
+        public boolean hasVaArgs() {
+            return spec.hasVaArgs();
+        }
+
+        @Override
+        public String getVaArgsDescription() {
+            return ArgsUtils.first(spec.getVaargs().vaArgs.description());
         }
 
         @Override

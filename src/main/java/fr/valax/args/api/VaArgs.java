@@ -15,6 +15,12 @@ import java.lang.annotation.Target;
 public @interface VaArgs {
 
     /**
+     * Only the first value is used for allowing null value
+     * @return what is the purpose of this vaargs?
+     */
+    String[] description() default {};
+
+    /**
      * It returns a 1-length array containing a TypeConverter.
      * The TypeConverter is used to parse the default value or
      * the value given by the user.

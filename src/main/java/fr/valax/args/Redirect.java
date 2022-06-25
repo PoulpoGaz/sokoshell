@@ -12,15 +12,15 @@ public interface Redirect {
     InputFile INPUT_FILE = new InputFile();
     OutputFile OUTPUT_FILE = new OutputFile();
 
-    default InputStream redirectIn(InputStream in) {
+    default InputStream redirectIn(InputStream in) throws IOException {
         return in;
     }
 
-    default PrintStream redirectOut(PrintStream out, PrintStream err) {
+    default PrintStream redirectOut(PrintStream out, PrintStream err) throws IOException {
         return out;
     }
 
-    default PrintStream redirectErr(PrintStream out, PrintStream err) {
+    default PrintStream redirectErr(PrintStream out, PrintStream err) throws IOException {
         return err;
     }
 
@@ -30,12 +30,8 @@ public interface Redirect {
         private Path path;
 
         @Override
-        public InputStream redirectIn(InputStream in) {
-            try {
-                return new BufferedInputStream(Files.newInputStream(path));
-            } catch (IOException e) {
-                throw new IllegalStateException(e);
-            }
+        public InputStream redirectIn(InputStream in) throws IOException {
+            return new BufferedInputStream(Files.newInputStream(path));
         }
 
         public Path getPath() {
@@ -58,7 +54,7 @@ public interface Redirect {
         private boolean append;
 
         @Override
-        public PrintStream redirectOut(PrintStream out, PrintStream err) {
+        public PrintStream redirectOut(PrintStream out, PrintStream err) throws IOException {
             if ((redirect & STD_OUT) != 0) {
                 return createPrintStream();
             } else {
@@ -67,7 +63,7 @@ public interface Redirect {
         }
 
         @Override
-        public PrintStream redirectErr(PrintStream out, PrintStream err) {
+        public PrintStream redirectErr(PrintStream out, PrintStream err) throws IOException{
             if ((redirect & STD_ERR) != 0) {
                 return createPrintStream();
             } else {
@@ -75,19 +71,15 @@ public interface Redirect {
             }
         }
 
-        private PrintStream createPrintStream() {
-            try {
-                OutputStream os;
-                if (append) {
-                    os = Files.newOutputStream(this.out, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
-                } else {
-                    os = Files.newOutputStream(this.out, StandardOpenOption.CREATE);
-                }
-
-                return new PrintStream(os);
-            } catch (IOException e) {
-                throw new IllegalStateException(e);
+        private PrintStream createPrintStream() throws IOException {
+            OutputStream os;
+            if (append) {
+                os = Files.newOutputStream(this.out, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+            } else {
+                os = Files.newOutputStream(this.out, StandardOpenOption.CREATE);
             }
+
+            return new PrintStream(os);
         }
 
         public void set(Path out, int redirect, boolean append) {

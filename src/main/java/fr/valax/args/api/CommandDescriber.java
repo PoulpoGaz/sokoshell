@@ -14,6 +14,10 @@ public interface CommandDescriber extends Iterable<Option> {
 
     boolean hasDefaultHelp();
 
+    boolean hasVaArgs();
+
+    String getVaArgsDescription();
+
     OptionIterator optionIterator();
 
     Option getOption(String name);

@@ -46,6 +46,19 @@ public class DefaultHelpFormatter implements HelpFormatter {
             builder.append("Usage: ").append(usage).append("\n\n");
         }
 
+        if (command.hasVaArgs()) {
+            String description = command.getVaArgsDescription();
+
+            if (description != null) {
+                builder.append("Vaargs: ");
+                appendTextBlock(builder, description, " ".repeat(8), maxTextBlockSize);
+            } else {
+                builder.append("Has vaargs");
+            }
+
+            builder.append('\n');
+        }
+
         options.entrySet()
                 .stream()
                 .sorted(groupComparator)
