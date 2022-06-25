@@ -489,7 +489,7 @@ public class CommandLine {
         return commands;
     }
 
-    public INode<CommandDescriber> getCommand(String command) {
+    public INode<CommandDescriber> getFirstCommand(String command) {
         Tokenizer tokenizer = new Tokenizer(command);
 
         INode<CommandSpec> cmd = root;
@@ -509,7 +509,43 @@ public class CommandLine {
             }
         }
 
+        if (cmd.getValue() == null) {
+            return null;
+        }
+
         return commands.find(cmd.getValue().getDescriber());
+    }
+
+    public ParsedCommand getFirstCommandWithIndex(String command) {
+        int index = 0;
+        Tokenizer tokenizer = new Tokenizer(command);
+
+        INode<CommandSpec> cmd = root;
+        while (tokenizer.hasNext()) {
+            Token next = tokenizer.next();
+
+            if (next.keyword()) {
+                break;
+            }
+
+            INode<CommandSpec> sub = subCommand(cmd, next.value());
+
+            if (sub == null) {
+                break;
+            } else {
+                cmd = sub;
+            }
+
+            index++;
+        }
+
+        if (cmd.getValue() == null) {
+            return null;
+        }
+
+        INode<CommandDescriber> desc = commands.find(cmd.getValue().getDescriber());
+
+        return new ParsedCommand(desc, index);
     }
 
     public String getName() {
@@ -543,6 +579,12 @@ public class CommandLine {
     public void setStdErr(PrintStream stdErr) {
         this.stdErr = stdErr;
     }
+
+    //
+    //
+    //
+
+    public record ParsedCommand(INode<CommandDescriber> node, int index) {}
 
     // ===============
     // * CommandSpec *

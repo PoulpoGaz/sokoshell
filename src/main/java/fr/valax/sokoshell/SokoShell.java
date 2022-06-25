@@ -6,12 +6,13 @@ import fr.valax.args.api.Command;
 import fr.valax.args.repl.REPLCommandRegistry;
 import fr.valax.args.repl.REPLHelpFormatter;
 import fr.valax.args.utils.CommandLineException;
-import fr.valax.args.utils.ParseException;
 import fr.valax.args.utils.TypeException;
 import fr.valax.sokoshell.solver.Pack;
 import fr.valax.sokoshell.solver.tasks.ISolverTask;
+import fr.valax.sokoshell.utils.LessCommand;
 import fr.valax.sokoshell.utils.PrettyTable;
 import fr.valax.sokoshell.utils.Utils;
+import org.jline.builtins.Less;
 import org.jline.console.SystemRegistry;
 import org.jline.console.impl.SystemRegistryImpl;
 import org.jline.reader.*;
@@ -24,17 +25,11 @@ import org.jline.terminal.TerminalBuilder;
 import org.jline.terminal.impl.AbstractWindowsTerminal;
 import org.jline.widget.AutosuggestionWidgets;
 
-import javax.security.auth.callback.PasswordCallback;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.nio.file.Path;
-import java.util.Collection;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.function.BiFunction;
-import java.util.stream.Collectors;
 
 /**
  * @author PoulpoGaz
@@ -54,11 +49,9 @@ public class SokoShell {
         sokoshell.welcome();
 
         try {
-            if (args.length > 0) {
-                sokoshell.execute(args);
-            }
+            String initCommand = String.join(" ", args);
 
-            sokoshell.loop();
+            sokoshell.loop(initCommand);
         } finally {
             ISolverTask<?> task = SokoShellHelper.INSTANCE.getSolverTask();
             if (task != null) {
@@ -94,7 +87,10 @@ public class SokoShell {
                 .addCommand(AbstractCommand.newCommand(this::stopSolver, "stop", "Stop the solver"))
                 .addCommand(AbstractCommand.newCommand(this::gc, "gc", "Run garbage collector.\nYou may want to use this after solving a sokoban"))
                 .addCommand(AbstractCommand.newCommand(this::list, "list", "List all packs"))
+                .addCommand(new LessCommand())
                 .build();
+
+        cli.setName("sokoshell");
     }
 
     private void welcome() {
@@ -108,7 +104,7 @@ public class SokoShell {
         System.out.println("Goodbye!");
     }
 
-    private void loop() {
+    private void loop(String initCommand) {
         Parser parser = new DefaultParser();
         REPLCommandRegistry shellRegistry = new REPLCommandRegistry(cli, "SokoShell");
 
@@ -118,6 +114,9 @@ public class SokoShell {
             if (terminal instanceof AbstractWindowsTerminal) {
                 System.err.println("[WARNING]. Your terminal isn't supported");
             }
+
+            cli.setStdIn(terminal.input());
+            cli.setStdOut(new PrintStream(terminal.output()));
 
             SokoShellHelper.INSTANCE.setTerminal(terminal);
 
@@ -137,37 +136,39 @@ public class SokoShell {
             AutosuggestionWidgets autosuggestionWidgets = new AutosuggestionWidgets(reader);
             autosuggestionWidgets.enable();
 
-            while (true) {
-                registry.cleanUp();
+            if (initCommand != null && !initCommand.isBlank()) {
+                executeOrWaitInput(registry, initCommand);
+            }
 
-                try {
-                    String line = reader.readLine("sokoshell> ");
-                    registry.execute(line);
-                } catch (EndOfFileException e) { // thrown when user types ctrl+D and by the built-in exit command
-                    break;
-                } catch (UserInterruptException e) {
-                    break;
-                } catch (SystemRegistryImpl.UnknownCommandException e) {
-                    System.out.println(e.getMessage());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+            boolean running = true;
+            while (running) {
+                registry.cleanUp();
+                running = executeOrWaitInput(registry, null);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void execute(String[] args) {
-        /*try {
-            System.out.println("sokoshell> " + String.join(" ", args));
-            cli.execute(args);
+    private boolean executeOrWaitInput(SystemRegistry registry, String line) {
+        try {
 
-        } catch (ParseException | TypeException e) {
+            if (line == null) {
+                line = reader.readLine("sokoshell> ");
+            }
+
+            registry.execute(line);
+        } catch (EndOfFileException e) { // thrown when user types ctrl+D and by the built-in exit command
+            return false;
+        } catch (UserInterruptException e) {
+            return false;
+        } catch (SystemRegistryImpl.UnknownCommandException e) {
             System.out.println(e.getMessage());
-        }  catch (CommandLineException e) {
-            throw new IllegalStateException(e);
-        }*/
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return true;
     }
 
     private Path getHistoryPath() {
@@ -220,15 +221,15 @@ public class SokoShell {
                 3, packs.size(), new String[] {"Pack", "Author", "Number of levels"},
                 extractor);
 
-        System.out.println(table);
+        out.println(table);
 
         int totalLevels = 0;
         for (Pack p : packs) {
             totalLevels += p.levels().size();
         }
 
-        System.out.println();
-        System.out.printf("Total packs: %d - Total levels: %d%n", packs.size(), totalLevels);
+        out.println();
+        out.printf("Total packs: %d - Total levels: %d%n", packs.size(), totalLevels);
 
         return Command.SUCCESS;
     }

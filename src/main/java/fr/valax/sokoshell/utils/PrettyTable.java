@@ -194,9 +194,8 @@ public class PrettyTable {
 
                 int n = cells[x].draw(sb, w, cellHeight, y);
 
-                sb.append(" ".repeat(w - n + 1));
-
                 if (x + 1 < cells.length) {
+                    sb.append(" ".repeat(w - n + 1));
                     sb.append('|');
                 }
             }

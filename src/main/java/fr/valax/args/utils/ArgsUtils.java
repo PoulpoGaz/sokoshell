@@ -61,10 +61,6 @@ public class ArgsUtils {
         throw new CommandLineException(format.formatted(args));
     }
 
-    public static void thrParseExc(String format, Object... args) throws ParseException {
-        throw new ParseException(format.formatted(args));
-    }
-
     public static String[] splitQuoted(String line) {
         List<String> strings = new ArrayList<>();
 

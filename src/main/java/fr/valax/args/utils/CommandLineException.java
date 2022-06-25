@@ -3,7 +3,6 @@ package fr.valax.args.utils;
 /**
  * Base class for all CommandLineException
  *
- * @see ParseException
  * @see TypeException
  * @author PoulpoGaz
  */
