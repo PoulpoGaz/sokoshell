@@ -1,6 +1,5 @@
 package fr.valax.args.api;
 
-import fr.valax.args.utils.CommandLineException;
 import fr.valax.args.utils.INode;
 
 /**
@@ -10,10 +9,7 @@ import fr.valax.args.utils.INode;
  */
 public interface HelpFormatter {
 
-    String commandHelp(CommandLineException error,
-                       CommandDescriber command);
+    String commandHelp(CommandDescriber command);
 
-    String generalHelp(INode<CommandDescriber> commands,
-                       String[] args,
-                       boolean unrecognizedCommand);
+    String generalHelp(INode<CommandDescriber> commands);
 }

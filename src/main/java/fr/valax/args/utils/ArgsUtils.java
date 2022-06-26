@@ -1,9 +1,7 @@
 package fr.valax.args.utils;
 
-import fr.valax.args.Tokenizer;
 import fr.valax.args.api.TypeConverter;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -13,6 +11,16 @@ import java.util.function.Function;
  * @author PoulpoGaz
  */
 public class ArgsUtils {
+
+    public static boolean contains(char[] array, char o) {
+        for (char t : array) {
+            if (o == t) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     public static <T> boolean contains(T[] array, T o) {
         if (o == null) {
@@ -61,22 +69,21 @@ public class ArgsUtils {
         throw new CommandLineException(format.formatted(args));
     }
 
-    public static String[] splitQuoted(String line) {
-        List<String> strings = new ArrayList<>();
-
-        Tokenizer t = new Tokenizer(line);
-        while (t.hasNext()) {
-            strings.add(t.next().value());
-        }
-
-        return strings.toArray(new String[0]);
-    }
-
     public static <T> T first(T[] array) {
         if (array == null || array.length == 0) {
             return null;
         } else {
             return array[0];
         }
+    }
+
+    public static char[] asCharArray(List<Character> chars) {
+        char[] newChars = new char[chars.size()];
+
+        for (int i = 0; i < chars.size(); i++) {
+            newChars[i] = Objects.requireNonNull(chars.get(i));
+        }
+
+        return newChars;
     }
 }

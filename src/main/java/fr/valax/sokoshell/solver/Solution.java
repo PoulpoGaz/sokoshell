@@ -1,6 +1,5 @@
 package fr.valax.sokoshell.solver;
 
-import fr.poulpogaz.json.IJsonWriter;
 import fr.poulpogaz.json.JsonException;
 import fr.poulpogaz.json.JsonPrettyWriter;
 import fr.valax.graph.Label;

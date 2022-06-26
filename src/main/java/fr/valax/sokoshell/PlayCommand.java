@@ -40,7 +40,12 @@ public class PlayCommand extends LevelCommand {
     public String getName() { return "play"; }
 
     @Override
-    public String getUsage() { return "Allows you to play the Sokoban game"; }
+    public String getShortDescription() { return "Allows you to play the Sokoban game"; }
+
+    @Override
+    public String[] getUsage() {
+        return new String[0];
+    }
 
     private enum Key {
 

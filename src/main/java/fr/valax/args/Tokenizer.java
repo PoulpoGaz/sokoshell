@@ -2,21 +2,32 @@ package fr.valax.args;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 public class Tokenizer implements Iterator<Token> {
 
-    private static final String[] keywords = new String[] {
-            ">>",
-            "2>>",
-            ">",
-            "2>",
-            "&>",
-            "2>&1",
-            "<<",
-            "<",
-            "|",
-            ";"
+    private static final Token[] redirectTokens = new Token[] {
+            new Token(">>",   Token.WRITE_APPEND),
+            new Token("2>>",  Token.WRITE_ERROR_APPEND),
+            new Token(">",    Token.WRITE),
+            new Token("2>",   Token.WRITE_ERROR),
+            new Token("&>",   Token.BOTH_WRITE),
+            new Token("&>>",  Token.BOTH_WRITE_APPEND),
+            new Token("2>&1", Token.STD_ERR_IN_STD_OUT),
+            new Token("<<",   Token.READ_INPUT_UNTIL),
+            new Token("<",    Token.READ_FILE),
+            new Token("|",    Token.PIPE),
+            new Token(";",    Token.COMMAND_SEPARATOR)
     };
+
+    // expect a char directly after
+    private static final Token OPTION_TOKEN_1 = new Token("-", Token.OPTION);
+
+    // expect a char directly after
+    private static final Token OPTION_TOKEN_2 = new Token("--", Token.OPTION);
+
+    // expect a space directly after
+    private static final Token END_OPTION_TOKEN = new Token("--", Token.END_OPTION_PARSING);
 
     private final char[] chars;
     private int index;
@@ -29,13 +40,19 @@ public class Tokenizer implements Iterator<Token> {
         next = null;
     }
 
-    private String findKeywordMatching(int index) {
+    private Token findKeyword(int index) {
         int maxLength = chars.length - index;
 
-        String bestMatch = null;
-        for (String keyword : keywords) {
+        if (maxLength <= 0) {
+            return null;
+        }
 
-            if (keyword.length() >= maxLength || (bestMatch != null && bestMatch.length() >= keyword.length())) {
+        Token bestMatch = null;
+        for (Token token : redirectTokens) {
+
+            String keyword = token.value();
+
+            if (keyword.length() > maxLength || (bestMatch != null && bestMatch.value().length() > keyword.length())) {
                 continue;
             }
 
@@ -48,11 +65,43 @@ public class Tokenizer implements Iterator<Token> {
             }
 
             if (match) {
-                bestMatch = keyword;
+                bestMatch = token;
             }
         }
 
         return bestMatch;
+    }
+
+    private Token checkForOption(int index) {
+        int maxIndex = chars.length - index - 1;
+
+        char current = chars[index];
+
+        if (current == '-') {
+            Character next = maxIndex > 0 ? chars[index + 1] : null;
+            Character nextNext = maxIndex > 1 ? chars[index + 2] : null;
+
+            // checks for --SPACE or --END or --KEYWORD
+            if (Objects.equals(next, '-') &&
+                    (Objects.equals(nextNext, ' ') || nextNext == null || findKeyword(index + 2) != null)) {
+                return END_OPTION_TOKEN;
+
+            } else if (Objects.equals(next, '-') && !Objects.equals(nextNext, ' ') && findKeyword(index + 2) == null) {
+                // checks for --NOT_KEYWORD
+
+                return OPTION_TOKEN_2;
+
+            } else if (!Objects.equals(next, ' ') && next != null && findKeyword(index + 1) == null) {
+                // checks -NOT_KEY_WORD
+
+                return OPTION_TOKEN_1;
+            } else {
+                return null;
+            }
+
+        } else {
+            return null;
+        }
     }
 
     private void fetchNextIfNeeded() {
@@ -72,26 +121,36 @@ public class Tokenizer implements Iterator<Token> {
 
             if (escape2) {
                 sb.append(c);
+
             } else if (c == '\\') {
                 escape = true;
+
             } else if (c == '"') {
                 inQuote = !inQuote;
-            } else if (inQuote || c != ' ') {
 
-                String keyword = findKeywordMatching(index);
+            } else if (inQuote) {
+                sb.append(c);
+
+            } else if (c != ' ') {
+                Token keyword;
+
+                if (c == '-' && sb.length() == 0) {
+                    keyword = checkForOption(index);
+                } else {
+                    keyword = findKeyword(index);
+                }
 
                 if (keyword != null) {
                     if (sb.length() == 0) {
-                        index += keyword.length();
+                        index += keyword.value().length();
 
-                        next = new Token(keyword, true);
+                        next = keyword;
                     }
 
                     break;
                 } else {
                     sb.append(c);
                 }
-
             } else if (sb.length() > 0) {
                 index++;
                 break;
@@ -99,7 +158,7 @@ public class Tokenizer implements Iterator<Token> {
         }
 
         if (sb.length() > 0) {
-            next = new Token(sb.toString(), false);
+            next = new Token(sb.toString(), Token.WORD);
         }
     }
 

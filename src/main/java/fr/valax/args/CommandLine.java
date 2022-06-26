@@ -1,7 +1,10 @@
 package fr.valax.args;
 
 import fr.valax.args.api.*;
-import fr.valax.args.utils.*;
+import fr.valax.args.utils.ArgsUtils;
+import fr.valax.args.utils.CommandLineException;
+import fr.valax.args.utils.INode;
+import fr.valax.args.utils.TypeException;
 
 import java.io.*;
 import java.lang.annotation.Annotation;
@@ -58,7 +61,7 @@ public class CommandLine {
      * It can be syntax error (eg: missing file after >) or io error (eg: file doesn't exist).
      * These errors are not redirected.
      */
-    private String redirectError;
+    private String cliError;
 
     /**
      * An error due to an option.
@@ -67,7 +70,8 @@ public class CommandLine {
      */
     private String optionError;
     private INode<CommandSpec> command;
-    private boolean parsingArgs;
+    private boolean parsingOptions;
+    private boolean endParsingOptions;
 
     CommandLine(INode<Command> root,
                 Map<Class<?>, TypeConverter<?>> converters,
@@ -86,27 +90,44 @@ public class CommandLine {
 
         tokenizer = new Tokenizer(commandStr);
 
-        redirectError = null;
+        cliError = null;
         command = root;
-        parsingArgs = false;
+        parsingOptions = false;
 
         int last = 0;
         while (tokenizer.hasNext()) {
 
             Token next = tokenizer.next();
 
-            if (next.keyword()) {
+            if (next.isRedirect()) {
 
-                Integer v = parseKeyword(next.value());
+                Integer v = parseKeyword(next);
 
                 if (v != null) {
                     last = v;
                 }
 
-            } else if (!hasError()) { // unrecognized command, skipping
+            } else if (next.isEndOfOption()) {
+                parsingOptions = true;
+                endParsingOptions = true;
 
-                if (parsingArgs) { // add args
-                    parseOption(next.value());
+            } else if (!hasError()) {
+
+                if (parsingOptions && (next.isWord() || endParsingOptions)) {
+                    if (next.isWord()) {
+                        addVaArgs(next.value());
+                    } else {
+                        // next is an option, so after it should be a word
+                        addVaArgs(next.value() + tokenizer.next().value());
+                    }
+                } else if (next.isOption()) {
+                    parsingOptions = true;
+
+                    if (command.getValue() == null) {
+                        cliError = "No root command exists";
+                    } else {
+                        parseOption(tokenizer.next().value());
+                    }
 
                 } else { // find command
                     INode<CommandSpec> sub = subCommand(command, next.value());
@@ -114,10 +135,10 @@ public class CommandLine {
                     if (sub == null) {
 
                         if (command.getValue() == null) {
-                            redirectError = next.value() + ": command not found";
+                            cliError = next.value() + ": command not found";
                         } else {
-                            parsingArgs = true;
-                            parseOption(next.value());
+                            parsingOptions = true;
+                            addVaArgs(next.value());
                         }
 
                     } else {
@@ -130,7 +151,7 @@ public class CommandLine {
         if (command.getValue() != null) {
             return executeCommand();
         } else {
-            if (redirectError != null) {
+            if (cliError != null) {
                 printRedirectError();
                 return Command.FAILURE;
             } else {
@@ -149,15 +170,15 @@ public class CommandLine {
         return null;
     }
 
-    private Integer parseKeyword(String keyword) throws CommandLineException, IOException {
-        switch (keyword) {
-            case ">>" -> redirectOutput(">>", STD_OUT, true);
-            case ">" -> redirectOutput(">", STD_OUT, false);
-            case "2>>" -> redirectOutput("2>>", STD_ERR, true);
-            case "2>" -> redirectOutput("2>", STD_ERR, false);
-            case "2>&1" -> output = Redirect.ERROR_IN_OUTPUT;
-            case "<" -> {
-                if (redirectError != null) {
+    private Integer parseKeyword(Token token) throws CommandLineException, IOException {
+        switch (token.type()) {
+            case Token.WRITE_APPEND ->       redirectOutput(token.value(), STD_OUT, true);
+            case Token.WRITE ->              redirectOutput(token.value(), STD_OUT, false);
+            case Token.WRITE_ERROR_APPEND -> redirectOutput(token.value(), STD_ERR, true);
+            case Token.WRITE_ERROR ->        redirectOutput(token.value(), STD_ERR, false);
+            case Token.STD_ERR_IN_STD_OUT -> output = Redirect.ERROR_IN_OUTPUT;
+            case Token.READ_FILE -> {
+                if (cliError != null) {
                     return null;
                 }
 
@@ -169,22 +190,22 @@ public class CommandLine {
 
                 Path path = Path.of(file);
                 if (!Files.exists(path)) {
-                    redirectError = path + ": No such file or directory";
+                    cliError = path + ": No such file or directory";
                     return null;
                 }
 
                 if (Files.isDirectory(path)) {
-                    redirectError = path + ": is a directory";
+                    cliError = path + ": is a directory";
                 }
 
                 if (!Files.isReadable(path)) {
-                    redirectError = path + ": Permission denied";
+                    cliError = path + ": Permission denied";
                 }
 
                 input = Redirect.INPUT_FILE;
                 Redirect.INPUT_FILE.setPath(path);
             }
-            case "|" -> {
+            case Token.PIPE -> {
                 // a little hard coded
 
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -198,7 +219,7 @@ public class CommandLine {
 
                 return ret;
             }
-            case ";" -> {
+            case Token.COMMAND_SEPARATOR -> {
                 return executeCommand();
             }
         }
@@ -207,7 +228,7 @@ public class CommandLine {
     }
 
     private void redirectOutput(String keyword, int redirect, boolean append) {
-        if (redirectError != null) {
+        if (cliError != null) {
             return;
         }
 
@@ -221,12 +242,12 @@ public class CommandLine {
 
         if (Files.exists(path)) {
             if (Files.isDirectory(path)) {
-                redirectError = path + ": is a directory";
+                cliError = path + ": is a directory";
                 return;
             }
 
             if (!Files.isWritable(path)) {
-                redirectError = path + ": Permission denied";
+                cliError = path + ": Permission denied";
                 return;
             }
         }
@@ -240,14 +261,14 @@ public class CommandLine {
      */
     private String getFile(String keyword) {
         if (!tokenizer.hasNext()) {
-            redirectError = "Expecting file after " + keyword;
+            cliError = "Expecting file after " + keyword;
             return null;
         }
 
         Token file = tokenizer.next();
 
-        if (file.keyword()) {
-            redirectError = "Expecting file after %s. not keyword".formatted(keyword);
+        if (!file.isWord()) {
+            cliError = "Expecting file after %s".formatted(keyword);
             return null;
         }
 
@@ -258,25 +279,14 @@ public class CommandLine {
     private void parseOption(String name) {
         CommandSpec spec = command.getValue();
 
-        if (name.startsWith("-")) { // this is an option
-            String withoutHyphen = name.substring(1);
+        OptionSpec opt = spec.findOption(name);
 
-            OptionSpec opt = spec.findOption(withoutHyphen);
-
-            if (opt == null) {
-                optionError = name + ": No such option";
-                return;
-            }
-
-            addArgumentToOption(opt);
-
-        } else if (spec.hasVaArgs()) {
-            VaArgsSpec vaArgsSpec = spec.getVaargs();
-
-            vaArgsSpec.addValue(name);
-        } else {
-            optionError = "VaArgs not allowed";
+        if (opt == null) {
+            optionError = name + ": No such option";
+            return;
         }
+
+        addArgumentToOption(opt);
     }
 
     private void addArgumentToOption(OptionSpec opt) {
@@ -285,22 +295,17 @@ public class CommandLine {
             return;
         }
 
-        Token nextPeeked = tokenizer.peek();
-
         if (tokenizer.hasNext()) {
             if (opt.hasArgument()) {
                 Token next = tokenizer.next();
 
-                if (next.keyword()) {
-                    optionError = opt.firstName() + ": expecting string not keyword";
+                if (!next.isWord()) {
+                    optionError = opt.firstName() + ": expecting word";
                     return;
                 }
 
                 opt.addArgument(next.value());
 
-            } else if (!nextPeeked.keyword() && !nextPeeked.value().startsWith("-")) {
-                optionError = opt.firstName() + ": Parameter not required";
-                return;
             }
 
         } else if (opt.hasArgument()) {
@@ -316,9 +321,22 @@ public class CommandLine {
     }
 
 
+    private void addVaArgs(String str) {
+        CommandSpec spec = command.getValue();
+
+        if (spec.hasVaArgs()) {
+            VaArgsSpec vaArgsSpec = spec.getVaargs();
+
+            vaArgsSpec.addValue(str);
+        } else {
+            optionError = "VaArgs not allowed";
+        }
+    }
+
+
     private int executeCommand() throws CommandLineException, IOException {
         try {
-            if (redirectError != null) {
+            if (cliError != null) {
                 printRedirectError();
                 return Command.FAILURE;
             }
@@ -340,7 +358,7 @@ public class CommandLine {
 
             // help
             if (command.addHelp() && spec.getHelp().isPresent()) {
-                currOut.println(helpFormatter.commandHelp(null, spec.getDescriber()));
+                currOut.println(helpFormatter.commandHelp(spec.getDescriber()));
 
                 return Command.SUCCESS;
             } else {
@@ -397,14 +415,15 @@ public class CommandLine {
             command.getValue().reset();
         }
 
-        redirectError = null;
+        cliError = null;
         optionError = null;
         command = root;
-        parsingArgs = false;
+        parsingOptions = false;
+        endParsingOptions = false;
     }
 
     private void printRedirectError() {
-        currErr.printf("%s: %s%n", name, redirectError);
+        currErr.printf("%s: %s%n", name, cliError);
     }
 
     private void printOptionError() {
@@ -439,7 +458,7 @@ public class CommandLine {
     }
 
     private boolean hasError() {
-        return redirectError != null || optionError != null;
+        return cliError != null || optionError != null;
     }
 
     @SuppressWarnings("unchecked")
@@ -448,40 +467,16 @@ public class CommandLine {
     }
 
     public String getGeneralHelp() {
-        return helpFormatter.generalHelp(commands, null, false);
+        return helpFormatter.generalHelp(commands);
     }
 
     public String getCommandHelp(String command) {
-        INode<CommandSpec> node;
-
-        if (command.isBlank()) {
-            node = root;
-        } else {
-            String[] split = command.split(" ");
-
-            node = getCommandHelp(root, split, 0);
-        }
+        INode<CommandDescriber> node = getFirstCommand(command);
 
         if (node != null && node.getValue() != null) {
-            return helpFormatter.commandHelp(null, node.getValue().getDescriber());
+            return helpFormatter.commandHelp(node.getValue());
         } else {
-            return "Unknown command: " + command;
-        }
-    }
-
-    private INode<CommandSpec> getCommandHelp(INode<CommandSpec> node, String[] parts, int index) {
-        if (index < parts.length) {
-            for (INode<CommandSpec> child : node.getChildren()) {
-
-                CommandSpec spec = child.getValue();
-                if (parts[index].equals(spec.getName())) {
-                    return getCommandHelp(child, parts, index + 1);
-                }
-            }
-
-            return null;
-        } else {
-            return node;
+            return "%s: %s: command not found".formatted(name, command);
         }
     }
 
@@ -490,30 +485,13 @@ public class CommandLine {
     }
 
     public INode<CommandDescriber> getFirstCommand(String command) {
-        Tokenizer tokenizer = new Tokenizer(command);
+        ParsedCommand first = getFirstCommandWithIndex(command);
 
-        INode<CommandSpec> cmd = root;
-        while (tokenizer.hasNext()) {
-            Token next = tokenizer.next();
-
-            if (next.keyword()) {
-                break;
-            }
-
-            INode<CommandSpec> sub = subCommand(cmd, next.value());
-
-            if (sub == null) {
-                break;
-            } else {
-                cmd = sub;
-            }
-        }
-
-        if (cmd.getValue() == null) {
+        if (first != null) {
+            return first.node();
+        } else {
             return null;
         }
-
-        return commands.find(cmd.getValue().getDescriber());
     }
 
     public ParsedCommand getFirstCommandWithIndex(String command) {
@@ -524,7 +502,7 @@ public class CommandLine {
         while (tokenizer.hasNext()) {
             Token next = tokenizer.next();
 
-            if (next.keyword()) {
+            if (next.isRedirect()) {
                 break;
             }
 
@@ -693,11 +671,21 @@ public class CommandLine {
             OptionSpec spec = options.get(name);
 
             if (spec == null) {
-                spec = options.values()
-                        .stream()
-                        .filter((o) -> ArgsUtils.contains(o.getOption().names(), name))
-                        .findFirst()
-                        .orElse(null);
+                if (name.length() == 1) {
+                    char c = name.charAt(0);
+
+                    spec = options.values()
+                            .stream()
+                            .filter((o) -> ArgsUtils.contains(o.getShortNames(), c))
+                            .findFirst()
+                            .orElse(null);
+                } else {
+                    spec = options.values()
+                            .stream()
+                            .filter((o) -> ArgsUtils.contains(o.getLongNames(), name))
+                            .findFirst()
+                            .orElse(null);
+                }
             }
 
             return spec;
@@ -923,7 +911,11 @@ public class CommandLine {
         private final Field field;
         private final TypeConverter<?> converter;
 
+        private final char[] shortNames;
+        private final String[] longNames;
+
         private final List<String> arguments = new ArrayList<>();
+
         private boolean present;
 
         public OptionSpec(Option option, Field field) throws CommandLineException {
@@ -935,6 +927,22 @@ public class CommandLine {
             } else {
                 converter = null;
             }
+
+            List<Character> shortNames = new ArrayList<>();
+            List<String> longNames = new ArrayList<>();
+
+            for (String name : option.names()) {
+                if (name.length() == 1) {
+                    shortNames.add(name.charAt(0));
+                } else if (name.length() > 1) {
+                    longNames.add(name);
+                } else {
+                    thrExc("Empty name in Option for field %s", field.getName());
+                }
+            }
+
+            this.shortNames = asCharArray(shortNames);
+            this.longNames = longNames.toArray(new String[0]);
         }
 
         public void addArgument(String args) {
@@ -988,6 +996,14 @@ public class CommandLine {
 
         public TypeConverter<?> getTypeConverter() {
             return converter;
+        }
+
+        public String[] getLongNames() {
+            return longNames;
+        }
+
+        public char[] getShortNames() {
+            return shortNames;
         }
 
         @Override
@@ -1110,7 +1126,12 @@ public class CommandLine {
         }
 
         @Override
-        public String getUsage() {
+        public String getShortDescription() {
+            return spec.getCommand().getShortDescription();
+        }
+
+        @Override
+        public String[] getUsage() {
             return spec.getCommand().getUsage();
         }
 

@@ -2,10 +2,8 @@ package fr.valax.sokoshell.solver;
 
 import fr.poulpogaz.json.JsonException;
 import fr.poulpogaz.json.JsonPrettyWriter;
-import fr.poulpogaz.json.utils.Pair;
 
 import java.io.IOException;
-import java.lang.instrument.Instrumentation;
 import java.util.ArrayList;
 import java.util.List;
 

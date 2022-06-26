@@ -22,9 +22,17 @@ public interface Command {
     String getName();
 
     /**
+     * It will be used as follows by the DefaultHelpFormatter:
+     * COMMAND_NAME - SHORT_DESCRIPTION
+     *
+     * @return a description that fit in one line
+     */
+    String getShortDescription();
+
+    /**
      * @return A text to explains the user how to use the command.
      */
-    String getUsage();
+    String[] getUsage();
 
     /**
      * @return true to automatically add -h/--help option

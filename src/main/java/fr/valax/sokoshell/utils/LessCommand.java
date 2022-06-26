@@ -5,7 +5,6 @@ import fr.valax.args.api.VaArgs;
 import fr.valax.sokoshell.AbstractCommand;
 import fr.valax.sokoshell.SokoShellHelper;
 import org.jline.builtins.Commands;
-import org.jline.builtins.Less;
 
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -19,49 +18,49 @@ import java.util.List;
  */
 public class LessCommand extends AbstractCommand {
 
-    @Option(names = {"e", "-quit-at-eof"})
+    @Option(names = {"e", "quit-at-eof"})
     private boolean quit_at_eof;
 
-    @Option(names = {"E", "-QUIT-AT-EOF"})
+    @Option(names = {"E", "QUIT-AT-EOF"})
     private boolean QUIT_AT_EOF;
 
-    @Option(names = {"F", "-quit-if-one-screen"})
+    @Option(names = {"F", "quit-if-one-screen"})
     private boolean quit_if_one_screen;
 
-    @Option(names = {"q", "-quiet", "-silent "})
+    @Option(names = {"q", "quiet", "silent "})
     private boolean quiet;
 
-    @Option(names = {"Q", "-QUIET", "-SILENT"})
+    @Option(names = {"Q", "QUIET", "SILENT"})
     private boolean QUIET;
 
-    @Option(names = {"S", "-chop-long-lines"})
+    @Option(names = {"S", "chop-long-lines"})
     private boolean chop_long_lines;
 
-    @Option(names = {"i", "-ignore-case"})
+    @Option(names = {"i", "ignore-case"})
     private boolean ignore_case;
 
-    @Option(names = {"I", "-IGNORE-CASE"})
+    @Option(names = {"I", "IGNORE-CASE"})
     private boolean IGNORE_CASE;
 
-    @Option(names = {"x", "-tabs"}, hasArgument = true)
+    @Option(names = {"x", "tabs"}, hasArgument = true)
     private String tabs;
 
-    @Option(names = {"N", "-LINE-NUMBERS"})
+    @Option(names = {"N", "LINE-NUMBERS"})
     private boolean LINE_NUMBERS;
 
-    @Option(names = {"Y", "-syntax"}, hasArgument = true)
+    @Option(names = {"Y", "syntax"}, hasArgument = true)
     private String syntax;
 
-    @Option(names = {     "-no-init"})
+    @Option(names = {     "no-init"})
     private boolean no_init;
 
-    @Option(names = {     "-no-keypad"})
+    @Option(names = {     "no-keypad"})
     private boolean no_keypad;
 
-    @Option(names = {     "-ignorercfiles"})
+    @Option(names = {     "ignorercfiles"})
     private boolean ignorercfiles;
 
-    @Option(names = {"H", "-historylog"}, hasArgument = true)
+    @Option(names = {"H", "historylog"}, hasArgument = true)
     private String historylog;
 
     @VaArgs
@@ -123,8 +122,13 @@ public class LessCommand extends AbstractCommand {
     }
 
     @Override
-    public String getUsage() {
-        return String.join("\n", Less.usage());
+    public String getShortDescription() {
+        return "file pager";
+    }
+
+    @Override
+    public String[] getUsage() {
+        return new String[] {"less [OPTIONS] [FILES]"};
     }
 
     @Override

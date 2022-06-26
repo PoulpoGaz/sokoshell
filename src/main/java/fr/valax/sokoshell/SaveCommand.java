@@ -35,7 +35,12 @@ public class SaveCommand extends PackCommand {
     }
 
     @Override
-    public String getUsage() {
+    public String getShortDescription() {
         return "Save all solutions of a pack";
+    }
+
+    @Override
+    public String[] getUsage() {
+        return new String[0];
     }
 }

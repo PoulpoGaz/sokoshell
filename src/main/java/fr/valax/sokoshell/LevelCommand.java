@@ -12,7 +12,7 @@ import java.util.List;
 
 public abstract class LevelCommand extends PackCommand {
 
-    @Option(names = {"i", "-index"}, hasArgument = true, argName = "Level index", optional = false)
+    @Option(names = {"i", "index"}, hasArgument = true, argName = "Level index", optional = false)
     protected int index;
 
     protected Level getLevel() {

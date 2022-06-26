@@ -51,7 +51,12 @@ public class StatsCommand extends LevelCommand {
     }
 
     @Override
-    public String getUsage() {
+    public String getShortDescription() {
         return "Print stats about a solution";
+    }
+
+    @Override
+    public String[] getUsage() {
+        return new String[0];
     }
 }

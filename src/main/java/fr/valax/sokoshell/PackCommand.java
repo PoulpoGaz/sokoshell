@@ -11,7 +11,7 @@ import java.util.List;
 
 public abstract class PackCommand extends AbstractCommand {
 
-    @Option(names = {"p", "-pack"}, hasArgument = true, argName = "Pack name", optional = false)
+    @Option(names = {"p", "pack"}, hasArgument = true, argName = "Pack name", optional = false)
     protected String name;
 
     protected Pack getPack() {

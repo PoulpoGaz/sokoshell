@@ -7,12 +7,10 @@ import fr.poulpogaz.json.JsonToken;
 import fr.poulpogaz.json.utils.Pair;
 import fr.valax.sokoshell.solver.tasks.SolverTask;
 
-import javax.swing.event.EventListenerList;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Solver parameters.

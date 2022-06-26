@@ -1,23 +1,18 @@
 package fr.valax.sokoshell;
 
 import fr.valax.args.api.Option;
-import fr.valax.args.utils.ArgsUtils;
 import fr.valax.sokoshell.solver.BasicBrutalSolver;
 import fr.valax.sokoshell.solver.Pack;
 import fr.valax.sokoshell.solver.SolverParameters;
-import org.jline.reader.Candidate;
-import org.jline.reader.LineReader;
-import org.jline.reader.ParsedLine;
 
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class BenchmarkCommand extends PackCommand {
 
-    @Option(names = {"t", "-timeout"}, hasArgument = true, argName = "Timeout")
+    @Option(names = {"t", "timeout"}, hasArgument = true, argName = "Timeout")
     private Long timeout;
 
     @Override
@@ -50,7 +45,12 @@ public class BenchmarkCommand extends PackCommand {
     }
 
     @Override
-    public String getUsage() {
+    public String getShortDescription() {
         return "Try to solve all level of a pack";
+    }
+
+    @Override
+    public String[] getUsage() {
+        return new String[0];
     }
 }

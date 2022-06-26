@@ -51,7 +51,12 @@ public class PrintCommand extends PackCommand {
     }
 
     @Override
-    public String getUsage() {
+    public String getShortDescription() {
         return "print a state";
+    }
+
+    @Override
+    public String[] getUsage() {
+        return new String[0];
     }
 }

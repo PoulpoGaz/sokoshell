@@ -3,18 +3,15 @@ package fr.valax.sokoshell;
 import fr.valax.args.CommandLine;
 import fr.valax.args.CommandLineBuilder;
 import fr.valax.args.api.Command;
-import fr.valax.args.repl.REPLCommandRegistry;
-import fr.valax.args.repl.REPLHelpFormatter;
+import fr.valax.args.jline.HelpCommand;
+import fr.valax.args.jline.JLineUtils;
+import fr.valax.args.jline.REPLHelpFormatter;
 import fr.valax.args.utils.CommandLineException;
-import fr.valax.args.utils.TypeException;
 import fr.valax.sokoshell.solver.Pack;
 import fr.valax.sokoshell.solver.tasks.ISolverTask;
 import fr.valax.sokoshell.utils.LessCommand;
 import fr.valax.sokoshell.utils.PrettyTable;
 import fr.valax.sokoshell.utils.Utils;
-import org.jline.builtins.Less;
-import org.jline.console.SystemRegistry;
-import org.jline.console.impl.SystemRegistryImpl;
 import org.jline.reader.*;
 import org.jline.reader.impl.DefaultHighlighter;
 import org.jline.reader.impl.DefaultParser;
@@ -25,7 +22,9 @@ import org.jline.terminal.TerminalBuilder;
 import org.jline.terminal.impl.AbstractWindowsTerminal;
 import org.jline.widget.AutosuggestionWidgets;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintStream;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
@@ -37,6 +36,7 @@ import java.util.function.BiFunction;
 public class SokoShell {
 
     public static final String VERSION = "0.1";
+    public static final String NAME = "sokoshell";
 
     public static void main(String[] args) {
         SokoShell sokoshell;
@@ -70,6 +70,8 @@ public class SokoShell {
     private Terminal terminal;
 
     private SokoShell() throws CommandLineException {
+        HelpCommand help = new HelpCommand();
+
         cli = new CommandLineBuilder()
                 .addDefaultConverters()
                 .setHelpFormatter(new REPLHelpFormatter())
@@ -88,16 +90,19 @@ public class SokoShell {
                 .addCommand(AbstractCommand.newCommand(this::gc, "gc", "Run garbage collector.\nYou may want to use this after solving a sokoban"))
                 .addCommand(AbstractCommand.newCommand(this::list, "list", "List all packs"))
                 .addCommand(new LessCommand())
+                .addCommand(JLineUtils.newExitCommand(NAME))
+                .addCommand(help)
                 .build();
 
-        cli.setName("sokoshell");
+        help.setCli(cli);
+        cli.setName(NAME);
     }
 
     private void welcome() {
         System.out.printf("""
-                Welcome to sokoshell - Version %s
+                Welcome to %s - Version %s
                 Type 'help' to show help. More help for a command with 'help command'
-                """, VERSION);
+                """, NAME, VERSION);
     }
 
     private void goodbye() {
@@ -106,7 +111,6 @@ public class SokoShell {
 
     private void loop(String initCommand) {
         Parser parser = new DefaultParser();
-        REPLCommandRegistry shellRegistry = new REPLCommandRegistry(cli, "SokoShell");
 
         try (Terminal terminal = TerminalBuilder.terminal()) {
             this.terminal = terminal;
@@ -120,16 +124,13 @@ public class SokoShell {
 
             SokoShellHelper.INSTANCE.setTerminal(terminal);
 
-            SystemRegistry registry = new SystemRegistryImpl(parser, terminal, () -> Path.of(""), null);
-            registry.setCommandRegistries(shellRegistry);
-
             reader = (LineReaderImpl) LineReaderBuilder.builder()
                     .terminal(terminal)
-                    .appName("sokoshell")
+                    .appName(NAME)
                     .history(new DefaultHistory())
                     .highlighter(new DefaultHighlighter())
                     .parser(parser)
-                    .completer(shellRegistry.compileCompleters())
+                    .completer(JLineUtils.createCompleter(cli))
                     .variable(LineReader.HISTORY_FILE, getHistoryPath())
                     .build();
 
@@ -137,35 +138,33 @@ public class SokoShell {
             autosuggestionWidgets.enable();
 
             if (initCommand != null && !initCommand.isBlank()) {
-                executeOrWaitInput(registry, initCommand);
+                executeOrWaitInput(initCommand);
             }
 
             boolean running = true;
             while (running) {
-                registry.cleanUp();
-                running = executeOrWaitInput(registry, null);
+                running = executeOrWaitInput(null);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private boolean executeOrWaitInput(SystemRegistry registry, String line) {
+    private boolean executeOrWaitInput(String line) {
         try {
 
             if (line == null) {
-                line = reader.readLine("sokoshell> ");
+                line = reader.readLine(NAME + "> ");
             }
 
-            registry.execute(line);
+            cli.execute(line);
         } catch (EndOfFileException e) { // thrown when user types ctrl+D and by the built-in exit command
             return false;
         } catch (UserInterruptException e) {
             return false;
-        } catch (SystemRegistryImpl.UnknownCommandException e) {
-            System.out.println(e.getMessage());
-        } catch (Exception e) {
+        } catch (IOException | CommandLineException e) {
             e.printStackTrace();
+            return false;
         }
 
         return true;
@@ -174,7 +173,7 @@ public class SokoShell {
     private Path getHistoryPath() {
         String home = System.getProperty("user.home");
 
-        return Path.of(home + "/.sokoshell_history");
+        return Path.of("%s/.%s_history".formatted(home, NAME));
     }
 
     private int clear(InputStream in, PrintStream out, PrintStream err) {

@@ -45,8 +45,13 @@ public class SolutionCommand extends LevelCommand {
     }
 
     @Override
-    public String getUsage() {
+    public String getShortDescription() {
         return "Show a solution";
+    }
+
+    @Override
+    public String[] getUsage() {
+        return new String[0];
     }
 
     private enum Key {

@@ -1,16 +1,14 @@
 package fr.valax.sokoshell;
 
 import fr.valax.args.api.Option;
-import fr.valax.args.utils.ArgsUtils;
-import fr.valax.sokoshell.solver.*;
-import org.jline.reader.Candidate;
-import org.jline.reader.LineReader;
-import org.jline.reader.ParsedLine;
+import fr.valax.sokoshell.solver.BasicBrutalSolver;
+import fr.valax.sokoshell.solver.Level;
+import fr.valax.sokoshell.solver.Solver;
+import fr.valax.sokoshell.solver.SolverParameters;
 
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,7 +16,7 @@ import java.util.Map;
  */
 public class SolveCommand extends LevelCommand {
 
-    @Option(names = {"t", "-timeout"}, hasArgument = true, argName = "Timeout", defaultValue = "-1")
+    @Option(names = {"t", "timeout"}, hasArgument = true, argName = "Timeout", defaultValue = "-1")
     private long timeout;
 
     @Override
@@ -45,7 +43,12 @@ public class SolveCommand extends LevelCommand {
     }
 
     @Override
-    public String getUsage() {
+    public String getShortDescription() {
         return "Solve a sokoban";
+    }
+
+    @Override
+    public String[] getUsage() {
+        return new String[0];
     }
 }

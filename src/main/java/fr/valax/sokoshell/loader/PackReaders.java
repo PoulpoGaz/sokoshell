@@ -1,7 +1,6 @@
 package fr.valax.sokoshell.loader;
 
 import fr.valax.sokoshell.solver.Pack;
-import fr.valax.sokoshell.solver.tasks.ISolverTask;
 
 import java.io.IOException;
 import java.nio.file.Path;

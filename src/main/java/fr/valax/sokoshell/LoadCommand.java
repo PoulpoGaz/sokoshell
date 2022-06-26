@@ -14,13 +14,12 @@ import org.jline.reader.ParsedLine;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
 public class LoadCommand extends AbstractCommand {
 
-    @Option(names = {"i", "-input"}, hasArgument = true, argName = "input file", optional = false)
+    @Option(names = {"i", "input"}, hasArgument = true, argName = "input file", optional = false)
     private String input;
 
     @Override
@@ -85,7 +84,12 @@ public class LoadCommand extends AbstractCommand {
     }
 
     @Override
-    public String getUsage() {
+    public String getShortDescription() {
         return "Load a pack (.8xv or sok)";
+    }
+
+    @Override
+    public String[] getUsage() {
+        return new String[0];
     }
 }

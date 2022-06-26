@@ -1,4 +1,4 @@
-package fr.valax.args.repl;
+package fr.valax.args.jline;
 
 import fr.valax.args.api.Command;
 import fr.valax.args.api.Option;
@@ -8,7 +8,7 @@ import org.jline.reader.ParsedLine;
 
 import java.util.List;
 
-public interface REPLCommand extends Command {
+public interface JLineCommand extends Command {
 
     default void completeOption(LineReader reader, ParsedLine line, List<Candidate> candidates, Option option) {
 

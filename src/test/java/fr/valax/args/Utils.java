@@ -72,7 +72,12 @@ public class Utils {
         }
 
         @Override
-        public String getUsage() {
+        public String getShortDescription() {
+            return null;
+        }
+
+        @Override
+        public String[] getUsage() {
             return null;
         }
 
@@ -96,8 +101,13 @@ public class Utils {
         }
 
         @Override
-        public String getUsage() {
-            return "apt-usage";
+        public String getShortDescription() {
+            return null;
+        }
+
+        @Override
+        public String[] getUsage() {
+            return new String[] {"apt-usage"};
         }
 
         @Override
@@ -108,7 +118,7 @@ public class Utils {
 
     public static class Install implements Command {
 
-        @Option(names = {"-package", "p"}, optional = false, allowDuplicate = true, hasArgument = true)
+        @Option(names = {"package", "p"}, optional = false, allowDuplicate = true, hasArgument = true)
         private String[] packages;
 
         @Override
@@ -127,8 +137,13 @@ public class Utils {
         }
 
         @Override
-        public String getUsage() {
-            return "install";
+        public String getShortDescription() {
+            return null;
+        }
+
+        @Override
+        public String[] getUsage() {
+            return new String[] {"install"};
         }
 
         @Override
@@ -139,7 +154,7 @@ public class Utils {
 
     public static class Remove implements Command {
 
-        @Option(names = {"-package", "p"}, optional = false, allowDuplicate = true, hasArgument = true)
+        @Option(names = {"package", "p"}, optional = false, allowDuplicate = true, hasArgument = true)
         private String[] packages;
 
         @Override
@@ -158,8 +173,13 @@ public class Utils {
         }
 
         @Override
-        public String getUsage() {
-            return "remove packages";
+        public String getShortDescription() {
+            return null;
+        }
+
+        @Override
+        public String[] getUsage() {
+            return new String[] {"remove packages"};
         }
 
         @Override
@@ -170,7 +190,7 @@ public class Utils {
 
     public static class ListCmd implements Command {
 
-        @Option(names = "-installed")
+        @Option(names = "installed")
         private boolean installed;
 
         @Override
@@ -192,7 +212,12 @@ public class Utils {
         }
 
         @Override
-        public String getUsage() {
+        public String getShortDescription() {
+            return null;
+        }
+
+        @Override
+        public String[] getUsage() {
             return null;
         }
 
@@ -228,8 +253,13 @@ public class Utils {
         }
 
         @Override
-        public String getUsage() {
-            return "echo";
+        public String getShortDescription() {
+            return null;
+        }
+
+        @Override
+        public String[] getUsage() {
+            return new String[] {"echo"};
         }
 
         @Override
@@ -243,6 +273,9 @@ public class Utils {
         @VaArgs(description = "Files to read")
         private Path[] files;
 
+        @Option(names = {"n", "line-number"})
+        private boolean lineNumber;
+
         @Override
         public int execute(InputStream in, PrintStream out, PrintStream err) {
             int ret = SUCCESS;
@@ -250,7 +283,7 @@ public class Utils {
             if (files.length == 0) {
 
                 try {
-                    in.transferTo(out);
+                    transferTo(in, out);
                 } catch (IOException e) {
                     e.printStackTrace(err);
 
@@ -267,7 +300,7 @@ public class Utils {
                             ret = FAILURE;
                         } else {
                             InputStream is = Files.newInputStream(file);
-                            is.transferTo(out);
+                            transferTo(is, out);
                             is.close();
                         }
                     }
@@ -282,14 +315,38 @@ public class Utils {
             return ret;
         }
 
+        private void transferTo(InputStream in, PrintStream out) throws IOException {
+            if (lineNumber) {
+
+                int n = 1;
+                BufferedReader br = new BufferedReader(new InputStreamReader(in));
+
+                String line;
+                while ((line = br.readLine()) != null) {
+                    out.append(String.valueOf(n)).append(": ")
+                            .append(line).append('\n');
+
+                    n++;
+                }
+
+            } else {
+                in.transferTo(out);
+            }
+        }
+
         @Override
         public String getName() {
             return "cat";
         }
 
         @Override
-        public String getUsage() {
-            return "cat";
+        public String getShortDescription() {
+            return null;
+        }
+
+        @Override
+        public String[] getUsage() {
+            return new String[] {"cat"};
         }
 
         @Override
@@ -368,8 +425,13 @@ public class Utils {
         }
 
         @Override
-        public String getUsage() {
-            return "grep";
+        public String getShortDescription() {
+            return null;
+        }
+
+        @Override
+        public String[] getUsage() {
+            return new String[] {"grep"};
         }
 
         @Override

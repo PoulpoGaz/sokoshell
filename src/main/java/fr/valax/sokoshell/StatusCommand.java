@@ -102,8 +102,13 @@ public class StatusCommand extends AbstractCommand {
     }
 
     @Override
-    public String getUsage() {
-        return "Print status of the solver";
+    public String getShortDescription() {
+        return "Print the status of the solver";
+    }
+
+    @Override
+    public String[] getUsage() {
+        return new String[0];
     }
 
     private record Tuple(BigInteger a, BigInteger b, BigInteger c) {}

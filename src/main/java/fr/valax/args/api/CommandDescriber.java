@@ -10,7 +10,9 @@ public interface CommandDescriber extends Iterable<Option> {
 
     String getName();
 
-    String getUsage();
+    String getShortDescription();
+
+    String[] getUsage();
 
     boolean hasDefaultHelp();
 

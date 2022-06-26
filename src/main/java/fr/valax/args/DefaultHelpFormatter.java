@@ -1,11 +1,7 @@
 package fr.valax.args;
 
-import fr.valax.args.api.CommandDescriber;
-import fr.valax.args.api.HelpFormatter;
-import fr.valax.args.api.Option;
-import fr.valax.args.api.OptionGroup;
+import fr.valax.args.api.*;
 import fr.valax.args.utils.ArgsUtils;
-import fr.valax.args.utils.CommandLineException;
 import fr.valax.args.utils.INode;
 
 import java.util.Comparator;
@@ -17,113 +13,147 @@ import java.util.Map;
  */
 public class DefaultHelpFormatter implements HelpFormatter {
 
-    private static final String DEFAULT_ARG_NAME = "ARG";
+    protected static final String DEFAULT_ARG_NAME = "ARG";
 
-    private static final Comparator<Option> optComparator =
+    protected static final Comparator<Option> optComparator =
             ArgsUtils.comparing((o) -> o.names()[0]);
 
-    private static final Comparator<Map.Entry<OptionGroup, ?>> groupComparator =
+    protected static final Comparator<Map.Entry<OptionGroup, ?>> groupComparator =
             ArgsUtils.comparing((o) -> o.getKey() == null ? null : o.getKey().name());
 
 
-    private int maxTextBlockSize = 100;
-    private int spaceBetweenTextBlockAndName = 10;
+    protected int maxTextBlockSize = 100;
+    protected int spaceBetweenTextBlockAndName = 10;
 
 
     @Override
-    public String commandHelp(CommandLineException error, CommandDescriber command) {
+    public String commandHelp(CommandDescriber command) {
         Map<OptionGroup, List<Option>> options = command.getOptions();
 
         StringBuilder builder = new StringBuilder();
-        if (error != null) {
-            builder.append(error.getMessage()).append('\n');
-        }
 
-        builder.append("Command: ").append(command.getName()).append('\n');
+        appendCommandShortDescription(builder, command);
+        appendCommandUsage(builder, command);
+        builder.append('\n');
 
-        String usage = command.getUsage();
-        if (usage != null) {
-            builder.append("Usage: ").append(usage).append("\n\n");
-        }
+        appendVaArgs(builder, command);
 
-        if (command.hasVaArgs()) {
-            String description = command.getVaArgsDescription();
-
-            if (description != null) {
-                builder.append("Vaargs: ");
-                appendTextBlock(builder, description, " ".repeat(8), maxTextBlockSize);
-            } else {
-                builder.append("Has vaargs");
-            }
-
-            builder.append('\n');
-        }
+        final int width = getOptionsNamesWidth(command.optionIterator());
 
         options.entrySet()
                 .stream()
                 .sorted(groupComparator)
                 .forEach((opt) -> {
-                    printGroup(builder, opt.getKey(), opt.getValue());
+                    appendGroup(builder, width, opt.getKey(), opt.getValue());
                 });
 
         return builder.toString();
     }
 
-    private void printGroup(StringBuilder builder, OptionGroup group, List<Option> options) {
-        String indent = "";
+    protected void appendCommandShortDescription(StringBuilder sb, CommandDescriber desc) {
+        String shortDesc = desc.getShortDescription();
 
-        if (group != null) {
-            builder.append(group.name()).append(":\n");
-            indent = " ";
+        sb.append(desc.getName());;
+
+        if (shortDesc != null && !shortDesc.isEmpty() && !shortDesc.isBlank()) {
+            sb.append(" - ").append(shortDesc);
         }
 
-        int width = getWidth(options);
-        String descIndent = indent + " ".repeat(spaceBetweenTextBlockAndName + width);
+        sb.append('\n');
+    }
 
-        List<Option> opt = options.stream().sorted(optComparator).toList();
-        for (Option option : opt) {
-            builder.append(indent);
+    protected void appendCommandUsage(StringBuilder sb, CommandDescriber desc) {
+        String[] usage = desc.getUsage();
 
-            int pos = builder.length();
+        if (usage == null || usage.length == 0) {
+            return;
+        }
 
-            String[] names = option.names();
-            for (int i = 0; i < names.length; i++) {
-                String name = names[i];
+        sb.append("Usage: ");
 
-                builder.append('-').append(name);
-
-                if (i + 1 < names.length) {
-                    builder.append(", ");
-                }
-            }
-
-            // arg
-            if (option.hasArgument()) {
-                String arg = ArgsUtils.first(option.argName());
-
-                builder.append(" <")
-                        .append(arg == null ? DEFAULT_ARG_NAME : arg)
-                        .append(">");
-            }
-
-            // space
-            int pos2 = builder.length();
-            builder.append(" ".repeat(spaceBetweenTextBlockAndName + width - (pos2 - pos)));
-
-            // description
-            String desc =  ArgsUtils.first(option.description());
-            if (desc != null) {
-                appendTextBlock(builder, desc, descIndent, maxTextBlockSize);
-            }
-
-            builder.append('\n');
+        for (String s : usage) {
+            sb.append(s).append('\n');
         }
     }
 
-    private int getWidth(List<Option> options) {
+    protected void appendVaArgs(StringBuilder sb, CommandDescriber desc) {
+        if (desc.hasVaArgs()) {
+            String description = desc.getVaArgsDescription();
+
+            if (description != null) {
+                sb.append("Vaargs: ");
+                appendTextBlock(sb, description, " ".repeat(8), maxTextBlockSize);
+            } else {
+                sb.append("Has vaargs");
+            }
+
+            sb.append('\n');
+        }
+    }
+
+    private void appendGroup(StringBuilder builder, int width, OptionGroup group, List<Option> options) {
+        if (group != null) {
+            builder.append(group.name()).append(":\n");
+        }
+
+        String descriptionIndent = " ".repeat(spaceBetweenTextBlockAndName + width);
+
+        List<Option> opt = options.stream().sorted(optComparator).toList();
+        for (Option option : opt) {
+            appendOption(builder, option, group != null, descriptionIndent, width);
+        }
+    }
+
+    protected void appendOption(StringBuilder builder,
+                                Option option,
+                                boolean inGroup,
+                                String descriptionIndent,
+                                int optionNamesWidth) {
+        if (inGroup) {
+            builder.append(" ");
+        }
+
+        int pos = builder.length();
+
+        String[] names = option.names();
+        for (int i = 0; i < names.length; i++) {
+            String name = names[i];
+
+            builder.append('-').append(name);
+
+            if (i + 1 < names.length) {
+                builder.append(", ");
+            }
+        }
+
+        // arg
+        if (option.hasArgument()) {
+            String arg = ArgsUtils.first(option.argName());
+
+            builder.append(" <")
+                    .append(arg == null ? DEFAULT_ARG_NAME : arg)
+                    .append(">");
+        }
+
+        // space
+        int pos2 = builder.length();
+        builder.append(" ".repeat(spaceBetweenTextBlockAndName + optionNamesWidth - (pos2 - pos)));
+
+        // description
+        String desc =  ArgsUtils.first(option.description());
+        if (desc != null) {
+            appendTextBlock(builder, desc, descriptionIndent, maxTextBlockSize);
+        }
+
+        builder.append('\n');
+    }
+
+    private int getOptionsNamesWidth(OptionIterator it) {
         int width = 0;
 
-        for (Option option : options) {
+        while (it.hasNext()) {
+            Option option = it.next();
+
             int w = 0;
 
             String[] names = option.names();
@@ -147,6 +177,10 @@ public class DefaultHelpFormatter implements HelpFormatter {
                 }
             }
 
+            if (it.currentGroup() != null) {
+                w++;
+            }
+
             width = Math.max(width, w);
         }
 
@@ -154,24 +188,9 @@ public class DefaultHelpFormatter implements HelpFormatter {
     }
 
     @Override
-    public String generalHelp(INode<CommandDescriber> commands,
-                              String[] args,
-                              boolean unrecognizedCommand) {
+    public String generalHelp(INode<CommandDescriber> commands) {
 
         StringBuilder builder = new StringBuilder();
-
-        if (unrecognizedCommand) {
-            builder.append("Unrecognized command");
-
-            if (args != null) {
-                String commandString = String.join(" ", args);
-                builder.append(": ")
-                        .append(commandString)
-                        .append("\n\n");
-
-            }
-        }
-
         builder.append("Commands:\n");
 
         int maxCommandNameSize = getMaxCommandNameSize(commands, "");
@@ -182,7 +201,7 @@ public class DefaultHelpFormatter implements HelpFormatter {
         return builder.toString();
     }
 
-    private int getMaxCommandNameSize(INode<CommandDescriber> commands, String fullCommandName) {
+    protected int getMaxCommandNameSize(INode<CommandDescriber> commands, String fullCommandName) {
         if (commands.getValue() != null) {
             CommandDescriber spec = commands.getValue();
 
@@ -202,7 +221,7 @@ public class DefaultHelpFormatter implements HelpFormatter {
         return w;
     }
 
-    private void addCommand(StringBuilder builder,
+    protected void addCommand(StringBuilder builder,
                             INode<CommandDescriber> command,
                             String fullCommandName,
                             String usageIdent) {
@@ -215,16 +234,16 @@ public class DefaultHelpFormatter implements HelpFormatter {
                 fullCommandName = fullCommandName + " " + spec.getName();
             }
 
-            builder.append(fullCommandName);
+            appendCommandName(builder, fullCommandName);
 
-            String usage = spec.getUsage();
-            if (usage != null) {
+            String description = spec.getShortDescription();
+            if (description != null) {
                 builder.append(':');
 
                 int emptySpaceLength = usageIdent.length() - fullCommandName.length() - 1;
                 builder.append(" ".repeat(emptySpaceLength));
 
-                appendTextBlock(builder, usage, usageIdent, maxTextBlockSize);
+                builder.append(description);
             }
 
             builder.append('\n');
@@ -235,7 +254,11 @@ public class DefaultHelpFormatter implements HelpFormatter {
         }
     }
 
-    private void appendTextBlock(StringBuilder builder, String text, String indent, int width) {
+    protected void appendCommandName(StringBuilder sb, String name) {
+        sb.append(name);
+    }
+
+    protected void appendTextBlock(StringBuilder builder, String text, String indent, int width) {
         int index = 0;
         int x = 0;
         while (index < text.length()) {
