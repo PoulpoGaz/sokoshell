@@ -54,7 +54,7 @@ public class CommandLine {
     private Redirect output = Redirect.NONE;
     private Redirect input = Redirect.NONE;
 
-    private Tokenizer tokenizer;
+    private Iterator<Token> tokenizer;
 
     /**
      * An error due to a redirect.
@@ -83,16 +83,28 @@ public class CommandLine {
         this.commands = this.root.map((c) -> c == null ? null : c.getDescriber());
     }
 
+    public int execute(String[] commandStr) throws CommandLineException {
+        try {
+            return execute(new TokenizerFromArray(commandStr));
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
     public int execute(String commandStr) throws CommandLineException, IOException {
+        return execute(new Tokenizer(commandStr));
+    }
+
+    public int execute(Iterator<Token> tokenizer) throws CommandLineException, IOException {
         currIn = stdIn;
         currOut = stdOut;
         currErr = stdErr;
 
-        tokenizer = new Tokenizer(commandStr);
-
         cliError = null;
         command = root;
         parsingOptions = false;
+
+        this.tokenizer = tokenizer;
 
         int last = 0;
         while (tokenizer.hasNext()) {

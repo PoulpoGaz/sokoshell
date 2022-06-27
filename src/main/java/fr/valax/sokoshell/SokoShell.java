@@ -12,6 +12,8 @@ import fr.valax.sokoshell.solver.tasks.ISolverTask;
 import fr.valax.sokoshell.utils.LessCommand;
 import fr.valax.sokoshell.utils.PrettyTable;
 import fr.valax.sokoshell.utils.Utils;
+import jdk.jshell.JShell;
+import org.jline.console.impl.SystemRegistryImpl;
 import org.jline.reader.*;
 import org.jline.reader.impl.DefaultHighlighter;
 import org.jline.reader.impl.DefaultParser;
@@ -20,12 +22,15 @@ import org.jline.reader.impl.history.DefaultHistory;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.terminal.impl.AbstractWindowsTerminal;
+import org.jline.utils.AttributedString;
+import org.jline.utils.AttributedStyle;
 import org.jline.widget.AutosuggestionWidgets;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.BiFunction;
@@ -49,9 +54,7 @@ public class SokoShell {
         sokoshell.welcome();
 
         try {
-            String initCommand = String.join(" ", args);
-
-            sokoshell.loop(initCommand);
+            sokoshell.loop(args);
         } finally {
             ISolverTask<?> task = SokoShellHelper.INSTANCE.getSolverTask();
             if (task != null) {
@@ -109,7 +112,7 @@ public class SokoShell {
         System.out.println("Goodbye!");
     }
 
-    private void loop(String initCommand) {
+    private void loop(String[] args) {
         Parser parser = new DefaultParser();
 
         try (Terminal terminal = TerminalBuilder.terminal()) {
@@ -137,37 +140,48 @@ public class SokoShell {
             AutosuggestionWidgets autosuggestionWidgets = new AutosuggestionWidgets(reader);
             autosuggestionWidgets.enable();
 
-            if (initCommand != null && !initCommand.isBlank()) {
-                executeOrWaitInput(initCommand);
-            }
-
             boolean running = true;
             while (running) {
-                running = executeOrWaitInput(null);
+                running = executeOrWaitInput(args);
+                args = null;
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private boolean executeOrWaitInput(String line) {
+    /**
+     * @param args program args or null
+     * @return false to stop
+     */
+    private boolean executeOrWaitInput(String[] args) {
+        boolean reading = false;
         try {
 
-            if (line == null) {
-                line = reader.readLine(NAME + "> ");
-            }
+            if (args == null || args.length == 0) {
+                reading = true;
+                String line = reader.readLine(getPrompt());
+                reading = false;
 
-            cli.execute(line);
+                cli.execute(line);
+            } else {
+                System.out.println(getPrompt() + Arrays.toString(args));
+                cli.execute(args);
+            }
         } catch (EndOfFileException e) { // thrown when user types ctrl+D and by the built-in exit command
             return false;
         } catch (UserInterruptException e) {
-            return false;
+            return !reading;
         } catch (IOException | CommandLineException e) {
             e.printStackTrace();
             return false;
         }
 
         return true;
+    }
+
+    private String getPrompt() {
+        return new AttributedString(NAME + "> ", AttributedStyle.BOLD).toAnsi();
     }
 
     private Path getHistoryPath() {
@@ -205,29 +219,32 @@ public class SokoShell {
                 .sorted(Comparator.comparing(Pack::name))
                 .toList();
 
-        BiFunction<Integer, Integer, PrettyTable.Cell> extractor = (x, y) -> {
-            Pack pack = packs.get(y);
-
-            return switch (x) {
-                case 0 -> new PrettyTable.Cell(pack.name());
-                case 1 -> new PrettyTable.Cell(pack.author());
-                case 2 -> new PrettyTable.Cell(String.valueOf(pack.levels().size()));
-                default -> throw new IllegalArgumentException();
-            };
-        };
-
-        String table = PrettyTable.create(
-                3, packs.size(), new String[] {"Pack", "Author", "Number of levels"},
-                extractor);
-
-        out.println(table);
-
         int totalLevels = 0;
+
+        if (packs.size() > 0) {
+            BiFunction<Integer, Integer, PrettyTable.Cell> extractor = (x, y) -> {
+                Pack pack = packs.get(y);
+
+                return switch (x) {
+                    case 0 -> new PrettyTable.Cell(pack.name());
+                    case 1 -> new PrettyTable.Cell(pack.author());
+                    case 2 -> new PrettyTable.Cell(String.valueOf(pack.levels().size()));
+                    default -> throw new IllegalArgumentException();
+                };
+            };
+
+            String table = PrettyTable.create(
+                    3, packs.size(), new String[]{"Pack", "Author", "Number of levels"},
+                    extractor);
+
+            out.println(table);
+            out.println();
+        }
+
         for (Pack p : packs) {
             totalLevels += p.levels().size();
         }
 
-        out.println();
         out.printf("Total packs: %d - Total levels: %d%n", packs.size(), totalLevels);
 
         return Command.SUCCESS;

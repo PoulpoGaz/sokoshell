@@ -6,29 +6,6 @@ import java.util.Objects;
 
 public class Tokenizer implements Iterator<Token> {
 
-    private static final Token[] redirectTokens = new Token[] {
-            new Token(">>",   Token.WRITE_APPEND),
-            new Token("2>>",  Token.WRITE_ERROR_APPEND),
-            new Token(">",    Token.WRITE),
-            new Token("2>",   Token.WRITE_ERROR),
-            new Token("&>",   Token.BOTH_WRITE),
-            new Token("&>>",  Token.BOTH_WRITE_APPEND),
-            new Token("2>&1", Token.STD_ERR_IN_STD_OUT),
-            new Token("<<",   Token.READ_INPUT_UNTIL),
-            new Token("<",    Token.READ_FILE),
-            new Token("|",    Token.PIPE),
-            new Token(";",    Token.COMMAND_SEPARATOR)
-    };
-
-    // expect a char directly after
-    private static final Token OPTION_TOKEN_1 = new Token("-", Token.OPTION);
-
-    // expect a char directly after
-    private static final Token OPTION_TOKEN_2 = new Token("--", Token.OPTION);
-
-    // expect a space directly after
-    private static final Token END_OPTION_TOKEN = new Token("--", Token.END_OPTION_PARSING);
-
     private final char[] chars;
     private int index;
 
@@ -48,7 +25,7 @@ public class Tokenizer implements Iterator<Token> {
         }
 
         Token bestMatch = null;
-        for (Token token : redirectTokens) {
+        for (Token token : Token.REDIRECT_TOKENS) {
 
             String keyword = token.value();
 
@@ -84,17 +61,17 @@ public class Tokenizer implements Iterator<Token> {
             // checks for --SPACE or --END or --KEYWORD
             if (Objects.equals(next, '-') &&
                     (Objects.equals(nextNext, ' ') || nextNext == null || findKeyword(index + 2) != null)) {
-                return END_OPTION_TOKEN;
+                return Token.END_OPTION_TOKEN;
 
             } else if (Objects.equals(next, '-') && !Objects.equals(nextNext, ' ') && findKeyword(index + 2) == null) {
                 // checks for --NOT_KEYWORD
 
-                return OPTION_TOKEN_2;
+                return Token.OPTION_TOKEN_2;
 
             } else if (!Objects.equals(next, ' ') && next != null && findKeyword(index + 1) == null) {
                 // checks -NOT_KEY_WORD
 
-                return OPTION_TOKEN_1;
+                return Token.OPTION_TOKEN_1;
             } else {
                 return null;
             }
@@ -177,13 +154,5 @@ public class Tokenizer implements Iterator<Token> {
         this.next = null;
 
         return next;
-    }
-
-    public Token peek() {
-        if (!hasNext()) {
-            return null;
-        } else {
-            return next;
-        }
     }
 }
