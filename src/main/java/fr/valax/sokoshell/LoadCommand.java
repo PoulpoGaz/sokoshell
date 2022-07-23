@@ -32,18 +32,18 @@ public class LoadCommand extends AbstractCommand {
                 boolean loaded = false;
 
                 while (it.hasNext()) {
-                    load(it.next());
+                    load(it.next(), out, err);
 
                     loaded = true;
                 }
 
                 if (!loaded) {
-                    System.out.println("No pack loaded");
+                    out.println("No pack loaded");
                 }
 
             } catch (IOException e) {
-                e.printStackTrace();
-                System.out.println("Failed to load packs");
+                e.printStackTrace(err);
+                err.println("Failed to load packs");
 
                 return FAILURE;
             }
@@ -52,15 +52,15 @@ public class LoadCommand extends AbstractCommand {
         return SUCCESS;
     }
 
-    private void load(Path input) {
-        System.out.println("Loading " + input);
+    private void load(Path input, PrintStream out, PrintStream err) {
+        out.println("Loading " + input);
 
         Pack pack;
         try {
             pack = PackReaders.read(input);
         } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("Failed to read pack at " + input);
+            e.printStackTrace(err);
+            err.println("Failed to read pack at " + input);
 
             return;
         }

@@ -3,6 +3,7 @@ package fr.valax.sokoshell;
 import fr.valax.args.CommandLine;
 import fr.valax.args.CommandLineBuilder;
 import fr.valax.args.api.Command;
+import fr.valax.args.api.Option;
 import fr.valax.args.jline.HelpCommand;
 import fr.valax.args.jline.JLineUtils;
 import fr.valax.args.jline.REPLHelpFormatter;
@@ -18,6 +19,8 @@ import org.jline.reader.*;
 import org.jline.reader.impl.DefaultHighlighter;
 import org.jline.reader.impl.DefaultParser;
 import org.jline.reader.impl.LineReaderImpl;
+import org.jline.reader.impl.completer.ArgumentCompleter;
+import org.jline.reader.impl.completer.StringsCompleter;
 import org.jline.reader.impl.history.DefaultHistory;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
@@ -113,7 +116,8 @@ public class SokoShell {
     }
 
     private void loop(String[] args) {
-        Parser parser = new DefaultParser();
+        DefaultParser parser = new DefaultParser();
+        //parser.setEscapeChars(new char[0]);
 
         try (Terminal terminal = TerminalBuilder.terminal()) {
             this.terminal = terminal;
@@ -135,6 +139,7 @@ public class SokoShell {
                     .parser(parser)
                     .completer(JLineUtils.createCompleter(cli))
                     .variable(LineReader.HISTORY_FILE, getHistoryPath())
+                    .option(LineReader.Option.DISABLE_EVENT_EXPANSION, true)
                     .build();
 
             AutosuggestionWidgets autosuggestionWidgets = new AutosuggestionWidgets(reader);
@@ -161,6 +166,7 @@ public class SokoShell {
             if (args == null || args.length == 0) {
                 reading = true;
                 String line = reader.readLine(getPrompt());
+                System.out.println(line);
                 reading = false;
 
                 cli.execute(line);

@@ -26,7 +26,7 @@ public class SolutionCommand extends LevelCommand {
         }
 
         if (l.getSolution() == null) {
-            System.out.println("Not solved");
+            err.println("Not solved");
             return FAILURE;
         }
 

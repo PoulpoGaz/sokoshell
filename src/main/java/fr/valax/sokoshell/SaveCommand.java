@@ -20,8 +20,8 @@ public class SaveCommand extends PackCommand {
         try {
             pack.writeSolutions(null);
         } catch (IOException | JsonException e) {
-            e.printStackTrace();
-            System.out.println("Failed to save solutions");
+            e.printStackTrace(err);
+            err.println("Failed to save solutions");
 
             return FAILURE;
         }

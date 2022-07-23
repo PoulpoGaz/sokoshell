@@ -1,24 +1,36 @@
 package fr.valax.args.jline;
 
 import fr.valax.args.CommandLine;
-import fr.valax.args.api.Command;
-import fr.valax.args.api.CommandDescriber;
-import fr.valax.args.api.Option;
-import fr.valax.args.api.OptionGroup;
+import fr.valax.args.Token;
+import fr.valax.args.Tokenizer;
+import fr.valax.args.api.*;
 import fr.valax.args.utils.ArgsUtils;
 import fr.valax.args.utils.INode;
+import fr.valax.sokoshell.utils.Utils;
+import org.jline.builtins.Completers;
 import org.jline.reader.Candidate;
 import org.jline.reader.Completer;
 import org.jline.reader.LineReader;
 import org.jline.reader.ParsedLine;
 
+import javax.security.auth.login.AppConfigurationEntry;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class ShellCompleter implements Completer {
 
+    protected final Completer fileNameCompleter = new Completers.FileNameCompleter();
     protected final CommandLine cli;
+
+    protected INode<CommandDescriber> command;
 
     public ShellCompleter(CommandLine cli) {
         this.cli = cli;
@@ -26,78 +38,179 @@ public class ShellCompleter implements Completer {
 
     @Override
     public void complete(LineReader reader, ParsedLine line, List<Candidate> candidates) {
-        String l = line.words().stream()
-                .limit(line.wordIndex() + 1)
-                .collect(Collectors.joining(" "));
+        String command = getCommand(line);
 
-        CommandLine.ParsedCommand cmd = cli.getFirstCommandWithIndex(l);
-        INode<CommandDescriber> node = cmd.node();
+        boolean newToken = command.endsWith(" ");
 
-        if (node != null && node.getValue() != null) {
-            CommandDescriber desc = node.getValue();
+        INode<CommandDescriber> cmd = cli.getCommands();
+        boolean findingCommand = true;
+        boolean endOfOptions =  false;
 
-            // don't show sub commands if user start to type options
-            if (cmd.index() == line.wordIndex()) {
-                for (INode<CommandDescriber> child : node.getChildren()) {
-                    candidates.add(new Candidate(child.getValue().getName()));
+        List<Token> tokens = new ArrayList<>();
+        Tokenizer tokenizer = new Tokenizer(command);
+        while (tokenizer.hasNext()) {
+            Token next = tokenizer.next();
+
+            if (next.isWord() && findingCommand) {
+                INode<CommandDescriber> child = findChild(cmd, next.value());
+
+                if (child == null) {
+                    findingCommand = false;
+                } else {
+                    cmd = child;
+                }
+            } else if (!next.isRedirect()) {
+                findingCommand = false;
+
+                if (next.isEndOfOption()) {
+                    endOfOptions = true;
                 }
             }
 
-            boolean addHyphenCandidate = desc.nOptions() > 0;
+            tokens.add(next);
+        }
 
-            if (line.words().get(line.wordIndex()).startsWith("-")) {
-                for (Map.Entry<OptionGroup, List<Option>> options : desc.getOptions().entrySet()) {
-                    completeOption(candidates, options.getKey(), options.getValue());
-                }
+        Token last = !tokens.isEmpty() ? tokens.get(tokens.size() - 1) : null;
+        Token lastLast = tokens.size() >= 2 ? tokens.get(tokens.size() - 2) : null;
+        Token lastLastLast = tokens.size() >= 3 ? tokens.get(tokens.size() - 3) : null;
 
-                addHyphenCandidate = false;
-            } else {
-                if (completeOptionArgument(reader, line, candidates, desc, desc.getCommand())) {
-                    addHyphenCandidate = false;
+        if (last != null) {
+
+            if (last.isEndOfOption() || (endOfOptions && last.type() == Token.STD_ERR_IN_STD_OUT)) {
+                completeVaArsg(reader, line, candidates, cmd.getValue());
+
+            } else if ((isOption(last, true) && !endOfOptions) || last.type() == Token.STD_ERR_IN_STD_OUT) {
+                completeOptions(candidates, cmd.getValue());
+
+            } else if (last.isRedirect()) {
+                completeRedirect(reader, line, candidates, last);
+
+            } else if (last.isWord() && lastLast != null) {
+
+                if (isOption(lastLast, false)) {
+                    boolean completedOption = completeOption(reader, line, candidates, cmd.getValue(), last.value());
+
+                    if (!completedOption) {
+                        completeOptions(candidates, cmd.getValue());
+                    }
+                } else if (lastLast.isRedirect() && !newToken) {
+                    completeRedirect(reader, line, candidates, lastLast);
+                } else if (lastLast.isWord() && lastLastLast != null && isOption(lastLastLast, false) && !newToken) {
+                    completeOption(reader, line, candidates, cmd.getValue(), lastLast.value());
                 }
             }
+        }
 
-            if (addHyphenCandidate) {
+        if (candidates.isEmpty()) {
+            CommandDescriber desc = cmd.getValue();
+
+            if (desc != null && desc.nOptions() > 0) {
                 candidates.add(new Candidate("-", "-", null, null, null, null, false));
+            }
+        }
+
+        if (findingCommand) {
+            for (INode<CommandDescriber> child : cmd.getChildren()) {
+                candidates.add(new Candidate(child.getValue().getName()));
             }
         }
     }
 
-    private void completeOption(List<Candidate> candidates, OptionGroup group, List<Option> options) {
-        for (Option option : options) {
-            String name = '-' + ArgsUtils.first(option.names());
+    protected boolean isOption(Token token, boolean last) {
+        if (last) {
+            return token.value().equals("-") || token.value().equals("--");
+        } else {
+            return token.isOption();
+        }
+    }
+
+    protected String getCommand(ParsedLine line) {
+        char[] chars = line.line().toCharArray();
+
+        int commandStart = 0;
+
+        boolean escape = false;
+        boolean inQuote = false;
+        for (int i = 0; i < line.cursor(); i++) {
+            char c = chars[i];
+
+            boolean escape2 = escape;
+            escape = false;
+
+            if (escape2) {
+                continue;
+
+            } else if (c == '\\') {
+                escape = true;
+
+            } else if (c == '"') {
+                inQuote = !inQuote;
+
+            } else if (inQuote) {
+                continue;
+
+            } else if (c == '|' || c == ';') { // command separator
+                commandStart = i + 1;
+            }
+        }
+
+        return line.line()
+                .substring(commandStart, line.cursor());
+    }
+
+
+    protected INode<CommandDescriber> findChild(INode<CommandDescriber> parent, String name) {
+        for (INode<CommandDescriber> child : parent.getChildren()) {
+            if (child.getValue().getName().equals(name)) {
+                return child;
+            }
+        }
+
+        return null;
+    }
+
+    protected void completeVaArsg(LineReader reader, ParsedLine line, List<Candidate> candidates, CommandDescriber desc) {
+        Command command = desc.getCommand();
+
+        if (command instanceof JLineCommand jLineCommand) {
+            jLineCommand.completeVaArgs(reader, line, candidates);
+        }
+    }
+
+    protected void completeOptions(List<Candidate> candidates, CommandDescriber desc) {
+        OptionIterator iterator = desc.optionIterator();
+
+        while (iterator.hasNext()) {
+            OptionGroup group = iterator.currentGroup();
+
+            Option opt = iterator.next();
+            String firstName = opt.names()[0];
+            String name = firstName.length() == 1 ? "-" + firstName : "--" + firstName;
             String groupName = group == null ? null : group.name();
-            String description = ArgsUtils.first(option.description());
+            String description = ArgsUtils.first(opt.description());
 
             candidates.add(new Candidate(name, name, groupName, description, null, null, true));
         }
     }
 
-    /**
-     * @return true if an option wait for his argument
-     */
-    private boolean completeOptionArgument(LineReader reader, ParsedLine line, List<Candidate> candidates,
-                                           CommandDescriber desc, Command command) {
-        if (line.wordIndex() == 0) {
-            return false;
+    private void completeRedirect(LineReader reader, ParsedLine line, List<Candidate> candidates, Token last) {
+        if (last.type() != Token.READ_INPUT_UNTIL) {
+            fileNameCompleter.complete(reader, line, candidates);
         }
+    }
 
-        String last = line.words().get(line.wordIndex() - 1);
+    private boolean completeOption(LineReader reader, ParsedLine line, List<Candidate> candidates, CommandDescriber desc, String optionName) {
+        Command cmd = desc.getCommand();
 
-        if (last == null || !last.startsWith("-")) {
-            return false;
-        }
-
-        Option option = desc.getOption(last.substring(1));
-
-        if (option != null && option.hasArgument()) {
-            if (command instanceof JLineCommand JLineCommand) {
-                JLineCommand.completeOption(reader, line, candidates, option);
+        if (cmd instanceof JLineCommand jLineCommand) {
+            for (Option opt : desc) {
+                if (ArgsUtils.contains(opt.names(), optionName)) {
+                    jLineCommand.completeOption(reader, line, candidates, opt);
+                    return true;
+                }
             }
-
-            return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 }

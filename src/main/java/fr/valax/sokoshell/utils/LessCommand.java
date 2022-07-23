@@ -6,6 +6,8 @@ import fr.valax.sokoshell.AbstractCommand;
 import fr.valax.sokoshell.SokoShellHelper;
 import org.jline.builtins.Commands;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.Path;
@@ -68,7 +70,7 @@ public class LessCommand extends AbstractCommand {
 
     @Override
     public int executeImpl(InputStream in, PrintStream out, PrintStream err) {
-        String[] options = getOptions();
+        String[] options = getOptions(in);
 
         try {
             Commands.less(SokoShellHelper.INSTANCE.getTerminal(),
@@ -83,7 +85,7 @@ public class LessCommand extends AbstractCommand {
         return SUCCESS;
     }
 
-    private String[] getOptions() {
+    private String[] getOptions(InputStream in) {
         List<String> options = new ArrayList<>();
 
         if (quit_at_eof) options.add("-e");
@@ -102,7 +104,11 @@ public class LessCommand extends AbstractCommand {
         if (syntax != null) {
             options.add("-Y");
             options.add(syntax);
+        } else if (in instanceof ByteArrayInputStream) {
+            options.add("-Y");
+            options.add("none");
         }
+
         if (no_init) options.add("--no-init");
         if (no_keypad) options.add("--no-keypad");
         if (ignorercfiles) options.add("-ignorercfiles");

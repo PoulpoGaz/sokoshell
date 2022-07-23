@@ -5,13 +5,13 @@ import org.jline.terminal.Terminal;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStringBuilder;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.jline.utils.AttributedStyle.BLUE;
 import static org.jline.utils.AttributedStyle.DEFAULT;
-
 
 /**
  * A class used to print or draw a map on a terminal or a surface
@@ -29,6 +29,17 @@ public class MapRenderer {
     public void sysPrint(Level level) {
         sysPrint(level.getMap(), level.getPlayerX(), level.getPlayerY());
     }
+
+    public void print(PrintStream ps, Level level) {
+        print(ps, level.getMap(), level.getPlayerX(), level.getPlayerY());
+    }
+
+    public void print(PrintStream ps, Map map, int playerX, int playerY) {
+        for (AttributedString str : draw(map, playerX, playerY)) {
+            ps.println(str.toAnsi());
+        }
+    }
+
 
     public void print(Terminal terminal, Level level) {
         print(terminal, level.getMap(), level.getPlayerX(), level.getPlayerY());

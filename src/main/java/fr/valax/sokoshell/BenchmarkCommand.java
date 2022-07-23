@@ -24,11 +24,11 @@ public class BenchmarkCommand extends PackCommand {
         }
 
         if (timeout == null) {
-            System.out.println("Setting timeout to 10min");
+            out.println("Setting timeout to 10min");
 
             timeout = 10 * 60 * 1000L;
         } else if (timeout <= 0) {
-            System.out.println("WARNING: You did not set a timeout.");
+            out.println("WARNING: You did not set a timeout.");
         }
 
         Map<String, Object> params = new HashMap<>();

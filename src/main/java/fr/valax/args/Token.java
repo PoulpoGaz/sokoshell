@@ -56,6 +56,10 @@ public record Token(String value, int type) {
     }
 
     public boolean isRedirect() {
-        return type >= WRITE_APPEND && type <= COMMAND_SEPARATOR;
+        return type >= WRITE_APPEND && type <= READ_FILE;
+    }
+
+    public boolean isCommandSeparator() {
+        return type >= PIPE && type <= COMMAND_SEPARATOR;
     }
 }

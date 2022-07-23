@@ -155,4 +155,8 @@ public class Tokenizer implements Iterator<Token> {
 
         return next;
     }
+
+    public int index() {
+        return index;
+    }
 }

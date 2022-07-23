@@ -83,12 +83,8 @@ public class CommandLine {
         this.commands = this.root.map((c) -> c == null ? null : c.getDescriber());
     }
 
-    public int execute(String[] commandStr) throws CommandLineException {
-        try {
-            return execute(new TokenizerFromArray(commandStr));
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
-        }
+    public int execute(String[] commandStr) throws CommandLineException, IOException {
+        return execute(new TokenizerFromArray(commandStr));
     }
 
     public int execute(String commandStr) throws CommandLineException, IOException {
@@ -111,7 +107,7 @@ public class CommandLine {
 
             Token next = tokenizer.next();
 
-            if (next.isRedirect()) {
+            if (next.isRedirect() || next.isCommandSeparator()) {
 
                 Integer v = parseKeyword(next);
 
@@ -427,6 +423,8 @@ public class CommandLine {
             command.getValue().reset();
         }
 
+        output = NONE;
+        input = NONE;
         cliError = null;
         optionError = null;
         command = root;
@@ -514,8 +512,14 @@ public class CommandLine {
         while (tokenizer.hasNext()) {
             Token next = tokenizer.next();
 
-            if (next.isRedirect()) {
+            if (next.isCommandSeparator()) {
                 break;
+            } else if (next.isRedirect()) {
+                if (tokenizer.hasNext()) {
+                    tokenizer.next();
+                }
+
+                continue;
             }
 
             INode<CommandSpec> sub = subCommand(cmd, next.value());
@@ -1193,7 +1197,7 @@ public class CommandLine {
     private static final Option HELP_OPTION = new Option() {
         @Override
         public String[] names() {
-            return new String[] {"h", "-help"};
+            return new String[] {"h", "help"};
         }
 
         @Override

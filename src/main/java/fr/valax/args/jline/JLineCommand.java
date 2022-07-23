@@ -14,6 +14,10 @@ public interface JLineCommand extends Command {
 
     }
 
+    default void completeVaArgs(LineReader reader, ParsedLine line, List<Candidate> candidates) {
+
+    }
+
 
     /**
      * JLine add by default a help option.

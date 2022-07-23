@@ -23,7 +23,7 @@ public class StatsCommand extends LevelCommand {
         Solution solution = l.getSolution();
 
         if (solution == null) {
-            System.out.println("Not solved");
+            out.println("Not solved");
             return FAILURE;
         }
 
@@ -34,10 +34,10 @@ public class StatsCommand extends LevelCommand {
             File outFile = new File(file);
 
             ImageIO.write(image, "png", new File(file));
-            System.out.println("Image written at " + outFile.getAbsolutePath());
+            out.println("Image written at " + outFile.getAbsolutePath());
         } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("Failed to save image");
+            e.printStackTrace(err);
+            out.println("Failed to save image");
 
             return FAILURE;
         }

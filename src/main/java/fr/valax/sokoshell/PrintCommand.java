@@ -26,13 +26,12 @@ public class PrintCommand extends PackCommand {
             return FAILURE;
         }
 
-        Terminal terminal = helper.getTerminal();
         List<Level> levels = pack.levels();
         for (int i = 0; i < levels.size(); i++) {
             Level l = levels.get(i);
 
-            terminal.writer().printf("<===== Level n°%d =====>%n", i + 1);
-            helper.getRenderer().print(terminal, l);
+            out.printf("<===== Level n°%d =====>%n", i + 1);
+            helper.getRenderer().print(out, l);
         }
 
         return SUCCESS;
