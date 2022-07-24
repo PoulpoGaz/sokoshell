@@ -26,7 +26,7 @@ public abstract class PackCommand extends AbstractCommand {
     }
 
     @Override
-    public void completeOption(LineReader reader, ParsedLine line, List<Candidate> candidates, Option option) {
+    public void completeOption(LineReader reader, String argument, List<Candidate> candidates, Option option) {
         if (ArgsUtils.contains(option.names(), "p")) {
             helper.addPackCandidates(candidates);
         }

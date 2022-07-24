@@ -10,11 +10,11 @@ import java.util.List;
 
 public interface JLineCommand extends Command {
 
-    default void completeOption(LineReader reader, ParsedLine line, List<Candidate> candidates, Option option) {
+    default void completeOption(LineReader reader, String argument, List<Candidate> candidates, Option option) {
 
     }
 
-    default void completeVaArgs(LineReader reader, ParsedLine line, List<Candidate> candidates) {
+    default void completeVaArgs(LineReader reader, String argument, List<Candidate> candidates) {
 
     }
 

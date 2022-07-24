@@ -8,26 +8,21 @@ import fr.valax.args.utils.ArgsUtils;
 import fr.valax.args.utils.INode;
 import fr.valax.sokoshell.utils.Utils;
 import org.jline.builtins.Completers;
-import org.jline.reader.Candidate;
-import org.jline.reader.Completer;
-import org.jline.reader.LineReader;
-import org.jline.reader.ParsedLine;
+import org.jline.reader.*;
 
 import javax.security.auth.login.AppConfigurationEntry;
 import java.io.BufferedWriter;
+import java.io.Console;
 import java.io.IOException;
+import java.nio.Buffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ShellCompleter implements Completer {
 
-    protected final Completer fileNameCompleter = new Completers.FileNameCompleter();
     protected final CommandLine cli;
 
     protected INode<CommandDescriber> command;
@@ -39,89 +34,19 @@ public class ShellCompleter implements Completer {
     @Override
     public void complete(LineReader reader, ParsedLine line, List<Candidate> candidates) {
         String command = getCommand(line);
-
         boolean newToken = command.endsWith(" ");
 
-        INode<CommandDescriber> cmd = cli.getCommands();
-        boolean findingCommand = true;
-        boolean endOfOptions =  false;
-
-        List<Token> tokens = new ArrayList<>();
+        Context context = new BaseContext(cli.getCommands());
         Tokenizer tokenizer = new Tokenizer(command);
+
+        Token last = null;
         while (tokenizer.hasNext()) {
-            Token next = tokenizer.next();
+            last = tokenizer.next();
 
-            if (next.isWord() && findingCommand) {
-                INode<CommandDescriber> child = findChild(cmd, next.value());
-
-                if (child == null) {
-                    findingCommand = false;
-                } else {
-                    cmd = child;
-                }
-            } else if (!next.isRedirect()) {
-                findingCommand = false;
-
-                if (next.isEndOfOption()) {
-                    endOfOptions = true;
-                }
-            }
-
-            tokens.add(next);
+            context = context.on(last, !tokenizer.hasNext(), newToken);
         }
 
-        Token last = !tokens.isEmpty() ? tokens.get(tokens.size() - 1) : null;
-        Token lastLast = tokens.size() >= 2 ? tokens.get(tokens.size() - 2) : null;
-        Token lastLastLast = tokens.size() >= 3 ? tokens.get(tokens.size() - 3) : null;
-
-        if (last != null) {
-
-            if (last.isEndOfOption() || (endOfOptions && last.type() == Token.STD_ERR_IN_STD_OUT)) {
-                completeVaArsg(reader, line, candidates, cmd.getValue());
-
-            } else if ((isOption(last, true) && !endOfOptions) || last.type() == Token.STD_ERR_IN_STD_OUT) {
-                completeOptions(candidates, cmd.getValue());
-
-            } else if (last.isRedirect()) {
-                completeRedirect(reader, line, candidates, last);
-
-            } else if (last.isWord() && lastLast != null) {
-
-                if (isOption(lastLast, false)) {
-                    boolean completedOption = completeOption(reader, line, candidates, cmd.getValue(), last.value());
-
-                    if (!completedOption) {
-                        completeOptions(candidates, cmd.getValue());
-                    }
-                } else if (lastLast.isRedirect() && !newToken) {
-                    completeRedirect(reader, line, candidates, lastLast);
-                } else if (lastLast.isWord() && lastLastLast != null && isOption(lastLastLast, false) && !newToken) {
-                    completeOption(reader, line, candidates, cmd.getValue(), lastLast.value());
-                }
-            }
-        }
-
-        if (candidates.isEmpty()) {
-            CommandDescriber desc = cmd.getValue();
-
-            if (desc != null && desc.nOptions() > 0) {
-                candidates.add(new Candidate("-", "-", null, null, null, null, false));
-            }
-        }
-
-        if (findingCommand) {
-            for (INode<CommandDescriber> child : cmd.getChildren()) {
-                candidates.add(new Candidate(child.getValue().getName()));
-            }
-        }
-    }
-
-    protected boolean isOption(Token token, boolean last) {
-        if (last) {
-            return token.value().equals("-") || token.value().equals("--");
-        } else {
-            return token.isOption();
-        }
+        context.complete(last, reader, line, candidates, newToken);
     }
 
     protected String getCommand(ParsedLine line) {
@@ -158,59 +83,276 @@ public class ShellCompleter implements Completer {
                 .substring(commandStart, line.cursor());
     }
 
+    private static abstract class Context {
 
-    protected INode<CommandDescriber> findChild(INode<CommandDescriber> parent, String name) {
-        for (INode<CommandDescriber> child : parent.getChildren()) {
-            if (child.getValue().getName().equals(name)) {
-                return child;
+        protected abstract Context on(Token token, boolean last, boolean newToken);
+
+        protected abstract void complete(Token lastToken, LineReader reader, ParsedLine line, List<Candidate> candidates, boolean newToken);
+
+        protected void addAllOptions(boolean longName, boolean shortName,
+                                     String optionNameStart, Set<Option> presentOptions, List<Candidate> candidates, CommandDescriber desc) {
+            if (!(longName | shortName)) {
+                return;
+            }
+
+            OptionIterator iterator = desc.optionIterator();
+
+            while (iterator.hasNext()) {
+                OptionGroup group = iterator.currentGroup();
+
+                Option opt = iterator.next();
+
+                if (presentOptions.contains(opt) && !opt.allowDuplicate()) {
+                    continue;
+                }
+
+                String name = null;
+                for (String n : opt.names()) {
+                    if (longName != shortName) {
+                        if (longName && n.length() <= 1) {
+                            continue;
+                        }
+                        if (shortName && n.length() > 1) {
+                            continue;
+                        }
+                    }
+
+                    if (n.startsWith(optionNameStart)) {
+                        if (n.length() > 1) {
+                            name = "--" + n;
+                        } else {
+                            name = "-" + n;
+                        }
+                    }
+                }
+
+                if (name == null) {
+                    continue;
+                }
+
+                String groupName = group == null ? null : group.name();
+                String description = ArgsUtils.first(opt.description());
+
+                candidates.add(new Candidate(name, name, groupName, description, null, null, true));
             }
         }
 
-        return null;
-    }
-
-    protected void completeVaArsg(LineReader reader, ParsedLine line, List<Candidate> candidates, CommandDescriber desc) {
-        Command command = desc.getCommand();
-
-        if (command instanceof JLineCommand jLineCommand) {
-            jLineCommand.completeVaArgs(reader, line, candidates);
+        protected boolean isOption(Token token, boolean last, boolean newToken) {
+            if (last && !newToken) {
+                return token.value().equals("-") || token.value().equals("--");
+            } else {
+                return token.isOption();
+            }
         }
     }
 
-    protected void completeOptions(List<Candidate> candidates, CommandDescriber desc) {
-        OptionIterator iterator = desc.optionIterator();
+    private static class BaseContext extends Context {
 
-        while (iterator.hasNext()) {
-            OptionGroup group = iterator.currentGroup();
+        private boolean findingCommand = true;
+        private boolean endOfOptions = false;
+        private final Set<Option> presentOptions = new HashSet<>();
 
-            Option opt = iterator.next();
-            String firstName = opt.names()[0];
-            String name = firstName.length() == 1 ? "-" + firstName : "--" + firstName;
-            String groupName = group == null ? null : group.name();
-            String description = ArgsUtils.first(opt.description());
+        private INode<CommandDescriber> command;
 
-            candidates.add(new Candidate(name, name, groupName, description, null, null, true));
+        public BaseContext(INode<CommandDescriber> rootCommand) {
+            this.command = rootCommand;
         }
-    }
 
-    private void completeRedirect(LineReader reader, ParsedLine line, List<Candidate> candidates, Token last) {
-        if (last.type() != Token.READ_INPUT_UNTIL) {
-            fileNameCompleter.complete(reader, line, candidates);
+        @Override
+        protected Context on(Token token, boolean last, boolean newToken) {
+
+            if (isOption(token, last, newToken) && !endOfOptions) {
+                findingCommand = false;
+                return new OptionContext(this, command.getValue(), token.value());
+            } else if (token.isEndOfOption()) {
+                endOfOptions = true;
+                findingCommand = false;
+            } else if (token.isRedirect()) {
+                if (token.type() == Token.STD_ERR_IN_STD_OUT) {
+                    return this;
+                }
+
+                return new RedirectContext(this, token);
+            } else if (token.isWord() && findingCommand) {
+                INode<CommandDescriber> child = findChild(command, token.value());
+
+                if (child == null) {
+                    findingCommand = false;
+                } else {
+                    command = child;
+                }
+            }
+
+            return this;
         }
-    }
 
-    private boolean completeOption(LineReader reader, ParsedLine line, List<Candidate> candidates, CommandDescriber desc, String optionName) {
-        Command cmd = desc.getCommand();
+        @Override
+        protected void complete(Token last, LineReader reader, ParsedLine line, List<Candidate> candidates, boolean newToken) {
+            if (findingCommand ||
+                    (last != null && !isOption(last, true, newToken))) {
+                for (INode<CommandDescriber> child : command.getChildren()) {
+                    candidates.add(new Candidate(child.getValue().getName()));
+                }
+            }
 
-        if (cmd instanceof JLineCommand jLineCommand) {
-            for (Option opt : desc) {
-                if (ArgsUtils.contains(opt.names(), optionName)) {
-                    jLineCommand.completeOption(reader, line, candidates, opt);
-                    return true;
+            CommandDescriber desc = command.getValue();
+
+            if (desc != null) {
+                if (desc.nOptions() != presentOptions.size() && !endOfOptions) {
+                    candidates.add(new Candidate("-", "-", null, null, null, null, false));
+                }
+
+                if (last != null && last.isWord() || newToken) {
+                    Command command = desc.getCommand();
+
+                    if (command instanceof JLineCommand jLineCommand) {
+                        if (newToken) {
+                            jLineCommand.completeVaArgs(reader, "", candidates);
+                        } else {
+                            jLineCommand.completeVaArgs(reader, last.value(), candidates);
+                        }
+                    }
                 }
             }
         }
 
-        return false;
+        protected INode<CommandDescriber> findChild(INode<CommandDescriber> parent, String name) {
+            for (INode<CommandDescriber> child : parent.getChildren()) {
+                if (child.getValue().getName().equals(name)) {
+                    return child;
+                }
+            }
+
+            return null;
+        }
+
+        public void addOption(Option option) {
+            if (option != null) {
+                presentOptions.add(option);
+            }
+        }
+
+        public Set<Option> getPresentOptions() {
+            return presentOptions;
+        }
+    }
+
+    protected static class OptionContext extends Context {
+
+        private final BaseContext baseContext;
+        private final CommandDescriber command;
+        private final String optionStart;
+
+        private Option option;
+        private boolean optionNameParsing = false;
+
+        public OptionContext(BaseContext baseContext, CommandDescriber command, String optionStart) {
+            this.baseContext = baseContext;
+            this.command = command;
+            this.optionStart = optionStart;
+        }
+
+        @Override
+        protected Context on(Token token, boolean last, boolean newToken) {
+            if (token.isWord()) {
+
+                if (option == null) {
+                    optionNameParsing = true;
+                    for (Option opt : command) {
+                        if (contains(opt, token.value())) {
+                            option = opt;
+                        }
+                    }
+
+                    if (option == null || !option.hasArgument()) {
+                        // cursor is just after the token
+                        // so OptionContext must complete
+                        if (last && !newToken) {
+                            return this;
+                        } else {
+                            baseContext.addOption(option);
+
+                            return baseContext;
+                        }
+                    }
+
+                } else {
+                    optionNameParsing = false;
+
+                    if (last && !newToken) {
+                        return this;
+                    } else {
+                        baseContext.addOption(option);
+
+                        return baseContext;
+                    }
+                }
+            } else {
+                throw new IllegalStateException();
+            }
+
+            return this;
+        }
+
+        private boolean contains(Option opt, String name) {
+            for (String n : opt.names()) {
+                if (optionStart.length() >= 2) {
+                    if (n.length() > 1 && n.equals(name)) {
+                        return true;
+                    }
+                } else if (n.equals(name)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        @Override
+        protected void complete(Token last, LineReader reader, ParsedLine line, List<Candidate> candidates, boolean newToken) {
+            if (option == null || (optionNameParsing && !newToken)) {
+                if (isOption(last, true, newToken)) {
+                    addAllOptions(true, true, "", baseContext.getPresentOptions(), candidates, command);
+                } else {
+                    addAllOptions(optionStart.equals("--"), optionStart.equals("-"),
+                            last.value(), baseContext.getPresentOptions(), candidates, command);
+                }
+            } else {
+                completeOption(reader, last.value(), candidates);
+            }
+        }
+
+        private void completeOption(LineReader reader, String arg, List<Candidate> candidates) {
+            if (command.getCommand() instanceof JLineCommand jLineCommand) {
+                jLineCommand.completeOption(reader, arg, candidates, option);
+            }
+        }
+    }
+
+    protected static class RedirectContext extends Context {
+
+        private final BaseContext baseContext;
+        private final Token redirect;
+
+        public RedirectContext(BaseContext baseContext, Token redirect) {
+            this.baseContext = baseContext;
+            this.redirect = redirect;
+        }
+
+        @Override
+        protected Context on(Token token, boolean last, boolean newToken) {
+            if (token.isWord() && last && !newToken) {
+                return this;
+            } else {
+                return baseContext;
+            }
+        }
+
+        @Override
+        protected void complete(Token last, LineReader reader, ParsedLine line, List<Candidate> candidates, boolean newToken) {
+            if (redirect.type() != Token.READ_INPUT_UNTIL) {
+                FileNameCompleter.INSTANCE.complete(reader, last.value(), candidates);
+            }
+        }
     }
 }

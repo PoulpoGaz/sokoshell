@@ -30,11 +30,4 @@ public abstract class LevelCommand extends PackCommand {
 
         return pack.levels().get(index);
     }
-
-    @Override
-    public void completeOption(LineReader reader, ParsedLine line, List<Candidate> candidates, Option option) {
-        if (ArgsUtils.contains(option.names(), "p")) {
-            helper.addPackCandidates(candidates);
-        }
-    }
 }

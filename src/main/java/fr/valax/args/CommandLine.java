@@ -115,14 +115,14 @@ public class CommandLine {
                     last = v;
                 }
 
-            } else if (next.isEndOfOption()) {
+            } else if (next.isEndOfOption() && !endParsingOptions) {
                 parsingOptions = true;
                 endParsingOptions = true;
 
             } else if (!hasError()) {
 
                 if (parsingOptions && (next.isWord() || endParsingOptions)) {
-                    if (next.isWord()) {
+                    if (next.isWord() || next.isEndOfOption()) {
                         addVaArgs(next.value());
                     } else {
                         // next is an option, so after it should be a word
@@ -280,7 +280,13 @@ public class CommandLine {
             return null;
         }
 
-        return file.value();
+        String f = file.value();
+
+        if (f.startsWith("~")) {
+            return System.getProperty("user.home") + f.substring(1);
+        } else {
+            return f;
+        }
     }
 
 

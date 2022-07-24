@@ -2,6 +2,7 @@ package fr.valax.sokoshell;
 
 import fr.valax.args.api.Option;
 import fr.valax.args.api.VaArgs;
+import fr.valax.args.jline.FileNameCompleter;
 import fr.valax.args.utils.ArgsUtils;
 import fr.valax.sokoshell.loader.PackReaders;
 import fr.valax.sokoshell.solver.Pack;
@@ -77,10 +78,8 @@ public class LoadCommand extends AbstractCommand {
     }
 
     @Override
-    public void completeOption(LineReader reader, ParsedLine line, List<Candidate> candidates, Option option) {
-        if (ArgsUtils.contains(option.names(), "i")) {
-            Utils.FILE_NAME_COMPLETER.complete(reader, line, candidates);
-        }
+    public void completeVaArgs(LineReader reader, String arg, List<Candidate> candidates) {
+        FileNameCompleter.INSTANCE.complete(reader, arg, candidates);
     }
 
     @Override

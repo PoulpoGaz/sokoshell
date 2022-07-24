@@ -38,13 +38,6 @@ public class PrintCommand extends PackCommand {
     }
 
     @Override
-    public void completeOption(LineReader reader, ParsedLine line, List<Candidate> candidates, Option option) {
-        if (ArgsUtils.contains(option.names(), "p")) {
-            helper.addPackCandidates(candidates);
-        }
-    }
-
-    @Override
     public String getName() {
         return "print";
     }
