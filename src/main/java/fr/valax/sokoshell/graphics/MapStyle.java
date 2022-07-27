@@ -57,7 +57,7 @@ public class MapStyle {
 
     public MapStyle(String name, String author, String version, Map<Integer, Map<Element, TileStyle>> styles) {
         if (name == null) {
-            this.name = "Unamed n°" + unnamedIndex;
+            this.name = "Unnamed n°" + unnamedIndex;
             unnamedIndex++;
         } else {
             this.name = name;
@@ -76,6 +76,10 @@ public class MapStyle {
         }
 
         Arrays.sort(availableSizes);
+
+        if (availableSizes[0] != 1) {
+            throw new IllegalArgumentException("Map style must have style of size 1");
+        }
     }
 
     public TileStyle get(Tile tile, Direction direction) {
