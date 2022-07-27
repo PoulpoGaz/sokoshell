@@ -14,7 +14,7 @@ public class MapStyleReaderTest {
     @Test
     void test() throws IOException {
         MapStyleReader reader = new MapStyleReader();
-        MapStyle2 style = reader.read(Path.of("styles/default/style"));
+        MapStyle style = reader.read(Path.of("styles/default/style"));
 
         MapRenderer renderer = new MapRenderer();
         renderer.setStyle(style);

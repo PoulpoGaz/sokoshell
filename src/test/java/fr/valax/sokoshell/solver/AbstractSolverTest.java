@@ -1,7 +1,6 @@
 package fr.valax.sokoshell.solver;
 
 import fr.valax.sokoshell.graphics.MapRenderer;
-import fr.valax.sokoshell.graphics.MapStyle;
 import fr.valax.sokoshell.loader.PackReaders;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

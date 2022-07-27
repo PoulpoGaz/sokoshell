@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  */
 public class MapRenderer {
 
-    private MapStyle2 style;
+    private MapStyle style;
 
     public void sysPrint(Level level) {
         sysPrint(level.getMap(), level.getPlayerX(), level.getPlayerY());
@@ -152,11 +152,11 @@ public class MapRenderer {
         return bestI;
     }
 
-    public MapStyle2 getStyle() {
+    public MapStyle getStyle() {
         return style;
     }
 
-    public void setStyle(MapStyle2 style) {
+    public void setStyle(MapStyle style) {
         this.style = style;
     }
 }

@@ -12,7 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
-import static fr.valax.sokoshell.graphics.MapStyle2.*;
+import static fr.valax.sokoshell.graphics.MapStyle.*;
 import static org.jline.utils.AttributedStyle.*;
 
 public class MapStyleReader {
@@ -121,7 +121,7 @@ public class MapStyleReader {
         }
     }
 
-    public MapStyle2 read(Path file) throws IOException {
+    public MapStyle read(Path file) throws IOException {
         images.clear();
         colorAliases.clear();
         folder = file.getParent();
@@ -139,7 +139,7 @@ public class MapStyleReader {
                 parseCurrentLine();
             }
 
-            return new MapStyle2(name, author, version, styles);
+            return new MapStyle(name, author, version, styles);
         } finally {
             if (br != null) {
                 br.close();

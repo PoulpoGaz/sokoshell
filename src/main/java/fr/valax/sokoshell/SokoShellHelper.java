@@ -2,7 +2,6 @@ package fr.valax.sokoshell;
 
 import fr.valax.sokoshell.graphics.MapRenderer;
 import fr.valax.sokoshell.graphics.MapStyle;
-import fr.valax.sokoshell.graphics.MapStyle2;
 import fr.valax.sokoshell.graphics.MapStyleReader;
 import fr.valax.sokoshell.solver.*;
 import fr.valax.sokoshell.solver.tasks.BenchmarkTask;
@@ -11,9 +10,7 @@ import fr.valax.sokoshell.solver.tasks.SolverTask;
 import org.jline.reader.Candidate;
 import org.jline.terminal.Terminal;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.*;
@@ -31,19 +28,22 @@ public class SokoShellHelper implements Lock {
     private final Map<String, Pack> packs = new HashMap<>();
 
     private final MapRenderer renderer = new MapRenderer();
+    private MapStyle mapStyle;
 
     private Terminal terminal;
 
     private ISolverTask<?> task;
 
     private SokoShellHelper() {
+        MapStyleReader reader = new MapStyleReader();
+
         try {
-            MapStyleReader reader = new MapStyleReader();
-            MapStyle2 style = reader.read(Path.of("styles/default/style"));
-            renderer.setStyle(style);
+            mapStyle = reader.read(Path.of("styles/default/style"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+        renderer.setStyle(mapStyle);
     }
 
     public void solve(Solver solver, SolverParameters parameters) {
@@ -203,6 +203,10 @@ public class SokoShellHelper implements Lock {
 
     public MapRenderer getRenderer() {
         return renderer;
+    }
+
+    public MapStyle getMapStyle() {
+        return mapStyle;
     }
 
     @Override
