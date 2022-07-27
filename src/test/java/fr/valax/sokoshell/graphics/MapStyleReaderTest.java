@@ -36,10 +36,6 @@ public class MapStyleReaderTest {
         Graphics g = new Graphics(surface);
 
         for (int size : style.availableSizes()) {
-            if (size > 8) {
-                continue;
-            }
-
             surface.resize(level.getWidth() * size, level.getHeight() * size);
 
             renderer.draw(g, 0, 0, size, level.getMap(), level.getPlayerX(), level.getPlayerY(), null);

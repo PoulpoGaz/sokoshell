@@ -7,6 +7,7 @@ import fr.valax.args.jline.HelpCommand;
 import fr.valax.args.jline.JLineUtils;
 import fr.valax.args.jline.REPLHelpFormatter;
 import fr.valax.args.utils.CommandLineException;
+import fr.valax.sokoshell.graphics.MapStyle;
 import fr.valax.sokoshell.solver.Pack;
 import fr.valax.sokoshell.solver.tasks.ISolverTask;
 import fr.valax.sokoshell.utils.LessCommand;
@@ -24,7 +25,6 @@ import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.terminal.impl.AbstractWindowsTerminal;
 import org.jline.utils.AttributedString;
-import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
 import org.jline.widget.AutosuggestionWidgets;
 
@@ -94,6 +94,9 @@ public class SokoShell {
                 .addCommand(AbstractCommand.newCommand(this::stopSolver, "stop", "Stop the solver"))
                 .addCommand(AbstractCommand.newCommand(this::gc, "gc", "Run garbage collector.\nYou may want to use this after solving a sokoban"))
                 .addCommand(AbstractCommand.newCommand(this::list, "list", "List all packs"))
+                .addCommand(AbstractCommand.newCommand(this::listStyle, "list-style", "List all styles"))
+                .addCommand(new LoadStyleCommand())
+                .addCommand(new SetStyleCommand())
                 .addCommand(new LessCommand())
                 .addCommand(JLineUtils.newExitCommand(NAME))
                 .addCommand(help)
@@ -249,6 +252,44 @@ public class SokoShell {
         }
 
         out.printf("Total packs: %d - Total levels: %d%n", packs.size(), totalLevels);
+
+        return Command.SUCCESS;
+    }
+
+    private Integer listStyle(InputStream in, PrintStream out, PrintStream err) {
+        MapStyle selected = helper.getMapStyle();
+
+        List<MapStyle> mapStyles = helper.getMapStyles().stream()
+                .sorted(Comparator.comparing(MapStyle::getName))
+                .toList();
+
+        if (mapStyles.size() > 0) {
+            BiFunction<Integer, Integer, PrettyTable.Cell> extractor = (x, y) -> {
+                MapStyle mapStyle = mapStyles.get(y);
+
+                return switch (x) {
+                    case 0 -> {
+                        if (mapStyle == selected) {
+                            yield new PrettyTable.Cell("* " + mapStyle.getName() + " *");
+                        } else {
+                            yield new PrettyTable.Cell(mapStyle.getName());
+                        }
+                    }
+                    case 1 -> new PrettyTable.Cell(mapStyle.getAuthor());
+                    case 2 -> new PrettyTable.Cell(String.valueOf(mapStyle.getVersion()));
+                    default -> throw new IllegalArgumentException();
+                };
+            };
+
+            String table = PrettyTable.create(
+                    3, mapStyles.size(), new String[] {"Name", "Author", "Version"},
+                    extractor);
+
+            out.println(table);
+            out.println();
+        }
+
+        out.printf("Total map styles: %d%n", mapStyles.size());
 
         return Command.SUCCESS;
     }

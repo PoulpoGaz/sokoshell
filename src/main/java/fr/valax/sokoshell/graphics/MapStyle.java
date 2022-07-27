@@ -1,12 +1,52 @@
 package fr.valax.sokoshell.graphics;
 
+import fr.valax.sokoshell.SokoShell;
 import fr.valax.sokoshell.solver.Direction;
 import fr.valax.sokoshell.solver.Tile;
+import org.jline.utils.AttributedString;
+import org.jline.utils.AttributedStyle;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+
+import static org.jline.utils.AttributedStyle.*;
 
 public class MapStyle {
+
+    public static final MapStyle DEFAULT_STYLE = createDefault();
+
+    private static MapStyle createDefault() {
+        Map<Element, TileStyle> style = new HashMap<>();
+        style.put(Element.FLOOR, create(' ', DEFAULT.background(GREEN)));
+        style.put(Element.WALL, create(' ', DEFAULT.background(BLACK + BRIGHT)));
+        style.put(Element.CRATE, create(' ', DEFAULT.background(YELLOW)));
+        style.put(Element.CRATE_ON_TARGET, create(' ', DEFAULT.background(YELLOW + BRIGHT)));
+        style.put(Element.TARGET, create(' ', DEFAULT.background(RED)));
+
+        TileStyle playerFloor = create('o', DEFAULT.background(GREEN).foreground(BLACK));
+        style.put(Element.PLAYER_FLOOR_DOWN, playerFloor);
+        style.put(Element.PLAYER_FLOOR_UP, playerFloor);
+        style.put(Element.PLAYER_FLOOR_LEFT, playerFloor);
+        style.put(Element.PLAYER_FLOOR_RIGHT, playerFloor);
+
+        TileStyle playerTarget = create('o', DEFAULT.background(RED).foreground(BLACK));
+        style.put(Element.PLAYER_ON_TARGET_DOWN, playerTarget);
+        style.put(Element.PLAYER_ON_TARGET_UP, playerTarget);
+        style.put(Element.PLAYER_ON_TARGET_LEFT, playerTarget);
+        style.put(Element.PLAYER_ON_TARGET_RIGHT, playerTarget);
+
+        return new MapStyle("default", SokoShell.NAME, SokoShell.VERSION, Map.of(1, style));
+    }
+
+    private static TileStyle create(char c, AttributedStyle style) {
+        return new AnsiTile(1,
+                new AttributedString[] {new AttributedString(c + "", style)}
+        );
+    }
+
+    private static int unnamedIndex = 0;
 
     private final String name;
     private final String author;
@@ -16,9 +56,15 @@ public class MapStyle {
     private final int[] availableSizes;
 
     public MapStyle(String name, String author, String version, Map<Integer, Map<Element, TileStyle>> styles) {
-        this.name = name;
-        this.author = author;
-        this.version = version;
+        if (name == null) {
+            this.name = "Unamed n°" + unnamedIndex;
+            unnamedIndex++;
+        } else {
+            this.name = name;
+        }
+
+        this.author = Objects.requireNonNullElse(author, "none");
+        this.version = Objects.requireNonNullElse(version, "0");
         this.styles = styles;
 
         availableSizes = new int[styles.size()];

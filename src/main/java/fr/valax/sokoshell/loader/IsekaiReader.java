@@ -83,7 +83,6 @@ public class IsekaiReader implements Reader {
             int x = is.read();
             int y = is.read();
 
-            // TODO: replace this
             builder.setSize(is.read(), is.read());
             builder.setPlayerPos(x, y);
 

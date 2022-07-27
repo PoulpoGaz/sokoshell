@@ -1,0 +1,22 @@
+[size] 1
+    [floor] ansi
+        \ $()
+# just a space...
+
+    [wall] ansi
+        #
+
+    [target] ansi
+        .
+
+    [crate] ansi
+        $
+
+    [crate_on_target] ansi
+        *
+
+    [player] ansi
+        @
+
+    [player_on_target] ansi
+        +

@@ -2,6 +2,7 @@ package fr.valax.sokoshell.utils;
 
 import org.jline.builtins.Completers;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -14,8 +15,6 @@ public class Utils {
             Executors.newScheduledThreadPool(
                     Math.max(1, Runtime.getRuntime().availableProcessors() / 4));
 
-    public static final Completers.FileNameCompleter FILE_NAME_COMPLETER = new Completers.FileNameCompleter();
-
     public static int nDigit(int v) {
         if (v == 0)  {
             return 1;
@@ -26,15 +25,15 @@ public class Utils {
         }
     }
 
-    public static <T> void resize(List<T> list, int size) {
-        if (list.size() < size) {
-            while (list.size() != size) {
-                list.add(null);
-            }
-        } else if (list.size() > size) {
-            while (list.size() != size) {
-                list.remove(size);
-            }
+    public static String getExtension(Path path) {
+        String filename = path.getFileName().toString();
+
+        int dot = filename.lastIndexOf('.');
+
+        if (dot < 0) {
+            return "";
+        } else {
+            return filename.substring(dot + 1);
         }
     }
 

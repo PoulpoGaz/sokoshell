@@ -26,9 +26,9 @@ public class SokoShellHelper implements Lock {
     private final ReentrantLock lock = new ReentrantLock();
 
     private final Map<String, Pack> packs = new HashMap<>();
+    private final Map<String, MapStyle> styles = new HashMap<>();
 
     private final MapRenderer renderer = new MapRenderer();
-    private MapStyle mapStyle;
 
     private Terminal terminal;
 
@@ -37,13 +37,15 @@ public class SokoShellHelper implements Lock {
     private SokoShellHelper() {
         MapStyleReader reader = new MapStyleReader();
 
+        addMapStyle(MapStyle.DEFAULT_STYLE);
+
         try {
-            mapStyle = reader.read(Path.of("styles/default/style"));
+            addMapStyle(reader.read(Path.of("styles/isekai/isekai.style")));
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
 
-        renderer.setStyle(mapStyle);
+        renderer.setStyle(styles.get("default"));
     }
 
     public void solve(Solver solver, SolverParameters parameters) {
@@ -109,6 +111,30 @@ public class SokoShellHelper implements Lock {
                 }
             }
         }));
+    }
+
+    public boolean addMapStyle(MapStyle mapStyle) {
+        if (styles.containsKey(mapStyle.getName())) {
+            return false;
+        } else {
+            styles.put(mapStyle.getName(), mapStyle);
+
+            return true;
+        }
+    }
+
+    public void addMapStyleReplace(MapStyle mapStyle) {
+        styles.put(mapStyle.getName(), mapStyle);
+    }
+
+    public MapStyle getMapStyle(String name) {
+        return styles.get(name);
+    }
+
+    public void addMapStyleCandidates(List<Candidate> candidates) {
+        for (MapStyle mapStyle : getMapStyles()) {
+            candidates.add(new Candidate(mapStyle.getName()));
+        }
     }
 
     /**
@@ -206,7 +232,15 @@ public class SokoShellHelper implements Lock {
     }
 
     public MapStyle getMapStyle() {
-        return mapStyle;
+        return renderer.getStyle();
+    }
+
+    public void setMapStyle(MapStyle style) {
+        renderer.setStyle(style);
+    }
+
+    public Collection<MapStyle> getMapStyles() {
+        return styles.values();
     }
 
     @Override
