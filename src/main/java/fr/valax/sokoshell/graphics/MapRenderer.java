@@ -10,9 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.jline.utils.AttributedStyle.BLUE;
-import static org.jline.utils.AttributedStyle.DEFAULT;
-
 /**
  * A class used to print or draw a map on a terminal or a surface
  * or even on system output. It uses a {@link MapStyle} to know how
@@ -20,11 +17,7 @@ import static org.jline.utils.AttributedStyle.DEFAULT;
  */
 public class MapRenderer {
 
-    /**
-     * To know if we show the dead positions or not (see {@link this#draw(Map, int, int, List)}
-     */
-    private boolean showDeadPos;
-    private MapStyle style;
+    private MapStyle2 style;
 
     public void sysPrint(Level level) {
         sysPrint(level.getMap(), level.getPlayerX(), level.getPlayerY());
@@ -95,14 +88,7 @@ public class MapRenderer {
 
                 TileInfo tile = map.getAt(x, y);
 
-                // A little ugly, I admit. Feel free to improve this!
-                // grrrrrrrr
-                if (showDeadPos && tile.isDeadTile() && !tile.isWall()) {
-                    // dead pos are shown with a blue 'X'
-                    builder.append(new AttributedString("X", DEFAULT.background(BLUE)));
-                } else {
-                    builder.append(style.getStyle(tile.getTile(), player));
-                }
+                builder.append(style.get(1, tile.getTile(), player ? Direction.DOWN : null).getAsString()[0]);
             }
 
             out.add(builder.toAttributedString());
@@ -117,7 +103,7 @@ public class MapRenderer {
             throw new IllegalStateException("Please, set style before");
         }
 
-        int s = style.findBestSize(size);
+        int s = findBestSize(size);
 
         if (s < 0) {
             s = size;
@@ -129,24 +115,48 @@ public class MapRenderer {
 
                 Tile tile = map.getAt(x2, y2).getTile();
 
-                style.draw(g, x2 * s + x, y2 * s + y, s, tile, player ? playerDir : null);
+                style.get(s, tile, player ? playerDir : null).draw(g, x2 * s + x, y2 * s + y);
             }
         }
     }
 
-    public MapStyle getStyle() {
+    public int findBestSize(int size) {
+        int i = findBestSizeIndex(size);
+
+        if (i < 0) {
+            return -1;
+        } else {
+            return style.availableSizes()[i];
+        }
+    }
+
+    private int findBestSizeIndex(int size) {
+        int[] sizes = style.availableSizes();
+
+        int bestI = -1;
+
+        for (int i = 0; i < sizes.length; i++) {
+
+            if (sizes[i] == size) {
+                return i;
+            } else if (sizes[i] < size) {
+                if (bestI < 0) {
+                    bestI = i;
+                } else if (sizes[i] > sizes[bestI]) {
+                    bestI = i;
+                }
+            }
+
+        }
+
+        return bestI;
+    }
+
+    public MapStyle2 getStyle() {
         return style;
     }
 
-    public void setStyle(MapStyle style) {
+    public void setStyle(MapStyle2 style) {
         this.style = style;
-    }
-
-    /**
-     * Enables (or disables) the {@link this#draw(Map, int, int, List)} function to show the dead
-     * positions when printing the map (debugging purposes mainly).
-     */
-    public void toggleDeadPositionShow() {
-        showDeadPos = !showDeadPos;
     }
 }

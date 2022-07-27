@@ -82,6 +82,12 @@ public class Surface {
         display.update(strings, cursorPos);
     }
 
+    public void drawBuffer() {
+        for (AttributedStringBuilder b : builders) {
+            System.out.println(new TrueColorString(b.toAttributedString()).toAnsi());
+        }
+    }
+
     /**
      * Clear the buffer.
      * It doesn't clear the screen
@@ -329,7 +335,7 @@ public class Surface {
             g.drawImage(img, 50, 20);
 
 
-            g.setPaint(new RadialGradient(Color.RED, Color.BLUE));
+            g.setPaint(new RadialGradient(java.awt.Color.RED, java.awt.Color.BLUE));
             g.fillRectangle(0, 40, 20, 20);
 
             surface.drawBuffer(display, 0);
@@ -346,10 +352,10 @@ public class Surface {
      */
     private static class RadialGradient implements Graphics.Paint {
 
-        private final Color from;
-        private final Color to;
+        private final java.awt.Color from;
+        private final java.awt.Color to;
 
-        public RadialGradient(Color from, Color to) {
+        public RadialGradient(java.awt.Color from, java.awt.Color to) {
             this.from = from;
             this.to = to;
         }

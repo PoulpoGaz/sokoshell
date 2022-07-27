@@ -26,8 +26,8 @@ public class AbstractSolverTest {
         Map map = level.getMap();
         map.removeStateCrates(level.getInitialState());
         MapRenderer mR = new MapRenderer();
-        mR.setStyle(new MapStyle());
-        mR.toggleDeadPositionShow();
+        //mR.setStyle(new MapStyle());
+        //mR.toggleDeadPositionShow(); // TODO: redo that
         mR.sysPrint(level);
         System.out.println("Computing dead positions...");
 
