@@ -2,7 +2,6 @@ package fr.valax.sokoshell;
 
 import fr.valax.sokoshell.graphics.MapRenderer;
 import fr.valax.sokoshell.graphics.MapStyle;
-import fr.valax.sokoshell.graphics.MapStyleReader;
 import fr.valax.sokoshell.solver.*;
 import fr.valax.sokoshell.solver.tasks.BenchmarkTask;
 import fr.valax.sokoshell.solver.tasks.ISolverTask;
@@ -10,8 +9,6 @@ import fr.valax.sokoshell.solver.tasks.SolverTask;
 import org.jline.reader.Candidate;
 import org.jline.terminal.Terminal;
 
-import java.io.IOException;
-import java.nio.file.Path;
 import java.util.Map;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -35,16 +32,7 @@ public class SokoShellHelper implements Lock {
     private ISolverTask<?> task;
 
     private SokoShellHelper() {
-        MapStyleReader reader = new MapStyleReader();
-
         addMapStyle(MapStyle.DEFAULT_STYLE);
-
-        try {
-            addMapStyle(reader.read(Path.of("styles/isekai/isekai.style")));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
         renderer.setStyle(styles.get("default"));
     }
 

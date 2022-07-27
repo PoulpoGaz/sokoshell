@@ -10,6 +10,9 @@ public class GlobIterator implements AutoCloseable {
     private final Stream<Path> stream;
     private final Iterator<Path> iterator;
 
+    private int limit = 200;
+    private int nNext = 0;
+
     public GlobIterator(String glob) throws IOException {
         this(glob, false);
     }
@@ -67,11 +70,24 @@ public class GlobIterator implements AutoCloseable {
     }
 
     public boolean hasNext() {
+        if (limit >= 0 && nNext >= limit) {
+            return false;
+        }
+
         return iterator.hasNext();
     }
 
     public Path next() {
+        nNext++;
         return iterator.next();
+    }
+
+    public int getLimit() {
+        return limit;
+    }
+
+    public void setLimit(int limit) {
+        this.limit = limit;
     }
 
     @Override

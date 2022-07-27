@@ -28,9 +28,11 @@ import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;
 import org.jline.widget.AutosuggestionWidgets;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -44,6 +46,10 @@ public class SokoShell {
 
     public static final String VERSION = "0.1";
     public static final String NAME = "sokoshell";
+
+    public static final Path USER_HOME = Path.of(System.getProperty("user.home"));
+    public static final Path HISTORY = USER_HOME.resolve(".%s_history".formatted(NAME));
+    public static final Path RUN_COMMAND = USER_HOME.resolve(".%src".formatted(NAME));
 
     public static void main(String[] args) {
         SokoShell sokoshell;
@@ -117,6 +123,8 @@ public class SokoShell {
         System.out.println("Goodbye!");
     }
 
+    // READING AND EXECUTING
+
     private void loop(String[] args) {
         DefaultParser parser = new DefaultParser();
 
@@ -139,9 +147,13 @@ public class SokoShell {
                     .highlighter(new DefaultHighlighter())
                     .parser(parser)
                     .completer(JLineUtils.createCompleter(cli))
-                    .variable(LineReader.HISTORY_FILE, getHistoryPath())
+                    .variable(LineReader.HISTORY_FILE, HISTORY)
                     .option(LineReader.Option.DISABLE_EVENT_EXPANSION, true)
                     .build();
+
+            if (!executeStartupScript()) {
+                return;
+            }
 
             AutosuggestionWidgets autosuggestionWidgets = new AutosuggestionWidgets(reader);
             autosuggestionWidgets.enable();
@@ -190,11 +202,22 @@ public class SokoShell {
         return new AttributedString(NAME + "> ", AttributedStyle.BOLD).toAnsi();
     }
 
-    private Path getHistoryPath() {
-        String home = System.getProperty("user.home");
+    // STARTUP SCRIPT
 
-        return Path.of("%s/.%s_history".formatted(home, NAME));
+    private boolean executeStartupScript() {
+        StartupScript ss = new StartupScript(cli);
+        try {
+            ss.run(RUN_COMMAND);
+
+            return true;
+        } catch (IOException | CommandLineException e) {
+            System.err.println("Failed to run startup script");
+            e.printStackTrace();
+            return false;
+        }
     }
+
+    // BASIC COMMANDS
 
     private int clear(InputStream in, PrintStream out, PrintStream err) {
         if (reader != null) {

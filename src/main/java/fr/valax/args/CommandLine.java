@@ -91,7 +91,7 @@ public class CommandLine {
         return execute(new Tokenizer(commandStr));
     }
 
-    public int execute(Iterator<Token> tokenizer) throws CommandLineException, IOException {
+    private int execute(Iterator<Token> tokenizer) throws CommandLineException, IOException {
         currIn = stdIn;
         currOut = stdOut;
         currErr = stdErr;
