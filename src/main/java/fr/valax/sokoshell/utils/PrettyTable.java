@@ -1,5 +1,7 @@
 package fr.valax.sokoshell.utils;
 
+import org.jline.utils.AttributedString;
+
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -18,7 +20,7 @@ public class PrettyTable {
 
         private final Alignment xAlignment;
         private final Alignment yAlignment;
-        private final String[] content;
+        private final AttributedString[] content;
 
         private int width = -1;
 
@@ -26,10 +28,33 @@ public class PrettyTable {
             this(Alignment.CENTER, Alignment.CENTER, content);
         }
 
+        public Cell(AttributedString content) {
+            this(Alignment.CENTER, Alignment.CENTER, new AttributedString[] {content});
+        }
+
         public Cell(Alignment xAlignment, Alignment yAlignment, String content) {
+            this(xAlignment, yAlignment, content.split(System.lineSeparator()));
+        }
+
+        public Cell(Alignment xAlignment, Alignment yAlignment, String[] content) {
             this.xAlignment = Objects.requireNonNull(xAlignment);
             this.yAlignment = Objects.requireNonNull(yAlignment);
-            this.content = content.split(System.lineSeparator());
+            this.content = new AttributedString[content.length];
+
+            for (int i = 0; i < content.length; i++) {
+                String str = content[i];
+                this.content[i] = new AttributedString(str);
+            }
+        }
+
+        public Cell(Alignment xAlignment, Alignment yAlignment, AttributedString[] content) {
+            this.xAlignment = Objects.requireNonNull(xAlignment);
+            this.yAlignment = Objects.requireNonNull(yAlignment);
+            this.content = content;
+
+            for (AttributedString str : content) {
+                Objects.requireNonNull(str);
+            }
         }
 
         /**
@@ -59,23 +84,23 @@ public class PrettyTable {
             }
         }
 
-        private int draw(StringBuilder sb, int cellWidth, String line) {
+        private int draw(StringBuilder sb, int cellWidth, AttributedString line) {
             return switch (xAlignment) {
                 case CENTER -> {
-                    int x = (cellWidth - line.length()) / 2;
+                    int x = (cellWidth - line.columnLength()) / 2;
 
                     sb.append(" ".repeat(x));
-                    sb.append(line);
+                    sb.append(line.toAnsi());
 
-                    yield x + line.length();
+                    yield x + line.columnLength();
                 }
                 case LEFT -> {
-                    sb.append(line);
-                    yield line.length();
+                    sb.append(line.toAnsi());
+                    yield line.columnLength();
                 }
                 case RIGHT -> {
-                    sb.append(" ".repeat(cellWidth - line.length()));
-                    sb.append(line);
+                    sb.append(" ".repeat(cellWidth - line.columnLength()));
+                    sb.append(line.toAnsi());
 
                     yield cellWidth;
                 }
@@ -87,8 +112,8 @@ public class PrettyTable {
             if (width < 0) {
                 width = 0;
 
-                for (String str : content) {
-                    width = Math.max(width, str.length());
+                for (AttributedString str : content) {
+                    width = Math.max(width, str.columnLength());
                 }
             }
 
@@ -97,18 +122,6 @@ public class PrettyTable {
 
         public int height() {
             return content.length;
-        }
-
-        public Alignment xAlignment() {
-            return xAlignment;
-        }
-
-        public Alignment yAlignment() {
-            return yAlignment;
-        }
-
-        public String[] content() {
-            return content;
         }
     }
 

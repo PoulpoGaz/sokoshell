@@ -293,7 +293,8 @@ public class SokoShell {
                 return switch (x) {
                     case 0 -> {
                         if (mapStyle == selected) {
-                            yield new PrettyTable.Cell("* " + mapStyle.getName() + " *");
+                            AttributedString str = new AttributedString("* " + mapStyle.getName() + " *", AttributedStyle.BOLD);
+                            yield new PrettyTable.Cell(str);
                         } else {
                             yield new PrettyTable.Cell(mapStyle.getName());
                         }
