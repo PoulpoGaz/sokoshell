@@ -2,21 +2,14 @@ package fr.valax.sokoshell;
 
 import fr.valax.args.CommandLine;
 import fr.valax.args.CommandLineBuilder;
-import fr.valax.args.api.Command;
-import fr.valax.args.api.Option;
 import fr.valax.args.jline.HelpCommand;
 import fr.valax.args.jline.JLineUtils;
 import fr.valax.args.jline.REPLHelpFormatter;
 import fr.valax.args.utils.CommandLineException;
 import fr.valax.sokoshell.graphics.MapStyle;
-import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.solver.Pack;
-import fr.valax.sokoshell.solver.Solution;
-import fr.valax.sokoshell.solver.SolverStatistics;
 import fr.valax.sokoshell.solver.tasks.ISolverTask;
-import fr.valax.sokoshell.utils.LessCommand;
-import fr.valax.sokoshell.utils.PrettyTable;
-import fr.valax.sokoshell.utils.Utils;
+import fr.valax.sokoshell.utils.*;
 import org.jline.reader.EndOfFileException;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
@@ -36,16 +29,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.Path;
-import java.sql.Date;
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.function.BiFunction;
 
-import static fr.valax.args.api.Command.*;
+import static fr.valax.args.api.Command.SUCCESS;
 
 /**
  * @author PoulpoGaz
@@ -109,7 +97,7 @@ public class SokoShell {
                 .addCommand(AbstractCommand.newCommand(this::gc, "gc", "Run garbage collector.\nYou may want to use this after solving a sokoban"))
                 .subCommand(new ListPacks())
                     .addCommand(new ListStyle())
-                    .addCommand(new ListSolution())
+                    .addCommand(new ListSolutionCommand())
                 .endSubCommand()
                 .addCommand(new LoadStyleCommand())
                 .addCommand(new SetStyleCommand())
@@ -253,48 +241,39 @@ public class SokoShell {
         return SUCCESS;
     }
 
-    private static class ListPacks extends TableCommand<Pack> {
-
-        private List<Pack> packs;
+    private static class ListPacks extends TableCommand {
 
         @Override
         protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
-            packs = helper.getPacks().stream()
+            List<Pack> packs = helper.getPacks().stream()
                     .sorted(Comparator.comparing(Pack::name))
                     .toList();
-            printTable(out, packs);
 
-            return 0;
-        }
+            PrettyTable2 table = new PrettyTable2();
 
-        @Override
-        protected String[] getHeaders() {
-            return new String[] {"Pack", "Author", "Number of levels"};
-        }
+            PrettyColumn<String> name = new PrettyColumn<>("Name");
+            PrettyColumn<String> author = new PrettyColumn<>("Author");
+            PrettyColumn<Integer> version = new PrettyColumn<>("Number of levels");
 
-        @Override
-        protected PrettyTable.Cell extract(Pack pack, int x) {
-            return switch (x) {
-                case 0 -> new PrettyTable.Cell(pack.name());
-                case 1 -> new PrettyTable.Cell(pack.author());
-                case 2 -> new PrettyTable.Cell(String.valueOf(pack.levels().size()));
-                default -> throw new IllegalArgumentException();
-            };
-        }
+            for (Pack pack : packs) {
+                name.add(pack.name());
+                author.add(pack.author());
+                version.add(Alignment.RIGHT, pack.levels().size());
+            }
 
-        @Override
-        protected String countLine() {
+            table.addColumn(name);
+            table.addColumn(author);
+            table.addColumn(version);
+
+            printTable(out, err, table);
+
             int totalLevels = 0;
             for (Pack p : packs) {
                 totalLevels += p.levels().size();
             }
+            out.printf("%nTotal packs: %d - Total levels: %d%n", packs.size(), totalLevels);
 
-            return "Total packs: %d - Total levels: " + totalLevels + "%n";
-        }
-
-        @Override
-        protected String whenEmpty() {
-            return "No pack loaded";
+            return 0;
         }
 
         @Override
@@ -313,68 +292,57 @@ public class SokoShell {
         }
     }
 
-    private static class ListStyle extends TableCommand<MapStyle> {
-
-        private MapStyle selected;
-
-        @Override
-        protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
-            selected = helper.getMapStyle();
-
-            List<MapStyle> mapStyles = helper.getMapStyles().stream()
-                    .sorted(Comparator.comparing(MapStyle::getName))
-                    .toList();
-
-            printTable(out, mapStyles);
-
-            return 0;
-        }
-
-        @Override
-        protected String[] getHeaders() {
-            return new String[] {"Name", "Author", "Version"};
-        }
-
-        @Override
-        protected PrettyTable.Cell extract(MapStyle mapStyle, int x) {
-            return switch (x) {
-                case 0 -> {
-                    if (mapStyle == selected) {
-                        AttributedString str = new AttributedString("* " + mapStyle.getName() + " *", AttributedStyle.BOLD);
-                        yield new PrettyTable.Cell(str);
-                    } else {
-                        yield new PrettyTable.Cell(mapStyle.getName());
-                    }
-                }
-                case 1 -> new PrettyTable.Cell(mapStyle.getAuthor());
-                case 2 -> new PrettyTable.Cell(String.valueOf(mapStyle.getVersion()));
-                default -> throw new IllegalArgumentException();
-            };
-        }
-
-        @Override
-        protected String countLine() {
-            return "Total map styles: %d%n";
-        }
-
-        @Override
-        protected String whenEmpty() {
-            throw new IllegalArgumentException();
-        }
+    private static class ListStyle extends TableCommand {
 
         @Override
         public String getName() {
-            return "style";
+            return "style2";
         }
 
         @Override
         public String getShortDescription() {
-            return "List all styles";
+            return null;
         }
 
         @Override
         public String[] getUsage() {
             return new String[0];
+        }
+
+        @Override
+        protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
+            MapStyle selected = helper.getMapStyle();
+
+            List<MapStyle> mapStyles = helper.getMapStyles().stream()
+                    .sorted(Comparator.comparing(MapStyle::getName))
+                    .toList();
+
+            PrettyTable2 table = new PrettyTable2();
+
+            PrettyColumn<AttributedString> name = new PrettyColumn<>("name");
+            name.setToString((s) -> new AttributedString[] {s});
+
+            PrettyColumn<String> author = new PrettyColumn<>("author");
+            PrettyColumn<String> version = new PrettyColumn<>("version");
+
+            for (MapStyle style : mapStyles) {
+                if (selected == style) {
+                    name.add(new AttributedString("* " +style.getName() + " *" , AttributedStyle.BOLD));
+                } else {
+                    name.add(new AttributedString(style.getName()));
+                }
+                
+                author.add(style.getAuthor());
+                version.add(style.getVersion());
+            }
+
+            table.addColumn(name);
+            table.addColumn(author);
+            table.addColumn(version);
+
+            printTable(out, err, table);
+
+            return 0;
         }
     }
 }

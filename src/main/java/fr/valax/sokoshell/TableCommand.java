@@ -1,38 +1,49 @@
 package fr.valax.sokoshell;
 
-import fr.valax.sokoshell.utils.PrettyTable;
+import fr.valax.args.api.Option;
+import fr.valax.sokoshell.utils.PrettyColumn;
+import fr.valax.sokoshell.utils.PrettyTable2;
 
 import java.io.PrintStream;
-import java.util.List;
 
-public abstract class TableCommand<T> extends AbstractCommand {
+public abstract class TableCommand extends AbstractCommand {
 
-    protected void printTable(PrintStream out,
-                              List<T> elements) {
-        if (elements.isEmpty()) {
-            out.println(whenEmpty());
+    @Option(names = {"c", "column"}, hasArgument = true)
+    private String column;
+
+    @Option(names = {"I", "column-index"}, hasArgument = true)
+    private Integer index;
+
+    @Option(names = {"r", "reversed"})
+    private boolean reversed;
+
+    protected void printTable(PrintStream out, PrintStream err, PrettyTable2 table) {
+        if (column == null && index == null) {
+            out.println(table.create());
         } else {
-            String[] headers = getHeaders();
+            int i;
+            if (index != null) {
+                i = index - 1;
+            } else {
+                for (i = 0; i < table.nuberOfColumn(); i++) {
+                    PrettyColumn<?> column1 = table.getColumn(i);
 
-            String table = PrettyTable.create(
-                    headers.length, elements.size(), headers,
-                    (x, y) -> extract(elements.get(y), x));
-
-            out.println(table);
-
-            String line = countLine();
-            if (line != null) {
-                out.println();
-                out.printf(line, elements.size());
+                    if (column1.getHeaderStr().equalsIgnoreCase(column)) {
+                        break;
+                    }
+                }
             }
+
+            if (i < 0 || i >= table.nuberOfColumn()) {
+                if (index != null) {
+                    err.printf("Index out of bounds%n");
+                } else {
+                    err.printf("No column named %s%n", column);
+                }
+                return;
+            }
+
+            out.println(table.create(i, reversed));
         }
     }
-
-    protected abstract String[] getHeaders();
-
-    protected abstract PrettyTable.Cell extract(T t, int x);
-
-    protected abstract String countLine();
-
-    protected abstract String whenEmpty();
 }
