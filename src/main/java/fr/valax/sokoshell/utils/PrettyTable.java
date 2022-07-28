@@ -32,8 +32,20 @@ public class PrettyTable {
             this(Alignment.CENTER, Alignment.CENTER, new AttributedString[] {content});
         }
 
+        public Cell(Alignment xAlignment, AttributedString content) {
+            this(xAlignment, Alignment.CENTER, new AttributedString[] {content});
+        }
+
+        public Cell(Alignment xAlignment, String content) {
+            this(xAlignment, Alignment.CENTER, content.split(System.lineSeparator()));
+        }
+
         public Cell(Alignment xAlignment, Alignment yAlignment, String content) {
             this(xAlignment, yAlignment, content.split(System.lineSeparator()));
+        }
+
+        public Cell(Alignment xAlignment, String[] content) {
+            this(xAlignment, Alignment.CENTER, content);
         }
 
         public Cell(Alignment xAlignment, Alignment yAlignment, String[] content) {
@@ -45,6 +57,10 @@ public class PrettyTable {
                 String str = content[i];
                 this.content[i] = new AttributedString(str);
             }
+        }
+
+        public Cell(Alignment xAlignment, AttributedString[] content) {
+            this(xAlignment, Alignment.CENTER, content);
         }
 
         public Cell(Alignment xAlignment, Alignment yAlignment, AttributedString[] content) {

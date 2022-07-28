@@ -3,6 +3,7 @@ package fr.valax.sokoshell;
 import fr.valax.args.CommandLine;
 import fr.valax.args.CommandLineBuilder;
 import fr.valax.args.api.Command;
+import fr.valax.args.api.Option;
 import fr.valax.args.jline.HelpCommand;
 import fr.valax.args.jline.JLineUtils;
 import fr.valax.args.jline.REPLHelpFormatter;
@@ -106,8 +107,8 @@ public class SokoShell {
                 .addCommand(AbstractCommand.newCommand(this::clear, "clear", "Clear screen"))
                 .addCommand(AbstractCommand.newCommand(this::stopSolver, "stop", "Stop the solver"))
                 .addCommand(AbstractCommand.newCommand(this::gc, "gc", "Run garbage collector.\nYou may want to use this after solving a sokoban"))
-                .subCommand(AbstractCommand.newCommand(this::list, "list", "List all packs"))
-                    .addCommand(AbstractCommand.newCommand(this::listStyle, "style", "List all styles"))
+                .subCommand(new ListPacks())
+                    .addCommand(new ListStyle())
                     .addCommand(new ListSolution())
                 .endSubCommand()
                 .addCommand(new LoadStyleCommand())
@@ -252,171 +253,123 @@ public class SokoShell {
         return SUCCESS;
     }
 
-    private int list(InputStream in, PrintStream out, PrintStream err) {
-        List<Pack> packs = helper.getPacks().stream()
-                .sorted(Comparator.comparing(Pack::name))
-                .toList();
+    private static class ListPacks extends TableCommand<Pack> {
 
-        int totalLevels = 0;
-
-        if (packs.size() > 0) {
-            BiFunction<Integer, Integer, PrettyTable.Cell> extractor = (x, y) -> {
-                Pack pack = packs.get(y);
-
-                return switch (x) {
-                    case 0 -> new PrettyTable.Cell(pack.name());
-                    case 1 -> new PrettyTable.Cell(pack.author());
-                    case 2 -> new PrettyTable.Cell(String.valueOf(pack.levels().size()));
-                    default -> throw new IllegalArgumentException();
-                };
-            };
-
-            String table = PrettyTable.create(
-                    3, packs.size(), new String[]{"Pack", "Author", "Number of levels"},
-                    extractor);
-
-            out.println(table);
-            out.println();
-        }
-
-        for (Pack p : packs) {
-            totalLevels += p.levels().size();
-        }
-
-        out.printf("Total packs: %d - Total levels: %d%n", packs.size(), totalLevels);
-
-        return SUCCESS;
-    }
-
-    private Integer listStyle(InputStream in, PrintStream out, PrintStream err) {
-        MapStyle selected = helper.getMapStyle();
-
-        List<MapStyle> mapStyles = helper.getMapStyles().stream()
-                .sorted(Comparator.comparing(MapStyle::getName))
-                .toList();
-
-        if (mapStyles.size() > 0) {
-            BiFunction<Integer, Integer, PrettyTable.Cell> extractor = (x, y) -> {
-                MapStyle mapStyle = mapStyles.get(y);
-
-                return switch (x) {
-                    case 0 -> {
-                        if (mapStyle == selected) {
-                            AttributedString str = new AttributedString("* " + mapStyle.getName() + " *", AttributedStyle.BOLD);
-                            yield new PrettyTable.Cell(str);
-                        } else {
-                            yield new PrettyTable.Cell(mapStyle.getName());
-                        }
-                    }
-                    case 1 -> new PrettyTable.Cell(mapStyle.getAuthor());
-                    case 2 -> new PrettyTable.Cell(String.valueOf(mapStyle.getVersion()));
-                    default -> throw new IllegalArgumentException();
-                };
-            };
-
-            String table = PrettyTable.create(
-                    3, mapStyles.size(), new String[] {"Name", "Author", "Version"},
-                    extractor);
-
-            out.println(table);
-            out.println();
-        }
-
-        out.printf("Total map styles: %d%n", mapStyles.size());
-
-        return SUCCESS;
-    }
-
-    private static class ListSolution extends LevelCommand {
+        private List<Pack> packs;
 
         @Override
-        public int executeImpl(InputStream in, PrintStream out, PrintStream err) {
-            Level level = getLevel();
-            if (level == null) {
-                return FAILURE;
-            }
+        protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
+            packs = helper.getPacks().stream()
+                    .sorted(Comparator.comparing(Pack::name))
+                    .toList();
+            printTable(out, packs);
 
-            if (level.hasSolution()) {
-
-                List<Solution> solutions = level.getSolutions();
-
-                BiFunction<Integer, Integer, PrettyTable.Cell> extractor = (x, y) -> {
-                    Solution solution = solutions.get(y);
-
-                    return switch (x) {
-                        case 0 -> new PrettyTable.Cell(solution.getStatus().toString());
-                        case 1 -> new PrettyTable.Cell(String.valueOf(solution.numberOfPushes()));
-                        case 2 -> new PrettyTable.Cell(String.valueOf(solution.numberOfMoves()));
-                        case 3 -> {
-                            SolverStatistics stats = solution.getStatistics();
-
-                            SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-                            String date = format.format(Date.from(Instant.ofEpochMilli(stats.getTimeStarted())));
-
-                            yield new PrettyTable.Cell(date);
-                        }
-                        case 4 -> {
-                            SolverStatistics stats = solution.getStatistics();
-
-                            long time = stats.getTimeEnded() - stats.getTimeStarted();
-
-                            yield new PrettyTable.Cell(prettyDate(time));
-                        }
-                        default -> throw new IllegalArgumentException();
-                    };
-                };
-
-                String table = PrettyTable.create(
-                        5, solutions.size(), new String[] {"Status", "Pushes", "Moves", "Solved at", "Time"},
-                        extractor);
-
-                out.println(table);
-                out.println();
-
-                out.printf("Number of solutions: %d%n", solutions.size());
-
-            } else {
-                err.println("This level hasn't been solved");
-            }
-
-            return SUCCESS;
+            return 0;
         }
 
-        private String prettyDate(long millis) {
-            if (millis < 1000) {
-                return millis + "ms";
-            } else if (millis < 1000 * 60) {
-                double sec = millis / 1000d;
-
-                return round(sec) + "s";
-            } else if (millis < 1000 * 60 * 60) {
-                int minute = (int) (millis / (1000 * 60d));
-                double sec = (millis - minute * 1000 * 60) / 1000d;
-
-                return minute + "min " + sec + "s";
-            } else {
-                int hour = (int) (millis / (1000 * 60 * 60d));
-                int minute = (int) (millis - hour * 1000 * 60 * 60) / (1000 * 60);
-                double sec = (millis - hour * 1000 * 60 * 60 - minute * 1000 * 60) / 1000d;
-
-                return hour + "h " + minute + "min " + sec + "s";
-            }
+        @Override
+        protected String[] getHeaders() {
+            return new String[] {"Pack", "Author", "Number of levels"};
         }
 
-        private String round(double d) {
-            DecimalFormat format = new DecimalFormat("#.##");
+        @Override
+        protected PrettyTable.Cell extract(Pack pack, int x) {
+            return switch (x) {
+                case 0 -> new PrettyTable.Cell(pack.name());
+                case 1 -> new PrettyTable.Cell(pack.author());
+                case 2 -> new PrettyTable.Cell(String.valueOf(pack.levels().size()));
+                default -> throw new IllegalArgumentException();
+            };
+        }
 
-            return format.format(d);
+        @Override
+        protected String countLine() {
+            int totalLevels = 0;
+            for (Pack p : packs) {
+                totalLevels += p.levels().size();
+            }
+
+            return "Total packs: %d - Total levels: " + totalLevels + "%n";
+        }
+
+        @Override
+        protected String whenEmpty() {
+            return "No pack loaded";
         }
 
         @Override
         public String getName() {
-            return "solution";
+            return "list";
         }
 
         @Override
         public String getShortDescription() {
-            return "List all solutions of a level";
+            return "List all packs";
+        }
+
+        @Override
+        public String[] getUsage() {
+            return new String[0];
+        }
+    }
+
+    private static class ListStyle extends TableCommand<MapStyle> {
+
+        private MapStyle selected;
+
+        @Override
+        protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
+            selected = helper.getMapStyle();
+
+            List<MapStyle> mapStyles = helper.getMapStyles().stream()
+                    .sorted(Comparator.comparing(MapStyle::getName))
+                    .toList();
+
+            printTable(out, mapStyles);
+
+            return 0;
+        }
+
+        @Override
+        protected String[] getHeaders() {
+            return new String[] {"Name", "Author", "Version"};
+        }
+
+        @Override
+        protected PrettyTable.Cell extract(MapStyle mapStyle, int x) {
+            return switch (x) {
+                case 0 -> {
+                    if (mapStyle == selected) {
+                        AttributedString str = new AttributedString("* " + mapStyle.getName() + " *", AttributedStyle.BOLD);
+                        yield new PrettyTable.Cell(str);
+                    } else {
+                        yield new PrettyTable.Cell(mapStyle.getName());
+                    }
+                }
+                case 1 -> new PrettyTable.Cell(mapStyle.getAuthor());
+                case 2 -> new PrettyTable.Cell(String.valueOf(mapStyle.getVersion()));
+                default -> throw new IllegalArgumentException();
+            };
+        }
+
+        @Override
+        protected String countLine() {
+            return "Total map styles: %d%n";
+        }
+
+        @Override
+        protected String whenEmpty() {
+            throw new IllegalArgumentException();
+        }
+
+        @Override
+        public String getName() {
+            return "style";
+        }
+
+        @Override
+        public String getShortDescription() {
+            return "List all styles";
         }
 
         @Override
