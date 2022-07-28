@@ -1,7 +1,9 @@
 package fr.valax.sokoshell.solver;
 
+import fr.poulpogaz.json.IJsonReader;
 import fr.poulpogaz.json.JsonException;
 import fr.poulpogaz.json.JsonPrettyWriter;
+import fr.poulpogaz.json.JsonReader;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -40,7 +42,6 @@ public class Level {
             }
         }
     }
-
 
     public Map getMap() {
         return map;
@@ -81,12 +82,24 @@ public class Level {
         return new State(playerPos, cratesIndicesArray, null);
     }
 
-    public Solution getSolution() {
+    public Solution getLastSolution() {
         if (solutions.isEmpty()) {
             return null;
         }
 
-        return solutions.get(0);
+        return solutions.get(solutions.size() - 1);
+    }
+
+    public Solution getSolution(int index) {
+        if (index < 0 || index >= solutions.size()) {
+            return null;
+        } else {
+            return solutions.get(index);
+        }
+    }
+
+    public List<Solution> getSolutions() {
+        return solutions;
     }
 
     public void addSolution(Solution solution) {

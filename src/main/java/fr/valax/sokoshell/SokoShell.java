@@ -8,7 +8,10 @@ import fr.valax.args.jline.JLineUtils;
 import fr.valax.args.jline.REPLHelpFormatter;
 import fr.valax.args.utils.CommandLineException;
 import fr.valax.sokoshell.graphics.MapStyle;
+import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.solver.Pack;
+import fr.valax.sokoshell.solver.Solution;
+import fr.valax.sokoshell.solver.SolverStatistics;
 import fr.valax.sokoshell.solver.tasks.ISolverTask;
 import fr.valax.sokoshell.utils.LessCommand;
 import fr.valax.sokoshell.utils.PrettyTable;
@@ -28,16 +31,20 @@ import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;
 import org.jline.widget.AutosuggestionWidgets;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.Date;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.BiFunction;
+
+import static fr.valax.args.api.Command.*;
 
 /**
  * @author PoulpoGaz
@@ -99,8 +106,10 @@ public class SokoShell {
                 .addCommand(AbstractCommand.newCommand(this::clear, "clear", "Clear screen"))
                 .addCommand(AbstractCommand.newCommand(this::stopSolver, "stop", "Stop the solver"))
                 .addCommand(AbstractCommand.newCommand(this::gc, "gc", "Run garbage collector.\nYou may want to use this after solving a sokoban"))
-                .addCommand(AbstractCommand.newCommand(this::list, "list", "List all packs"))
-                .addCommand(AbstractCommand.newCommand(this::listStyle, "list-style", "List all styles"))
+                .subCommand(AbstractCommand.newCommand(this::list, "list", "List all packs"))
+                    .addCommand(AbstractCommand.newCommand(this::listStyle, "style", "List all styles"))
+                    .addCommand(new ListSolution())
+                .endSubCommand()
                 .addCommand(new LoadStyleCommand())
                 .addCommand(new SetStyleCommand())
                 .addCommand(new LessCommand())
@@ -224,7 +233,7 @@ public class SokoShell {
             reader.clearScreen();
         }
 
-        return Command.SUCCESS;
+        return SUCCESS;
     }
 
     private int stopSolver(InputStream in, PrintStream out, PrintStream err) {
@@ -234,13 +243,13 @@ public class SokoShell {
             task.stop();
         }
 
-        return Command.SUCCESS;
+        return SUCCESS;
     }
 
     private int gc(InputStream in, PrintStream out, PrintStream err) {
         Runtime.getRuntime().gc();
 
-        return Command.SUCCESS;
+        return SUCCESS;
     }
 
     private int list(InputStream in, PrintStream out, PrintStream err) {
@@ -276,7 +285,7 @@ public class SokoShell {
 
         out.printf("Total packs: %d - Total levels: %d%n", packs.size(), totalLevels);
 
-        return Command.SUCCESS;
+        return SUCCESS;
     }
 
     private Integer listStyle(InputStream in, PrintStream out, PrintStream err) {
@@ -315,6 +324,104 @@ public class SokoShell {
 
         out.printf("Total map styles: %d%n", mapStyles.size());
 
-        return Command.SUCCESS;
+        return SUCCESS;
+    }
+
+    private static class ListSolution extends LevelCommand {
+
+        @Override
+        public int executeImpl(InputStream in, PrintStream out, PrintStream err) {
+            Level level = getLevel();
+            if (level == null) {
+                return FAILURE;
+            }
+
+            if (level.hasSolution()) {
+
+                List<Solution> solutions = level.getSolutions();
+
+                BiFunction<Integer, Integer, PrettyTable.Cell> extractor = (x, y) -> {
+                    Solution solution = solutions.get(y);
+
+                    return switch (x) {
+                        case 0 -> new PrettyTable.Cell(solution.getStatus().toString());
+                        case 1 -> new PrettyTable.Cell(String.valueOf(solution.numberOfPushes()));
+                        case 2 -> new PrettyTable.Cell(String.valueOf(solution.numberOfMoves()));
+                        case 3 -> {
+                            SolverStatistics stats = solution.getStatistics();
+
+                            SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+                            String date = format.format(Date.from(Instant.ofEpochMilli(stats.getTimeStarted())));
+
+                            yield new PrettyTable.Cell(date);
+                        }
+                        case 4 -> {
+                            SolverStatistics stats = solution.getStatistics();
+
+                            long time = stats.getTimeEnded() - stats.getTimeStarted();
+
+                            yield new PrettyTable.Cell(prettyDate(time));
+                        }
+                        default -> throw new IllegalArgumentException();
+                    };
+                };
+
+                String table = PrettyTable.create(
+                        5, solutions.size(), new String[] {"Status", "Pushes", "Moves", "Solved at", "Time"},
+                        extractor);
+
+                out.println(table);
+                out.println();
+
+                out.printf("Number of solutions: %d%n", solutions.size());
+
+            } else {
+                err.println("This level hasn't been solved");
+            }
+
+            return SUCCESS;
+        }
+
+        private String prettyDate(long millis) {
+            if (millis < 1000) {
+                return millis + "ms";
+            } else if (millis < 1000 * 60) {
+                double sec = millis / 1000d;
+
+                return round(sec) + "s";
+            } else if (millis < 1000 * 60 * 60) {
+                int minute = (int) (millis / (1000 * 60d));
+                double sec = (millis - minute * 1000 * 60) / 1000d;
+
+                return minute + "min " + sec + "s";
+            } else {
+                int hour = (int) (millis / (1000 * 60 * 60d));
+                int minute = (int) (millis - hour * 1000 * 60 * 60) / (1000 * 60);
+                double sec = (millis - hour * 1000 * 60 * 60 - minute * 1000 * 60) / 1000d;
+
+                return hour + "h " + minute + "min " + sec + "s";
+            }
+        }
+
+        private String round(double d) {
+            DecimalFormat format = new DecimalFormat("#.##");
+
+            return format.format(d);
+        }
+
+        @Override
+        public String getName() {
+            return "solution";
+        }
+
+        @Override
+        public String getShortDescription() {
+            return "List all solutions of a level";
+        }
+
+        @Override
+        public String[] getUsage() {
+            return new String[0];
+        }
     }
 }

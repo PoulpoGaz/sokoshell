@@ -1,17 +1,14 @@
 package fr.valax.sokoshell;
 
-import fr.valax.args.api.Option;
+import fr.poulpogaz.json.JsonException;
 import fr.valax.args.api.VaArgs;
 import fr.valax.args.jline.FileNameCompleter;
-import fr.valax.args.utils.ArgsUtils;
-import fr.valax.sokoshell.loader.PackReaders;
+import fr.valax.sokoshell.readers.PackReaders;
 import fr.valax.sokoshell.solver.Pack;
 import fr.valax.sokoshell.utils.GlobIterator;
 import fr.valax.sokoshell.utils.ScanUtils;
-import fr.valax.sokoshell.utils.Utils;
 import org.jline.reader.Candidate;
 import org.jline.reader.LineReader;
-import org.jline.reader.ParsedLine;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -59,7 +56,7 @@ public class LoadCommand extends AbstractCommand {
         Pack pack;
         try {
             pack = PackReaders.read(input);
-        } catch (IOException e) {
+        } catch (IOException | JsonException e) {
             e.printStackTrace(err);
             err.println("Failed to read pack at " + input);
 

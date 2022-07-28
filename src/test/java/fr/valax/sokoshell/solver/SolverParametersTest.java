@@ -1,7 +1,7 @@
 package fr.valax.sokoshell.solver;
 
 import fr.poulpogaz.json.*;
-import fr.valax.sokoshell.loader.PackReaders;
+import fr.valax.sokoshell.readers.PackReaders;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -14,7 +14,7 @@ public class SolverParametersTest {
 
     @Test
     void test() throws IOException, JsonException {
-        Pack pack = PackReaders.read(Path.of("levels/Original.8xv"));
+        Pack pack = PackReaders.read(Path.of("levels/Original.8xv"), false);
 
         SolverParameters params = new SolverParameters(SolverType.BFS, pack.levels().get(3), Map.of(
                 SolverParameters.TIMEOUT, 1000,

@@ -1,7 +1,8 @@
 package fr.valax.sokoshell.solver;
 
+import fr.poulpogaz.json.JsonException;
 import fr.valax.sokoshell.graphics.MapRenderer;
-import fr.valax.sokoshell.loader.PackReaders;
+import fr.valax.sokoshell.readers.PackReaders;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -14,8 +15,8 @@ public class AbstractSolverTest {
     void deadPositionsDetectionTest() {
         Pack pack;
         try {
-            pack = PackReaders.read(Path.of("levels/Original.8xv"));
-        } catch (IOException e) {
+            pack = PackReaders.read(Path.of("levels/Original.8xv"), false);
+        } catch (IOException | JsonException e) {
             e.printStackTrace();
             System.out.println("Failed to read pack");
             return;

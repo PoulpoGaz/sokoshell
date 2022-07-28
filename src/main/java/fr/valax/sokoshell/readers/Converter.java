@@ -1,4 +1,4 @@
-package fr.valax.sokoshell.loader;
+package fr.valax.sokoshell.readers;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

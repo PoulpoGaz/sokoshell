@@ -2,16 +2,16 @@ package fr.valax.sokoshell.solver;
 
 import fr.poulpogaz.json.JsonException;
 import fr.poulpogaz.json.JsonPrettyWriter;
+import fr.poulpogaz.json.JsonReader;
+import jdk.jshell.Snippet;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Collections;
 import java.util.List;
+import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 public final class Pack {
@@ -68,6 +68,44 @@ public final class Pack {
 
             jpw.endObject();
             jpw.close();
+        }
+    }
+
+    public void readSolutions(Path in) throws IOException, JsonException {
+        if (Files.notExists(in)) {
+            return;
+        }
+
+        try (InputStream is = Files.newInputStream(in)) {
+            BufferedReader br = new BufferedReader(
+                    new InputStreamReader(new GZIPInputStream(is)));
+
+            JsonReader jr = new JsonReader(br);
+
+            jr.beginObject();
+            String pack = jr.assertKeyEquals("pack").nextString();
+            String author = jr.assertKeyEquals("author").nextString();
+
+            if (pack.equals(name) && author.equals(this.author)) {
+
+                while (!jr.isObjectEnd()) {
+                    int level = Integer.parseInt(jr.nextKey());
+
+                    Level l = levels.get(level);
+                    jr.beginArray();
+
+                    while (!jr.isArrayEnd()) {
+                        jr.beginObject();
+                        l.addSolution(Solution.fromJson(jr, l));
+                        jr.endObject();
+                    }
+
+                    jr.endArray();
+                }
+
+                jr.endObject();
+            }
+            jr.close();
         }
     }
 

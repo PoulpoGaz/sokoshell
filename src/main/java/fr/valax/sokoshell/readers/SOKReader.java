@@ -1,4 +1,4 @@
-package fr.valax.sokoshell.loader;
+package fr.valax.sokoshell.readers;
 
 import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.solver.Map;
@@ -9,25 +9,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SOKReader implements Reader {
 
     private static final String SYMBOLS = "#@+$*. -_";
-
-
-    @Override
-    public Pack read(Path path) throws IOException {
-        try (InputStream is = Files.newInputStream(path)) {
-            Pack p = read(is);
-            p.setSourcePath(path);
-
-            return p;
-        }
-    }
 
     @Override
     public Pack read(InputStream is) throws IOException {

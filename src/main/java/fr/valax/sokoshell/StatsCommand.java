@@ -20,7 +20,7 @@ public class StatsCommand extends LevelCommand {
             return FAILURE;
         }
 
-        Solution solution = l.getSolution();
+        Solution solution = l.getLastSolution();
 
         if (solution == null) {
             out.println("Not solved");

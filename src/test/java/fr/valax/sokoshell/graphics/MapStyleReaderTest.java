@@ -1,6 +1,7 @@
 package fr.valax.sokoshell.graphics;
 
-import fr.valax.sokoshell.loader.PackReaders;
+import fr.poulpogaz.json.JsonException;
+import fr.valax.sokoshell.readers.PackReaders;
 import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.solver.Pack;
 import fr.valax.sokoshell.solver.Tile;
@@ -12,14 +13,14 @@ import java.nio.file.Path;
 public class MapStyleReaderTest {
 
     @Test
-    void test() throws IOException {
+    void test() throws IOException, JsonException {
         MapStyleReader reader = new MapStyleReader();
         MapStyle style = reader.read(Path.of("styles/default/style"));
 
         MapRenderer renderer = new MapRenderer();
         renderer.setStyle(style);
 
-        Pack pack = PackReaders.read(Path.of("levels/Original.8xv"));
+        Pack pack = PackReaders.read(Path.of("levels/Original.8xv"), false);
         Level level = pack.levels().get(0);
 
         loop:

@@ -24,11 +24,11 @@ public abstract class AbstractSolver implements Solver {
         solution.add(s);
         Collections.reverse(solution);
 
-        return new Solution(getSolverType(), params, stats, solution, SolverStatus.SOLUTION_FOUND);
+        return new Solution(params, stats, solution, SolverStatus.SOLUTION_FOUND);
     }
 
     protected Solution create(SolverParameters params, SolverStatistics stats, SolverStatus status) {
-        return new Solution(getSolverType(), params, stats, null, status);
+        return new Solution(params, stats, null, status);
     }
 
     // http://www.sokobano.de/wiki/index.php?title=How_to_detect_deadlocks

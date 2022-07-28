@@ -13,7 +13,6 @@ import org.jline.utils.InfoCmp;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class SolutionCommand extends LevelCommand {
 
@@ -25,12 +24,12 @@ public class SolutionCommand extends LevelCommand {
             return FAILURE;
         }
 
-        if (l.getSolution() == null) {
+        if (l.getLastSolution() == null) {
             err.println("Not solved");
             return FAILURE;
         }
 
-        SolutionAnimator animator = new SolutionAnimator(l);
+        SolutionAnimator animator = new SolutionAnimator(l.getLastSolution());
 
         try (SolutionView view = new SolutionView(helper.getTerminal(), animator)) {
             view.loop();
@@ -118,8 +117,8 @@ public class SolutionCommand extends LevelCommand {
         }
 
         private int drawInfo(int width, int height) {
-            int totalMoveLength = Utils.nDigit(animator.getTotalMove());
-            int totalPushLength = Utils.nDigit(animator.getTotalMove());
+            int totalMoveLength = Utils.nDigit(animator.numberOfMoves());
+            int totalPushLength = Utils.nDigit(animator.numberOfMoves());
 
             int moveLength = Utils.nDigit(animator.getMoveCount());
             int pushLength = Utils.nDigit(animator.getPushCount());
@@ -131,10 +130,10 @@ public class SolutionCommand extends LevelCommand {
             int speedInfoLength = 7 + speedLength;
 
             surface.draw("Moves:", width - moveInfoLength, 0);
-            surface.draw("%d/%d".formatted(animator.getMoveCount(), animator.getTotalMove()), width - totalMoveLength - moveLength - 1, 0);
+            surface.draw("%d/%d".formatted(animator.getMoveCount(), animator.numberOfMoves()), width - totalMoveLength - moveLength - 1, 0);
 
             surface.draw("Pushes:", width - pushInfoLength, 1);
-            surface.draw("%d/%d".formatted(animator.getPushCount(), animator.getTotalPush()), width - totalPushLength - pushLength - 1, 1);
+            surface.draw("%d/%d".formatted(animator.getPushCount(), animator.numberOfPushes()), width - totalPushLength - pushLength - 1, 1);
 
             surface.draw("Speed:", width - 7 - speedLength, 2);
             surface.draw(String.valueOf(speed), width - speedLength, 2);
@@ -211,8 +210,8 @@ public class SolutionCommand extends LevelCommand {
 
     public static class SolutionAnimator {
 
+        private final Solution solution;
         private final Map map;
-        private final List<State> states;
 
         private final List<Move> path;
         private int pathIndex;
@@ -223,13 +222,15 @@ public class SolutionCommand extends LevelCommand {
         private int move;
         private int push;
 
-        public SolutionAnimator(Level level) {
-            this.states = level.getSolution().getStates();
+        public SolutionAnimator(Solution solution) {
+            this.solution = solution;
+            Level level = solution.getParameters().getLevel();
+
             this.map = new Map(level.getMap());
             this.playerX = level.getPlayerX();
             this.playerY = level.getPlayerY();
 
-            path = computeFullPath();
+            path = solution.getFullSolution();
         }
 
         public void move() {
@@ -313,113 +314,6 @@ public class SolutionCommand extends LevelCommand {
             return pathIndex > 0;
         }
 
-        private List<Move> computeFullPath() {
-            List<Move> path = new ArrayList<>();
-
-            for (int i = 0; i < states.size() - 1; i++) {
-                State current = states.get(i);
-
-                if (i != 0) {
-                    map.addStateCrates(current);
-                }
-
-                int playerX = map.getX(current.playerPos());
-                int playerY = map.getY(current.playerPos());
-
-                State next = states.get(i + 1);
-                Direction dir = getDirection(current, next);
-
-                int destX = next.playerPos() % map.getWidth() - dir.dirX();
-                int destY = next.playerPos() / map.getWidth() - dir.dirY();
-
-                if (playerX != destX || playerY != destY) {
-                    path.addAll(findPath(playerX, playerY, destX, destY));
-                }
-
-                path.add(new Move(dir, true));
-
-                map.removeStateCrates(current);
-            }
-
-            // reset
-            map.addStateCrates(states.get(0));
-
-            return path;
-        }
-
-        /**
-         * Doesn't move any crates
-         */
-        private List<Move> findPath(int fromX, int fromY, int destX, int destY) {
-            Set<Node> visited = new HashSet<>();
-            Queue<Node> queue = new ArrayDeque<>();
-            queue.offer(new Node(null, fromX, fromY, null));
-            visited.add(queue.peek());
-
-            Node solution = null;
-            while (!queue.isEmpty() && solution == null) {
-                Node node = queue.poll();
-
-                for (Direction direction : Direction.values()) {
-                    int newX = node.playerX + direction.dirX();
-                    int newY = node.playerY + direction.dirY();
-
-                    if (map.getAt(newX, newY).isSolid()) {
-                        continue;
-                    }
-
-                    Node child = new Node(node, newX, newY, direction);
-                    if (newX == destX && newY == destY) {
-                        solution = child;
-                        break;
-                    }
-
-                    if (visited.add(child)) {
-                        queue.offer(child);
-                    }
-                }
-            }
-
-            if (solution == null) {
-                throw new IllegalStateException("Can't find path between two states");
-            } else {
-                List<Move> directions = new ArrayList<>();
-
-                Node n = solution;
-                while (n.parent != null) {
-                    directions.add(new Move(n.dir, false));
-
-                    n = n.parent;
-                }
-
-                Collections.reverse(directions);
-
-                return directions;
-            }
-        }
-
-        private Direction getDirection(State from, State to) {
-            List<Integer> state1Crates = Arrays.stream(from.cratesIndices()).boxed().collect(Collectors.toList());
-            List<Integer> state2Crates = Arrays.stream(to.cratesIndices()).boxed().collect(Collectors.toList());
-
-            List<Integer> state1Copy = state1Crates.stream().toList();
-            state1Crates.removeAll(state2Crates);
-            state2Crates.removeAll(state1Copy);
-
-            // crate position
-            int mvt1X = (state1Crates.get(0) % map.getWidth());
-            int mvt1Y = (state1Crates.get(0) / map.getWidth());
-
-            // where it goes
-            int mvt2X = (state2Crates.get(0) % map.getWidth());
-            int mvt2Y = (state2Crates.get(0) / map.getWidth());
-
-            int dirX = mvt2X - mvt1X;
-            int dirY = mvt2Y - mvt1Y;
-
-            return Direction.of(dirX, dirY);
-        }
-
         public Map getMap() {
             return map;
         }
@@ -440,12 +334,12 @@ public class SolutionCommand extends LevelCommand {
             return push;
         }
 
-        public int getTotalMove() {
-            return path.size();
+        public int numberOfMoves() {
+            return solution.numberOfMoves();
         }
 
-        public int getTotalPush() {
-            return states.size() - 1;
+        public int numberOfPushes() {
+            return solution.numberOfPushes();
         }
 
         public Direction getLastMove() {
@@ -456,27 +350,4 @@ public class SolutionCommand extends LevelCommand {
             return path.get(pathIndex - 1).direction();
         }
     }
-
-    private record Node(Node parent, int playerX, int playerY, Direction dir) {
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            Node node = (Node) o;
-
-            if (playerX != node.playerX) return false;
-            return playerY == node.playerY;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = playerX;
-            result = 31 * result + playerY;
-            return result;
-        }
-    }
-
-    private record Move(Direction direction, boolean moveCrate) {}
 }
