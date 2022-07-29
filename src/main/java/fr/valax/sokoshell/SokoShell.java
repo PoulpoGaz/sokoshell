@@ -25,9 +25,11 @@ import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;
 import org.jline.widget.AutosuggestionWidgets;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -104,6 +106,7 @@ public class SokoShell {
                 .addCommand(new LessCommand())
                 .addCommand(JLineUtils.newExitCommand(NAME))
                 .addCommand(help)
+                .addCommand(new BasicCommands.Cat())
                 .build();
 
         help.setCli(cli);
@@ -321,6 +324,7 @@ public class SokoShell {
 
             PrettyColumn<AttributedString> name = new PrettyColumn<>("name");
             name.setToString((s) -> new AttributedString[] {s});
+            name.setComparator(Utils.ATTRIBUTED_STRING_COMPARATOR);
 
             PrettyColumn<String> author = new PrettyColumn<>("author");
             PrettyColumn<String> version = new PrettyColumn<>("version");
@@ -331,7 +335,7 @@ public class SokoShell {
                 } else {
                     name.add(new AttributedString(style.getName()));
                 }
-                
+
                 author.add(style.getAuthor());
                 version.add(style.getVersion());
             }

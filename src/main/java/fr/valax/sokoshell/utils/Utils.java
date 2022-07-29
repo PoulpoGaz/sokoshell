@@ -1,9 +1,9 @@
 package fr.valax.sokoshell.utils;
 
-import org.jline.builtins.Completers;
+import org.jline.utils.AttributedString;
 
 import java.nio.file.Path;
-import java.util.List;
+import java.util.Comparator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -14,6 +14,9 @@ public class Utils {
     public static final ScheduledExecutorService SCHEDULED_EXECUTOR =
             Executors.newScheduledThreadPool(
                     Math.max(1, Runtime.getRuntime().availableProcessors() / 4));
+
+    public static final Comparator<AttributedString> ATTRIBUTED_STRING_COMPARATOR =
+            Comparator.comparing(AttributedString::toString);
 
     public static int nDigit(int v) {
         if (v == 0)  {
