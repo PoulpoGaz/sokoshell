@@ -107,6 +107,8 @@ public class SokoShell {
                 .addCommand(JLineUtils.newExitCommand(NAME))
                 .addCommand(help)
                 .addCommand(new BasicCommands.Cat())
+                .addCommand(new BasicCommands.Echo())
+                .addCommand(new BasicCommands.Grep())
                 .build();
 
         help.setCli(cli);
@@ -299,7 +301,7 @@ public class SokoShell {
 
         @Override
         public String getName() {
-            return "style2";
+            return "style";
         }
 
         @Override
