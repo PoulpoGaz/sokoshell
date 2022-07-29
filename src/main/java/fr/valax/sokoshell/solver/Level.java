@@ -1,14 +1,12 @@
 package fr.valax.sokoshell.solver;
 
-import fr.poulpogaz.json.IJsonReader;
 import fr.poulpogaz.json.JsonException;
 import fr.poulpogaz.json.JsonPrettyWriter;
-import fr.poulpogaz.json.JsonReader;
+import fr.valax.sokoshell.utils.BuilderException;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author darth-mole
@@ -120,7 +118,8 @@ public class Level {
 
     public static class Builder {
 
-        private int playerPos;
+        private int playerX = -1;
+        private int playerY = -1;
 
         private Tile[][] map = new Tile[0][0];
         private int width;
@@ -128,19 +127,46 @@ public class Level {
         private int index;
 
         public Level build() {
-            Objects.requireNonNull(map);
+            if (map == null) {
+                throw new BuilderException("Map is null");
+            }
+
+            if (playerX < 0 || playerX >= width) {
+                throw new BuilderException("Player x out of bounds");
+            }
+
+            if (playerY < 0 || playerY >= height) {
+                throw new BuilderException("Player y out of bounds");
+            }
+
+            if (map[playerY][playerX].isSolid()) {
+                throw new BuilderException("Player is on a solid tile");
+            }
 
             Map m = new Map(map, width, height);
 
-            return new Level(m, playerPos, index);
+            return new Level(m, playerY * width + playerX, index);
         }
 
-        public int getPlayerPos() {
-            return playerPos;
+        public int getPlayerX() {
+            return playerX;
+        }
+
+        public int getPlayerY() {
+            return playerY;
         }
 
         public void setPlayerPos(int x, int y) {
-            this.playerPos = y * width + x;
+            this.playerX = x;
+            this.playerY = y;
+        }
+
+        public void setPlayerX(int playerX) {
+            this.playerX = playerX;
+        }
+
+        public void setPlayerY(int playerY) {
+            this.playerY = playerY;
         }
 
         private void resizeIfNeeded(int minWidth, int minHeight) {

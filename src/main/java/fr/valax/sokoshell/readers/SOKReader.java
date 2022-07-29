@@ -81,7 +81,6 @@ public class SOKReader implements Reader {
 
         Level.Builder builder = new Level.Builder();
         builder.setSize(width, height);
-        builder.setPlayerPos(width - 1, height - 1);
 
         int y = 0;
         //noinspection ForLoopReplaceableByForEach

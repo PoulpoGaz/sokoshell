@@ -1,8 +1,10 @@
 package fr.valax.sokoshell;
 
-import fr.poulpogaz.json.tree.value.JsonString;
 import fr.valax.args.api.Option;
 import fr.valax.args.api.VaArgs;
+import fr.valax.args.jline.FileNameCompleter;
+import org.jline.reader.Candidate;
+import org.jline.reader.LineReader;
 import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
 
@@ -10,6 +12,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Iterator;
+import java.util.List;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -155,6 +158,11 @@ public class BasicCommands {
         @Override
         public String[] getUsage() {
             return new String[0];
+        }
+
+        @Override
+        public void completeVaArgs(LineReader reader, String argument, List<Candidate> candidates) {
+            FileNameCompleter.INSTANCE.complete(reader, argument, candidates);
         }
     }
 
@@ -366,6 +374,11 @@ public class BasicCommands {
                     "Usage: grep [OPTION]... PATTERNS [FILE]...",
                     "Try 'grep --help' for more information."
             };
+        }
+
+        @Override
+        public void completeVaArgs(LineReader reader, String argument, List<Candidate> candidates) {
+            FileNameCompleter.INSTANCE.complete(reader, argument, candidates);
         }
     }
 }
