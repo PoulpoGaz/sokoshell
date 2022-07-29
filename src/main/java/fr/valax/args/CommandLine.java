@@ -100,6 +100,9 @@ public class CommandLine {
         command = root;
         parsingOptions = false;
 
+        Redirect.READ_INPUT_UNTIL.setStdIn(stdIn);
+        Redirect.READ_INPUT_UNTIL.setStdOut(stdOut);
+
         this.tokenizer = tokenizer;
 
         int last = 0;
@@ -185,6 +188,24 @@ public class CommandLine {
             case Token.WRITE_ERROR_APPEND -> redirectOutput(token.value(), STD_ERR, true);
             case Token.WRITE_ERROR ->        redirectOutput(token.value(), STD_ERR, false);
             case Token.STD_ERR_IN_STD_OUT -> output = Redirect.ERROR_IN_OUTPUT;
+            case Token.READ_INPUT_UNTIL -> {
+                if (cliError != null) {
+                    return null;
+                }
+
+                if (!tokenizer.hasNext()) {
+                    cliError = "expecting word after <<";
+                    return null;
+                }
+
+                Token next = tokenizer.next();
+                if (!next.isWord()) {
+                    cliError = "expecting word after <<";
+                }
+
+                Redirect.READ_INPUT_UNTIL.setUntil(next.value());
+                input = Redirect.READ_INPUT_UNTIL;
+            }
             case Token.READ_FILE -> {
                 if (cliError != null) {
                     return null;

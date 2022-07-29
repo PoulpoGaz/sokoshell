@@ -11,6 +11,7 @@ public interface Redirect {
     Redirect ERROR_IN_OUTPUT = new ErrorInStdOut();
     InputFile INPUT_FILE = new InputFile();
     OutputFile OUTPUT_FILE = new OutputFile();
+    ReadInputUntil READ_INPUT_UNTIL = new ReadInputUntil();
 
     default InputStream redirectIn(InputStream in) throws IOException {
         return in;
@@ -126,6 +127,54 @@ public interface Redirect {
         @Override
         public PrintStream redirectErr(PrintStream out, PrintStream err) {
             return out;
+        }
+    }
+
+    class ReadInputUntil implements Redirect {
+
+        private String until;
+        private InputStream stdIn;
+        private PrintStream stdOut;
+
+        @Override
+        public InputStream redirectIn(InputStream in) throws IOException {
+            BufferedReader br = new BufferedReader(new InputStreamReader(stdIn));
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(baos));
+
+            String line;
+            do {
+                stdOut.print("> ");
+                line = br.readLine();
+
+                if (line == null || line.equals(until)) {
+                    break;
+                }
+
+                bw.append(line);
+                bw.newLine();
+            } while (true);
+
+            bw.close();
+
+            return new ByteArrayInputStream(baos.toByteArray());
+        }
+
+        public String getUntil() {
+            return until;
+        }
+
+        public void setUntil(String until) {
+            this.until = until;
+        }
+
+        public void setStdIn(InputStream stdIn) {
+            this.stdIn = stdIn;
+        }
+
+        public void setStdOut(PrintStream stdOut) {
+            this.stdOut = stdOut;
         }
     }
 }

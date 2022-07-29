@@ -57,25 +57,34 @@ public class BasicCommands {
                 number = false;
             }
 
-            for (String i : input) {
-                if (i.equals("-")) {
-                    try {
-                        print(in, out);
-                    } catch (IOException e) {
-                        e.printStackTrace(err);
-                    }
-                } else {
-                    Path path = Path.of(i);
+            if (input.length == 0) {
+                try {
+                    print(in, out);
+                } catch (IOException e) {
+                    e.printStackTrace(err);
+                }
 
-                    if (Files.notExists(path)) {
-                        err.printf("cat: %s: No such file or directory%n", i);
-                        continue;
-                    }
+            } else {
+                for (String i : input) {
+                    if (i.equals("-")) {
+                        try {
+                            print(in, out);
+                        } catch (IOException e) {
+                            e.printStackTrace(err);
+                        }
+                    } else {
+                        Path path = Path.of(i);
 
-                    try (InputStream is = Files.newInputStream(path)) {
-                        print(is, out);
-                    } catch (IOException e) {
-                        e.printStackTrace(err);
+                        if (Files.notExists(path)) {
+                            err.printf("cat: %s: No such file or directory%n", i);
+                            continue;
+                        }
+
+                        try (InputStream is = Files.newInputStream(path)) {
+                            print(is, out);
+                        } catch (IOException e) {
+                            e.printStackTrace(err);
+                        }
                     }
                 }
             }
@@ -262,7 +271,7 @@ public class BasicCommands {
                     } catch (IOException e) {
                         e.printStackTrace(err);
                     }
-                    
+
                 } else {
                     for (int i = vaArgsStart; i < vaArgs.length; i++) {
                         String file = vaArgs[i];
