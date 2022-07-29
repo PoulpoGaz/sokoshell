@@ -26,6 +26,7 @@ public class LoadCommand extends AbstractCommand {
 
         for (String input : this.input) {
             try (GlobIterator it = new GlobIterator(input)) {
+                it.setLimit(1000);
 
                 boolean loaded = false;
 

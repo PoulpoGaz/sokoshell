@@ -89,23 +89,8 @@ public class SOKReader implements Reader {
 
             int x = 0;
             for (char c : line.toCharArray()) {
-                switch (c) {
-                    case ' ', '-' -> builder.set(Tile.FLOOR, x, y);
-                    case '#', '_' -> builder.set(Tile.WALL, x, y);
-                    case '$' -> builder.set(Tile.CRATE, x, y);
-                    case '.' -> builder.set(Tile.TARGET, x, y);
-                    case '*' -> builder.set(Tile.CRATE_ON_TARGET, x, y);
-                    case '@' -> {
-                        builder.set(Tile.FLOOR, x, y);
-                        builder.setPlayerPos(x, y);
-                    }
-                    case '+' -> {
-                        builder.set(Tile.TARGET, x, y);
-                        builder.setPlayerPos(x, y);
-                    }
-                    default -> {
-                        return null;
-                    }
+                if (!ReaderUtils.set(c, builder, x, y)) {
+                    return null;
                 }
 
                 x++;
@@ -113,7 +98,7 @@ public class SOKReader implements Reader {
 
             if (x != width) {
                 for (; x < width; x++) {
-                    builder.set(Tile.WALL, x, y);
+                    builder.set(Tile.FLOOR, x, y);
                 }
             }
 
