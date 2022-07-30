@@ -17,9 +17,11 @@ public class BenchmarkCommand extends PackCommand {
 
     @Override
     protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
-        Pack pack = getPack();
-
-        if (pack == null) {
+        Pack pack;
+        try {
+            pack = getPack(name);
+        } catch (InvalidArgument e) {
+            e.print(err, true);
             return FAILURE;
         }
 

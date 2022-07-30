@@ -775,6 +775,8 @@ public class CommandLine {
                     if (opt.allowDuplicate()) {
                         if (opt.isPresent()) {
                             setArray(field, converter, args.toArray(new String[0]));
+                        } else if (opt.getDefaultValue() == null) {
+                            setValue(field, converter, null);
                         } else {
                             setArray(field, converter, new String[] {opt.getDefaultValue()});
                         }

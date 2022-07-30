@@ -1,10 +1,7 @@
 package fr.valax.sokoshell;
 
 import fr.valax.args.api.Option;
-import fr.valax.sokoshell.solver.BasicBrutalSolver;
-import fr.valax.sokoshell.solver.Level;
-import fr.valax.sokoshell.solver.Solver;
-import fr.valax.sokoshell.solver.SolverParameters;
+import fr.valax.sokoshell.solver.*;
 
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -21,9 +18,13 @@ public class SolveCommand extends LevelCommand {
 
     @Override
     protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
-        Level l = getLevel();
+        Level l;
+        try {
+            Pack pack = getPack(name);
+            l = getLevel(pack, index);
 
-        if (l == null) {
+        } catch (InvalidArgument e) {
+            e.print(err, true);
             return FAILURE;
         }
 

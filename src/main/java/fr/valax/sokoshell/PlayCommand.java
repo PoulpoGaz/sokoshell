@@ -2,10 +2,7 @@ package fr.valax.sokoshell;
 
 import fr.valax.sokoshell.graphics.MapRenderer;
 import fr.valax.sokoshell.graphics.TerminalEngine;
-import fr.valax.sokoshell.solver.Direction;
-import fr.valax.sokoshell.solver.Level;
-import fr.valax.sokoshell.solver.Map;
-import fr.valax.sokoshell.solver.Tile;
+import fr.valax.sokoshell.solver.*;
 import org.jline.keymap.KeyMap;
 import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
@@ -21,9 +18,13 @@ public class PlayCommand extends LevelCommand {
 
     @Override
     protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
-        Level l = getLevel();
+        Level l;
+        try {
+            Pack pack = getPack(name);
+            l = getLevel(pack, index);
 
-        if (l == null) {
+        } catch (InvalidArgument e) {
+            e.print(err, true);
             return FAILURE;
         }
 

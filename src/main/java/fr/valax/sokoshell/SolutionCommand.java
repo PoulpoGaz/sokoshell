@@ -18,9 +18,13 @@ public class SolutionCommand extends LevelCommand {
 
     @Override
     protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
-        Level l = getLevel();
+        Level l;
+        try {
+            Pack pack = getPack(name);
+            l = getLevel(pack, index);
 
-        if (l == null) {
+        } catch (InvalidArgument e) {
+            e.print(err, true);
             return FAILURE;
         }
 

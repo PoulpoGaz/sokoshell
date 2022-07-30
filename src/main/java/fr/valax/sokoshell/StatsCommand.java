@@ -1,6 +1,7 @@
 package fr.valax.sokoshell;
 
 import fr.valax.sokoshell.solver.Level;
+import fr.valax.sokoshell.solver.Pack;
 import fr.valax.sokoshell.solver.Solution;
 
 import javax.imageio.ImageIO;
@@ -14,9 +15,13 @@ public class StatsCommand extends LevelCommand {
 
     @Override
     protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
-        Level l = getLevel();
+        Level l;
+        try {
+            Pack pack = getPack(name);
+            l = getLevel(pack, index);
 
-        if (l == null) {
+        } catch (InvalidArgument e) {
+            e.print(err, true);
             return FAILURE;
         }
 

@@ -4,6 +4,7 @@ import org.jline.utils.AttributedString;
 
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.OptionalInt;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -37,6 +38,14 @@ public class Utils {
             return "";
         } else {
             return filename.substring(dot + 1);
+        }
+    }
+
+    public static OptionalInt parseInt(String str) {
+        try {
+            return OptionalInt.of(Integer.parseInt(str));
+        } catch (NumberFormatException e) {
+            return OptionalInt.empty();
         }
     }
 
