@@ -5,7 +5,7 @@ import fr.valax.args.api.VaArgs;
 import fr.valax.args.jline.FileNameCompleter;
 import fr.valax.sokoshell.readers.PackReaders;
 import fr.valax.sokoshell.solver.Pack;
-import fr.valax.sokoshell.utils.GlobIterator;
+import fr.valax.sokoshell.utils.PathGlobIterator;
 import fr.valax.sokoshell.utils.ScanUtils;
 import org.jline.reader.Candidate;
 import org.jline.reader.LineReader;
@@ -25,7 +25,7 @@ public class LoadCommand extends AbstractCommand {
     public int executeImpl(InputStream in, PrintStream out, PrintStream err) {
 
         for (String input : this.input) {
-            try (GlobIterator it = new GlobIterator(input)) {
+            try (PathGlobIterator it = new PathGlobIterator(input)) {
                 it.setLimit(1000);
 
                 boolean loaded = false;
@@ -71,7 +71,10 @@ public class LoadCommand extends AbstractCommand {
 
             if (answer) {
                 helper.addPackReplace(pack);
+                helper.selectPack(pack);
             }
+        } else {
+            helper.selectPack(pack);
         }
     }
 

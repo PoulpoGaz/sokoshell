@@ -1,13 +1,7 @@
 package fr.valax.sokoshell;
 
-import fr.valax.args.api.Option;
-import fr.valax.args.utils.ArgsUtils;
 import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.solver.Pack;
-import org.jline.reader.Candidate;
-import org.jline.reader.LineReader;
-import org.jline.reader.ParsedLine;
-import org.jline.terminal.Terminal;
 
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -20,18 +14,19 @@ public class PrintCommand extends PackCommand {
 
     @Override
     protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
-        Pack pack = getPack();
+        List<Pack> packs = getPackMultiple();
 
-        if (pack == null) {
-            return FAILURE;
-        }
+        for (Pack pack : packs) {
+            out.printf("Pack: %s%n", pack.name());
 
-        List<Level> levels = pack.levels();
-        for (int i = 0; i < levels.size(); i++) {
-            Level l = levels.get(i);
+            List<Level> levels = pack.levels();
 
-            out.printf("<===== Level n°%d =====>%n", i + 1);
-            helper.getRenderer().print(out, l);
+            for (int i = 0; i < levels.size(); i++) {
+                Level l = levels.get(i);
+
+                out.printf("<===== Level n°%d =====>%n", i + 1);
+                helper.getRenderer().print(out, l);
+            }
         }
 
         return SUCCESS;

@@ -4,7 +4,7 @@ import fr.valax.args.api.VaArgs;
 import fr.valax.args.jline.FileNameCompleter;
 import fr.valax.sokoshell.graphics.MapStyle;
 import fr.valax.sokoshell.graphics.MapStyleReader;
-import fr.valax.sokoshell.utils.GlobIterator;
+import fr.valax.sokoshell.utils.PathGlobIterator;
 import fr.valax.sokoshell.utils.ScanUtils;
 import fr.valax.sokoshell.utils.Utils;
 import org.jline.reader.Candidate;
@@ -27,7 +27,7 @@ public class LoadStyleCommand extends AbstractCommand {
     public int executeImpl(InputStream in, PrintStream out, PrintStream err) {
 
         for (String input : this.input) {
-            try (GlobIterator it = new GlobIterator(input)) {
+            try (PathGlobIterator it = new PathGlobIterator(input)) {
 
                 boolean loaded = false;
 

@@ -22,6 +22,7 @@ import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.terminal.impl.AbstractWindowsTerminal;
 import org.jline.utils.AttributedString;
+import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
 import org.jline.widget.AutosuggestionWidgets;
 
@@ -34,6 +35,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import static fr.valax.args.api.Command.SUCCESS;
+import static org.jline.utils.AttributedStyle.*;
 
 /**
  * @author PoulpoGaz
@@ -90,7 +92,7 @@ public class SokoShell {
                 .addCommand(new LoadCommand())
                 .addCommand(new StatusCommand())
                 .addCommand(new PlayCommand())
-                .addCommand(new StatsCommand())
+                //.addCommand(new StatsCommand())
                 .addCommand(new SaveCommand())
                 .addCommand(AbstractCommand.newCommand(this::clear, "clear", "Clear screen"))
                 .addCommand(AbstractCommand.newCommand(this::stopSolver, "stop", "Stop the solver"))
@@ -107,6 +109,10 @@ public class SokoShell {
                 .addCommand(new BasicCommands.Cat())
                 .addCommand(new BasicCommands.Echo())
                 .addCommand(new BasicCommands.Grep())
+                .subCommand(new SelectCommands.Select())
+                    .addCommand(new SelectCommands.SelectPack())
+                    .addCommand(new SelectCommands.SelectLevel())
+                    .endSubCommand()
                 .build();
 
         help.setCli(cli);
@@ -200,7 +206,22 @@ public class SokoShell {
     }
 
     private String getPrompt() {
-        return new AttributedString(NAME + "> ", AttributedStyle.BOLD).toAnsi();
+        AttributedStringBuilder asb = new AttributedStringBuilder();
+        asb.styled(BOLD, NAME);
+
+        if (helper.getSelectedPack() != null) {
+            asb.append(" ");
+            asb.styled(DEFAULT.foreground(GREEN + BRIGHT), helper.getSelectedPack().name());
+
+            if (helper.getSelectedLevel() != null) {
+                asb.append(":");
+                asb.styled(DEFAULT.foreground(GREEN + BRIGHT), String.valueOf(helper.getSelectedLevelIndex() + 1));
+            }
+        }
+
+        asb.append("> ");
+
+        return asb.toAnsi();
     }
 
     // STARTUP SCRIPT
@@ -331,7 +352,7 @@ public class SokoShell {
 
             for (MapStyle style : mapStyles) {
                 if (selected == style) {
-                    name.add(new AttributedString("* " +style.getName() + " *" , AttributedStyle.BOLD));
+                    name.add(new AttributedString("* " +style.getName() + " *" , BOLD));
                 } else {
                     name.add(new AttributedString(style.getName()));
                 }

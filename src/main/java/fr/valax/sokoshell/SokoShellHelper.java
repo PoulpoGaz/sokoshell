@@ -28,8 +28,10 @@ public class SokoShellHelper implements Lock {
     private final MapRenderer renderer = new MapRenderer();
 
     private Terminal terminal;
-
     private ISolverTask<?> task;
+
+    private Pack selectedPack = null;
+    private int selectedLevel = -1;
 
     private SokoShellHelper() {
         addMapStyle(MapStyle.DEFAULT_STYLE);
@@ -194,6 +196,29 @@ public class SokoShellHelper implements Lock {
         }
     }
 
+    public void selectPack(Pack pack) {
+        this.selectedPack = pack;
+    }
+
+    public Pack getSelectedPack() {
+        return selectedPack;
+    }
+
+    public void selectLevel(int index) {
+        this.selectedLevel = index;
+    }
+
+    public Level getSelectedLevel() {
+        if (selectedPack == null || selectedLevel < 0 || selectedLevel >= selectedPack.levels().size()) {
+            return null;
+        } else {
+            return selectedPack.levels().get(selectedLevel);
+        }
+    }
+
+    public int getSelectedLevelIndex() {
+        return selectedLevel;
+    }
 
     public Collection<Pack> getPacks() {
         return packs.values();

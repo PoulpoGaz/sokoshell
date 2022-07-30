@@ -806,10 +806,11 @@ public class CommandLine {
         private void setArray(Field field, TypeConverter<?> converter, String[] values) throws CommandLineException {
             Class<?> type = field.getType().getComponentType();
 
-            Object[] array = (Object[]) Array.newInstance(type, values.length);
+            // avoid casting to Object[] as it throws ClassCastException when it's an array of primitives
+            Object array = Array.newInstance(type, values.length);
 
             for (int i = 0; i < values.length; i++) {
-                array[i] = converter.convert(values[i]);
+                Array.set(array, i, converter.convert(values[i]));
             }
 
             setValue(field, array);

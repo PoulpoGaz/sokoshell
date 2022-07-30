@@ -12,8 +12,8 @@ import java.util.List;
 
 public abstract class LevelCommand extends PackCommand {
 
-    @Option(names = {"i", "index"}, hasArgument = true, argName = "Level index", optional = false)
-    protected int index;
+    @Option(names = {"i", "index"}, hasArgument = true, argName = "Level index")
+    protected Integer index;
 
     protected Level getLevel() {
         Pack pack = getPack();
@@ -22,12 +22,22 @@ public abstract class LevelCommand extends PackCommand {
             return null;
         }
 
-        index--;
-        if (index < 0 || index >= pack.levels().size()) {
-            System.out.println("Index out of bounds");
-            return null;
-        }
+        if (index == null) {
+            Level selected = helper.getSelectedLevel();
 
-        return pack.levels().get(index);
+            if (selected == null) {
+                System.err.println("No level selected");
+            }
+
+            return selected;
+        } else {
+            index--;
+            if (index < 0 || index >= pack.levels().size()) {
+                System.out.println("Index out of bounds");
+                return null;
+            }
+
+            return pack.levels().get(index);
+        }
     }
 }
