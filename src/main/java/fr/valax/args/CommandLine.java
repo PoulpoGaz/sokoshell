@@ -54,7 +54,7 @@ public class CommandLine {
     private Redirect output = Redirect.NONE;
     private Redirect input = Redirect.NONE;
 
-    private Iterator<Token> tokenizer;
+    private ITokenizer tokenizer;
 
     /**
      * An error due to a redirect.
@@ -91,7 +91,7 @@ public class CommandLine {
         return execute(new Tokenizer(commandStr));
     }
 
-    private int execute(Iterator<Token> tokenizer) throws CommandLineException, IOException {
+    private int execute(ITokenizer tokenizer) throws CommandLineException, IOException {
         currIn = stdIn;
         currOut = stdOut;
         currErr = stdErr;

@@ -67,11 +67,7 @@ public class FileNameCompleter {
     }
 
     protected boolean accept(Path path) {
-        try {
-            return !Files.isHidden(path);
-        } catch (IOException e) {
-            return false;
-        }
+        return true;
     }
 
     protected Path getUserDir() {

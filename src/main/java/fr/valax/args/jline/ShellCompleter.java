@@ -38,6 +38,7 @@ public class ShellCompleter implements Completer {
 
         Context context = new BaseContext(cli.getCommands());
         Tokenizer tokenizer = new Tokenizer(command);
+        tokenizer.disableAlias();
 
         Token last = null;
         while (tokenizer.hasNext()) {

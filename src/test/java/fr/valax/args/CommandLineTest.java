@@ -190,11 +190,12 @@ public class CommandLineTest {
 
         Assertions.assertEquals(Command.SUCCESS, cli.execute("cat --help"));
         Assertions.assertEquals("""
-                Command: cat
+                cat
                 Usage: cat
                                 
                 Vaargs: Files to read\s
-                -h, --help          Print help\s
+                -h, -help                 Print help\s
+                -n, -line-number         \s
 
                 """, stdout.toString());
         Assertions.assertEquals("", stderr.toString());

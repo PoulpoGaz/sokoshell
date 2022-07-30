@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
-public class PrettyTable2 {
+public class PrettyTable {
 
     public static final Skin DEFAULT = new Skin("│", "─", "┼");
 
@@ -15,7 +15,7 @@ public class PrettyTable2 {
 
     private boolean showHeader = true;
 
-    public PrettyTable2() {
+    public PrettyTable() {
         columns = new ArrayList<>();
     }
 

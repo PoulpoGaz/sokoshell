@@ -25,11 +25,9 @@ import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;
 import org.jline.widget.AutosuggestionWidgets;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -254,7 +252,7 @@ public class SokoShell {
                     .sorted(Comparator.comparing(Pack::name))
                     .toList();
 
-            PrettyTable2 table = new PrettyTable2();
+            PrettyTable table = new PrettyTable();
 
             PrettyColumn<String> name = new PrettyColumn<>("Name");
             PrettyColumn<String> author = new PrettyColumn<>("Author");
@@ -322,7 +320,7 @@ public class SokoShell {
                     .sorted(Comparator.comparing(MapStyle::getName))
                     .toList();
 
-            PrettyTable2 table = new PrettyTable2();
+            PrettyTable table = new PrettyTable();
 
             PrettyColumn<AttributedString> name = new PrettyColumn<>("name");
             name.setToString((s) -> new AttributedString[] {s});

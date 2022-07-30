@@ -12,6 +12,8 @@ import java.util.function.Function;
  */
 public class ArgsUtils {
 
+    public static final String USER_HOME = System.getProperty("user.home");
+
     public static boolean contains(char[] array, char o) {
         for (char t : array) {
             if (o == t) {

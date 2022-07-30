@@ -1,5 +1,7 @@
 package fr.valax.args;
 
+import fr.valax.args.utils.ArgsUtils;
+
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -8,7 +10,7 @@ import java.util.NoSuchElementException;
  * Each string of the array is either: a word, an option + a word or a keyword.
  * String like {@literal <<file.txt} will be considered as a word and not "<<" keyword and "file.txt" word.
  */
-public class TokenizerFromArray implements Iterator<Token> {
+public class TokenizerFromArray implements ITokenizer {
 
     private static final int HYPHEN = 1;
     private static final int DOUBLE_HYPHEN = 2;
@@ -16,6 +18,8 @@ public class TokenizerFromArray implements Iterator<Token> {
     private final String[] args;
     private int index = 0;
     private int inOption = 0;
+
+    private boolean userHomeAlias = true;
 
     public TokenizerFromArray(String[] args) {
         this.args = args;
@@ -62,10 +66,24 @@ public class TokenizerFromArray implements Iterator<Token> {
                 return new Token(current.substring(1), Token.WORD);
 
             } else {
-                return new Token(current, Token.WORD);
+                if (current.startsWith("~") && userHomeAlias) {
+                    return new Token(ArgsUtils.USER_HOME + current.substring(1), Token.WORD);
+                } else {
+                    return new Token(current, Token.WORD);
+                }
             }
         }
 
+    }
+
+    @Override
+    public void enableAlias() {
+        userHomeAlias = true;
+    }
+
+    @Override
+    public void disableAlias() {
+        userHomeAlias = false;
     }
 
     private Token findKeyword(String str) {

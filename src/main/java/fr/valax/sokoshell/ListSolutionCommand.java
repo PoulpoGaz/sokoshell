@@ -5,7 +5,7 @@ import fr.valax.args.utils.ArgsUtils;
 import fr.valax.sokoshell.solver.*;
 import fr.valax.sokoshell.utils.Alignment;
 import fr.valax.sokoshell.utils.PrettyColumn;
-import fr.valax.sokoshell.utils.PrettyTable2;
+import fr.valax.sokoshell.utils.PrettyTable;
 import org.jline.reader.Candidate;
 import org.jline.reader.LineReader;
 import org.jline.utils.AttributedString;
@@ -16,7 +16,6 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
-import java.util.function.Function;
 
 public class ListSolutionCommand extends TableCommand {
 
@@ -34,7 +33,7 @@ public class ListSolutionCommand extends TableCommand {
             return FAILURE;
         }
 
-        PrettyTable2 table = new PrettyTable2();
+        PrettyTable table = new PrettyTable();
 
         if (packName == null) {
             PrettyColumn<String> packName = new PrettyColumn<>("Pack");

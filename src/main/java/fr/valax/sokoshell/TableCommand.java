@@ -2,7 +2,7 @@ package fr.valax.sokoshell;
 
 import fr.valax.args.api.Option;
 import fr.valax.sokoshell.utils.PrettyColumn;
-import fr.valax.sokoshell.utils.PrettyTable2;
+import fr.valax.sokoshell.utils.PrettyTable;
 
 import java.io.PrintStream;
 
@@ -17,7 +17,7 @@ public abstract class TableCommand extends AbstractCommand {
     @Option(names = {"r", "reversed"})
     private boolean reversed;
 
-    protected void printTable(PrintStream out, PrintStream err, PrettyTable2 table) {
+    protected void printTable(PrintStream out, PrintStream err, PrettyTable table) {
         if (column == null && index == null) {
             out.println(table.create());
         } else {

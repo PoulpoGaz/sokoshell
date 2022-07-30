@@ -1,15 +1,19 @@
 package fr.valax.args;
 
+import fr.valax.args.utils.ArgsUtils;
+
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
-public class Tokenizer implements Iterator<Token> {
+public class Tokenizer implements ITokenizer {
 
     private final char[] chars;
     private int index;
 
     private Token next;
+
+    private boolean userHomeAlias = true;
 
     public Tokenizer(String text) {
         this.chars = text.toCharArray();
@@ -86,56 +90,69 @@ public class Tokenizer implements Iterator<Token> {
             return;
         }
 
+        skipSpace();
+
+        if (index >= chars.length) {
+            return;
+        }
+
+        char c = chars[index];
+
+        if (c == '-') {
+            next = checkForOption(index);
+        } else {
+            next = findKeyword(index);
+        }
+
+        if (next == null) {
+            next = getWord();
+        } else {
+            index += next.value().length();
+        }
+    }
+
+    private Token getWord() {
         StringBuilder sb = new StringBuilder();
+
+        if (chars[index] == '~' && userHomeAlias) {
+            sb.append(ArgsUtils.USER_HOME);
+            index++;
+        }
 
         boolean escape = false;
         boolean inQuote = false;
         for (; index < chars.length; index++) {
             char c = chars[index];
 
-            boolean escape2 = escape;
-            escape = false;
-
-            if (escape2) {
+            if (escape) {
                 sb.append(c);
-
+                escape = false;
             } else if (c == '\\') {
                 escape = true;
-
             } else if (c == '"') {
                 inQuote = !inQuote;
-
             } else if (inQuote) {
                 sb.append(c);
-
             } else if (c != ' ') {
-                Token keyword;
 
-                if (c == '-' && sb.length() == 0) {
-                    keyword = checkForOption(index);
-                } else {
-                    keyword = findKeyword(index);
-                }
-
-                if (keyword != null) {
-                    if (sb.length() == 0) {
-                        index += keyword.value().length();
-
-                        next = keyword;
-                    }
-
+                if (findKeyword(index) != null) {
                     break;
-                } else {
-                    sb.append(c);
                 }
-            } else if (sb.length() > 0) {
-                index++;
+
+                sb.append(c);
+            } else {
                 break;
             }
         }
 
-        if (sb.length() > 0) {
-            next = new Token(sb.toString(), Token.WORD);
+        return new Token(sb.toString(), Token.WORD);
+    }
+
+    private void skipSpace() {
+        for (; index < chars.length; index++) {
+            if (chars[index] != ' ') {
+                break;
+            }
         }
     }
 
@@ -154,6 +171,16 @@ public class Tokenizer implements Iterator<Token> {
         this.next = null;
 
         return next;
+    }
+
+    @Override
+    public void enableAlias() {
+        userHomeAlias = true;
+    }
+
+    @Override
+    public void disableAlias() {
+        userHomeAlias = false;
     }
 
     public int index() {
