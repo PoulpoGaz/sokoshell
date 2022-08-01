@@ -1,6 +1,8 @@
-package fr.valax.sokoshell;
+package fr.valax.sokoshell.commands.level;
 
+import fr.valax.args.api.Command;
 import fr.valax.args.api.Option;
+import fr.valax.sokoshell.commands.AbstractCommand;
 import fr.valax.sokoshell.solver.*;
 
 import java.io.InputStream;
@@ -23,9 +25,9 @@ public class SolveCommand extends LevelCommand {
             Pack pack = getPack(name);
             l = getLevel(pack, index);
 
-        } catch (InvalidArgument e) {
+        } catch (AbstractCommand.InvalidArgument e) {
             e.print(err, true);
-            return FAILURE;
+            return Command.FAILURE;
         }
 
         Map<String, Object> params = new HashMap<>();
@@ -35,7 +37,7 @@ public class SolveCommand extends LevelCommand {
 
         helper.solve(solver, new SolverParameters(solver.getSolverType(), l, params));
 
-        return SUCCESS;
+        return Command.SUCCESS;
     }
 
     @Override

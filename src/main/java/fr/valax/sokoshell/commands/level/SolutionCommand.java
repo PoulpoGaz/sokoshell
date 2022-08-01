@@ -1,5 +1,7 @@
-package fr.valax.sokoshell;
+package fr.valax.sokoshell.commands.level;
 
+import fr.valax.args.api.Command;
+import fr.valax.sokoshell.commands.AbstractCommand;
 import fr.valax.sokoshell.graphics.MapRenderer;
 import fr.valax.sokoshell.graphics.TerminalEngine;
 import fr.valax.sokoshell.solver.Map;
@@ -23,14 +25,14 @@ public class SolutionCommand extends LevelCommand {
             Pack pack = getPack(name);
             l = getLevel(pack, index);
 
-        } catch (InvalidArgument e) {
+        } catch (AbstractCommand.InvalidArgument e) {
             e.print(err, true);
-            return FAILURE;
+            return Command.FAILURE;
         }
 
         if (l.getLastSolution() == null) {
             err.println("Not solved");
-            return FAILURE;
+            return Command.FAILURE;
         }
 
         SolutionAnimator animator = new SolutionAnimator(l.getLastSolution());
@@ -39,7 +41,7 @@ public class SolutionCommand extends LevelCommand {
             view.loop();
         }
 
-        return SUCCESS;
+        return Command.SUCCESS;
     }
 
     @Override

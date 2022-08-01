@@ -1,6 +1,7 @@
-package fr.valax.sokoshell;
+package fr.valax.sokoshell.commands.pack;
 
 import fr.poulpogaz.json.JsonException;
+import fr.valax.sokoshell.commands.PackCommand;
 import fr.valax.sokoshell.solver.Pack;
 
 import java.io.IOException;

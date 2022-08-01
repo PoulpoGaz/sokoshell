@@ -1,4 +1,4 @@
-package fr.valax.sokoshell;
+package fr.valax.sokoshell.commands;
 
 import fr.poulpogaz.json.JsonException;
 import fr.valax.args.api.VaArgs;

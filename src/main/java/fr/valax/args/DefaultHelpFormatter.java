@@ -1,9 +1,11 @@
 package fr.valax.args;
 
+import fr.poulpogaz.json.utils.Pair;
 import fr.valax.args.api.*;
 import fr.valax.args.utils.ArgsUtils;
 import fr.valax.args.utils.INode;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -193,15 +195,18 @@ public class DefaultHelpFormatter implements HelpFormatter {
         StringBuilder builder = new StringBuilder();
         builder.append("Commands:\n");
 
-        int maxCommandNameSize = getMaxCommandNameSize(commands, "");
+        List<Pair<CommandDescriber, String>> describers = new ArrayList<>();
+        int maxCommandNameSize = getMaxCommandNameSize(describers, commands, "");
 
         // +1 because of ':'
-        addCommand(builder, commands, "", " ".repeat(maxCommandNameSize + 1 + spaceBetweenTextBlockAndName));
+        describers.stream().sorted(Comparator.comparing(Pair::getRight)).forEach((c) -> {
+            addCommand(builder, c.getRight(), c.getLeft(), " ".repeat(maxCommandNameSize + 1 + spaceBetweenTextBlockAndName));
+        });
 
         return builder.toString();
     }
 
-    protected int getMaxCommandNameSize(INode<CommandDescriber> commands, String fullCommandName) {
+    protected int getMaxCommandNameSize(List<Pair<CommandDescriber, String>> out, INode<CommandDescriber> commands, String fullCommandName) {
         if (commands.getValue() != null) {
             CommandDescriber spec = commands.getValue();
 
@@ -210,48 +215,36 @@ public class DefaultHelpFormatter implements HelpFormatter {
             } else {
                 fullCommandName = fullCommandName + " " + spec.getName();
             }
+
+            out.add(new Pair<>(spec, fullCommandName));
         }
 
         int w = fullCommandName.length();
 
         for (INode<CommandDescriber> child : commands.getChildren()) {
-            w = Math.max(getMaxCommandNameSize(child, fullCommandName), w);
+            w = Math.max(getMaxCommandNameSize(out, child, fullCommandName), w);
         }
 
         return w;
     }
 
     protected void addCommand(StringBuilder builder,
-                            INode<CommandDescriber> command,
                             String fullCommandName,
+                            CommandDescriber describer,
                             String usageIdent) {
-        if (command.getValue() != null) {
-            CommandDescriber spec = command.getValue();
+        appendCommandName(builder, fullCommandName);
 
-            if (fullCommandName.isBlank()) {
-                fullCommandName = spec.getName();
-            } else {
-                fullCommandName = fullCommandName + " " + spec.getName();
-            }
+        String description = describer.getShortDescription();
+        if (description != null) {
+            builder.append(':');
 
-            appendCommandName(builder, fullCommandName);
+            int emptySpaceLength = usageIdent.length() - fullCommandName.length() - 1;
+            builder.append(" ".repeat(emptySpaceLength));
 
-            String description = spec.getShortDescription();
-            if (description != null) {
-                builder.append(':');
-
-                int emptySpaceLength = usageIdent.length() - fullCommandName.length() - 1;
-                builder.append(" ".repeat(emptySpaceLength));
-
-                builder.append(description);
-            }
-
-            builder.append('\n');
+            builder.append(description);
         }
 
-        for (INode<CommandDescriber> child : command.getChildren()) {
-            addCommand(builder, child, fullCommandName, usageIdent);
-        }
+        builder.append('\n');
     }
 
     protected void appendCommandName(StringBuilder sb, String name) {

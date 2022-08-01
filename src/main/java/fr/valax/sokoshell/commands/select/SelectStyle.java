@@ -1,7 +1,8 @@
-package fr.valax.sokoshell;
+package fr.valax.sokoshell.commands.select;
 
 import fr.valax.args.api.Option;
 import fr.valax.args.utils.ArgsUtils;
+import fr.valax.sokoshell.commands.AbstractCommand;
 import fr.valax.sokoshell.graphics.MapStyle;
 import org.jline.reader.Candidate;
 import org.jline.reader.LineReader;
@@ -10,7 +11,7 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.List;
 
-public class SetStyleCommand extends AbstractCommand {
+public class SelectStyle extends AbstractCommand {
 
     @Option(names = {"s", "style"}, optional = false, hasArgument = true, argName = "style")
     private String style;
@@ -37,7 +38,7 @@ public class SetStyleCommand extends AbstractCommand {
 
     @Override
     public String getName() {
-        return "set-style";
+        return "style";
     }
 
     @Override

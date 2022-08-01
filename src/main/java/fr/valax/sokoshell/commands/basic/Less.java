@@ -1,13 +1,12 @@
-package fr.valax.sokoshell.utils;
+package fr.valax.sokoshell.commands.basic;
 
 import fr.valax.args.api.Option;
 import fr.valax.args.api.VaArgs;
-import fr.valax.sokoshell.AbstractCommand;
+import fr.valax.sokoshell.commands.AbstractCommand;
 import fr.valax.sokoshell.SokoShellHelper;
 import org.jline.builtins.Commands;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.Path;
@@ -18,7 +17,7 @@ import java.util.List;
 /**
  * Very dumb class
  */
-public class LessCommand extends AbstractCommand {
+public class Less extends AbstractCommand {
 
     @Option(names = {"e", "quit-at-eof"})
     private boolean quit_at_eof;

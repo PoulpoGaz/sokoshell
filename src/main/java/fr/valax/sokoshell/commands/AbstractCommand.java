@@ -1,7 +1,8 @@
-package fr.valax.sokoshell;
+package fr.valax.sokoshell.commands;
 
 import fr.valax.args.jline.JLineCommand;
 import fr.valax.interval.*;
+import fr.valax.sokoshell.SokoShellHelper;
 import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.solver.Pack;
 import fr.valax.sokoshell.utils.GlobIterator;

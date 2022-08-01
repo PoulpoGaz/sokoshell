@@ -6,8 +6,23 @@ import fr.valax.args.jline.HelpCommand;
 import fr.valax.args.jline.JLineUtils;
 import fr.valax.args.jline.REPLHelpFormatter;
 import fr.valax.args.utils.CommandLineException;
-import fr.valax.sokoshell.graphics.MapStyle;
-import fr.valax.sokoshell.solver.Pack;
+import fr.valax.sokoshell.commands.*;
+import fr.valax.sokoshell.commands.basic.Cat;
+import fr.valax.sokoshell.commands.basic.Echo;
+import fr.valax.sokoshell.commands.basic.Grep;
+import fr.valax.sokoshell.commands.basic.Less;
+import fr.valax.sokoshell.commands.level.PlayCommand;
+import fr.valax.sokoshell.commands.level.SolutionCommand;
+import fr.valax.sokoshell.commands.level.SolveCommand;
+import fr.valax.sokoshell.commands.pack.BenchmarkCommand;
+import fr.valax.sokoshell.commands.pack.SaveCommand;
+import fr.valax.sokoshell.commands.select.Select;
+import fr.valax.sokoshell.commands.select.SelectLevel;
+import fr.valax.sokoshell.commands.select.SelectPack;
+import fr.valax.sokoshell.commands.select.SelectStyle;
+import fr.valax.sokoshell.commands.table.ListPacks;
+import fr.valax.sokoshell.commands.table.ListSolution;
+import fr.valax.sokoshell.commands.table.ListStyle;
 import fr.valax.sokoshell.solver.tasks.ISolverTask;
 import fr.valax.sokoshell.utils.*;
 import org.jline.reader.EndOfFileException;
@@ -21,9 +36,7 @@ import org.jline.reader.impl.history.DefaultHistory;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.terminal.impl.AbstractWindowsTerminal;
-import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStringBuilder;
-import org.jline.utils.AttributedStyle;
 import org.jline.widget.AutosuggestionWidgets;
 
 import java.io.IOException;
@@ -31,8 +44,6 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
 
 import static fr.valax.args.api.Command.SUCCESS;
 import static org.jline.utils.AttributedStyle.*;
@@ -84,38 +95,50 @@ public class SokoShell {
         cli = new CommandLineBuilder()
                 .addDefaultConverters()
                 .setHelpFormatter(new REPLHelpFormatter())
-                .addCommand(new SolveCommand())
+
+                .addCommand(new SolveCommand())    // the most important command!
                 .addCommand(new BenchmarkCommand())
-                .subCommand(new PrintCommand())
-                    .addCommand(new SolutionCommand())
-                    .endSubCommand()
-                .addCommand(new LoadCommand())
                 .addCommand(new StatusCommand())
                 .addCommand(new PlayCommand())
                 //.addCommand(new StatsCommand())
                 .addCommand(new SaveCommand())
+
+                .subCommand(new ListPacks())
+                    .addCommand(new ListStyle())
+                    .addCommand(new ListSolution())
+                .endSubCommand()
+
+                .subCommand(new PrintCommand())
+                    .addCommand(new SolutionCommand())
+                    .endSubCommand()
+
+                .subCommand(new LoadCommand())
+                    .addCommand(new LoadStyleCommand())
+                    .endSubCommand()
+
+                .subCommand(new Select())
+                    .addCommand(new SelectPack())
+                    .addCommand(new SelectLevel())
+                    .addCommand(new SelectStyle())
+                    .endSubCommand()
+
+                // 'simple' commands
                 .addCommand(AbstractCommand.newCommand(this::clear, "clear", "Clear screen"))
                 .addCommand(AbstractCommand.newCommand(this::stopSolver, "stop", "Stop the solver"))
                 .addCommand(AbstractCommand.newCommand(this::gc, "gc", "Run garbage collector.\nYou may want to use this after solving a sokoban"))
-                .subCommand(new ListPacks())
-                    .addCommand(new ListStyle())
-                    .addCommand(new ListSolutionCommand())
-                .endSubCommand()
-                .addCommand(new LoadStyleCommand())
-                .addCommand(new SetStyleCommand())
-                .addCommand(new LessCommand())
-                .addCommand(JLineUtils.newExitCommand(NAME))
+
+                // unix-like commands
+                .addCommand(new Cat())
+                .addCommand(new Echo())
+                .addCommand(new Grep())
+                .addCommand(new Less())
+                .addCommand(new Source())
                 .addCommand(help)
-                .addCommand(new BasicCommands.Cat())
-                .addCommand(new BasicCommands.Echo())
-                .addCommand(new BasicCommands.Grep())
-                .subCommand(new SelectCommands.Select())
-                    .addCommand(new SelectCommands.SelectPack())
-                    .addCommand(new SelectCommands.SelectLevel())
-                    .endSubCommand()
+                .addCommand(JLineUtils.newExitCommand(NAME))
                 .build();
 
         help.setCli(cli);
+        helper.setCli(cli);
         cli.setName(NAME);
     }
 
@@ -144,8 +167,7 @@ public class SokoShell {
 
             cli.setStdIn(terminal.input());
             cli.setStdOut(new PrintStream(terminal.output()));
-
-            SokoShellHelper.INSTANCE.setTerminal(terminal);
+            helper.setTerminal(terminal);
 
             reader = (LineReaderImpl) LineReaderBuilder.builder()
                     .terminal(terminal)
@@ -263,111 +285,5 @@ public class SokoShell {
         Runtime.getRuntime().gc();
 
         return SUCCESS;
-    }
-
-    private static class ListPacks extends TableCommand {
-
-        @Override
-        protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
-            List<Pack> packs = helper.getPacks().stream()
-                    .sorted(Comparator.comparing(Pack::name))
-                    .toList();
-
-            PrettyTable table = new PrettyTable();
-
-            PrettyColumn<String> name = new PrettyColumn<>("Name");
-            PrettyColumn<String> author = new PrettyColumn<>("Author");
-            PrettyColumn<Integer> version = new PrettyColumn<>("Number of levels");
-
-            for (Pack pack : packs) {
-                name.add(pack.name());
-                author.add(pack.author());
-                version.add(Alignment.RIGHT, pack.levels().size());
-            }
-
-            table.addColumn(name);
-            table.addColumn(author);
-            table.addColumn(version);
-
-            printTable(out, err, table);
-
-            int totalLevels = 0;
-            for (Pack p : packs) {
-                totalLevels += p.levels().size();
-            }
-            out.printf("%nTotal packs: %d - Total levels: %d%n", packs.size(), totalLevels);
-
-            return 0;
-        }
-
-        @Override
-        public String getName() {
-            return "list";
-        }
-
-        @Override
-        public String getShortDescription() {
-            return "List all packs";
-        }
-
-        @Override
-        public String[] getUsage() {
-            return new String[0];
-        }
-    }
-
-    private static class ListStyle extends TableCommand {
-
-        @Override
-        public String getName() {
-            return "style";
-        }
-
-        @Override
-        public String getShortDescription() {
-            return null;
-        }
-
-        @Override
-        public String[] getUsage() {
-            return new String[0];
-        }
-
-        @Override
-        protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
-            MapStyle selected = helper.getMapStyle();
-
-            List<MapStyle> mapStyles = helper.getMapStyles().stream()
-                    .sorted(Comparator.comparing(MapStyle::getName))
-                    .toList();
-
-            PrettyTable table = new PrettyTable();
-
-            PrettyColumn<AttributedString> name = new PrettyColumn<>("name");
-            name.setToString((s) -> new AttributedString[] {s});
-            name.setComparator(Utils.ATTRIBUTED_STRING_COMPARATOR);
-
-            PrettyColumn<String> author = new PrettyColumn<>("author");
-            PrettyColumn<String> version = new PrettyColumn<>("version");
-
-            for (MapStyle style : mapStyles) {
-                if (selected == style) {
-                    name.add(new AttributedString("* " +style.getName() + " *" , BOLD));
-                } else {
-                    name.add(new AttributedString(style.getName()));
-                }
-
-                author.add(style.getAuthor());
-                version.add(style.getVersion());
-            }
-
-            table.addColumn(name);
-            table.addColumn(author);
-            table.addColumn(version);
-
-            printTable(out, err, table);
-
-            return 0;
-        }
     }
 }

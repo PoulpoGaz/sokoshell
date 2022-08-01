@@ -1,4 +1,4 @@
-package fr.valax.sokoshell;
+package fr.valax.sokoshell.commands;
 
 import fr.valax.sokoshell.solver.*;
 import fr.valax.sokoshell.solver.tasks.ISolverTask;

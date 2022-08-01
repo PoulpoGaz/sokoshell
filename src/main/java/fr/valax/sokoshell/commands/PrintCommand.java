@@ -1,4 +1,4 @@
-package fr.valax.sokoshell;
+package fr.valax.sokoshell.commands;
 
 import fr.valax.args.api.Option;
 import fr.valax.interval.Interval;
@@ -11,7 +11,6 @@ import fr.valax.sokoshell.solver.Pack;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.List;
-import java.util.function.Predicate;
 
 /**
  * @author PoulpoGaz

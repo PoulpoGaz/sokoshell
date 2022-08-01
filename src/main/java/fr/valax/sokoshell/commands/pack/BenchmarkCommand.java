@@ -1,6 +1,7 @@
-package fr.valax.sokoshell;
+package fr.valax.sokoshell.commands.pack;
 
 import fr.valax.args.api.Option;
+import fr.valax.sokoshell.commands.PackCommand;
 import fr.valax.sokoshell.solver.BasicBrutalSolver;
 import fr.valax.sokoshell.solver.Pack;
 import fr.valax.sokoshell.solver.SolverParameters;

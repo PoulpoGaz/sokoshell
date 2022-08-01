@@ -7,7 +7,6 @@ import fr.poulpogaz.json.JsonReader;
 import fr.valax.graph.Label;
 import fr.valax.graph.ScatterPlot;
 import fr.valax.graph.Series;
-import fr.valax.sokoshell.SolutionCommand;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;

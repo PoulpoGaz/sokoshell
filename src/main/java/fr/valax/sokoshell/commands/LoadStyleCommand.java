@@ -1,4 +1,4 @@
-package fr.valax.sokoshell;
+package fr.valax.sokoshell.commands;
 
 import fr.valax.args.api.VaArgs;
 import fr.valax.args.jline.FileNameCompleter;
@@ -87,7 +87,7 @@ public class LoadStyleCommand extends AbstractCommand {
 
     @Override
     public String getName() {
-        return "load-style";
+        return "style";
     }
 
     @Override

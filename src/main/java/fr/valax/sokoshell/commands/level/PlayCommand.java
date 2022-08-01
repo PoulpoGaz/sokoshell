@@ -1,4 +1,4 @@
-package fr.valax.sokoshell;
+package fr.valax.sokoshell.commands.level;
 
 import fr.valax.sokoshell.graphics.MapRenderer;
 import fr.valax.sokoshell.graphics.TerminalEngine;

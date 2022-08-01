@@ -1,5 +1,7 @@
-package fr.valax.sokoshell;
+package fr.valax.sokoshell.commands.level;
 
+import fr.valax.args.api.Command;
+import fr.valax.sokoshell.commands.AbstractCommand;
 import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.solver.Pack;
 import fr.valax.sokoshell.solver.Solution;
@@ -20,16 +22,16 @@ public class StatsCommand extends LevelCommand {
             Pack pack = getPack(name);
             l = getLevel(pack, index);
 
-        } catch (InvalidArgument e) {
+        } catch (AbstractCommand.InvalidArgument e) {
             e.print(err, true);
-            return FAILURE;
+            return Command.FAILURE;
         }
 
         Solution solution = l.getLastSolution();
 
         if (solution == null) {
             out.println("Not solved");
-            return FAILURE;
+            return Command.FAILURE;
         }
 
         BufferedImage image = solution.createGraph();
@@ -44,10 +46,10 @@ public class StatsCommand extends LevelCommand {
             e.printStackTrace(err);
             out.println("Failed to save image");
 
-            return FAILURE;
+            return Command.FAILURE;
         }
 
-        return SUCCESS;
+        return Command.SUCCESS;
     }
 
     @Override

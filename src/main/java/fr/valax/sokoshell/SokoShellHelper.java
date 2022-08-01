@@ -1,5 +1,6 @@
 package fr.valax.sokoshell;
 
+import fr.valax.args.CommandLine;
 import fr.valax.sokoshell.graphics.MapRenderer;
 import fr.valax.sokoshell.graphics.MapStyle;
 import fr.valax.sokoshell.solver.*;
@@ -27,6 +28,7 @@ public class SokoShellHelper implements Lock {
 
     private final MapRenderer renderer = new MapRenderer();
 
+    private CommandLine cli;
     private Terminal terminal;
     private ISolverTask<?> task;
 
@@ -230,6 +232,14 @@ public class SokoShellHelper implements Lock {
 
     public void setTerminal(Terminal terminal) {
         this.terminal = terminal;
+    }
+
+    public void setCli(CommandLine cli) {
+        this.cli = cli;
+    }
+
+    public CommandLine getCli() {
+        return cli;
     }
 
     public ISolverTask<?> getSolverTask() {

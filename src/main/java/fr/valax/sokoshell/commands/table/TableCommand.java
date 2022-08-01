@@ -1,6 +1,7 @@
-package fr.valax.sokoshell;
+package fr.valax.sokoshell.commands.table;
 
 import fr.valax.args.api.Option;
+import fr.valax.sokoshell.commands.AbstractCommand;
 import fr.valax.sokoshell.utils.PrettyColumn;
 import fr.valax.sokoshell.utils.PrettyTable;
 

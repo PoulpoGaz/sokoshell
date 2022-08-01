@@ -1,17 +1,12 @@
-package fr.valax.sokoshell;
+package fr.valax.sokoshell.commands;
 
 import fr.valax.args.api.Option;
 import fr.valax.args.utils.ArgsUtils;
-import fr.valax.sokoshell.solver.Pack;
-import fr.valax.sokoshell.utils.GlobIterator;
 import org.jline.reader.Candidate;
 import org.jline.reader.LineReader;
-import org.jline.reader.ParsedLine;
 
-import java.util.ArrayList;
 import java.util.List;
 
-@Deprecated
 public abstract class PackCommand extends AbstractCommand {
 
     @Option(names = {"p", "pack"}, hasArgument = true, argName = "Pack name")

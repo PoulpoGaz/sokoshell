@@ -1,4 +1,4 @@
-package fr.valax.sokoshell;
+package fr.valax.sokoshell.commands.table;
 
 import fr.valax.args.api.Option;
 import fr.valax.args.utils.ArgsUtils;
@@ -17,7 +17,7 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
 
-public class ListSolutionCommand extends TableCommand {
+public class ListSolution extends TableCommand {
 
     @Option(names = {"p", "pack"}, hasArgument = true, argName = "Pack name")
     private String packName;
