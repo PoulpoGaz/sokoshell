@@ -40,11 +40,11 @@ public class SokoShellHelper implements Lock {
         renderer.setStyle(MapStyle.DEFAULT_STYLE);
     }
 
-    public void addTask(Solver solver, Map<String, Object> params, List<Level> levels) {
+    public void addTask(Solver solver, Map<String, Object> params, List<Level> levels, String pack, String level) {
         Objects.requireNonNull(params);
         Objects.requireNonNull(levels);
 
-        addTask(new SolverTask(solver, params, levels));
+        addTask(new SolverTask(solver, params, levels, pack, level));
     }
 
     public void addTask(SolverTask task) {
@@ -241,8 +241,16 @@ public class SokoShellHelper implements Lock {
         return cli;
     }
 
-    public SolverTask getSolverTask() {
+    public Queue<SolverTask> getFinishedTasks() {
+        return finishedTasks;
+    }
+
+    public SolverTask getRunningTask() {
         return runningTask;
+    }
+
+    public Queue<SolverTask> getPendingTasks() {
+        return pendingTasks;
     }
 
     public boolean isSolving() {

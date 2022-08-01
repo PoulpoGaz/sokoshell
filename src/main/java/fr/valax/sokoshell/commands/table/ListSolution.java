@@ -19,6 +19,8 @@ import java.util.*;
 
 public class ListSolution extends TableCommand {
 
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+
     @Option(names = {"p", "pack"}, hasArgument = true, argName = "Pack name")
     private String packName;
 
@@ -55,8 +57,6 @@ public class ListSolution extends TableCommand {
             table.addColumn(index);
         }
 
-        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-
         PrettyColumn<SolverStatus> status = new PrettyColumn<>("Status");
         PrettyColumn<SolverType> solverType = new PrettyColumn<>("Solver");
         PrettyColumn<Integer> pushes = new PrettyColumn<>("Pushes");
@@ -64,7 +64,7 @@ public class ListSolution extends TableCommand {
 
         PrettyColumn<Long> date = new PrettyColumn<>("Date");
         date.setToString(start -> {
-            String d = format.format(Date.from(Instant.ofEpochMilli(start)));
+            String d = DATE_FORMAT.format(Date.from(Instant.ofEpochMilli(start)));
 
             return new AttributedString[] {new AttributedString(d)};
         });

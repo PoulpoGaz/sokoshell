@@ -17,6 +17,7 @@ import fr.valax.sokoshell.commands.select.SelectStyle;
 import fr.valax.sokoshell.commands.table.ListPacks;
 import fr.valax.sokoshell.commands.table.ListSolution;
 import fr.valax.sokoshell.commands.table.ListStyle;
+import fr.valax.sokoshell.commands.table.ListTasks;
 import fr.valax.sokoshell.commands.unix.*;
 import fr.valax.sokoshell.utils.Utils;
 import org.jline.reader.EndOfFileException;
@@ -67,7 +68,7 @@ public class SokoShell {
         try {
             sokoshell.loop(args);
         } finally {
-            SolverTask task = SokoShellHelper.INSTANCE.getSolverTask();
+            SolverTask task = SokoShellHelper.INSTANCE.getRunningTask();
             if (task != null) {
                 task.stop();
             }
@@ -99,6 +100,7 @@ public class SokoShell {
                 .subCommand(new ListPacks())
                     .addCommand(new ListStyle())
                     .addCommand(new ListSolution())
+                    .addCommand(new ListTasks())
                 .endSubCommand()
 
                 .subCommand(new PrintCommand())
@@ -265,7 +267,7 @@ public class SokoShell {
     }
 
     private int stopSolver(InputStream in, PrintStream out, PrintStream err) {
-        SolverTask task = helper.getSolverTask();
+        SolverTask task = helper.getRunningTask();
 
         if (task != null) {
             task.stop();

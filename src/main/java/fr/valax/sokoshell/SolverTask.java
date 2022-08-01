@@ -21,6 +21,8 @@ import static fr.valax.sokoshell.utils.Utils.SOKOSHELL_EXECUTOR;
  */
 public class SolverTask {
 
+    private static int index = 0;
+
     protected final Solver solver;
 
     protected Tracker tracker;
@@ -30,32 +32,53 @@ public class SolverTask {
     private final Map<String, Object> params;
     private final List<Level> levels;
 
-    private long requestedAt;
-    private long startedAt;
-    private long endedAt;
+    private final String pack;
+    private final String level;
 
+    private final int taskIndex;
+    private final long requestedAt;
+    private long startedAt = -1;
+    private long finishedAt = -1;
+    private volatile TaskStatus taskStatus = TaskStatus.PENDING;
 
-    public SolverTask(Solver solver, Map<String, Object> params, List<Level> levels) {
+    private List<Solution> solutions;
+
+    private List<Consumer<List<Solution>>> onEnd;
+
+    public SolverTask(Solver solver, Map<String, Object> params, List<Level> levels, String pack, String level) {
         this.solver = solver;
         this.params = params;
         this.levels = Objects.requireNonNull(levels);
+        this.pack = pack;
+        this.level = level;
 
         requestedAt = System.currentTimeMillis();
+        taskIndex = index++;
     }
 
     public void start() {
-        if (solver instanceof Trackable t) {
-            tracker = getTracker();
-            t.setTacker(tracker);
+        if (taskStatus == TaskStatus.PENDING) {
+            taskStatus = TaskStatus.RUNNING;
 
-            trackerFuture = SCHEDULED_EXECUTOR.scheduleWithFixedDelay(
-                    () -> tracker.updateStatistics(t),
-                    5, 1000, TimeUnit.MILLISECONDS);
-        } else {
-            trackerFuture = null;
+            if (solver instanceof Trackable t) {
+                tracker = getTracker();
+                t.setTacker(tracker);
+
+                trackerFuture = SCHEDULED_EXECUTOR.scheduleWithFixedDelay(
+                        () -> tracker.updateStatistics(t),
+                        5, 1000, TimeUnit.MILLISECONDS);
+            } else {
+                trackerFuture = null;
+            }
+
+            solverFuture = CompletableFuture.supplyAsync(this::solve, SOKOSHELL_EXECUTOR);
+
+            if (onEnd != null) {
+                for (Consumer<List<Solution>> onEnd : this.onEnd) {
+                    onEnd(onEnd);
+                }
+            }
         }
-
-        solverFuture = CompletableFuture.supplyAsync(this::solve, SOKOSHELL_EXECUTOR);
     }
 
     protected Tracker getTracker() {
@@ -87,31 +110,65 @@ public class SolverTask {
                 }
             }
 
+            if (taskStatus == TaskStatus.RUNNING) {
+                taskStatus = TaskStatus.FINISHED;
+            }
+
+            this.solutions = solutions;
+
             return solutions;
         } catch (Throwable e) {
             e.printStackTrace();
+            taskStatus = TaskStatus.ERROR;
             return null;
         } finally {
             if (trackerFuture != null) {
                 trackerFuture.cancel(false);
             }
 
-            endedAt = System.currentTimeMillis();
+            finishedAt = System.currentTimeMillis();
         }
     }
 
     public void stop() {
-        if (solverFuture != null) {
-            solver.stop();
-        }
+        if (taskStatus == TaskStatus.RUNNING) {
+            taskStatus = TaskStatus.STOPPED;
 
-        if (trackerFuture != null) {
-            trackerFuture.cancel(false);
+            solver.stop();
+
+            if (trackerFuture != null) {
+                trackerFuture.cancel(false);
+            }
+        } else {
+            taskStatus = TaskStatus.CANCELED;
         }
     }
 
     public CompletableFuture<Void> onEnd(Consumer<List<Solution>> consumer) {
-        return solverFuture.thenAccept(consumer);
+        if (taskStatus == TaskStatus.PENDING) {
+            if (onEnd == null) {
+                onEnd = new ArrayList<>();
+            }
+            onEnd.add(consumer);
+
+            return null;
+        } else if (taskStatus == TaskStatus.RUNNING) {
+            return solverFuture.thenAccept(consumer);
+        } else {
+            return CompletableFuture.runAsync(() -> consumer.accept(solutions));
+        }
+    }
+
+    public int getTaskIndex() {
+        return taskIndex;
+    }
+
+    public String getPack() {
+        return pack;
+    }
+
+    public String getLevel() {
+        return level;
     }
 
     public long getRequestedAt() {
@@ -122,7 +179,15 @@ public class SolverTask {
         return startedAt;
     }
 
-    public long getEndedAt() {
-        return endedAt;
+    public long getFinishedAt() {
+        return finishedAt;
+    }
+
+    public TaskStatus getTaskStatus() {
+        return taskStatus;
+    }
+
+    public List<Solution> getSolutions() {
+        return solutions;
     }
 }
