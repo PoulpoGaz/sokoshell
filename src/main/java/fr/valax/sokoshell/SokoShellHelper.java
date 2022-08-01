@@ -14,6 +14,8 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+// TODO: reorganize this class
+// TODO: fix synchronize problems
 public class SokoShellHelper implements Lock {
 
     public static final SokoShellHelper INSTANCE = new SokoShellHelper();
@@ -62,12 +64,10 @@ public class SokoShellHelper implements Lock {
         lock.lock();
 
         try {
-            if (solutions == null) {
-                System.out.println("An error has occurred.");
-            } else {
-                for (int i = 0; i < solutions.size(); i++) {
-                    System.out.print("Level n°" + (i + 1) + ": ");
-                    printSolution(solutions.get(i));
+            if (solutions != null) {
+                for (Solution solution : solutions) {
+                    Level level = solution.getParameters().getLevel();
+                    level.addSolution(solution);
                 }
             }
 
@@ -75,32 +75,11 @@ public class SokoShellHelper implements Lock {
             runningTask = pendingTasks.poll();
             if (runningTask != null) {
                 runningTask.start();
+            } else {
+                System.out.println("Finished all tasks! See results with 'list solution --task-index INDEX'");
             }
         } finally {
             lock.unlock();
-        }
-    }
-
-    private void printSolution(Solution solution) {
-        if (solution == null) {
-            System.out.println("An error has occurred. Failed to find solution");
-
-        } else {
-            if (solution.isSolved()) {
-                System.out.println("Solution found. Use 'print solution' to print the solution");
-
-            } else if (solution.hasNoSolution()) {
-                System.out.println("No solution found");
-
-            } else if (solution.isStopped()) {
-                System.out.println("Research stopped");
-
-            } else if (solution.getStatus() == SolverStatus.TIMEOUT) {
-                System.out.println("Timeout");
-            }
-
-            Level level = solution.getParameters().getLevel();
-            level.addSolution(solution);
         }
     }
 
@@ -271,6 +250,31 @@ public class SokoShellHelper implements Lock {
 
     public Collection<MapStyle> getMapStyles() {
         return styles.values();
+    }
+
+    public SolverTask getTask(int taskIndex) {
+        for (SolverTask finished : finishedTasks) {
+            if (finished.getTaskIndex() == taskIndex) {
+                return finished;
+            }
+        }
+
+        if (runningTask != null && runningTask.getTaskIndex() == taskIndex) {
+            return runningTask;
+        }
+
+        for (SolverTask finished : pendingTasks) {
+            if (finished.getTaskIndex() == taskIndex) {
+                return finished;
+            }
+        }
+
+        return null;
+    }
+
+    public void moveToFinished(SolverTask task) {
+        pendingTasks.remove(task);
+        finishedTasks.offer(task);
     }
 
     @Override

@@ -92,6 +92,7 @@ public class SokoShell {
                 .setHelpFormatter(new REPLHelpFormatter())
 
                 .addCommand(new SolveCommand())    // the most important command!
+                .addCommand(new CancelCommand())
                 .addCommand(new StatusCommand())
                 .addCommand(new PlayCommand())
                 //.addCommand(new StatsCommand())

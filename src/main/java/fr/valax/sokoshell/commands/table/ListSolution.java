@@ -2,6 +2,7 @@ package fr.valax.sokoshell.commands.table;
 
 import fr.valax.args.api.Option;
 import fr.valax.args.utils.ArgsUtils;
+import fr.valax.sokoshell.SolverTask;
 import fr.valax.sokoshell.solver.*;
 import fr.valax.sokoshell.utils.Alignment;
 import fr.valax.sokoshell.utils.PrettyColumn;
@@ -15,7 +16,9 @@ import java.io.PrintStream;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class ListSolution extends TableCommand {
 
@@ -25,19 +28,59 @@ public class ListSolution extends TableCommand {
     private String packName;
 
     @Option(names = {"i", "index"}, hasArgument = true, argName = "Level index")
-    private Integer levelIndex;
+    private String levelIndex;
+
+    @Option(names = {"t", "task-index"}, hasArgument = true, argName = "Task index")
+    private Integer taskIndex;
 
     @Override
     public int executeImpl(InputStream in, PrintStream out, PrintStream err) {
-        List<Solution> solutions = getSolutions();
+        if (taskIndex != null) {
+            SolverTask task = helper.getTask(taskIndex);
 
-        if (solutions == null) {
-            return FAILURE;
+            if (task == null) {
+                err.printf("Can't find task n°%d%n", taskIndex);
+                return FAILURE;
+            } else if (task.getSolutions() == null) {
+                err.println("This task is running or has no solution");
+                return FAILURE;
+            } else {
+                printTable(out, err, task.getSolutions(), true, true);
+            }
+        } else {
+            List<Pack> packs = getPackMultiple(packName);
+
+            if (packs.isEmpty()) {
+                err.printf("No pack match %s%n", packName);
+                return FAILURE;
+            }
+
+            List<Level> levels;
+            try {
+                levels = getLevelMultiple(packs, levelIndex);
+            } catch (InvalidArgument e) {
+                err.println(e.getMessage());
+                return FAILURE;
+            }
+
+            List<Solution> solutions = new ArrayList<>();
+            for (Level level : levels) {
+                solutions.addAll(level.getSolutions());
+            }
+
+            printTable(out, err, solutions, packName == null, levelIndex == null);
         }
 
+
+
+
+        return SUCCESS;
+    }
+
+    private void printTable(PrintStream out, PrintStream err, List<Solution> solutions, boolean pack, boolean level) {
         PrettyTable table = new PrettyTable();
 
-        if (packName == null) {
+        if (pack) {
             PrettyColumn<String> packName = new PrettyColumn<>("Pack");
 
             for (Solution s : solutions) {
@@ -47,7 +90,7 @@ public class ListSolution extends TableCommand {
             table.addColumn(packName);
         }
 
-        if (levelIndex == null) {
+        if (level) {
             PrettyColumn<Integer> index = new PrettyColumn<>("Index");
 
             for (Solution s : solutions) {
@@ -92,62 +135,7 @@ public class ListSolution extends TableCommand {
 
         printTable(out, err, table);
         out.printf("%nNumber of solutions: %d%n", solutions.size());
-
-        return SUCCESS;
     }
-
-    private List<Solution> getSolutions() {
-        if (packName == null) {
-            List<Solution> solutions = new ArrayList<>();
-            Iterator<Pack> it = helper.getPacks().stream()
-                    .sorted(Comparator.comparing(Pack::name))
-                    .iterator();
-
-            while (it.hasNext()) {
-                Pack pack = it.next();
-                for (Level level : pack.levels()) {
-                    solutions.addAll(level.getSolutions());
-                }
-            }
-
-            return solutions;
-        } else {
-            Pack pack = helper.getPack(packName);
-
-            if (pack == null) {
-                System.out.printf("No pack named %s exists%n", packName);
-                return null;
-            }
-
-            if (levelIndex == null) {
-                List<Solution> solutions = new ArrayList<>();
-                for (Level level : pack.levels()) {
-                    solutions.addAll(level.getSolutions());
-                }
-
-                return solutions;
-            } else {
-                int index = levelIndex - 1;
-                if (index < 0 || index >= pack.levels().size()) {
-                    System.out.println("Index out of bounds");
-                    return null;
-                }
-
-                 return pack.levels().get(index).getSolutions();
-            }
-        }
-    }
-
-    /*@Override
-    protected String whenEmpty() {
-        if (packName == null) {
-            return "No level solved";
-        } else if (levelIndex == null) {
-            return "No level in this pack are solved";
-        } else {
-            return "Level not solved";
-        }
-    }*/
 
     private String prettyDate(long millis) {
         if (millis < 1000) {

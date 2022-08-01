@@ -125,10 +125,19 @@ public abstract class AbstractCommand implements JLineCommand {
             List<Pack> packs = new ArrayList<>();
 
             for (String g : glob) {
-                GlobIterator<Pack> it = new GlobIterator<>(g, helper.getPacks(), Pack::name);
+                if (g == null) {
+                    Pack selected = helper.getSelectedPack();
 
-                while (it.hasNext()) {
-                    packs.add(it.next());
+                    if (selected != null) {
+                        packs.add(selected);
+                    }
+
+                } else {
+                    GlobIterator<Pack> it = new GlobIterator<>(g, helper.getPacks(), Pack::name);
+
+                    while (it.hasNext()) {
+                        packs.add(it.next());
+                    }
                 }
             }
 
@@ -180,6 +189,27 @@ public abstract class AbstractCommand implements JLineCommand {
 
             return pack.levels().get(i);
         }
+    }
+
+    protected List<Level> getLevelMultiple(List<Pack> packs, String range) throws InvalidArgument {
+        List<Level> levels = new ArrayList<>();
+
+        Set set;
+        if (range == null || range.isEmpty()) {
+            set = Interval.all();
+        } else {
+            try {
+                set = parser.parse(range);
+            } catch (ParseException e) {
+                throw new InvalidArgument(e);
+            }
+        }
+
+        for (Pack pack : packs) {
+            levels.addAll(getLevelMultiple(pack, set));
+        }
+
+        return levels;
     }
 
     protected List<Level> getLevelMultiple(Pack pack, String range) throws InvalidArgument {

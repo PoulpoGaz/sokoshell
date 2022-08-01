@@ -298,11 +298,11 @@ public class Solution {
     }
 
     public int numberOfPushes() {
-        return states.size() - 1;
+        return states == null ? -1 : states.size() - 1;
     }
 
     public int numberOfMoves() {
-        return fullSolution.size();
+        return fullSolution == null ? -1 : fullSolution.size();
     }
 
 

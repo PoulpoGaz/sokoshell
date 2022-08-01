@@ -21,7 +21,7 @@ import static fr.valax.sokoshell.utils.Utils.SOKOSHELL_EXECUTOR;
  */
 public class SolverTask {
 
-    private static int index = 0;
+    private static int index = 1;
 
     protected final Solver solver;
 
@@ -98,7 +98,7 @@ public class SolverTask {
             List<Solution> solutions = new ArrayList<>(levels.size());
 
             for (Level level : levels) {
-                SokoShellHelper.INSTANCE.tryPrintln("Solving level n°" + (level.getIndex() + 1), 5, TimeUnit.MILLISECONDS);
+                //SokoShellHelper.INSTANCE.tryPrintln("Solving level n°" + (level.getIndex() + 1), 5, TimeUnit.MILLISECONDS);
 
                 SolverParameters parameters = new SolverParameters(solver.getSolverType(), level, params);
 
@@ -156,6 +156,21 @@ public class SolverTask {
             return solverFuture.thenAccept(consumer);
         } else {
             return CompletableFuture.runAsync(() -> consumer.accept(solutions));
+        }
+    }
+
+    /**
+     * Cancel a pending task
+     */
+    public void cancel() {
+        if (taskStatus == TaskStatus.PENDING) {
+            taskStatus = TaskStatus.CANCELED;
+
+            if (onEnd != null) {
+                for (Consumer<List<Solution>> onEnd : this.onEnd) {
+                    onEnd(onEnd);
+                }
+            }
         }
     }
 
