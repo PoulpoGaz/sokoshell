@@ -7,14 +7,8 @@ import fr.valax.args.jline.JLineUtils;
 import fr.valax.args.jline.REPLHelpFormatter;
 import fr.valax.args.utils.CommandLineException;
 import fr.valax.sokoshell.commands.*;
-import fr.valax.sokoshell.commands.basic.Cat;
-import fr.valax.sokoshell.commands.basic.Echo;
-import fr.valax.sokoshell.commands.basic.Grep;
-import fr.valax.sokoshell.commands.basic.Less;
 import fr.valax.sokoshell.commands.level.PlayCommand;
 import fr.valax.sokoshell.commands.level.SolutionCommand;
-import fr.valax.sokoshell.commands.level.SolveCommand;
-import fr.valax.sokoshell.commands.pack.BenchmarkCommand;
 import fr.valax.sokoshell.commands.pack.SaveCommand;
 import fr.valax.sokoshell.commands.select.Select;
 import fr.valax.sokoshell.commands.select.SelectLevel;
@@ -23,8 +17,8 @@ import fr.valax.sokoshell.commands.select.SelectStyle;
 import fr.valax.sokoshell.commands.table.ListPacks;
 import fr.valax.sokoshell.commands.table.ListSolution;
 import fr.valax.sokoshell.commands.table.ListStyle;
-import fr.valax.sokoshell.solver.tasks.ISolverTask;
-import fr.valax.sokoshell.utils.*;
+import fr.valax.sokoshell.commands.unix.*;
+import fr.valax.sokoshell.utils.Utils;
 import org.jline.reader.EndOfFileException;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
@@ -73,7 +67,7 @@ public class SokoShell {
         try {
             sokoshell.loop(args);
         } finally {
-            ISolverTask<?> task = SokoShellHelper.INSTANCE.getSolverTask();
+            SolverTask task = SokoShellHelper.INSTANCE.getSolverTask();
             if (task != null) {
                 task.stop();
             }
@@ -97,7 +91,6 @@ public class SokoShell {
                 .setHelpFormatter(new REPLHelpFormatter())
 
                 .addCommand(new SolveCommand())    // the most important command!
-                .addCommand(new BenchmarkCommand())
                 .addCommand(new StatusCommand())
                 .addCommand(new PlayCommand())
                 //.addCommand(new StatsCommand())
@@ -272,7 +265,7 @@ public class SokoShell {
     }
 
     private int stopSolver(InputStream in, PrintStream out, PrintStream err) {
-        ISolverTask<?> task = helper.getSolverTask();
+        SolverTask task = helper.getSolverTask();
 
         if (task != null) {
             task.stop();

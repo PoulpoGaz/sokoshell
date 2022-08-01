@@ -5,7 +5,7 @@ import java.nio.file.*;
 import java.util.Iterator;
 import java.util.stream.Stream;
 
-public class PathGlobIterator implements AutoCloseable {
+public class PathGlobIterator implements AutoCloseable, Iterator<Path> {
 
     private final Stream<Path> stream;
     private final Iterator<Path> iterator;
@@ -69,6 +69,7 @@ public class PathGlobIterator implements AutoCloseable {
         }
     }
 
+    @Override
     public boolean hasNext() {
         if (limit >= 0 && nNext >= limit) {
             return false;
@@ -77,6 +78,7 @@ public class PathGlobIterator implements AutoCloseable {
         return iterator.hasNext();
     }
 
+    @Override
     public Path next() {
         nNext++;
         return iterator.next();

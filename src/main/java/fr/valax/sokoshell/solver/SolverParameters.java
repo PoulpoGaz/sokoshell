@@ -5,7 +5,7 @@ import fr.poulpogaz.json.IJsonWriter;
 import fr.poulpogaz.json.JsonException;
 import fr.poulpogaz.json.JsonToken;
 import fr.poulpogaz.json.utils.Pair;
-import fr.valax.sokoshell.solver.tasks.SolverTask;
+import fr.valax.sokoshell.SolverTask;
 
 import java.io.IOException;
 import java.util.Collections;

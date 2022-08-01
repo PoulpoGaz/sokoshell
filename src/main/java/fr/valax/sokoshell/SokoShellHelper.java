@@ -4,9 +4,6 @@ import fr.valax.args.CommandLine;
 import fr.valax.sokoshell.graphics.MapRenderer;
 import fr.valax.sokoshell.graphics.MapStyle;
 import fr.valax.sokoshell.solver.*;
-import fr.valax.sokoshell.solver.tasks.BenchmarkTask;
-import fr.valax.sokoshell.solver.tasks.ISolverTask;
-import fr.valax.sokoshell.solver.tasks.SolverTask;
 import org.jline.reader.Candidate;
 import org.jline.terminal.Terminal;
 
@@ -30,70 +27,41 @@ public class SokoShellHelper implements Lock {
 
     private CommandLine cli;
     private Terminal terminal;
-    private ISolverTask<?> task;
+
+    private Queue<SolverTask> finishedTasks = new ArrayDeque<>();
+    private SolverTask runningTask = null;
+    private Queue<SolverTask> pendingTasks = new ArrayDeque<>();
 
     private Pack selectedPack = null;
     private int selectedLevel = -1;
 
     private SokoShellHelper() {
         addMapStyle(MapStyle.DEFAULT_STYLE);
-        renderer.setStyle(styles.get("default"));
+        renderer.setStyle(MapStyle.DEFAULT_STYLE);
     }
 
-    public void solve(Solver solver, SolverParameters parameters) {
-        Objects.requireNonNull(parameters);
-        Objects.requireNonNull(solver);
+    public void addTask(Solver solver, Map<String, Object> params, List<Level> levels) {
+        Objects.requireNonNull(params);
+        Objects.requireNonNull(levels);
 
-        if (task != null) {
-            System.out.println("Already solving.");
-            return;
+        addTask(new SolverTask(solver, params, levels));
+    }
+
+    public void addTask(SolverTask task) {
+        if (runningTask == null) {
+            runningTask = task;
+            task.start();
+        } else {
+            pendingTasks.offer(task);
         }
 
-        SolverTask task = new SolverTask(solver, parameters);
-        task.start();
-        task.onEnd(this::printSolution);
-        this.task = task;
+        task.onEnd(this::onTaskEnd);
     }
 
-    private void printSolution(Solution solution) {
+    private void onTaskEnd(List<Solution> solutions) {
         lock.lock();
 
         try {
-            if (solution == null) {
-                System.out.println("An error has occurred. Failed to find solution");
-
-            } else {
-                if (solution.isSolved()) {
-                    System.out.println("Solution found. Use 'print solution' to print the solution");
-
-                } else if (solution.hasNoSolution()) {
-                    System.out.println("No solution found");
-
-                } else if (solution.isStopped()) {
-                    System.out.println("Research stopped");
-
-                } else if (solution.getStatus() == SolverStatus.TIMEOUT) {
-                    System.out.println("Timeout");
-                }
-
-                Level level = solution.getParameters().getLevel();
-                level.addSolution(solution);
-            }
-
-            task = null;
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    public void benchmark(Solver solver, Map<String, Object> params, Pack pack) {
-        Objects.requireNonNull(params);
-        Objects.requireNonNull(pack);
-
-        BenchmarkTask task = new BenchmarkTask(solver, params, pack);
-        task.start();
-        task.onEnd((solutions -> {
-
             if (solutions == null) {
                 System.out.println("An error has occurred.");
             } else {
@@ -102,7 +70,38 @@ public class SokoShellHelper implements Lock {
                     printSolution(solutions.get(i));
                 }
             }
-        }));
+
+            finishedTasks.offer(runningTask);
+            runningTask = pendingTasks.poll();
+            if (runningTask != null) {
+                runningTask.start();
+            }
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    private void printSolution(Solution solution) {
+        if (solution == null) {
+            System.out.println("An error has occurred. Failed to find solution");
+
+        } else {
+            if (solution.isSolved()) {
+                System.out.println("Solution found. Use 'print solution' to print the solution");
+
+            } else if (solution.hasNoSolution()) {
+                System.out.println("No solution found");
+
+            } else if (solution.isStopped()) {
+                System.out.println("Research stopped");
+
+            } else if (solution.getStatus() == SolverStatus.TIMEOUT) {
+                System.out.println("Timeout");
+            }
+
+            Level level = solution.getParameters().getLevel();
+            level.addSolution(solution);
+        }
     }
 
     public boolean addMapStyle(MapStyle mapStyle) {
@@ -242,12 +241,12 @@ public class SokoShellHelper implements Lock {
         return cli;
     }
 
-    public ISolverTask<?> getSolverTask() {
-        return task;
+    public SolverTask getSolverTask() {
+        return runningTask;
     }
 
     public boolean isSolving() {
-        return task != null;
+        return runningTask != null;
     }
 
     public MapRenderer getRenderer() {

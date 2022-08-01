@@ -1,7 +1,8 @@
-package fr.valax.sokoshell.commands;
+package fr.valax.sokoshell.commands.pack;
 
 import fr.valax.args.api.Option;
 import fr.valax.args.utils.ArgsUtils;
+import fr.valax.sokoshell.commands.AbstractCommand;
 import org.jline.reader.Candidate;
 import org.jline.reader.LineReader;
 

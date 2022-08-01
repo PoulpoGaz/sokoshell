@@ -1,4 +1,4 @@
-package fr.valax.sokoshell.solver.tasks;
+package fr.valax.sokoshell;
 
 import fr.valax.sokoshell.solver.SolverStatistics;
 import fr.valax.sokoshell.solver.Trackable;

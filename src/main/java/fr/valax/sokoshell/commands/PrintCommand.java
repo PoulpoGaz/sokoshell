@@ -10,6 +10,7 @@ import fr.valax.sokoshell.solver.Pack;
 
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -22,8 +23,6 @@ public class PrintCommand extends AbstractCommand {
 
     @Option(names = {"l", "levels"}, hasArgument = true, argName = "Levels")
     protected String levels;
-
-    private final SetParser parser = new SetParser();
 
     @Override
     protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
@@ -44,9 +43,11 @@ public class PrintCommand extends AbstractCommand {
         for (Pack pack : packs) {
             out.printf("Pack: %s%n", pack.name());
 
-            List<Level> levels = getLevelMultiple(pack, range); // TODO: add methods that returns an iterator
+            Iterator<Level> levels = getLevelMultipleIt(pack, range);
 
-            for (Level l : levels) {
+            while (levels.hasNext()) {
+                Level l = levels.next();
+
                 out.printf("<===== Level n°%d =====>%n", l.getIndex() + 1);
                 helper.getRenderer().print(out, l);
             }

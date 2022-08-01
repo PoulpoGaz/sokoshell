@@ -1,9 +1,10 @@
-package fr.valax.sokoshell.commands;
+package fr.valax.sokoshell.commands.unix;
 
 import fr.valax.args.api.VaArgs;
 import fr.valax.args.jline.FileNameCompleter;
 import fr.valax.args.utils.CommandLineException;
 import fr.valax.sokoshell.StartupScript;
+import fr.valax.sokoshell.commands.AbstractCommand;
 import org.jline.reader.Candidate;
 import org.jline.reader.LineReader;
 

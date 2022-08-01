@@ -1,18 +1,18 @@
 package fr.valax.sokoshell.commands;
 
-import fr.valax.sokoshell.solver.*;
-import fr.valax.sokoshell.solver.tasks.ISolverTask;
-import fr.valax.sokoshell.solver.tasks.SolverTask;
+import fr.valax.sokoshell.solver.Level;
+import fr.valax.sokoshell.solver.Map;
 
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.math.BigInteger;
 
+@Deprecated
 public class StatusCommand extends AbstractCommand {
 
     @Override
     protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
-        if (!helper.isSolving()) {
+        /*if (!helper.isSolving()) {
             out.println("Solver isn't running");
         } else {
             ISolverTask<?> solverTask = helper.getSolverTask();
@@ -31,9 +31,9 @@ public class StatusCommand extends AbstractCommand {
                 }
                 out.printf("Estimated maximal number of state: %d%n", maxState);
             }
-        }
+        }*/
 
-        return SUCCESS;
+        return FAILURE;
     }
 
     /**

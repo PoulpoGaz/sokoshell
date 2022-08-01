@@ -1,27 +1,63 @@
-package fr.valax.sokoshell.solver.tasks;
+package fr.valax.sokoshell;
 
-import fr.valax.sokoshell.SokoShellHelper;
 import fr.valax.sokoshell.solver.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-public class BenchmarkTask extends AbstractSolverTask<List<Solution>> {
+import static fr.valax.sokoshell.utils.Utils.SCHEDULED_EXECUTOR;
+import static fr.valax.sokoshell.utils.Utils.SOKOSHELL_EXECUTOR;
+
+/**
+ * A solver task is used to solve a sokoban in another thread.
+ * If the solver implements {@link Trackable}, a {@link Tracker} is added
+ * to the solver.
+ */
+public class SolverTask {
+
+    protected final Solver solver;
+
+    protected Tracker tracker;
+    protected CompletableFuture<List<Solution>> solverFuture;
+    protected ScheduledFuture<?> trackerFuture;
 
     private final Map<String, Object> params;
-    private final Pack pack;
+    private final List<Level> levels;
 
-    public BenchmarkTask(Solver solver, Map<String, Object> params, Pack pack) {
-        super(solver);
+    private long requestedAt;
+    private long startedAt;
+    private long endedAt;
+
+
+    public SolverTask(Solver solver, Map<String, Object> params, List<Level> levels) {
+        this.solver = solver;
         this.params = params;
-        this.pack = pack;
+        this.levels = Objects.requireNonNull(levels);
+
+        requestedAt = System.currentTimeMillis();
     }
 
-    @Override
+    public void start() {
+        if (solver instanceof Trackable t) {
+            tracker = getTracker();
+            t.setTacker(tracker);
+
+            trackerFuture = SCHEDULED_EXECUTOR.scheduleWithFixedDelay(
+                    () -> tracker.updateStatistics(t),
+                    5, 1000, TimeUnit.MILLISECONDS);
+        } else {
+            trackerFuture = null;
+        }
+
+        solverFuture = CompletableFuture.supplyAsync(this::solve, SOKOSHELL_EXECUTOR);
+    }
+
     protected Tracker getTracker() {
         Object object = params.get(Tracker.TRACKER_PARAM);
 
@@ -33,8 +69,9 @@ public class BenchmarkTask extends AbstractSolverTask<List<Solution>> {
     }
 
     protected List<Solution> solve() {
+        startedAt = System.currentTimeMillis();
+
         try {
-            List<Level> levels = pack.levels();
             List<Solution> solutions = new ArrayList<>(levels.size());
 
             for (Level level : levels) {
@@ -58,10 +95,11 @@ public class BenchmarkTask extends AbstractSolverTask<List<Solution>> {
             if (trackerFuture != null) {
                 trackerFuture.cancel(false);
             }
+
+            endedAt = System.currentTimeMillis();
         }
     }
 
-    @Override
     public void stop() {
         if (solverFuture != null) {
             solver.stop();
@@ -72,8 +110,19 @@ public class BenchmarkTask extends AbstractSolverTask<List<Solution>> {
         }
     }
 
-    @Override
     public CompletableFuture<Void> onEnd(Consumer<List<Solution>> consumer) {
         return solverFuture.thenAccept(consumer);
+    }
+
+    public long getRequestedAt() {
+        return requestedAt;
+    }
+
+    public long getStartedAt() {
+        return startedAt;
+    }
+
+    public long getEndedAt() {
+        return endedAt;
     }
 }

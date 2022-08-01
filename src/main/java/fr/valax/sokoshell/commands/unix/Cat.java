@@ -1,4 +1,4 @@
-package fr.valax.sokoshell.commands.basic;
+package fr.valax.sokoshell.commands.unix;
 
 import fr.valax.args.api.Option;
 import fr.valax.args.api.VaArgs;

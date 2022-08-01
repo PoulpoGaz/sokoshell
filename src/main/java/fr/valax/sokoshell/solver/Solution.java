@@ -36,7 +36,11 @@ public class Solution {
         this.states = states;
         this.status = status;
 
-        fullSolution = createFullSolution();
+        if (states != null && status == SolverStatus.SOLUTION_FOUND) {
+            fullSolution = createFullSolution();
+        } else {
+            fullSolution = null;
+        }
     }
 
 

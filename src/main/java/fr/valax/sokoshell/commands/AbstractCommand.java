@@ -1,20 +1,19 @@
 package fr.valax.sokoshell.commands;
 
 import fr.valax.args.jline.JLineCommand;
+import fr.valax.interval.Set;
 import fr.valax.interval.*;
 import fr.valax.sokoshell.SokoShellHelper;
 import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.solver.Pack;
 import fr.valax.sokoshell.utils.GlobIterator;
+import fr.valax.sokoshell.utils.Iterators;
 import fr.valax.sokoshell.utils.TriFunction;
 import fr.valax.sokoshell.utils.Utils;
 
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.OptionalInt;
+import java.util.*;
 
 public abstract class AbstractCommand implements JLineCommand {
 
@@ -199,27 +198,25 @@ public abstract class AbstractCommand implements JLineCommand {
     }
 
     protected List<Level> getLevelMultiple(Pack pack, Set set) {
+        return Iterators.iteratorToList(getLevelMultipleIt(pack, set));
+    }
+
+    protected Iterator<Level> getLevelMultipleIt(Pack pack, Set set) {
         List<Level> levels = pack.levels();
         if (set instanceof Singleton s) {
             int v = (int) s.value() - 1;
 
             if (v >= 0 && v < levels.size()) {
-                return List.of(levels.get(v));
+                return Iterators.singleValueIterator(levels.get(v));
             } else {
-                return List.of();
+                return Iterators.emptyIterator();
             }
         } else if (set instanceof Interval i && containsAllLevels(i, levels.size())) {
-            return levels;
+            return levels.iterator();
         } else {
-            List<Level> sub = new ArrayList<>();
-
-            for (Level level : levels) {
-                if (set.contains(level.getIndex() + 1)) {
-                    sub.add(level);
-                }
-            }
-
-            return sub;
+            return levels.stream()
+                    .filter((l) -> set.contains(l.getIndex() + 1))
+                    .iterator();
         }
     }
 
