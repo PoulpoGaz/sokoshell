@@ -68,11 +68,7 @@ public class SokoShell {
         try {
             sokoshell.loop(args);
         } finally {
-            SolverTask task = SokoShellHelper.INSTANCE.getRunningTask();
-            if (task != null) {
-                task.stop();
-            }
-
+            SokoShellHelper.INSTANCE.getTaskList().stopAll();
             Utils.shutdownExecutors();
 
             sokoshell.goodbye();
@@ -120,7 +116,6 @@ public class SokoShell {
 
                 // 'simple' commands
                 .addCommand(AbstractCommand.newCommand(this::clear, "clear", "Clear screen"))
-                .addCommand(AbstractCommand.newCommand(this::stopSolver, "stop", "Stop the solver"))
                 .addCommand(AbstractCommand.newCommand(this::gc, "gc", "Run garbage collector.\nYou may want to use this after solving a sokoban"))
 
                 // unix-like commands
@@ -262,16 +257,6 @@ public class SokoShell {
     private int clear(InputStream in, PrintStream out, PrintStream err) {
         if (reader != null) {
             reader.clearScreen();
-        }
-
-        return SUCCESS;
-    }
-
-    private int stopSolver(InputStream in, PrintStream out, PrintStream err) {
-        SolverTask task = helper.getRunningTask();
-
-        if (task != null) {
-            task.stop();
         }
 
         return SUCCESS;

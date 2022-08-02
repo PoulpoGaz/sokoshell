@@ -2,6 +2,7 @@ package fr.valax.sokoshell.commands.table;
 
 import fr.valax.args.api.Option;
 import fr.valax.sokoshell.SolverTask;
+import fr.valax.sokoshell.TaskList;
 import fr.valax.sokoshell.TaskStatus;
 import fr.valax.sokoshell.utils.Alignment;
 import fr.valax.sokoshell.utils.PrettyColumn;
@@ -21,11 +22,20 @@ public class ListTasks extends TableCommand {
     @Option(names = {"P", "without-pending"})
     private boolean withoutPending;
 
-    @Option(names = {"F", "without-finished"})
-    private boolean withoutFinished;
-
     @Option(names = {"R", "without-running"})
     private boolean withoutRunning;
+
+    @Option(names = {"C", "without-cancelled"})
+    private boolean withoutCancelled;
+
+    @Option(names = {"S", "without-stopped"})
+    private boolean withoutStopped;
+
+    @Option(names = {"E", "without-error"})
+    private boolean withoutError;
+
+    @Option(names = {"F", "without-finished"})
+    private boolean withoutFinished;
 
     @Override
     protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
@@ -47,24 +57,21 @@ public class ListTasks extends TableCommand {
         PrettyColumn<Long> finishedAt = new PrettyColumn<>("Finished at");
         finishedAt.setToString(this::toString);
 
-        if (!withoutFinished) {
-            for (SolverTask task : helper.getFinishedTasks()) {
-                addTask(status, taskIndex, pack, level, requestedAt, startedAt, finishedAt, task);
-            }
-        }
+        PrettyColumn<SolverTask> progress = new PrettyColumn<>("Progress");
+        progress.setToString(this::progressToString);
 
-        if (!withoutRunning) {
-            SolverTask running = helper.getRunningTask();
-            if (running != null) {
-                addTask(status, taskIndex, pack, level, requestedAt, startedAt, finishedAt, running);
+       for (SolverTask task : helper.getTaskList().getTasks()) {
+            if (accept(task)) {
+                status.add(task.getTaskStatus());
+                taskIndex.add(Alignment.RIGHT, task.getTaskIndex());
+                pack.add(task.getPack());
+                level.add(task.getLevel());
+                requestedAt.add(task.getRequestedAt());
+                startedAt.add(task.getStartedAt());
+                finishedAt.add(task.getFinishedAt());
+                progress.add(task);
             }
-        }
-
-        if (!withoutPending) {
-            for (SolverTask task : helper.getPendingTasks()) {
-                addTask(status, taskIndex, pack, level, requestedAt, startedAt, finishedAt, task);
-            }
-        }
+       }
 
         table.addColumn(status);
         table.addColumn(taskIndex);
@@ -73,38 +80,41 @@ public class ListTasks extends TableCommand {
         table.addColumn(requestedAt);
         table.addColumn(startedAt);
         table.addColumn(finishedAt);
+        table.addColumn(progress);
 
         printTable(out, err, table);
 
         return 0;
     }
 
-    private void addTask(PrettyColumn<TaskStatus> status,
-                         PrettyColumn<Integer> taskIndex,
-                         PrettyColumn<String> pack,
-                         PrettyColumn<String> level,
-                         PrettyColumn<Long> requestedAt,
-                         PrettyColumn<Long> startedAt,
-                         PrettyColumn<Long> finishedAt,
-                         SolverTask task) {
-        status.add(task.getTaskStatus());
-        taskIndex.add(Alignment.RIGHT, task.getTaskIndex());
-        pack.add(task.getPack());
-        level.add(task.getLevel());
-        requestedAt.add(task.getRequestedAt());
-        startedAt.add(task.getStartedAt());
-        finishedAt.add(task.getFinishedAt());
+    private boolean accept(SolverTask task) {
+        return switch (task.getTaskStatus()) {
+            case PENDING -> !withoutPending;
+            case RUNNING -> !withoutRunning;
+            case ERROR -> !withoutError;
+            case STOPPED -> !withoutStopped;
+            case CANCELED -> !withoutCancelled;
+            case FINISHED -> !withoutFinished;
+        };
     }
 
     private AttributedString[] toString(long date) {
-        String str;
         if (date < 0) {
-            str = "";
+            return PrettyTable.EMPTY;
         } else {
-            str = DATE_FORMAT.format(Date.from(Instant.ofEpochMilli(date)));
+            String str = DATE_FORMAT.format(Date.from(Instant.ofEpochMilli(date)));
+            return PrettyTable.wrap(str);
         }
+    }
 
-        return new AttributedString[]{new AttributedString(str)};
+    private AttributedString[] progressToString(SolverTask task) {
+        if (task.getTaskStatus() == TaskStatus.FINISHED ||
+                task.getTaskStatus() == TaskStatus.PENDING ||
+                task.getTaskStatus() == TaskStatus.CANCELED) {
+            return PrettyTable.EMPTY;
+        } else {
+            return PrettyTable.wrap("%d/%d".formatted(task.getCurrentLevel() + 1, task.getLevels().size()));
+        }
     }
 
     @Override

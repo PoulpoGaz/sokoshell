@@ -2,10 +2,8 @@ package fr.valax.sokoshell;
 
 import fr.valax.sokoshell.solver.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -26,11 +24,13 @@ public class SolverTask {
     protected final Solver solver;
 
     protected Tracker tracker;
-    protected CompletableFuture<List<Solution>> solverFuture;
     protected ScheduledFuture<?> trackerFuture;
 
     private final Map<String, Object> params;
     private final List<Level> levels;
+    private int currentLevel = -1;
+
+    private final List<TaskListener> listeners;
 
     private final String pack;
     private final String level;
@@ -43,8 +43,6 @@ public class SolverTask {
 
     private List<Solution> solutions;
 
-    private List<Consumer<List<Solution>>> onEnd;
-
     public SolverTask(Solver solver, Map<String, Object> params, List<Level> levels, String pack, String level) {
         this.solver = solver;
         this.params = params;
@@ -52,13 +50,15 @@ public class SolverTask {
         this.pack = pack;
         this.level = level;
 
+        listeners = new ArrayList<>();
+
         requestedAt = System.currentTimeMillis();
         taskIndex = index++;
     }
 
-    public void start() {
+    public synchronized void start() {
         if (taskStatus == TaskStatus.PENDING) {
-            taskStatus = TaskStatus.RUNNING;
+            changeStatus(TaskStatus.RUNNING);
 
             if (solver instanceof Trackable t) {
                 tracker = getTracker();
@@ -71,13 +71,7 @@ public class SolverTask {
                 trackerFuture = null;
             }
 
-            solverFuture = CompletableFuture.supplyAsync(this::solve, SOKOSHELL_EXECUTOR);
-
-            if (onEnd != null) {
-                for (Consumer<List<Solution>> onEnd : this.onEnd) {
-                    onEnd(onEnd);
-                }
-            }
+            SOKOSHELL_EXECUTOR.submit(this::solve);
         }
     }
 
@@ -91,36 +85,35 @@ public class SolverTask {
         }
     }
 
-    protected List<Solution> solve() {
+    protected void solve() {
         startedAt = System.currentTimeMillis();
 
         try {
-            List<Solution> solutions = new ArrayList<>(levels.size());
+            List<Solution> solutions = new ArrayList<>();
 
-            for (Level level : levels) {
-                //SokoShellHelper.INSTANCE.tryPrintln("Solving level n°" + (level.getIndex() + 1), 5, TimeUnit.MILLISECONDS);
+            boolean noChange = false;
 
+            for (currentLevel = 0; currentLevel < levels.size(); currentLevel++) {
+                Level level = levels.get(currentLevel);
                 SolverParameters parameters = new SolverParameters(solver.getSolverType(), level, params);
 
                 Solution solution = solver.solve(parameters);
-
+                level.addSolution(solution);
                 solutions.add(solution);
-                if (solution.isStopped()) {
-                    break;
+
+                if (solution.isStopped() || taskStatus != TaskStatus.RUNNING) {
+                    noChange = true;
                 }
             }
 
-            if (taskStatus == TaskStatus.RUNNING) {
-                taskStatus = TaskStatus.FINISHED;
+            if (!noChange) {
+                changeStatus(TaskStatus.FINISHED);
             }
 
             this.solutions = solutions;
-
-            return solutions;
         } catch (Throwable e) {
             e.printStackTrace();
-            taskStatus = TaskStatus.ERROR;
-            return null;
+            changeStatus(TaskStatus.ERROR);
         } finally {
             if (trackerFuture != null) {
                 trackerFuture.cancel(false);
@@ -130,48 +123,43 @@ public class SolverTask {
         }
     }
 
-    public void stop() {
+    public synchronized void stop() {
         if (taskStatus == TaskStatus.RUNNING) {
-            taskStatus = TaskStatus.STOPPED;
+            changeStatus(TaskStatus.STOPPED);
 
             solver.stop();
 
             if (trackerFuture != null) {
                 trackerFuture.cancel(false);
             }
-        } else {
-            taskStatus = TaskStatus.CANCELED;
+        } else if (taskStatus == TaskStatus.PENDING) {
+            changeStatus(TaskStatus.CANCELED);
         }
     }
 
-    public CompletableFuture<Void> onEnd(Consumer<List<Solution>> consumer) {
-        if (taskStatus == TaskStatus.PENDING) {
-            if (onEnd == null) {
-                onEnd = new ArrayList<>();
-            }
-            onEnd.add(consumer);
+    private synchronized void changeStatus(TaskStatus newStatus) {
+        if (taskStatus == newStatus) {
+            return;
+        }
 
-            return null;
-        } else if (taskStatus == TaskStatus.RUNNING) {
-            return solverFuture.thenAccept(consumer);
-        } else {
-            return CompletableFuture.runAsync(() -> consumer.accept(solutions));
+        TaskStatus old = this.taskStatus;
+        taskStatus = newStatus;
+
+        for (TaskListener listener : listeners) {
+            listener.statusChanged(this, old, newStatus);
         }
     }
 
-    /**
-     * Cancel a pending task
-     */
-    public void cancel() {
-        if (taskStatus == TaskStatus.PENDING) {
-            taskStatus = TaskStatus.CANCELED;
+    public void addListener(TaskListener listener) {
+        listeners.add(listener);
+    }
 
-            if (onEnd != null) {
-                for (Consumer<List<Solution>> onEnd : this.onEnd) {
-                    onEnd(onEnd);
-                }
-            }
-        }
+    public void removeListener(TaskListener listener) {
+        listeners.remove(listener);
+    }
+
+    public TaskListener[] getListeners() {
+        return listeners.toArray(new TaskListener[0]);
     }
 
     public int getTaskIndex() {
@@ -202,7 +190,19 @@ public class SolverTask {
         return taskStatus;
     }
 
+    public int getCurrentLevel() {
+        return currentLevel;
+    }
+
+    public List<Level> getLevels() {
+        return Collections.unmodifiableList(levels);
+    }
+
     public List<Solution> getSolutions() {
-        return solutions;
+        if (solutions == null) {
+            return null;
+        } else {
+            return Collections.unmodifiableList(solutions);
+        }
     }
 }

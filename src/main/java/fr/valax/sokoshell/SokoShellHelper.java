@@ -14,8 +14,6 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-// TODO: reorganize this class
-// TODO: fix synchronize problems
 public class SokoShellHelper implements Lock {
 
     public static final SokoShellHelper INSTANCE = new SokoShellHelper();
@@ -30,9 +28,7 @@ public class SokoShellHelper implements Lock {
     private CommandLine cli;
     private Terminal terminal;
 
-    private Queue<SolverTask> finishedTasks = new ArrayDeque<>();
-    private SolverTask runningTask = null;
-    private Queue<SolverTask> pendingTasks = new ArrayDeque<>();
+    private final TaskList taskList;
 
     private Pack selectedPack = null;
     private int selectedLevel = -1;
@@ -40,7 +36,11 @@ public class SokoShellHelper implements Lock {
     private SokoShellHelper() {
         addMapStyle(MapStyle.DEFAULT_STYLE);
         renderer.setStyle(MapStyle.DEFAULT_STYLE);
+
+        taskList = new TaskList();
     }
+
+    // tasks
 
     public void addTask(Solver solver, Map<String, Object> params, List<Level> levels, String pack, String level) {
         Objects.requireNonNull(params);
@@ -50,62 +50,14 @@ public class SokoShellHelper implements Lock {
     }
 
     public void addTask(SolverTask task) {
-        if (runningTask == null) {
-            runningTask = task;
-            task.start();
-        } else {
-            pendingTasks.offer(task);
-        }
-
-        task.onEnd(this::onTaskEnd);
+        taskList.offerTask(task);
     }
 
-    private void onTaskEnd(List<Solution> solutions) {
-        lock.lock();
-
-        try {
-            if (solutions != null) {
-                for (Solution solution : solutions) {
-                    Level level = solution.getParameters().getLevel();
-                    level.addSolution(solution);
-                }
-            }
-
-            finishedTasks.offer(runningTask);
-            runningTask = pendingTasks.poll();
-            if (runningTask != null) {
-                runningTask.start();
-            } else {
-                System.out.println("Finished all tasks! See results with 'list solution --task-index INDEX'");
-            }
-        } finally {
-            lock.unlock();
-        }
+    public TaskList getTaskList() {
+        return taskList;
     }
 
-    public boolean addMapStyle(MapStyle mapStyle) {
-        if (styles.containsKey(mapStyle.getName())) {
-            return false;
-        } else {
-            styles.put(mapStyle.getName(), mapStyle);
-
-            return true;
-        }
-    }
-
-    public void addMapStyleReplace(MapStyle mapStyle) {
-        styles.put(mapStyle.getName(), mapStyle);
-    }
-
-    public MapStyle getMapStyle(String name) {
-        return styles.get(name);
-    }
-
-    public void addMapStyleCandidates(List<Candidate> candidates) {
-        for (MapStyle mapStyle : getMapStyles()) {
-            candidates.add(new Candidate(mapStyle.getName()));
-        }
-    }
+    // packs
 
     /**
      * Add a pack if there is no pack with his name
@@ -136,46 +88,6 @@ public class SokoShellHelper implements Lock {
         }
     }
 
-    public void println(String s) {
-        lock();
-
-        try {
-            terminal.writer().println(s);
-            terminal.writer().flush();
-        } finally {
-            unlock();
-        }
-    }
-
-    public void tryPrintln(String s) {
-        if (tryLock()) {
-
-            try {
-                terminal.writer().println(s);
-                terminal.writer().flush();
-            } finally {
-                unlock();
-            }
-        }
-    }
-
-    public void tryPrintln(String s, long time, TimeUnit unit) {
-        try {
-            if (!tryLock(time, unit)) {
-                return;
-            }
-        } catch (InterruptedException e) {
-            return;
-        }
-
-        try {
-            terminal.writer().println(s);
-            terminal.writer().flush();
-        } finally {
-            unlock();
-        }
-    }
-
     public void selectPack(Pack pack) {
         this.selectedPack = pack;
     }
@@ -183,6 +95,12 @@ public class SokoShellHelper implements Lock {
     public Pack getSelectedPack() {
         return selectedPack;
     }
+
+    public Collection<Pack> getPacks() {
+        return packs.values();
+    }
+
+    // levels
 
     public void selectLevel(int index) {
         this.selectedLevel = index;
@@ -200,44 +118,30 @@ public class SokoShellHelper implements Lock {
         return selectedLevel;
     }
 
-    public Collection<Pack> getPacks() {
-        return packs.values();
+    // styles
+
+    public boolean addMapStyle(MapStyle mapStyle) {
+        if (styles.containsKey(mapStyle.getName())) {
+            return false;
+        } else {
+            styles.put(mapStyle.getName(), mapStyle);
+
+            return true;
+        }
     }
 
-    public Terminal getTerminal() {
-        return terminal;
+    public void addMapStyleReplace(MapStyle mapStyle) {
+        styles.put(mapStyle.getName(), mapStyle);
     }
 
-    public void setTerminal(Terminal terminal) {
-        this.terminal = terminal;
+    public MapStyle getMapStyle(String name) {
+        return styles.get(name);
     }
 
-    public void setCli(CommandLine cli) {
-        this.cli = cli;
-    }
-
-    public CommandLine getCli() {
-        return cli;
-    }
-
-    public Queue<SolverTask> getFinishedTasks() {
-        return finishedTasks;
-    }
-
-    public SolverTask getRunningTask() {
-        return runningTask;
-    }
-
-    public Queue<SolverTask> getPendingTasks() {
-        return pendingTasks;
-    }
-
-    public boolean isSolving() {
-        return runningTask != null;
-    }
-
-    public MapRenderer getRenderer() {
-        return renderer;
+    public void addMapStyleCandidates(List<Candidate> candidates) {
+        for (MapStyle mapStyle : getMapStyles()) {
+            candidates.add(new Candidate(mapStyle.getName()));
+        }
     }
 
     public MapStyle getMapStyle() {
@@ -252,30 +156,30 @@ public class SokoShellHelper implements Lock {
         return styles.values();
     }
 
-    public SolverTask getTask(int taskIndex) {
-        for (SolverTask finished : finishedTasks) {
-            if (finished.getTaskIndex() == taskIndex) {
-                return finished;
-            }
-        }
 
-        if (runningTask != null && runningTask.getTaskIndex() == taskIndex) {
-            return runningTask;
-        }
-
-        for (SolverTask finished : pendingTasks) {
-            if (finished.getTaskIndex() == taskIndex) {
-                return finished;
-            }
-        }
-
-        return null;
+    public MapRenderer getRenderer() {
+        return renderer;
     }
 
-    public void moveToFinished(SolverTask task) {
-        pendingTasks.remove(task);
-        finishedTasks.offer(task);
+
+
+    public Terminal getTerminal() {
+        return terminal;
     }
+
+    public void setTerminal(Terminal terminal) {
+        this.terminal = terminal;
+    }
+
+    public CommandLine getCli() {
+        return cli;
+    }
+
+    public void setCli(CommandLine cli) {
+        this.cli = cli;
+    }
+
+
 
     @Override
     public void lock() {

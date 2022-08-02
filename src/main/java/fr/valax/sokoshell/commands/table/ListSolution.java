@@ -36,7 +36,7 @@ public class ListSolution extends TableCommand {
     @Override
     public int executeImpl(InputStream in, PrintStream out, PrintStream err) {
         if (taskIndex != null) {
-            SolverTask task = helper.getTask(taskIndex);
+            SolverTask task = helper.getTaskList().getTask(taskIndex);
 
             if (task == null) {
                 err.printf("Can't find task n°%d%n", taskIndex);

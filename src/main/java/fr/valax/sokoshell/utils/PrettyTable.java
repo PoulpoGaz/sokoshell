@@ -1,5 +1,7 @@
 package fr.valax.sokoshell.utils;
 
+import org.jline.utils.AttributedString;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -7,6 +9,13 @@ import java.util.Objects;
 import java.util.function.Function;
 
 public class PrettyTable {
+
+    public static final AttributedString[] EMPTY = wrap("");
+
+    public static AttributedString[] wrap(CharSequence str) {
+        return new AttributedString[] {new AttributedString(str)};
+    }
+
 
     public static final Skin DEFAULT = new Skin("│", "─", "┼");
 
@@ -220,6 +229,14 @@ public class PrettyTable {
 
     public Skin getSkin() {
         return skin;
+    }
+
+    public boolean isShowHeader() {
+        return showHeader;
+    }
+
+    public void setShowHeader(boolean showHeader) {
+        this.showHeader = showHeader;
     }
 
     public record Skin(String columnDelimiter, String headerDelimiter, String intersection) {
