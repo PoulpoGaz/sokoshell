@@ -42,7 +42,7 @@ public class Level {
     }
 
     public Map getMap() {
-        return map;
+        return new Map(map);
     }
 
     public int getWidth() {

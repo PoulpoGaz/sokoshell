@@ -62,7 +62,7 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
         State initialState = level.getInitialState();
         State finalState = null;
 
-        Map map = new Map(level.getMap());
+        Map map = level.getMap();
         map.removeStateCrates(initialState);
         it.setMap(map);
         it.reset();
@@ -234,6 +234,11 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
         public SolverType getSolverType() {
             return SolverType.DFS;
         }
+
+        @Override
+        public State currentState() {
+            return toProcess.peekLast();
+        }
     }
 
     private static class BFSSolver extends BasicBrutalSolver {
@@ -245,6 +250,11 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
         @Override
         public SolverType getSolverType() {
             return SolverType.BFS;
+        }
+
+        @Override
+        public State currentState() {
+            return toProcess.peekFirst();
         }
     }
 }

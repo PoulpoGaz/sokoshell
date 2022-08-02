@@ -111,13 +111,8 @@ public class SolutionCommand extends LevelCommand {
                 lastMove = Direction.DOWN;
             }
 
-            double yRatio = (double) size.getRows() / map.getHeight();
-            double xRatio = (double) (size.getColumns() - width) / map.getWidth();
-
-            int s = (int) Math.min(xRatio, yRatio);
-
-            renderer.draw(graphics, 0, 0, s,
-                    animator.getMap(), animator.getPlayerX(), animator.getPlayerY(), lastMove);
+            renderer.draw(graphics, 0, 0, size.getColumns() - width, size.getRows(),
+                    map, animator.getPlayerX(), animator.getPlayerY(), lastMove);
 
             surface.drawBuffer(display, 0);
         }
@@ -232,7 +227,7 @@ public class SolutionCommand extends LevelCommand {
             this.solution = solution;
             Level level = solution.getParameters().getLevel();
 
-            this.map = new Map(level.getMap());
+            this.map = level.getMap();
             this.playerX = level.getPlayerX();
             this.playerY = level.getPlayerY();
 

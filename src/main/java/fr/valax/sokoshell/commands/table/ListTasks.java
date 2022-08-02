@@ -2,22 +2,17 @@ package fr.valax.sokoshell.commands.table;
 
 import fr.valax.args.api.Option;
 import fr.valax.sokoshell.SolverTask;
-import fr.valax.sokoshell.TaskList;
 import fr.valax.sokoshell.TaskStatus;
 import fr.valax.sokoshell.utils.Alignment;
 import fr.valax.sokoshell.utils.PrettyColumn;
 import fr.valax.sokoshell.utils.PrettyTable;
+import fr.valax.sokoshell.utils.Utils;
 import org.jline.utils.AttributedString;
 
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.util.Date;
 
 public class ListTasks extends TableCommand {
-
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
     @Option(names = {"P", "without-pending"})
     private boolean withoutPending;
@@ -102,8 +97,7 @@ public class ListTasks extends TableCommand {
         if (date < 0) {
             return PrettyTable.EMPTY;
         } else {
-            String str = DATE_FORMAT.format(Date.from(Instant.ofEpochMilli(date)));
-            return PrettyTable.wrap(str);
+            return PrettyTable.wrap(Utils.formatDate(date));
         }
     }
 

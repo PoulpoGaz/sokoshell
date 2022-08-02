@@ -58,7 +58,8 @@ public class TaskList {
                 if (runningTask != null) {
                     runningTask.start();
                 } else {
-                    System.out.println("Finished all tasks! See results with 'list solution --task-index INDEX'");
+                    // TODO:
+                    // System.out.println("Finished all tasks! See results with 'list solution --task-index INDEX'");
                 }
             } else {
                 pending.remove(task);

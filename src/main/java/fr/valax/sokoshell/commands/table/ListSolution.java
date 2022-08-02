@@ -7,6 +7,7 @@ import fr.valax.sokoshell.solver.*;
 import fr.valax.sokoshell.utils.Alignment;
 import fr.valax.sokoshell.utils.PrettyColumn;
 import fr.valax.sokoshell.utils.PrettyTable;
+import fr.valax.sokoshell.utils.Utils;
 import org.jline.reader.Candidate;
 import org.jline.reader.LineReader;
 import org.jline.utils.AttributedString;
@@ -106,14 +107,10 @@ public class ListSolution extends TableCommand {
         PrettyColumn<Integer> moves = new PrettyColumn<>("Moves");
 
         PrettyColumn<Long> date = new PrettyColumn<>("Date");
-        date.setToString(start -> {
-            String d = DATE_FORMAT.format(Date.from(Instant.ofEpochMilli(start)));
-
-            return new AttributedString[] {new AttributedString(d)};
-        });
+        date.setToString(start -> PrettyTable.wrap(Utils.formatDate(start)));
 
         PrettyColumn<Long> time = new PrettyColumn<>("Time");
-        time.setToString(time1 -> new AttributedString[] {new AttributedString(prettyDate(time1))});
+        time.setToString(time1 -> PrettyTable.wrap(Utils.prettyDate(time1)));
 
         for (Solution s : solutions) {
             SolverStatistics stats = s.getStatistics();
@@ -135,33 +132,6 @@ public class ListSolution extends TableCommand {
 
         printTable(out, err, table);
         out.printf("%nNumber of solutions: %d%n", solutions.size());
-    }
-
-    private String prettyDate(long millis) {
-        if (millis < 1000) {
-            return millis + " ms";
-        } else if (millis < 1000 * 60) {
-            double sec = millis / 1000d;
-
-            return round(sec) + " s";
-        } else if (millis < 1000 * 60 * 60) {
-            int minute = (int) (millis / (1000 * 60d));
-            double sec = (millis - minute * 1000 * 60) / 1000d;
-
-            return minute + " min " + sec + " s";
-        } else {
-            int hour = (int) (millis / (1000 * 60 * 60d));
-            int minute = (int) (millis - hour * 1000 * 60 * 60) / (1000 * 60);
-            double sec = (millis - hour * 1000 * 60 * 60 - minute * 1000 * 60) / 1000d;
-
-            return hour + " h " + minute + " min " + sec + " s";
-        }
-    }
-
-    private String round(double d) {
-        DecimalFormat format = new DecimalFormat("#.##");
-
-        return format.format(d);
     }
 
     @Override

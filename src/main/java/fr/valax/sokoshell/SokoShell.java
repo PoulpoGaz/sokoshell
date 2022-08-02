@@ -89,7 +89,7 @@ public class SokoShell {
 
                 .addCommand(new SolveCommand())    // the most important command!
                 .addCommand(new CancelCommand())
-                .addCommand(new StatusCommand())
+                .addCommand(new MonitorCommand())
                 .addCommand(new PlayCommand())
                 //.addCommand(new StatsCommand())
                 .addCommand(new SaveCommand())

@@ -51,13 +51,17 @@ public class SolveCommand extends AbstractCommand {
 
         Solver solver = BasicBrutalSolver.newDFSSolver();
 
-        helper.addTask(solver, params, levels, toString(this.pack), this.levels);
+        helper.addTask(solver, params, levels, toString(packs, this.pack), this.levels);
 
         return Command.SUCCESS;
     }
 
-    private String toString(String[] array) {
-        if (array.length == 1) {
+    private String toString(List<Pack> packs, String[] array) {
+        if (packs.size() == 1 || (array == null && !packs.isEmpty())) {
+            return packs.get(0).name();
+        } else if (array == null) {
+            throw new IllegalStateException();
+        } else if (array.length == 1) {
             return array[0];
         } else {
             return Arrays.toString(array);

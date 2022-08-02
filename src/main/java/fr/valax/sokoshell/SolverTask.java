@@ -162,6 +162,10 @@ public class SolverTask {
         return listeners.toArray(new TaskListener[0]);
     }
 
+    public Solver getSolver() {
+        return solver;
+    }
+
     public int getTaskIndex() {
         return taskIndex;
     }

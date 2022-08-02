@@ -3,6 +3,11 @@ package fr.valax.sokoshell.utils;
 import org.jline.utils.AttributedString;
 
 import java.nio.file.Path;
+import java.sql.Date;
+import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.OptionalInt;
 import java.util.concurrent.ExecutorService;
@@ -18,6 +23,9 @@ public class Utils {
 
     public static final Comparator<AttributedString> ATTRIBUTED_STRING_COMPARATOR =
             Comparator.comparing(AttributedString::toString);
+
+    public static final DateFormat DDMMYYYY_HHMM = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+    public static final DecimalFormat FORMAT = new DecimalFormat("#.##");
 
     public static int nDigit(int v) {
         if (v == 0)  {
@@ -48,6 +56,40 @@ public class Utils {
             return OptionalInt.empty();
         }
     }
+
+    public static String formatDate(long date) {
+        return formatDate(date, DDMMYYYY_HHMM);
+    }
+
+    public static String formatDate(long date, DateFormat format) {
+        return format.format(Date.from(Instant.ofEpochMilli(date)));
+    }
+
+    public static String prettyDate(long millis) {
+        if (millis < 1000) {
+            return millis + " ms";
+        } else if (millis < 1000 * 60) {
+            double sec = millis / 1000d;
+
+            return round(sec) + " s";
+        } else if (millis < 1000 * 60 * 60) {
+            int minute = (int) (millis / (1000 * 60d));
+            double sec = (millis - minute * 1000 * 60) / 1000d;
+
+            return minute + " min " + sec + " s";
+        } else {
+            int hour = (int) (millis / (1000 * 60 * 60d));
+            int minute = (int) (millis - hour * 1000 * 60 * 60) / (1000 * 60);
+            double sec = (millis - hour * 1000 * 60 * 60 - minute * 1000 * 60) / 1000d;
+
+            return hour + " h " + minute + " min " + sec + " s";
+        }
+    }
+
+    private static String round(double d) {
+        return FORMAT.format(d);
+    }
+
 
     public static void shutdownExecutors() {
         SOKOSHELL_EXECUTOR.shutdown();

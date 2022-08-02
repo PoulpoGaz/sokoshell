@@ -20,6 +20,8 @@ public interface Trackable extends Solver {
 
     long timeEnded();
 
+    State currentState();
+
     void setTacker(Tracker tracker);
 
     Tracker getTracker();

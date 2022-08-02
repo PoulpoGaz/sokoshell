@@ -97,6 +97,25 @@ public class MapRenderer {
     }
 
     public void draw(Graphics g,
+                     int x, int y, int width, int height,
+                     Map map, int playerX, int playerY, Direction playerDir) {
+        if (style == null) {
+            throw new IllegalStateException("Please, set style before");
+        }
+
+        double yRatio = (double) height / map.getHeight();
+        double xRatio = (double) width / map.getWidth();
+
+        int s = (int) Math.min(xRatio, yRatio);
+
+        if (s == 0) {
+            return;
+        }
+
+        draw(g, x, y, s, map, playerX, playerY, playerDir);
+    }
+
+    public void draw(Graphics g,
                      int x, int y, int size,
                      Map map, int playerX, int playerY, Direction playerDir) {
         if (style == null) {

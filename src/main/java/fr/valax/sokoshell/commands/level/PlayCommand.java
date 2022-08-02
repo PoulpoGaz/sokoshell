@@ -147,7 +147,7 @@ public class PlayCommand extends LevelCommand {
         private boolean mapCompleted = false;
 
         GameController(Level level) {
-            this.map = new Map(level.getMap());
+            this.map = level.getMap();
             this.playerX = level.getPlayerX();
             this.playerY = level.getPlayerY();
         }
