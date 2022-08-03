@@ -2,8 +2,8 @@ package fr.valax.sokoshell.commands.unix;
 
 import fr.valax.args.api.Option;
 import fr.valax.args.api.VaArgs;
-import fr.valax.sokoshell.commands.AbstractCommand;
 import fr.valax.sokoshell.SokoShellHelper;
+import fr.valax.sokoshell.commands.AbstractCommand;
 import org.jline.builtins.Commands;
 
 import java.io.ByteArrayInputStream;

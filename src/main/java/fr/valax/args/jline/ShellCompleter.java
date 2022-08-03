@@ -6,20 +6,14 @@ import fr.valax.args.Tokenizer;
 import fr.valax.args.api.*;
 import fr.valax.args.utils.ArgsUtils;
 import fr.valax.args.utils.INode;
-import fr.valax.sokoshell.utils.Utils;
-import org.jline.builtins.Completers;
-import org.jline.reader.*;
+import org.jline.reader.Candidate;
+import org.jline.reader.Completer;
+import org.jline.reader.LineReader;
+import org.jline.reader.ParsedLine;
 
-import javax.security.auth.login.AppConfigurationEntry;
-import java.io.BufferedWriter;
-import java.io.Console;
-import java.io.IOException;
-import java.nio.Buffer;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class ShellCompleter implements Completer {
 

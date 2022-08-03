@@ -9,8 +9,6 @@ import fr.valax.sokoshell.utils.Utils;
 import org.jline.keymap.KeyMap;
 import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
-import org.jline.utils.AttributedString;
-import org.jline.utils.AttributedStyle;
 import org.jline.utils.InfoCmp;
 
 import java.io.InputStream;

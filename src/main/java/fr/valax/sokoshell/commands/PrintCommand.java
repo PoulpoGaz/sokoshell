@@ -1,12 +1,14 @@
 package fr.valax.sokoshell.commands;
 
 import fr.valax.args.api.Option;
+import fr.valax.args.utils.ArgsUtils;
 import fr.valax.interval.Interval;
 import fr.valax.interval.ParseException;
 import fr.valax.interval.Set;
-import fr.valax.interval.SetParser;
 import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.solver.Pack;
+import org.jline.reader.Candidate;
+import org.jline.reader.LineReader;
 
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -70,5 +72,12 @@ public class PrintCommand extends AbstractCommand {
     @Override
     public String[] getUsage() {
         return new String[0];
+    }
+
+    @Override
+    public void completeOption(LineReader reader, String argument, List<Candidate> candidates, Option option) {
+        if (ArgsUtils.contains(option.names(), "p")) {
+            helper.addPackCandidates(candidates);
+        }
     }
 }

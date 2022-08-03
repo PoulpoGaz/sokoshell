@@ -2,12 +2,10 @@ package fr.valax.sokoshell;
 
 import fr.valax.sokoshell.solver.*;
 
-import java.util.*;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
+import java.util.*;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 import static fr.valax.sokoshell.utils.Utils.SCHEDULED_EXECUTOR;
 import static fr.valax.sokoshell.utils.Utils.SOKOSHELL_EXECUTOR;

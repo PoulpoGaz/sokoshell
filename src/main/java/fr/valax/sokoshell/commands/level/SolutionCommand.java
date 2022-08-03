@@ -4,7 +4,6 @@ import fr.valax.args.api.Command;
 import fr.valax.sokoshell.commands.AbstractCommand;
 import fr.valax.sokoshell.graphics.MapRenderer;
 import fr.valax.sokoshell.graphics.TerminalEngine;
-import fr.valax.sokoshell.solver.Map;
 import fr.valax.sokoshell.solver.*;
 import fr.valax.sokoshell.utils.Utils;
 import org.jline.keymap.KeyMap;
@@ -14,7 +13,7 @@ import org.jline.utils.InfoCmp;
 
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.util.*;
+import java.util.List;
 
 public class SolutionCommand extends LevelCommand {
 

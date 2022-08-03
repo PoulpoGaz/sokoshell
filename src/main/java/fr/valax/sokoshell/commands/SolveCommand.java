@@ -2,12 +2,15 @@ package fr.valax.sokoshell.commands;
 
 import fr.valax.args.api.Command;
 import fr.valax.args.api.Option;
+import fr.valax.args.utils.ArgsUtils;
 import fr.valax.sokoshell.solver.*;
+import org.jline.reader.Candidate;
+import org.jline.reader.LineReader;
 
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.util.*;
 import java.util.Map;
+import java.util.*;
 
 /**
  * @author PoulpoGaz
@@ -87,5 +90,12 @@ public class SolveCommand extends AbstractCommand {
     @Override
     public String[] getUsage() {
         return new String[0];
+    }
+
+    @Override
+    public void completeOption(LineReader reader, String argument, List<Candidate> candidates, Option option) {
+        if (ArgsUtils.contains(option.names(), "p")) {
+            helper.addPackCandidates(candidates);
+        }
     }
 }

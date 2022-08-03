@@ -91,7 +91,12 @@ public abstract class AbstractCommand implements JLineCommand {
     protected abstract int executeImpl(InputStream in, PrintStream out, PrintStream err);
 
 
-
+    /**
+     * @param name the name of the pack
+     * @return the pack matching name or the selected pack if name is null
+     * @throws InvalidArgument if name is null and there is no selected pack
+     * or there is no pack with the specified name
+     */
     protected Pack getPack(String name) throws InvalidArgument {
         if (name == null) {
             Pack selected = helper.getSelectedPack();
@@ -112,6 +117,11 @@ public abstract class AbstractCommand implements JLineCommand {
         }
     }
 
+    /**
+     * @param glob glob
+     * @return packs that match globs or the selected pack if null
+     * @see GlobIterator
+     */
     protected Collection<Pack> getPackMultiple(String... glob) {
         if (deepNull(glob)) {
             Pack selected = helper.getSelectedPack();
@@ -157,41 +167,50 @@ public abstract class AbstractCommand implements JLineCommand {
         return true;
     }
 
+    /**
+     *
+     * @param pack the pac to get the level
+     * @param index the index of the level or null to get the selected level
+     * @return the index-th level of the pack or return the level of the pack with selected index
+     * @throws InvalidArgument if index is not an int or if index is out of bounds
+     */
     protected Level getLevel(Pack pack, String index) throws InvalidArgument {
         if (index == null) {
-            Level selected = helper.getSelectedLevel();
-
-            if (selected == null) {
-                throw new InvalidArgument("No level selected");
-            }
-
-            return selected;
+            return getLevel(pack, (Integer) null);
         } else {
             OptionalInt optI = Utils.parseInt(index);
 
             if (optI.isPresent()) {
-                int i = optI.getAsInt() - 1;
-
-                if (i < 0 || i >= pack.levels().size()) {
-                    throw new InvalidArgument("Index out of bounds");
-                }
-
-                return pack.levels().get(i);
+                return getLevel(pack, optI.getAsInt());
+            } else {
+                throw new InvalidArgument("Not an integer");
             }
-
-            throw new InvalidArgument("Not an integer");
         }
     }
 
+    /**
+     *
+     * @param pack the pac to get the level
+     * @param index the index of the level or null to get the selected level
+     * @return the index-th level of the pack or return the level of the pack with selected index
+     * @throws InvalidArgument if index is out of bounds
+     */
     protected Level getLevel(Pack pack, Integer index) throws InvalidArgument {
         if (index == null) {
-            Level selected = helper.getSelectedLevel();
+            Pack selectedPack = helper.getSelectedPack();
+            int i = helper.getSelectedLevelIndex();
 
-            if (selected == null) {
-                throw new InvalidArgument("No level selected");
+            if (i <= 0 || i >= pack.nLevel()) {
+                if (selectedPack != null) {
+                    if (i <= 0 || selectedPack.nLevel() >= i) {
+                        throw new InvalidArgument("No level selected");
+                    }
+                }
+
+                throw new InvalidArgument("Index out of bounds");
+            } else {
+                return pack.levels().get(i);
             }
-
-            return selected;
         } else {
             int i = index - 1;
 
@@ -203,6 +222,34 @@ public abstract class AbstractCommand implements JLineCommand {
         }
     }
 
+    /**
+     * @param pack pack
+     * @param range range
+     * @return all levels in the pack that match the range. If range is null, it returns all levels
+     * @throws InvalidArgument if the range can't be parsed
+     */
+    protected List<Level> getLevelMultiple(Pack pack, String range) throws InvalidArgument {
+        if (range == null || range.isEmpty()) {
+            return pack.levels();
+        }
+
+        Set set;
+        try {
+            set = parser.parse(range);
+        } catch (ParseException e) {
+            throw new InvalidArgument(e);
+        }
+
+        return getLevelMultiple(pack, set);
+    }
+
+    /**
+     *
+     * @param packs packs to fetch levels
+     * @param range range
+     * @return all levels in the collection that are in the range
+     * @throws InvalidArgument if the range can't be parsed
+     */
     protected List<Level> getLevelMultiple(Collection<Pack> packs, String range) throws InvalidArgument {
         List<Level> levels = new ArrayList<>();
 
@@ -224,25 +271,21 @@ public abstract class AbstractCommand implements JLineCommand {
         return levels;
     }
 
-    protected List<Level> getLevelMultiple(Pack pack, String range) throws InvalidArgument {
-        if (range == null || range.isEmpty()) {
-            return pack.levels();
-        }
-
-        Set set;
-        try {
-            set = parser.parse(range);
-        } catch (ParseException e) {
-            throw new InvalidArgument(e);
-        }
-
-        return getLevelMultiple(pack, set);
-    }
-
+    /**
+     * @param pack pack
+     * @param set set
+     * @return all levels of the pack that are in the set
+     */
     protected List<Level> getLevelMultiple(Pack pack, Set set) {
         return Iterators.iteratorToList(getLevelMultipleIt(pack, set));
     }
 
+    /**
+     *
+     * @param pack pack
+     * @param set set
+     * @return an iterator of all levels of the pack that are in the set
+     */
     protected Iterator<Level> getLevelMultipleIt(Pack pack, Set set) {
         List<Level> levels = pack.levels();
         if (set instanceof Singleton s) {

@@ -3,7 +3,6 @@ package fr.valax.sokoshell.solver;
 import fr.poulpogaz.json.JsonException;
 import fr.poulpogaz.json.JsonPrettyWriter;
 import fr.poulpogaz.json.JsonReader;
-import jdk.jshell.Snippet;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -119,6 +118,10 @@ public final class Pack {
 
     public List<Level> levels() {
         return levels;
+    }
+
+    public int nLevel() {
+        return levels.size();
     }
 
     public Path getSourcePath() {

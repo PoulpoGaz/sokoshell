@@ -10,9 +10,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
-import static fr.valax.sokoshell.graphics.MapStyle.*;
+import static fr.valax.sokoshell.graphics.MapStyle.Element;
 import static org.jline.utils.AttributedStyle.*;
 
 public class MapStyleReader {

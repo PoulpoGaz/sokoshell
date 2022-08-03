@@ -4,7 +4,10 @@ import fr.poulpogaz.json.JsonException;
 import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.solver.Pack;
 import fr.valax.sokoshell.solver.Tile;
-import org.dom4j.*;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.Element;
+import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 
 import java.io.IOException;

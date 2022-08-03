@@ -2,7 +2,6 @@ package fr.valax.args;
 
 import fr.valax.args.utils.ArgsUtils;
 
-import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**

@@ -3,11 +3,12 @@ package fr.valax.sokoshell;
 import fr.valax.args.CommandLine;
 import fr.valax.sokoshell.graphics.MapRenderer;
 import fr.valax.sokoshell.graphics.MapStyle;
-import fr.valax.sokoshell.solver.*;
+import fr.valax.sokoshell.solver.Level;
+import fr.valax.sokoshell.solver.Pack;
+import fr.valax.sokoshell.solver.Solver;
 import org.jline.reader.Candidate;
 import org.jline.terminal.Terminal;
 
-import java.util.Map;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
@@ -107,7 +108,7 @@ public class SokoShellHelper implements Lock {
     }
 
     public Level getSelectedLevel() {
-        if (selectedPack == null || selectedLevel < 0 || selectedLevel >= selectedPack.levels().size()) {
+        if (selectedPack == null || selectedLevel < 0 || selectedLevel >= selectedPack.nLevel()) {
             return null;
         } else {
             return selectedPack.levels().get(selectedLevel);

@@ -4,7 +4,6 @@ import fr.valax.args.api.Command;
 import fr.valax.args.api.Option;
 import org.jline.reader.Candidate;
 import org.jline.reader.LineReader;
-import org.jline.reader.ParsedLine;
 
 import java.util.List;
 

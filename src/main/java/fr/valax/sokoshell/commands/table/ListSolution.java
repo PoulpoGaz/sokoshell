@@ -10,19 +10,17 @@ import fr.valax.sokoshell.utils.PrettyTable;
 import fr.valax.sokoshell.utils.Utils;
 import org.jline.reader.Candidate;
 import org.jline.reader.LineReader;
-import org.jline.utils.AttributedString;
 
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 public class ListSolution extends TableCommand {
 
-    @Option(names = {"p", "pack"}, hasArgument = true, argName = "Pack name")
-    private String packName;
+    @Option(names = {"p", "pack"}, hasArgument = true, argName = "Pack name", allowDuplicate = true)
+    private String[] packName;
 
     @Option(names = {"i", "index"}, hasArgument = true, argName = "Level index")
     private String levelIndex;
@@ -67,9 +65,6 @@ public class ListSolution extends TableCommand {
 
             printTable(out, err, solutions);
         }
-
-
-
 
         return SUCCESS;
     }

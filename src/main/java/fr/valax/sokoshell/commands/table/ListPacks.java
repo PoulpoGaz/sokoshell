@@ -27,7 +27,7 @@ public class ListPacks extends TableCommand {
         for (Pack pack : packs) {
             name.add(pack.name());
             author.add(pack.author());
-            version.add(Alignment.RIGHT, pack.levels().size());
+            version.add(Alignment.RIGHT, pack.nLevel());
         }
 
         table.addColumn(name);
@@ -38,7 +38,7 @@ public class ListPacks extends TableCommand {
 
         int totalLevels = 0;
         for (Pack p : packs) {
-            totalLevels += p.levels().size();
+            totalLevels += p.nLevel();
         }
         out.printf("%nTotal packs: %d - Total levels: %d%n", packs.size(), totalLevels);
 
