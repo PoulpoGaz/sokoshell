@@ -112,17 +112,17 @@ public abstract class AbstractCommand implements JLineCommand {
         }
     }
 
-    protected List<Pack> getPackMultiple(String... glob) {
-        if (glob == null) {
+    protected Collection<Pack> getPackMultiple(String... glob) {
+        if (deepNull(glob)) {
             Pack selected = helper.getSelectedPack();
 
             if (selected == null) {
-                return List.of();
+                return helper.getPacks();
             }
 
             return List.of(selected);
         } else {
-            List<Pack> packs = new ArrayList<>();
+            java.util.Set<Pack> packs = new HashSet<>();
 
             for (String g : glob) {
                 if (g == null) {
@@ -143,6 +143,18 @@ public abstract class AbstractCommand implements JLineCommand {
 
             return packs;
         }
+    }
+
+    protected boolean deepNull(String[] array) {
+        if (array != null) {
+            for (String str : array) {
+                if (str != null) {
+                    return false;
+                }
+            }
+
+        }
+        return true;
     }
 
     protected Level getLevel(Pack pack, String index) throws InvalidArgument {
@@ -191,7 +203,7 @@ public abstract class AbstractCommand implements JLineCommand {
         }
     }
 
-    protected List<Level> getLevelMultiple(List<Pack> packs, String range) throws InvalidArgument {
+    protected List<Level> getLevelMultiple(Collection<Pack> packs, String range) throws InvalidArgument {
         List<Level> levels = new ArrayList<>();
 
         Set set;

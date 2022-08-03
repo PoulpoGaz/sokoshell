@@ -44,7 +44,7 @@ public class Map {
         for (int i : state.cratesIndices()) {
             if (getAt(i).isTarget()) {
                 setAt(i, Tile.CRATE_ON_TARGET);
-            } else {
+            } else if (getAt(i).isFloor()) { // extra check
                 setAt(i, Tile.CRATE);
             }
         }
@@ -58,7 +58,7 @@ public class Map {
         for (int i : state.cratesIndices()) {
             if (getAt(i).isCrateOnTarget()) {
                 setAt(i, Tile.TARGET);
-            } else {
+            } else if (getAt(i).isCrate()) {
                 setAt(i, Tile.FLOOR);
             }
         }

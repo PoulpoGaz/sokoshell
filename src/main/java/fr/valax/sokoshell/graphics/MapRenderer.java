@@ -108,7 +108,7 @@ public class MapRenderer {
 
         int s = (int) Math.min(xRatio, yRatio);
 
-        if (s == 0) {
+        if (s <= 0) {
             return;
         }
 

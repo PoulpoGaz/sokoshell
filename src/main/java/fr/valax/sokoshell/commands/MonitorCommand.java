@@ -2,7 +2,6 @@ package fr.valax.sokoshell.commands;
 
 import fr.valax.sokoshell.SokoShellHelper;
 import fr.valax.sokoshell.SolverTask;
-import fr.valax.sokoshell.commands.level.PlayCommand;
 import fr.valax.sokoshell.graphics.MapRenderer;
 import fr.valax.sokoshell.graphics.TerminalEngine;
 import fr.valax.sokoshell.solver.*;
@@ -33,6 +32,8 @@ public class MonitorCommand extends AbstractCommand {
 
         try (Monitor monitor = new Monitor(helper.getTerminal(), helper, runningTask)) {
             monitor.loop();
+        } catch (Exception e) { // due to the voluntary lack of synchronization, actually never happen
+            e.printStackTrace(err);
         }
 
         return 0;
@@ -73,7 +74,11 @@ public class MonitorCommand extends AbstractCommand {
 
         private Pack currentPack;
         private Level currentLevel;
+        private int index;
+
         private Map map;
+        private BigInteger numberOfStates;
+        private State state;
 
         public Monitor(Terminal terminal, SokoShellHelper helper, SolverTask task) {
             super(terminal);
@@ -82,26 +87,13 @@ public class MonitorCommand extends AbstractCommand {
             this.levels = task.getLevels();
             this.solver = task.getSolver();
 
-            if (solver instanceof Trackable trackable) {
-                this.trackable = trackable;
+            if (solver instanceof Trackable tr) {
+                this.trackable = tr;
             } else {
                 this.trackable = null;
             }
 
-            int i = task.getCurrentLevel();
-            if (i >= 0 && i < levels.size()) {
-                currentLevel = levels.get(i);
-                currentPack = currentLevel.getPack();
-            }
-
-            map = currentLevel.getMap();
-            map.forEach((t) -> {
-                if (t.isCrate()) {
-                    t.setTile(Tile.FLOOR);
-                } else if (t.isCrateOnTarget()) {
-                    t.setTile(Tile.TARGET);
-                }
-            });
+            changeLevel();
         }
 
         @Override
@@ -130,24 +122,19 @@ public class MonitorCommand extends AbstractCommand {
                 return;
             }
 
-            State state = null;
             int width = size.getColumns();
-            int height = size.getRows() - 3;
+            int height = size.getRows() - 3 - 2;
             int playerX = -1;
             int playerY = -1;
 
             MapRenderer renderer = helper.getRenderer();
-
-            if (trackable != null) {
-                state = trackable.currentState();
-
-                if (state != null) {
-                    map.addStateCrates(state);
-                    playerX = map.getX(state.playerPos());
-                    playerY = map.getY(state.playerPos());
-                }
+            if (state != null) {
+                map.addStateCrates(state);
+                playerX = map.getX(state.playerPos());
+                playerY = map.getY(state.playerPos());
             }
-            renderer.draw(graphics, 0, 3, width, height, map, playerX, playerY, Direction.DOWN);
+
+            renderer.draw(graphics, 0, 2, width, height, map, playerX, playerY, Direction.DOWN);
             if (state != null) {
                 map.removeStateCrates(state);
             }
@@ -184,11 +171,11 @@ public class MonitorCommand extends AbstractCommand {
             // footer
             if (currentPack != null && currentLevel != null) {
                 drawRegularlyKeyMap(size.getRows() - 2, size.getColumns(),
-                        "Max number of states", estimateMaxNumberOfStates(currentLevel));
+                        "Pack", currentPack.name(),
+                        "Level", currentLevel.getIndex() + 1);
 
                 drawRegularlyKeyMap(size.getRows() - 1, size.getColumns(),
-                        "Pack", currentPack.name(),
-                        "Level", currentLevel.getIndex());
+                        "Max number of states", numberOfStates);
             }
         }
 
@@ -208,20 +195,20 @@ public class MonitorCommand extends AbstractCommand {
 
                 if (w >= subWidth) {
                     if (value.length() >= subWidth) {
-                        surface.draw(new AttributedString(value.substring(0, subWidth), AttributedStyle.DEFAULT.foreground(AttributedStyle.RED)), x, y);
+                        surface.draw(value.substring(0, subWidth), x, y);
                     } else {
                         String key2 = key.substring(0, subWidth - value.length());
                         surface.draw(key2, x, y);
-                        surface.draw(new AttributedString(value, AttributedStyle.DEFAULT.foreground(AttributedStyle.MAGENTA)), x + key2.length(), y);
+                        surface.draw(value, x + key2.length(), y);
                     }
 
                 } else if (w + 1 >= subWidth) {
                     surface.draw(key, x, y);
-                    surface.draw(new AttributedString(value, AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN)), x + 1 + key.length(), y);
+                    surface.draw(value, x + 1 + key.length(), y);
                 } else if (w + 2 >= subWidth) {
                     surface.draw(key, x, y);
                     surface.draw(":", x + 1 + key.length(), y);
-                    surface.draw(new AttributedString(value, AttributedStyle.DEFAULT.foreground(AttributedStyle.BLUE)), x + 2 + key.length(), y);
+                    surface.draw(value, x + 2 + key.length(), y);
                 } else {
                     surface.draw(key, x, y);
                     surface.draw(":", x + 1 + key.length(), y);
@@ -241,6 +228,33 @@ public class MonitorCommand extends AbstractCommand {
             if (pressed(Key.ESCAPE)) {
                 running = false;
             }
+
+            if (task.getCurrentLevel() != index) {
+                changeLevel();
+            }
+
+            if (trackable != null) {
+                state = trackable.currentState();
+            }
+        }
+
+        private void changeLevel() {
+            index = task.getCurrentLevel();
+
+            if (index >= 0 && index < levels.size()) {
+                currentLevel = levels.get(index);
+                currentPack = currentLevel.getPack();
+
+                map = currentLevel.getMap();
+                numberOfStates = estimateMaxNumberOfStates(map);
+                map.forEach((t) -> {
+                    if (t.isCrate()) {
+                        t.setTile(Tile.FLOOR);
+                    } else if (t.isCrateOnTarget()) {
+                        t.setTile(Tile.TARGET);
+                    }
+                });
+            }
         }
 
         /**
@@ -252,9 +266,7 @@ public class MonitorCommand extends AbstractCommand {
          * <br>
          * (f c) counts the number of way to organize the crate (c) and the player ( + 1)<br>
          */
-        private BigInteger estimateMaxNumberOfStates(Level level) {
-            Map map = level.getMap();
-
+        private BigInteger estimateMaxNumberOfStates(Map map) {
             int nCrate = 0;
             int nFloor = 0;
 

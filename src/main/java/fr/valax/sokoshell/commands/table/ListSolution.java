@@ -17,13 +17,9 @@ import java.io.PrintStream;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class ListSolution extends TableCommand {
-
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
     @Option(names = {"p", "pack"}, hasArgument = true, argName = "Pack name")
     private String packName;
@@ -46,10 +42,10 @@ public class ListSolution extends TableCommand {
                 err.println("This task is running or has no solution");
                 return FAILURE;
             } else {
-                printTable(out, err, task.getSolutions(), true, true);
+                printTable(out, err, task.getSolutions());
             }
         } else {
-            List<Pack> packs = getPackMultiple(packName);
+            Collection<Pack> packs = getPackMultiple(packName);
 
             if (packs.isEmpty()) {
                 err.printf("No pack match %s%n", packName);
@@ -69,7 +65,7 @@ public class ListSolution extends TableCommand {
                 solutions.addAll(level.getSolutions());
             }
 
-            printTable(out, err, solutions, packName == null, levelIndex == null);
+            printTable(out, err, solutions);
         }
 
 
@@ -78,29 +74,11 @@ public class ListSolution extends TableCommand {
         return SUCCESS;
     }
 
-    private void printTable(PrintStream out, PrintStream err, List<Solution> solutions, boolean pack, boolean level) {
+    private void printTable(PrintStream out, PrintStream err, List<Solution> solutions) {
         PrettyTable table = new PrettyTable();
 
-        if (pack) {
-            PrettyColumn<String> packName = new PrettyColumn<>("Pack");
-
-            for (Solution s : solutions) {
-                packName.add(s.getParameters().getLevel().getPack().name());
-            }
-
-            table.addColumn(packName);
-        }
-
-        if (level) {
-            PrettyColumn<Integer> index = new PrettyColumn<>("Index");
-
-            for (Solution s : solutions) {
-                index.add(Alignment.RIGHT, s.getParameters().getLevel().getIndex() + 1);
-            }
-
-            table.addColumn(index);
-        }
-
+        PrettyColumn<String> packName = new PrettyColumn<>("Pack");
+        PrettyColumn<Integer> index = new PrettyColumn<>("Index");
         PrettyColumn<SolverStatus> status = new PrettyColumn<>("Status");
         PrettyColumn<SolverType> solverType = new PrettyColumn<>("Solver");
         PrettyColumn<Integer> pushes = new PrettyColumn<>("Pushes");
@@ -115,6 +93,8 @@ public class ListSolution extends TableCommand {
         for (Solution s : solutions) {
             SolverStatistics stats = s.getStatistics();
 
+            packName.add(s.getParameters().getLevel().getPack().name());
+            index.add(Alignment.RIGHT, s.getParameters().getLevel().getIndex() + 1);
             status.add(s.getStatus());
             solverType.add(s.getType());
             pushes.add(Alignment.RIGHT, s.numberOfPushes());
@@ -123,6 +103,8 @@ public class ListSolution extends TableCommand {
             time.add(Alignment.RIGHT, stats.getTimeEnded() - stats.getTimeStarted());
         }
 
+        table.addColumn(packName);
+        table.addColumn(index);
         table.addColumn(status);
         table.addColumn(solverType);
         table.addColumn(pushes);

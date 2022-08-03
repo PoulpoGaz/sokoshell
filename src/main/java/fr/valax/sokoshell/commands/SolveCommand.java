@@ -25,7 +25,7 @@ public class SolveCommand extends AbstractCommand {
 
     @Override
     protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
-        List<Pack> packs = getPackMultiple(pack);
+        Collection<Pack> packs = getPackMultiple(pack);
 
         if (packs.isEmpty()) {
             return SUCCESS;
@@ -56,9 +56,15 @@ public class SolveCommand extends AbstractCommand {
         return Command.SUCCESS;
     }
 
-    private String toString(List<Pack> packs, String[] array) {
+    private String toString(Collection<Pack> packs, String[] array) {
         if (packs.size() == 1 || (array == null && !packs.isEmpty())) {
-            return packs.get(0).name();
+            if (packs instanceof List<Pack> list) {
+                return list.get(0).name();
+            } else {
+                return packs.iterator()
+                        .next()
+                        .name();
+            }
         } else if (array == null) {
             throw new IllegalStateException();
         } else if (array.length == 1) {

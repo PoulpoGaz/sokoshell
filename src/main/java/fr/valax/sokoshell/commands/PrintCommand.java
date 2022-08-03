@@ -10,6 +10,7 @@ import fr.valax.sokoshell.solver.Pack;
 
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class PrintCommand extends AbstractCommand {
 
     @Override
     protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
-        List<Pack> packs = getPackMultiple(name);
+        Collection<Pack> packs = getPackMultiple(name);
 
         Set range;
         if (levels != null) {
