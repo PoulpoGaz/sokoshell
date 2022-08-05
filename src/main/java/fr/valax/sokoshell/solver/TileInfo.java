@@ -35,6 +35,13 @@ public class TileInfo {
         this.mark = tile.mark;
     }
 
+    public void set(TileInfo other) {
+        tile = other.tile;
+        deadTile = other.deadTile;
+        reachable = other.reachable;
+        mark = other.mark;
+    }
+
     public TileInfo adjacent(Direction dir) {
         return map.getAt(x + dir.dirX(), y + dir.dirY());
     }

@@ -107,7 +107,7 @@ public class ListTasks extends TableCommand {
                 task.getTaskStatus() == TaskStatus.CANCELED) {
             return PrettyTable.EMPTY;
         } else {
-            return PrettyTable.wrap("%d/%d".formatted(task.getCurrentLevel() + 1, task.getLevels().size()));
+            return PrettyTable.wrap("%d/%d".formatted(task.getCurrentLevel() + 1, task.size()));
         }
     }
 

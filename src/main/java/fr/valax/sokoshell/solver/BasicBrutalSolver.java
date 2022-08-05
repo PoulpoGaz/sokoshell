@@ -87,7 +87,9 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
                 break;
             }
 
-            addChildrenStates(cur, map);
+            if (!checkFreezeDeadlock(map, cur)) {
+                addChildrenStates(cur, map);
+            }
 
             map.removeStateCrates(cur);
         }
@@ -99,7 +101,7 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
         nStateProcessed = processed.size();
         queueSize = toProcess.size();
 
-        // free ram
+        // 'free' ram
         processed.clear();
         toProcess.clear();
 

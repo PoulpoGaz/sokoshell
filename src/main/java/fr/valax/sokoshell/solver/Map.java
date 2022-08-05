@@ -73,6 +73,13 @@ public class Map {
         }
     }
 
+    public void set(Map map) {
+        forEach((tile) -> {
+            TileInfo other = map.getAt(tile.getX(), tile.getY());
+            tile.set(other);
+        });
+    }
+
 
     // ************
     // * ANALYSIS *

@@ -15,7 +15,7 @@ public class AbstractSolverTest {
     void deadPositionsDetectionTest() {
         Pack pack;
         try {
-            pack = PackReaders.read(Path.of("levels/Original.8xv"), false);
+            pack = PackReaders.read(Path.of("levels8xv/Original.8xv"), false);
         } catch (IOException | JsonException e) {
             e.printStackTrace();
             System.out.println("Failed to read pack");
@@ -70,7 +70,5 @@ public class AbstractSolverTest {
             System.out.println(solver.checkFreezeDeadlock(map, level.getInitialState()));
 
         }
-
-
     }
 }

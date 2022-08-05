@@ -65,7 +65,8 @@ public class SolutionCommand extends LevelCommand {
         DOWN,
         UP,
         ENTER,
-        SPACE
+        SPACE,
+        R
     }
 
     public class SolutionView extends TerminalEngine<Key> {
@@ -82,6 +83,7 @@ public class SolutionCommand extends LevelCommand {
         public SolutionView(Terminal terminal, SolutionAnimator animator) {
             super(terminal);
             this.animator = animator;
+            lastTime = System.currentTimeMillis();
         }
 
         @Override
@@ -92,6 +94,7 @@ public class SolutionCommand extends LevelCommand {
             keyMap.bind(Key.UP, KeyMap.key(terminal, InfoCmp.Capability.key_up));
             keyMap.bind(Key.ENTER, "\r");
             keyMap.bind(Key.SPACE, " ");
+            keyMap.bind(Key.R, "r");
             keyMap.bind(Key.ESCAPE, KeyMap.esc());
             keyMap.setAmbiguousTimeout(100L);
         }
@@ -147,34 +150,22 @@ public class SolutionCommand extends LevelCommand {
             return Math.max(moveInfoLength, Math.max(pushInfoLength, speedInfoLength));
         }
 
-        /**
-         * f(x) = e^(ax²+bx+c)
-         * f(1) = 5000
-         * f(20) = 100
-         * f(40) = 1000 / View.TPS
-         */
         private int speedToMillis() {
-            double a = 0.0011166751;
-            double b = -0.1920345101;
-            double c = 8.708111026;
+            double a = -0.000072192;
+            double b = 0.0073860;
+            double c = -0.33061;
+            double d = 8.8405;
 
+            double speedSquare = speed * speed;
             return (int) Math.exp(
-                a * speed * speed + b * speed + c
+                a * speed * speedSquare  + b * speedSquare + c * speed + d
             );
         }
 
         @Override
         protected void update() {
-            if (lastTime + speedToMillis() < System.currentTimeMillis()) {
-                if (animator.hasNext() && !paused) {
-                    animator.move();
-
-                    lastTime = System.currentTimeMillis();
-
-                    if (!animator.hasNext()) {
-                        paused = true;
-                    }
-                }
+            if (!paused) {
+                animate();
             }
 
             if (pressed(Key.ESCAPE)) {
@@ -183,7 +174,7 @@ public class SolutionCommand extends LevelCommand {
                 running = false;
             } else if (pressed(Key.SPACE)) {
                 paused = !paused;
-                lastTime = 0;
+                lastTime = System.currentTimeMillis();
             } else if (pressed(Key.LEFT) && paused) {
 
                 if (animator.hasPrevious()) {
@@ -196,7 +187,7 @@ public class SolutionCommand extends LevelCommand {
                     animator.move();
                 }
             } else if (pressed(Key.UP)) {
-                if (speed < 40) {
+                if (speed < 60) {
                     speed++;
                 }
 
@@ -204,6 +195,31 @@ public class SolutionCommand extends LevelCommand {
                 if (speed > 1) {
                     speed--;
                 }
+            } else if (pressed(Key.R)) {
+                animator.reset();
+            }
+        }
+
+        private void animate() {
+            boolean loop = false;
+
+            while (lastTime + speedToMillis() < System.currentTimeMillis()) {
+                if (animator.hasNext() && !paused) {
+                    animator.move();
+
+                    lastTime += speedToMillis();
+
+                    if (!animator.hasNext()) {
+                        paused = true;
+                        return;
+                    }
+
+                    loop = true;
+                }
+            }
+
+            if (loop) {
+                lastTime = System.currentTimeMillis();
             }
         }
     }
@@ -308,6 +324,20 @@ public class SolutionCommand extends LevelCommand {
             this.move--;
             playerX -= dir.dirX();
             playerY -= dir.dirY();
+        }
+
+        public void reset() {
+            if (pathIndex > 0) {
+                move = 0;
+                push = 0;
+                pathIndex = 0;
+
+                Level level = solution.getParameters().getLevel();
+                playerX = level.getPlayerX();
+                playerY = level.getPlayerY();
+
+                map.set(level.getMap());
+            }
         }
 
         public boolean hasPrevious() {

@@ -21,13 +21,39 @@ public record State(int playerPos, int[] cratesIndices, State parent) {
         State state = (State) o;
 
         if (playerPos != state.playerPos) return false;
-        return Arrays.equals(cratesIndices, state.cratesIndices);
+        return equals(cratesIndices, state.cratesIndices);
     }
 
     @Override
     public int hashCode() {
-        int result = playerPos;
-        result = 31 * result + Arrays.hashCode(cratesIndices);
-        return result;
+        return playerPos * hashCode(cratesIndices);
+    }
+
+    private int hashCode(int[] array) {
+        int prod = 1;
+        for (int a : array) {
+            prod *= (a + 1); // only positive value allowed
+        }
+        return prod;
+    }
+
+    private boolean equals(int[] array1, int[] array2) {
+        for (int a : array1) {
+            if (!contains(a, array2)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private boolean contains(int a, int[] array) {
+        for (int b : array) {
+            if (a == b) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

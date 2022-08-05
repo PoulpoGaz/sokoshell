@@ -38,14 +38,6 @@ public class MapRenderer {
         print(terminal, level.getMap(), level.getPlayerX(), level.getPlayerY());
     }
 
-    public String toString(Level level) {
-        return toString(level.getMap(), level.getPlayerX(), level.getPlayerY());
-    }
-
-    public List<AttributedString> draw(Level level) {
-        return draw(level.getMap(), level.getPlayerX(), level.getPlayerY());
-    }
-
     public void draw(Level level, List<AttributedString> out) {
         draw(level.getMap(), level.getPlayerX(), level.getPlayerY(), out);
     }
@@ -61,6 +53,16 @@ public class MapRenderer {
         for (AttributedString str : draw(map, playerX, playerY)) {
             str.println(terminal);
         }
+    }
+
+    // Methods that return a String/List<AttributedString>
+
+    public String toString(Level level) {
+        return toString(level.getMap(), level.getPlayerX(), level.getPlayerY());
+    }
+
+    public List<AttributedString> draw(Level level) {
+        return draw(level.getMap(), level.getPlayerX(), level.getPlayerY());
     }
 
     public String toString(Map map, int playerX, int playerY) {
@@ -96,9 +98,17 @@ public class MapRenderer {
         }
     }
 
+    // Methods that use Graphics
+
     public void draw(Graphics g,
                      int x, int y, int width, int height,
                      Map map, int playerX, int playerY, Direction playerDir) {
+        draw(g, x, y, width, height, map, playerX, playerY, playerDir, true);
+    }
+
+    public void draw(Graphics g,
+                     int x, int y, int width, int height,
+                     Map map, int playerX, int playerY, Direction playerDir, boolean center) {
         if (style == null) {
             throw new IllegalStateException("Please, set style before");
         }
@@ -112,7 +122,16 @@ public class MapRenderer {
             return;
         }
 
-        draw(g, x, y, s, map, playerX, playerY, playerDir);
+        if (center) {
+            int w = s * map.getWidth();
+            int h = s * map.getHeight();
+
+            draw(g, x + (width - w) / 2,
+                    y + (height - h) / 2,
+                    s, map, playerX, playerY, playerDir);
+        } else {
+            draw(g, x, y, s, map, playerX, playerY, playerDir);
+        }
     }
 
     public void draw(Graphics g,

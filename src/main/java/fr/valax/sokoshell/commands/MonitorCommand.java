@@ -143,7 +143,8 @@ public class MonitorCommand extends AbstractCommand {
             drawRegularlyKeyMap(0, size.getColumns(),
                     "Task id", "#" + task.getTaskIndex(),
                     "Request pack", task.getPack(),
-                    "Request level", task.getLevel());
+                    "Request level", task.getLevel(),
+                    "Progress", task.getCurrentLevel() + "/" + task.getLevels().size());
 
             if (trackable != null) {
                 long end = trackable.timeEnded();
@@ -154,7 +155,8 @@ public class MonitorCommand extends AbstractCommand {
                 drawRegularlyKeyMap(1, size.getColumns(),
                         "Running for", Utils.prettyDate(end - trackable.timeStarted()),
                         "State explored", trackable.nStateExplored(),
-                        "Queue size", trackable.currentQueueSize());
+                        "Queue size", trackable.currentQueueSize(),
+                        "", "");
             } else {
                 long end = task.getFinishedAt();
                 if (end < 0) {
@@ -185,9 +187,20 @@ public class MonitorCommand extends AbstractCommand {
             int subWidth = 2 * width / objects.length;
 
             int x = 0;
-            for (int i = 0, objectsLength = objects.length; i < objectsLength; i += 2) {
-                String key = Objects.toString(objects[i]);
-                String value = Objects.toString(objects[i + 1]);
+            for (int i = 0, objectsLength = objects.length; i < objectsLength; i += 2, x += subWidth) {
+                Object k = objects[i];
+                Object v = objects[i + 1];
+
+                if (k == null && v == null) {
+                    continue;
+                }
+
+                String key = Objects.toString(k);
+                String value = Objects.toString(v);
+
+                if (key.isEmpty() && value.isEmpty()) {
+                    continue;
+                }
 
                 int w = key.length() + value.length();
 
@@ -212,8 +225,6 @@ public class MonitorCommand extends AbstractCommand {
                     surface.draw(":", x + 1 + key.length(), y);
                     surface.draw(value, x + 3 + key.length(), y);
                 }
-
-                x += subWidth;
             }
         }
 
@@ -271,7 +282,7 @@ public class MonitorCommand extends AbstractCommand {
             for (int y = 0; y < map.getHeight(); y++) {
                 for (int x = 0; x < map.getWidth(); x++) {
 
-                    if (map.getAt(x, y).isCrate()) {
+                    if (map.getAt(x, y).anyCrate()) {
                         nCrate++;
                         nFloor++;
                     } else if (!map.getAt(x, y).isSolid()) {

@@ -99,8 +99,9 @@ public class SolverTask {
                 level.addSolution(solution);
                 solutions.add(solution);
 
-                if (solution.isStopped() || taskStatus != TaskStatus.RUNNING) {
+                if (taskStatus != TaskStatus.RUNNING) {
                     noChange = true;
+                    break;
                 }
             }
 
@@ -198,6 +199,10 @@ public class SolverTask {
 
     public List<Level> getLevels() {
         return Collections.unmodifiableList(levels);
+    }
+
+    public int size() {
+        return levels.size();
     }
 
     public List<Solution> getSolutions() {

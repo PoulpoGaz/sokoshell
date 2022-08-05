@@ -71,8 +71,8 @@ public abstract class TerminalEngine<T> implements AutoCloseable {
     // state
     protected boolean running;
 
-    private int fps;
-    private int tps;
+    protected int fps;
+    protected int tps;
 
     public TerminalEngine(Terminal terminal) {
         this.terminal = terminal;

@@ -11,7 +11,7 @@ import java.io.PrintStream;
 public class CancelCommand extends AbstractCommand {
 
     @Option(names = {"t", "task-index"}, hasArgument = true, argName = "Task index")
-    private int taskIndex;
+    private Integer taskIndex;
 
     @Option(names = {"A", "all"})
     private boolean all;
@@ -20,22 +20,33 @@ public class CancelCommand extends AbstractCommand {
     protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
         if (all) {
             helper.getTaskList().stopAll();
+        } else if (taskIndex == null) {
+            SolverTask task = helper.getTaskList().getRunningTask();
+
+            if (task != null) {
+                stop(task, err);
+            }
+
         } else {
             TaskList list = helper.getTaskList();
             SolverTask task = list.getTask(taskIndex);
 
             if (task != null) {
-                if (task.getTaskStatus() == TaskStatus.PENDING || task.getTaskStatus() == TaskStatus.RUNNING) {
-                    task.stop();
-                } else {
-                    err.println("This is task is already finished");
-                }
+                stop(task, err);
             } else {
                 err.println("Invalid index");
             }
         }
 
         return 0;
+    }
+
+    private void stop(SolverTask task, PrintStream err) {
+        if (task.getTaskStatus() == TaskStatus.PENDING || task.getTaskStatus() == TaskStatus.RUNNING) {
+            task.stop();
+        } else {
+            err.println("This is task is already finished");
+        }
     }
 
     @Override
