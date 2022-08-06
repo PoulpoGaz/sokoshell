@@ -2,6 +2,7 @@ package fr.valax.sokoshell.solver;
 
 import fr.poulpogaz.json.JsonException;
 import fr.valax.sokoshell.graphics.MapRenderer;
+import fr.valax.sokoshell.graphics.MapStyleReader;
 import fr.valax.sokoshell.readers.PackReaders;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -12,27 +13,20 @@ import java.nio.file.Path;
 public class AbstractSolverTest {
 
     @Test
-    void deadPositionsDetectionTest() {
-        Pack pack;
-        try {
-            pack = PackReaders.read(Path.of("levels8xv/Original.8xv"), false);
-        } catch (IOException | JsonException e) {
-            e.printStackTrace();
-            System.out.println("Failed to read pack");
-            return;
-        }
+    void deadPositionsDetectionTest() throws IOException, JsonException {
+        Pack pack = PackReaders.read(Path.of("levels8xv/Aruba10.8xv"), false);
 
-        Level level = pack.levels().get(0);
+        Level level = pack.levels().get(46 - 1);
         Map map = level.getMap();
         map.removeStateCrates(level.getInitialState());
         MapRenderer mR = new MapRenderer();
-        //mR.setStyle(new MapStyle());
-        //mR.toggleDeadPositionShow(); // TODO: redo that
+        mR.setStyle(new MapStyleReader().read(Path.of("styles/isekai/isekai.style")));
+        mR.setShowDeadTiles(true);
         mR.sysPrint(level);
         System.out.println("Computing dead positions...");
 
         map.computeDeadTiles();
-        mR.sysPrint(level);
+        mR.sysPrint(map, level.getPlayerX(), level.getPlayerY());
 
         final int[] count = {0};
 

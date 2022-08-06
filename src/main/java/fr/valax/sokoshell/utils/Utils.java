@@ -2,7 +2,13 @@ package fr.valax.sokoshell.utils;
 
 import org.jline.utils.AttributedString;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.sql.Date;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -26,6 +32,21 @@ public class Utils {
 
     public static final DateFormat DDMMYYYY_HHMM = new SimpleDateFormat("dd/MM/yyyy HH:mm");
     public static final DecimalFormat FORMAT = new DecimalFormat("#.##");
+
+    public static void append(Throwable e, Path path) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        append(sw.toString(), path);
+    }
+
+    public static void append(String str, Path path) {
+        try (BufferedWriter bw = Files.newBufferedWriter(path, StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {
+            bw.write(str);
+            bw.write("\n");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public static int nDigit(int v) {
         if (v == 0)  {
@@ -89,7 +110,6 @@ public class Utils {
     private static String round(double d) {
         return FORMAT.format(d);
     }
-
 
     public static void shutdownExecutors() {
         SOKOSHELL_EXECUTOR.shutdown();

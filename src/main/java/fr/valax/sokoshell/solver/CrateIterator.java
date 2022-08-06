@@ -139,12 +139,17 @@ public class CrateIterator implements Iterator<Integer> {
      * @param crates the crates to iterate over
      */
     public void setCrates(int[] crates) {
+        reset();
         this.crates = crates;
-        skip = 0;
-        index = 0;
     }
 
     public void reset() {
+        if (skip > 0 && this.crates != null) {
+            for (int crate : this.crates) {
+                map.getAt(crate).unmark();
+            }
+        }
+
         skip = 0;
         index = 0;
     }
@@ -154,6 +159,7 @@ public class CrateIterator implements Iterator<Integer> {
     }
 
     public void setMap(Map map) {
+        reset();
         this.map = map;
     }
 }

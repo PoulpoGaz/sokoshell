@@ -1,5 +1,8 @@
 package fr.valax.sokoshell.solver;
 
+import fr.valax.sokoshell.utils.PerformanceMeasurer;
+
+import java.math.BigInteger;
 import java.util.ArrayDeque;
 import java.util.HashSet;
 import java.util.Objects;
@@ -35,6 +38,9 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
     private int queueSize = -1;
     private Tracker tracker;
 
+    // debug
+    private final PerformanceMeasurer measurer = new PerformanceMeasurer();
+
     protected abstract State getNext();
 
     @Override
@@ -65,7 +71,6 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
         Map map = level.getMap();
         map.removeStateCrates(initialState);
         it.setMap(map);
-        it.reset();
 
         map.computeDeadTiles();
 
@@ -73,9 +78,16 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
         processed.clear();
         toProcess.add(initialState);
 
+        measurer.reset();
+
         while (!toProcess.isEmpty() && !stopped) {
             if (!checkTimeout(timeout)) {
                 hasTimedOut = true;
+                break;
+            }
+
+            if (processed.size() > 5_000_000) {
+                stopped = true;
                 break;
             }
 
@@ -87,13 +99,18 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
                 break;
             }
 
-            if (!checkFreezeDeadlock(map, cur)) {
+            measurer.start("freeze");
+            boolean freeze = checkFreezeDeadlock(map, cur);
+            measurer.end("freeze");
+
+            if (!freeze) {
                 addChildrenStates(cur, map);
             }
 
             map.removeStateCrates(cur);
         }
 
+        System.out.println(measurer);
 
         // END OF RESEARCH
 
@@ -117,8 +134,11 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
     }
 
     private void addChildrenStates(State cur, Map map) {
+        measurer.start("reachable");
         map.findReachableCases(cur.playerPos(), true);
+        measurer.end("reachable");
 
+        measurer.start("child");
         int[] cratesIndices = cur.cratesIndices();
         for (int crateIndex = 0; crateIndex < cratesIndices.length; crateIndex++) {
 
@@ -150,14 +170,17 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
                 }
 
                 // The new player position is the crate position
-                State s = new State(crate, cur.cratesIndices().clone(), cur);
-                s.cratesIndices()[crateIndex] = crateDestY * map.getWidth() + crateDestX;
+                State s = State.child(cur, crate, crateIndex, crateY * map.getWidth() + crateDestX);
 
+                measurer.start("add");
                 if (processed.add(s)) {
                     toProcess.add(s);
                 }
+                measurer.end("add");
             }
         }
+
+        measurer.end("child");
     }
 
     protected boolean checkTimeout(long timeout) {

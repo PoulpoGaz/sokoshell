@@ -22,6 +22,8 @@ public class Map {
                 this.content[y][x] = new TileInfo(this, content[y][x], x, y);
             }
         }
+
+        State.initZobristValues(width * height);
     }
 
     public Map(Map other) {

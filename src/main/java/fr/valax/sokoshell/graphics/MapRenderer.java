@@ -5,6 +5,9 @@ import org.jline.terminal.Terminal;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStringBuilder;
 
+import java.awt.*;
+import java.awt.Color;
+import java.awt.image.BufferedImage;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +21,7 @@ import java.util.stream.Collectors;
 public class MapRenderer {
 
     private MapStyle style;
+    private boolean showDeadTiles;
 
     public void sysPrint(Level level) {
         sysPrint(level.getMap(), level.getPlayerX(), level.getPlayerY());
@@ -90,7 +94,12 @@ public class MapRenderer {
 
                 TileInfo tile = map.getAt(x, y);
 
-                builder.append(style.get(1, tile.getTile(), player ? Direction.DOWN : null).getAsString()[0]);
+                TileStyle tileStyle = style.get(1, tile.getTile(), player ? Direction.DOWN : null);
+                if (showDeadTiles && tile.isDeadTile() && !tile.isWall()) {
+                    tileStyle = tileStyle.merge(createDeadTileStyle(1));
+                }
+
+                builder.append(tileStyle.getAsString()[0]);
             }
 
             out.add(builder.toAttributedString());
@@ -151,11 +160,26 @@ public class MapRenderer {
             for (int x2 = 0; x2 < map.getWidth(); x2++) {
                 boolean player = playerY == y2 && playerX == x2;
 
-                Tile tile = map.getAt(x2, y2).getTile();
+                TileInfo tile = map.getAt(x2, y2);
 
-                style.get(s, tile, player ? playerDir : null).draw(g, x2 * s + x, y2 * s + y);
+                TileStyle tileStyle = style.get(s, tile.getTile(), player ? playerDir : null);
+                if (showDeadTiles && tile.isDeadTile() && !tile.isWall()) {
+                    tileStyle.merge(createDeadTileStyle(s)).draw(g, x2 * s + x, y2 * s + y);
+                } else {
+                    tileStyle.draw(g, x2 * s + x, y2 * s + y);
+                }
             }
         }
+    }
+
+    private TileStyle createDeadTileStyle(int s) {
+        BufferedImage image = new BufferedImage(s, s, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = image.createGraphics();
+        g2d.setColor(new Color(0, 234, 255, 127));
+        g2d.fillRect(0, 0, s, s);
+        g2d.dispose();
+
+        return new ImageTile(s, image);
     }
 
     public int findBestSize(int size) {
@@ -196,5 +220,13 @@ public class MapRenderer {
 
     public void setStyle(MapStyle style) {
         this.style = style;
+    }
+
+    public boolean isShowDeadTiles() {
+        return showDeadTiles;
+    }
+
+    public void setShowDeadTiles(boolean showDeadTiles) {
+        this.showDeadTiles = showDeadTiles;
     }
 }

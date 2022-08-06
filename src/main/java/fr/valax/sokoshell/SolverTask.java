@@ -1,7 +1,9 @@
 package fr.valax.sokoshell;
 
 import fr.valax.sokoshell.solver.*;
+import fr.valax.sokoshell.utils.Utils;
 
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.*;
 import java.util.concurrent.ScheduledFuture;
@@ -111,6 +113,7 @@ public class SolverTask {
 
             this.solutions = solutions;
         } catch (Throwable e) {
+            Utils.append(e, Path.of("errors"));
             e.printStackTrace();
             changeStatus(TaskStatus.ERROR);
         } finally {

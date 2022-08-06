@@ -4,7 +4,7 @@ package fr.valax.sokoshell.solver;
  * A solver that implements this interface allows
  * other objects to get information about the current
  * research.
- *
+ * <br>
  * Methods are by default non-synchronized and <strong>should not</strong>
  * modify the state of the solver.
  * Implementations are free to violate the first term of the contract
