@@ -13,7 +13,7 @@ public record State(int playerPos, int[] cratesIndices, int hash, State parent) 
 
     // http://sokobano.de/wiki/index.php?title=Solver#Hash_Function
     // https://en.wikipedia.org/wiki/Zobrist_hashing
-    private static int[] zobristValues;
+    private static int[][] zobristValues;
 
     /**
      * @param minSize minSize is the number of tile in the map
@@ -22,7 +22,7 @@ public record State(int playerPos, int[] cratesIndices, int hash, State parent) 
         int i;
         if (zobristValues == null) {
             i = 0;
-            zobristValues = new int[minSize];
+            zobristValues = new int[minSize][2];
         } else if (zobristValues.length < minSize) {
             i = zobristValues.length;
             zobristValues = Arrays.copyOf(zobristValues, minSize);
@@ -32,7 +32,12 @@ public record State(int playerPos, int[] cratesIndices, int hash, State parent) 
 
         Random random = new Random();
         for (; i < zobristValues.length; i++) {
-            zobristValues[i] = random.nextInt();
+            if (zobristValues[i] == null) {
+                zobristValues[i] = new int[2];
+            }
+
+            zobristValues[i][0] = random.nextInt();
+            zobristValues[i][1] = random.nextInt();
         }
     }
 
@@ -48,8 +53,8 @@ public record State(int playerPos, int[] cratesIndices, int hash, State parent) 
     public static State child(State parent, int newPlayerPos, int crateToMove, int crateDestination) {
         int[] newCrates = parent.cratesIndices().clone();
 
-        int hash = parent.hash ^ zobristValues[parent.playerPos] ^ zobristValues[newPlayerPos] // 'moves' the player in the hash
-                ^ zobristValues[newCrates[crateToMove]] ^ zobristValues[crateDestination]; // 'moves' the crate in the hash
+        int hash = parent.hash ^ zobristValues[parent.playerPos][0] ^ zobristValues[newPlayerPos][0] // 'moves' the player in the hash
+                ^ zobristValues[newCrates[crateToMove]][1] ^ zobristValues[crateDestination][1]; // 'moves' the crate in the hash
 
         newCrates[crateToMove] = crateDestination;
 
@@ -62,10 +67,10 @@ public record State(int playerPos, int[] cratesIndices, int hash, State parent) 
     }
 
     public static int hashCode(int playerPos, int[] cratesIndices) {
-        int hash = zobristValues[playerPos];
+        int hash = zobristValues[playerPos][0];
 
         for (int crate : cratesIndices) {
-            hash ^= zobristValues[crate];
+            hash ^= zobristValues[crate][1];
         }
 
         return hash;

@@ -170,7 +170,7 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
                 }
 
                 // The new player position is the crate position
-                State s = State.child(cur, crate, crateIndex, crateY * map.getWidth() + crateDestX);
+                State s = State.child(cur, crate, crateIndex, crateDestY * map.getWidth() + crateDestX);
 
                 measurer.start("add");
                 if (processed.add(s)) {

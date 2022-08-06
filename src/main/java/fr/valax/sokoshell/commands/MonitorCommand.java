@@ -110,7 +110,9 @@ public class MonitorCommand extends AbstractCommand {
             surface.clear();
 
             drawHeaderAndFooter(size);
-            drawMap(size);
+            if (map != null) {
+                drawMap(size);
+            }
 
             surface.drawBuffer(display, 0);
         }
