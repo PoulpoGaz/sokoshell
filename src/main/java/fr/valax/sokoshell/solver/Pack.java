@@ -43,6 +43,17 @@ public final class Pack {
             out = Path.of(sourcePath.toString() + ".solutions.json.gz");
         }
 
+        boolean write = false;
+        for (Level level : levels) {
+            if (level.hasSolution()) {
+                write = true;
+            }
+        }
+
+        if (!write) {
+            return;
+        }
+
         try (OutputStream os = Files.newOutputStream(out, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
             BufferedWriter bw = new BufferedWriter(
                     new OutputStreamWriter(new GZIPOutputStream(os)));
@@ -118,6 +129,10 @@ public final class Pack {
 
     public List<Level> levels() {
         return levels;
+    }
+
+    public Level getLevel(int index) {
+        return levels.get(index);
     }
 
     public int nLevel() {

@@ -12,6 +12,10 @@ public class PrettyTable {
 
     public static final AttributedString[] EMPTY = wrap("");
 
+    public static AttributedString[] wrap(Object object) {
+        return wrap(Objects.toString(object));
+    }
+
     public static AttributedString[] wrap(CharSequence str) {
         return new AttributedString[] {new AttributedString(str)};
     }

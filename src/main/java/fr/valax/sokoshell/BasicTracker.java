@@ -11,30 +11,36 @@ public class BasicTracker implements Tracker {
 
     private final List<SolverStatistics.InstantStatistic> stats = new ArrayList<>();
 
+    private boolean end = false;
+
     @Override
-    public void updateStatistics(Trackable trackable) {
+    public synchronized void updateStatistics(Trackable trackable) {
+        if (end) {
+            return;
+        }
+
         long time = System.currentTimeMillis();
 
         int state = trackable.nStateExplored();
         int queue = trackable.currentQueueSize();
 
-        // check if research has started
-        if (state < 0 || queue < 0) {
-            return;
-        }
-
         stats.add(new SolverStatistics.InstantStatistic(time, state, queue));
     }
 
     @Override
-    public void reset() {
+    public synchronized void reset() {
+        end = false;
         stats.clear();
     }
 
     @Override
-    public SolverStatistics getStatistics(Trackable trackable) {
+    public synchronized SolverStatistics getStatistics(Trackable trackable) {
+        this.end = true;
+
         long end = trackable.timeEnded();
-        stats.add(new SolverStatistics.InstantStatistic(end, trackable.nStateExplored(), trackable.currentQueueSize()));
+        add(end, trackable.nStateExplored(), trackable.currentQueueSize());
+
+        stats.add(0, new SolverStatistics.InstantStatistic(trackable.timeStarted(), 0, 0));
 
         SolverStatistics statistics = new SolverStatistics();
         statistics.setTimeStarted(trackable.timeStarted());
@@ -42,5 +48,15 @@ public class BasicTracker implements Tracker {
         statistics.setStatistics(stats);
 
         return statistics;
+    }
+
+    private void add(long time, int state, int queue) {
+        SolverStatistics.InstantStatistic last = stats.get(stats.size() - 1);
+
+        if (last.nodeExplored() == state && last.queueSize() == queue && Math.abs(last.time() - time) <= 5) {
+            return;
+        }
+
+        stats.add(new SolverStatistics.InstantStatistic(time, state, queue));
     }
 }

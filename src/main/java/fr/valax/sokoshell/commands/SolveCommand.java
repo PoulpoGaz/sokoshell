@@ -41,7 +41,7 @@ public class SolveCommand extends AbstractCommand {
                 levels.addAll(getLevelMultiple(pack, this.levels));
             }
         } catch (InvalidArgument e) {
-            e.printStackTrace(err);
+            e.print(err, true);
             return FAILURE;
         }
 

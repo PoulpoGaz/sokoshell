@@ -16,7 +16,7 @@ public class AbstractSolverTest {
     void deadPositionsDetectionTest() throws IOException, JsonException {
         Pack pack = PackReaders.read(Path.of("levels8xv/Aruba10.8xv"), false);
 
-        Level level = pack.levels().get(46 - 1);
+        Level level = pack.getLevel(46 - 1);
         Map map = level.getMap();
         map.removeStateCrates(level.getInitialState());
         MapRenderer mR = new MapRenderer();
@@ -47,7 +47,7 @@ public class AbstractSolverTest {
 
         Assertions.assertNotNull(pack);
         Assertions.assertNotNull(pack.levels());
-        Assertions.assertNotEquals(0, pack.levels().size());
+        Assertions.assertNotEquals(0, pack.nLevel());
 
 
         BasicBrutalSolver solver = BasicBrutalSolver.newBFSSolver();
@@ -72,12 +72,12 @@ public class AbstractSolverTest {
 
         Assertions.assertNotNull(pack);
         Assertions.assertNotNull(pack.levels());
-        Assertions.assertNotEquals(0, pack.levels().size());
+        Assertions.assertNotEquals(0, pack.nLevel());
 
 
         BasicBrutalSolver solver = BasicBrutalSolver.newBFSSolver();
 
-        Level level = pack.levels().get(46 - 1);
+        Level level = pack.getLevel(46 - 1);
         Map map = level.getMap();
         State init = level.getInitialState();
 

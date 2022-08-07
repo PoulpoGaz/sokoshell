@@ -21,7 +21,7 @@ public class MapStyleReaderTest {
         renderer.setStyle(style);
 
         Pack pack = PackReaders.read(Path.of("levels/Original.8xv"), false);
-        Level level = pack.levels().get(0);
+        Level level = pack.getLevel(0);
 
         loop:
         for (int y = 0; y < level.getHeight(); y++) {

@@ -1,5 +1,6 @@
 package fr.valax.sokoshell;
 
+import fr.poulpogaz.json.JsonException;
 import fr.valax.args.CommandLine;
 import fr.valax.sokoshell.graphics.MapRenderer;
 import fr.valax.sokoshell.graphics.MapStyle;
@@ -9,6 +10,7 @@ import fr.valax.sokoshell.solver.Solver;
 import org.jline.reader.Candidate;
 import org.jline.terminal.Terminal;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
@@ -33,6 +35,8 @@ public class SokoShellHelper implements Lock {
 
     private Pack selectedPack = null;
     private int selectedLevel = -1;
+
+    private boolean autoSaveSolution = false;
 
     private SokoShellHelper() {
         addMapStyle(MapStyle.DEFAULT_STYLE);
@@ -111,12 +115,35 @@ public class SokoShellHelper implements Lock {
         if (selectedPack == null || selectedLevel < 0 || selectedLevel >= selectedPack.nLevel()) {
             return null;
         } else {
-            return selectedPack.levels().get(selectedLevel);
+            return selectedPack.getLevel(selectedLevel);
         }
     }
 
+    /**
+     * @return -1 if there is no selected level otherwise the index of the selected level
+     */
     public int getSelectedLevelIndex() {
-        return selectedLevel;
+        if (selectedPack == null || selectedLevel < 0 || selectedLevel >= selectedPack.nLevel()) {
+            return -1;
+        } else {
+            return selectedLevel;
+        }
+    }
+
+    // auto save
+
+    public boolean isAutoSaveSolution() {
+        return autoSaveSolution;
+    }
+
+    public void setAutoSaveSolution(boolean autoSaveSolution) {
+        this.autoSaveSolution = autoSaveSolution;
+    }
+
+    public void saveAllSolution() throws IOException, JsonException {
+        for (Pack pack : packs.values()) {
+            pack.writeSolutions(null);
+        }
     }
 
     // styles

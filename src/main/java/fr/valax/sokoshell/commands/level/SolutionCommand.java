@@ -1,6 +1,7 @@
 package fr.valax.sokoshell.commands.level;
 
 import fr.valax.args.api.Command;
+import fr.valax.args.api.Option;
 import fr.valax.sokoshell.commands.AbstractCommand;
 import fr.valax.sokoshell.graphics.MapRenderer;
 import fr.valax.sokoshell.graphics.TerminalEngine;
@@ -17,6 +18,9 @@ import java.util.List;
 
 public class SolutionCommand extends LevelCommand {
 
+    @Option(names = {"s", "solution"}, hasArgument = true, argName = "Solution index")
+    private Integer solution;
+
     @Override
     protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
         Level l;
@@ -26,21 +30,33 @@ public class SolutionCommand extends LevelCommand {
 
         } catch (AbstractCommand.InvalidArgument e) {
             e.print(err, true);
-            return Command.FAILURE;
+            return FAILURE;
         }
 
         if (l.getLastSolution() == null) {
             err.println("Not solved");
-            return Command.FAILURE;
+            return FAILURE;
         }
 
-        SolutionAnimator animator = new SolutionAnimator(l.getLastSolution());
+        Solution s;
+        if (solution != null) {
+            s = l.getSolution(solution);
+
+            if (s == null) {
+                err.println("Index out of bounds");
+                return FAILURE;
+            }
+        } else {
+            s = l.getLastSolution();
+        }
+
+        SolutionAnimator animator = new SolutionAnimator(s);
 
         try (SolutionView view = new SolutionView(helper.getTerminal(), animator)) {
             view.loop();
         }
 
-        return Command.SUCCESS;
+        return SUCCESS;
     }
 
     @Override

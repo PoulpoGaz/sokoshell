@@ -54,7 +54,7 @@ public class ListSolution extends TableCommand {
             try {
                 levels = getLevelMultiple(packs, levelIndex);
             } catch (InvalidArgument e) {
-                err.println(e.getMessage());
+                e.print(err, true);
                 return FAILURE;
             }
 

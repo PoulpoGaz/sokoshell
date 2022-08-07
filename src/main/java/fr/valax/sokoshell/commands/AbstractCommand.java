@@ -200,25 +200,22 @@ public abstract class AbstractCommand implements JLineCommand {
             Pack selectedPack = helper.getSelectedPack();
             int i = helper.getSelectedLevelIndex();
 
-            if (i <= 0 || i >= pack.nLevel()) {
-                if (selectedPack != null) {
-                    if (i <= 0 || selectedPack.nLevel() >= i) {
-                        throw new InvalidArgument("No level selected");
-                    }
-                }
+            if (i < 0) {
+                throw new InvalidArgument("No level selected");
 
+            } else if (i > selectedPack.nLevel()) {
                 throw new InvalidArgument("Index out of bounds");
             } else {
-                return pack.levels().get(i);
+                return pack.getLevel(i);
             }
         } else {
             int i = index - 1;
 
-            if (i < 0 || i >= pack.levels().size()) {
+            if (i < 0 || i >= pack.nLevel()) {
                 throw new InvalidArgument("Index out of bounds");
             }
 
-            return pack.levels().get(i);
+            return pack.getLevel(i);
         }
     }
 
@@ -230,7 +227,13 @@ public abstract class AbstractCommand implements JLineCommand {
      */
     protected List<Level> getLevelMultiple(Pack pack, String range) throws InvalidArgument {
         if (range == null || range.isEmpty()) {
-            return pack.levels();
+            int i = helper.getSelectedLevelIndex();
+
+            if (i >= 0 && i < pack.nLevel()) {
+                return List.of(pack.getLevel(i));
+            } else {
+                return List.of();
+            }
         }
 
         Set set;
@@ -251,11 +254,21 @@ public abstract class AbstractCommand implements JLineCommand {
      * @throws InvalidArgument if the range can't be parsed
      */
     protected List<Level> getLevelMultiple(Collection<Pack> packs, String range) throws InvalidArgument {
+        if (packs.isEmpty()) {
+            return List.of();
+        }
+
         List<Level> levels = new ArrayList<>();
 
         Set set;
         if (range == null || range.isEmpty()) {
-            set = Interval.all();
+            int i = helper.getSelectedLevelIndex();
+            if (i < 0) {
+                return List.of();
+            } else {
+                set = new Singleton(i);
+            }
+
         } else {
             try {
                 set = parser.parse(range);

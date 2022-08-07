@@ -66,7 +66,7 @@ public class SolverTask {
 
                 trackerFuture = SCHEDULED_EXECUTOR.scheduleWithFixedDelay(
                         () -> tracker.updateStatistics(t),
-                        5, 1000, TimeUnit.MILLISECONDS);
+                        1000, 1000, TimeUnit.MILLISECONDS);
             } else {
                 trackerFuture = null;
             }
@@ -106,12 +106,11 @@ public class SolverTask {
                     break;
                 }
             }
+            this.solutions = solutions;
 
             if (!noChange) {
                 changeStatus(TaskStatus.FINISHED);
             }
-
-            this.solutions = solutions;
         } catch (Throwable e) {
             Utils.append(e, Path.of("errors"));
             e.printStackTrace();

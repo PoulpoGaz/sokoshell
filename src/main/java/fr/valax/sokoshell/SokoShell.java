@@ -1,5 +1,6 @@
 package fr.valax.sokoshell;
 
+import fr.poulpogaz.json.JsonException;
 import fr.valax.args.CommandLine;
 import fr.valax.args.CommandLineBuilder;
 import fr.valax.args.jline.HelpCommand;
@@ -14,10 +15,7 @@ import fr.valax.sokoshell.commands.select.Select;
 import fr.valax.sokoshell.commands.select.SelectLevel;
 import fr.valax.sokoshell.commands.select.SelectPack;
 import fr.valax.sokoshell.commands.select.SelectStyle;
-import fr.valax.sokoshell.commands.table.ListPacks;
-import fr.valax.sokoshell.commands.table.ListSolution;
-import fr.valax.sokoshell.commands.table.ListStyle;
-import fr.valax.sokoshell.commands.table.ListTasks;
+import fr.valax.sokoshell.commands.table.*;
 import fr.valax.sokoshell.commands.unix.*;
 import fr.valax.sokoshell.utils.Utils;
 import org.jline.reader.EndOfFileException;
@@ -68,8 +66,19 @@ public class SokoShell {
         try {
             sokoshell.loop(args);
         } finally {
-            SokoShellHelper.INSTANCE.getTaskList().stopAll();
+            SokoShellHelper helper = SokoShellHelper.INSTANCE;
+
+            helper.getTaskList().stopAll();
             Utils.shutdownExecutors();
+
+            if (helper.isAutoSaveSolution()) {
+                try {
+                    helper.saveAllSolution();
+                } catch (IOException | JsonException e) {
+                    e.printStackTrace();
+                    System.err.println("Failed to save solutions");
+                }
+            }
 
             sokoshell.goodbye();
         }
@@ -91,8 +100,9 @@ public class SokoShell {
                 .addCommand(new CancelCommand())
                 .addCommand(new MonitorCommand())
                 .addCommand(new PlayCommand())
-                //.addCommand(new StatsCommand())
+                .addCommand(new StatsCommand())
                 .addCommand(new SaveCommand())
+                .addCommand(new AutoSaveSolutionCommand())
 
                 .subCommand(new ListPacks())
                     .addCommand(new ListStyle())
@@ -226,9 +236,10 @@ public class SokoShell {
             asb.append(" ");
             asb.styled(DEFAULT.foreground(GREEN + BRIGHT), helper.getSelectedPack().name());
 
-            if (helper.getSelectedLevel() != null) {
+            int level = helper.getSelectedLevelIndex();
+            if (level >= 0) {
                 asb.append(":");
-                asb.styled(DEFAULT.foreground(GREEN + BRIGHT), String.valueOf(helper.getSelectedLevelIndex() + 1));
+                asb.styled(DEFAULT.foreground(GREEN + BRIGHT), String.valueOf(level));
             }
         }
 
