@@ -103,6 +103,7 @@ public class SokoShell {
                 .addCommand(new StatsCommand())
                 .addCommand(new SaveCommand())
                 .addCommand(new AutoSaveSolutionCommand())
+                .addCommand(new MoveTaskCommand())
 
                 .subCommand(new ListPacks())
                     .addCommand(new ListStyle())

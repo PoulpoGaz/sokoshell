@@ -3,6 +3,9 @@ package fr.valax.sokoshell.commands;
 import fr.valax.args.api.Command;
 import fr.valax.args.api.Option;
 import fr.valax.args.utils.ArgsUtils;
+import fr.valax.sokoshell.SolverTask;
+import fr.valax.sokoshell.TaskList;
+import fr.valax.sokoshell.TaskStatus;
 import fr.valax.sokoshell.solver.*;
 import org.jline.reader.Candidate;
 import org.jline.reader.LineReader;
@@ -25,6 +28,18 @@ public class SolveCommand extends AbstractCommand {
 
     @Option(names = {"t", "timeout"}, hasArgument = true, argName = "Timeout", defaultValue = "-1", description = "in ms")
     private long timeout;
+
+    @Option(names = {"P", "position"}, hasArgument = true)
+    private Integer position;
+
+    @Option(names = {"T", "haikyu", "to-the-top"}, description = "equivalent to --position 0")
+    private boolean toTheTop;
+
+    @Option(names = {"w", "wait"}, description = "wait until this task and task with higher position finish")
+    private boolean waitUntilFinished;
+
+    @Option(names = {"s", "split"}, description = "split all levels in different tasks")
+    private boolean split;
 
     @Override
     protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
@@ -54,9 +69,37 @@ public class SolveCommand extends AbstractCommand {
 
         Solver solver = BasicBrutalSolver.newDFSSolver();
 
-        helper.addTask(solver, params, levels, toString(packs, this.pack), this.levels);
+        SolverTask lastTask = null;
+        if (split) {
+            for (Level level : levels) {
+                lastTask = newTask(solver, params, packs, List.of(level));
+            }
+        } else {
+            lastTask = newTask(solver, params, packs, levels);
+        }
+
+        if (waitUntilFinished) {
+            while (lastTask.getTaskStatus() == TaskStatus.RUNNING) {
+                Thread.onSpinWait();
+            }
+        }
 
         return Command.SUCCESS;
+    }
+
+    private SolverTask newTask(Solver solver, Map<String, Object> params, Collection<Pack> packs, List<Level> levels) {
+        SolverTask task = new SolverTask(solver, params, levels, toString(packs, this.pack), this.levels);
+        TaskList list = helper.getTaskList();
+
+        if (toTheTop) {
+            list.offerTask(task, 0);
+        } else if (position != null) {
+            list.offerTask(task, position);
+        } else {
+            list.offerTask(task);
+        }
+
+        return task;
     }
 
     private String toString(Collection<Pack> packs, String[] array) {

@@ -56,22 +56,37 @@ public class SolverTask {
         taskIndex = index++;
     }
 
-    public synchronized void start() {
-        if (taskStatus == TaskStatus.PENDING) {
-            changeStatus(TaskStatus.RUNNING);
+    public void start() {
+        start(true);
+    }
 
-            if (solver instanceof Trackable t) {
-                tracker = getTracker();
-                t.setTacker(tracker);
+    public void start(boolean asynchronously) {
+        boolean solve = false;
+        synchronized (this) {
+            if (taskStatus == TaskStatus.PENDING) {
+                changeStatus(TaskStatus.RUNNING);
 
-                trackerFuture = SCHEDULED_EXECUTOR.scheduleWithFixedDelay(
-                        () -> tracker.updateStatistics(t),
-                        1000, 1000, TimeUnit.MILLISECONDS);
-            } else {
-                trackerFuture = null;
+                if (solver instanceof Trackable t) {
+                    tracker = getTracker();
+                    t.setTacker(tracker);
+
+                    trackerFuture = SCHEDULED_EXECUTOR.scheduleWithFixedDelay(
+                            () -> tracker.updateStatistics(t),
+                            1000, 1000, TimeUnit.MILLISECONDS);
+                } else {
+                    trackerFuture = null;
+                }
+
+                if (asynchronously) {
+                    SOKOSHELL_EXECUTOR.submit(this::solve);
+                } else {
+                    solve = true;
+                }
             }
+        }
 
-            SOKOSHELL_EXECUTOR.submit(this::solve);
+        if (solve) { // outside synchronized block to allow stop to work
+            solve();
         }
     }
 

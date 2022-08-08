@@ -18,23 +18,26 @@ public class CancelCommand extends AbstractCommand {
 
     @Override
     protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
-        if (all) {
-            helper.getTaskList().stopAll();
-        } else if (taskIndex == null) {
-            SolverTask task = helper.getTaskList().getRunningTask();
+        TaskList list = helper.getTaskList();
 
-            if (task != null) {
-                stop(task, err);
-            }
+        synchronized (list) {
+            if (all) {
+                list.stopAll();
+            } else if (taskIndex == null) {
+                SolverTask task = list.getRunningTask();
 
-        } else {
-            TaskList list = helper.getTaskList();
-            SolverTask task = list.getTask(taskIndex);
+                if (task != null) {
+                    stop(task, err);
+                }
 
-            if (task != null) {
-                stop(task, err);
             } else {
-                err.println("Invalid index");
+                SolverTask task = list.getTask(taskIndex);
+
+                if (task != null) {
+                    stop(task, err);
+                } else {
+                    err.println("Invalid index");
+                }
             }
         }
 

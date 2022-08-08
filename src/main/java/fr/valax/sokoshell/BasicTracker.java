@@ -51,10 +51,12 @@ public class BasicTracker implements Tracker {
     }
 
     private void add(long time, int state, int queue) {
-        SolverStatistics.InstantStatistic last = stats.get(stats.size() - 1);
+        if (!stats.isEmpty()) {
+            SolverStatistics.InstantStatistic last = stats.get(stats.size() - 1);
 
-        if (last.nodeExplored() == state && last.queueSize() == queue && Math.abs(last.time() - time) <= 5) {
-            return;
+            if (last.nodeExplored() == state && last.queueSize() == queue && Math.abs(last.time() - time) <= 5) {
+                return;
+            }
         }
 
         stats.add(new SolverStatistics.InstantStatistic(time, state, queue));
