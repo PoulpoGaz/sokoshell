@@ -2,8 +2,6 @@ package fr.valax.sokoshell.commands;
 
 import fr.valax.args.api.Option;
 import fr.valax.args.utils.ArgsUtils;
-import fr.valax.interval.Interval;
-import fr.valax.interval.ParseException;
 import fr.valax.interval.Set;
 import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.solver.Pack;
@@ -21,27 +19,21 @@ import java.util.List;
  */
 public class PrintCommand extends AbstractCommand {
 
-    @Option(names = {"p", "pack"}, hasArgument = true, argName = "Pack name", allowDuplicate = true)
-    protected String[] name;
+    @Option(names = {"p", "packs"}, hasArgument = true, argName = "Pack name", allowDuplicate = true)
+    protected String[] packs;
 
     @Option(names = {"l", "levels"}, hasArgument = true, argName = "Levels")
     protected String levels;
 
     @Override
-    protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
-        Collection<Pack> packs = getPackMultiple(name);
+    protected int executeImpl(InputStream in, PrintStream out, PrintStream err) throws InvalidArgument {
+        Collection<Pack> packs = getPacks(this.packs);
 
-        Set range;
-        if (levels != null) {
-            try {
-                range = parser.parse(levels);
-            } catch (ParseException e) {
-                e.printStackTrace(err);
-                return FAILURE;
-            }
-        } else {
-            range = Interval.all();
+        if (packs.isEmpty()) {
+            return SUCCESS;
         }
+
+        Set range = createSet(this.levels);
 
         for (Pack pack : packs) {
             out.printf("Pack: %s%n", pack.name());

@@ -1,8 +1,6 @@
 package fr.valax.sokoshell.commands.level;
 
-import fr.valax.args.api.Command;
 import fr.valax.args.api.Option;
-import fr.valax.sokoshell.commands.AbstractCommand;
 import fr.valax.sokoshell.graphics.MapRenderer;
 import fr.valax.sokoshell.graphics.TerminalEngine;
 import fr.valax.sokoshell.solver.*;
@@ -22,16 +20,8 @@ public class SolutionCommand extends LevelCommand {
     private Integer solution;
 
     @Override
-    protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
-        Level l;
-        try {
-            Pack pack = getPack(name);
-            l = getLevel(pack, index);
-
-        } catch (AbstractCommand.InvalidArgument e) {
-            e.print(err, true);
-            return FAILURE;
-        }
+    protected int executeImpl(InputStream in, PrintStream out, PrintStream err) throws InvalidArgument {
+        Level l = getLevel(pack, level);
 
         if (l.getLastSolution() == null) {
             err.println("Not solved");

@@ -20,8 +20,8 @@ import java.util.*;
  */
 public class SolveCommand extends AbstractCommand {
 
-    @Option(names = {"p", "pack"}, hasArgument = true, argName = "Pack name", allowDuplicate = true)
-    protected String[] pack;
+    @Option(names = {"p", "packs"}, hasArgument = true, argName = "Pack name", allowDuplicate = true)
+    protected String[] packs;
 
     @Option(names = {"l", "levels"}, hasArgument = true, argName = "Levels")
     protected String levels;
@@ -42,23 +42,8 @@ public class SolveCommand extends AbstractCommand {
     private boolean split;
 
     @Override
-    protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
-        Collection<Pack> packs = getPackMultiple(pack);
-
-        if (packs.isEmpty()) {
-            return SUCCESS;
-        }
-
-        List<Level> levels = new ArrayList<>();
-
-        try {
-            for (Pack pack : packs) {
-                levels.addAll(getLevelMultiple(pack, this.levels));
-            }
-        } catch (InvalidArgument e) {
-            e.print(err, true);
-            return FAILURE;
-        }
+    protected int executeImpl(InputStream in, PrintStream out, PrintStream err) throws InvalidArgument {
+        List<Level> levels = getLevels(this.levels, packs);
 
         if (levels.isEmpty()) {
             return SUCCESS;
@@ -69,13 +54,14 @@ public class SolveCommand extends AbstractCommand {
 
         Solver solver = BasicBrutalSolver.newDFSSolver();
 
+        String packRequest = formatPackRequest();
         SolverTask lastTask = null;
         if (split) {
             for (Level level : levels) {
-                lastTask = newTask(solver, params, packs, List.of(level));
+                lastTask = newTask(solver, params, List.of(level), packRequest);
             }
         } else {
-            lastTask = newTask(solver, params, packs, levels);
+            lastTask = newTask(solver, params, levels, packRequest);
         }
 
         if (waitUntilFinished) {
@@ -87,8 +73,8 @@ public class SolveCommand extends AbstractCommand {
         return Command.SUCCESS;
     }
 
-    private SolverTask newTask(Solver solver, Map<String, Object> params, Collection<Pack> packs, List<Level> levels) {
-        SolverTask task = new SolverTask(solver, params, levels, toString(packs, this.pack), this.levels);
+    private SolverTask newTask(Solver solver, Map<String, Object> params, List<Level> levels, String packRequest) {
+        SolverTask task = new SolverTask(solver, params, levels, packRequest, nullSafeToString(this.levels));
         TaskList list = helper.getTaskList();
 
         if (toTheTop) {
@@ -102,21 +88,27 @@ public class SolveCommand extends AbstractCommand {
         return task;
     }
 
-    private String toString(Collection<Pack> packs, String[] array) {
-        if (packs.size() == 1 || (array == null && !packs.isEmpty())) {
-            if (packs instanceof List<Pack> list) {
-                return list.get(0).name();
+    private String formatPackRequest() {
+        if (packs == null) {
+            Pack pack = helper.getSelectedPack();
+
+            if (pack == null) {
+                return "";
             } else {
-                return packs.iterator()
-                        .next()
-                        .name();
+                return pack.name();
             }
-        } else if (array == null) {
-            throw new IllegalStateException();
-        } else if (array.length == 1) {
-            return array[0];
+        } else if (packs.length == 1) {
+            return packs[0];
         } else {
-            return Arrays.toString(array);
+            return Arrays.toString(packs);
+        }
+    }
+
+    private String nullSafeToString(String str) {
+        if (str == null) {
+            return "";
+        } else {
+            return str;
         }
     }
 

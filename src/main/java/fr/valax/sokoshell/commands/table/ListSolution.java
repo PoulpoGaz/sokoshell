@@ -29,7 +29,7 @@ public class ListSolution extends TableCommand {
     private Integer taskIndex;
 
     @Override
-    public int executeImpl(InputStream in, PrintStream out, PrintStream err) {
+    public int executeImpl(InputStream in, PrintStream out, PrintStream err) throws InvalidArgument {
         if (taskIndex != null) {
             SolverTask task = helper.getTaskList().getTask(taskIndex);
 
@@ -43,20 +43,7 @@ public class ListSolution extends TableCommand {
                 printTable(out, err, task.getSolutions());
             }
         } else {
-            Collection<Pack> packs = getPackMultiple(packName);
-
-            if (packs.isEmpty()) {
-                err.printf("No pack match %s%n", packName);
-                return FAILURE;
-            }
-
-            List<Level> levels;
-            try {
-                levels = getLevelMultiple(packs, levelIndex);
-            } catch (InvalidArgument e) {
-                e.print(err, true);
-                return FAILURE;
-            }
+            List<Level> levels = getLevels(levelIndex, packName);
 
             List<Solution> solutions = new ArrayList<>();
             for (Level level : levels) {
@@ -118,7 +105,7 @@ public class ListSolution extends TableCommand {
 
     @Override
     public String getShortDescription() {
-        return "List all solutions of a level";
+        return "List all solutions of a level, a pack or a task";
     }
 
     @Override

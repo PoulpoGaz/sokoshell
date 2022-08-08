@@ -21,7 +21,7 @@ import java.util.Map;
 public class StatsCommand extends TableCommand {
 
     @Option(names = {"p", "pack"}, hasArgument = true, argName = "Pack name")
-    protected String name;
+    protected String pack;
 
     @Option(names = {"i", "index"}, hasArgument = true, argName = "Level index")
     protected Integer index;
@@ -30,16 +30,8 @@ public class StatsCommand extends TableCommand {
     private Integer solution;
 
     @Override
-    protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
-        Level l;
-        try {
-            Pack pack = getPack(name);
-            l = getLevel(pack, index);
-
-        } catch (AbstractCommand.InvalidArgument e) {
-            e.print(err, true);
-            return Command.FAILURE;
-        }
+    protected int executeImpl(InputStream in, PrintStream out, PrintStream err) throws InvalidArgument {
+        Level l = getLevel(pack, index);
 
         if (!l.hasSolution()) {
             err.println("Not solved");

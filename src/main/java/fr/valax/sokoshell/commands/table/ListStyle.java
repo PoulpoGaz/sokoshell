@@ -16,21 +16,6 @@ import static org.jline.utils.AttributedStyle.BOLD;
 public class ListStyle extends TableCommand {
 
     @Override
-    public String getName() {
-        return "style";
-    }
-
-    @Override
-    public String getShortDescription() {
-        return null;
-    }
-
-    @Override
-    public String[] getUsage() {
-        return new String[0];
-    }
-
-    @Override
     protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
         MapStyle selected = helper.getMapStyle();
 
@@ -65,5 +50,20 @@ public class ListStyle extends TableCommand {
         printTable(out, err, table);
 
         return 0;
+    }
+
+    @Override
+    public String getName() {
+        return "style";
+    }
+
+    @Override
+    public String getShortDescription() {
+        return "List all styles";
+    }
+
+    @Override
+    public String[] getUsage() {
+        return new String[0];
     }
 }

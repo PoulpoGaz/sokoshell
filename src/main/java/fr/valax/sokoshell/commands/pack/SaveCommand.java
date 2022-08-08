@@ -10,14 +10,8 @@ import java.io.PrintStream;
 public class SaveCommand extends PackCommand {
 
     @Override
-    protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
-        Pack pack;
-        try {
-            pack = getPack(name);
-        } catch (InvalidArgument e) {
-            e.print(err, true);
-            return FAILURE;
-        }
+    protected int executeImpl(InputStream in, PrintStream out, PrintStream err) throws InvalidArgument {
+        Pack pack = getPack(this.pack);
 
         try {
             pack.writeSolutions(null);

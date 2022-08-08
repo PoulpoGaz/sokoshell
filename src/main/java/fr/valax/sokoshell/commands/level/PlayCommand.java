@@ -17,16 +17,8 @@ import java.io.PrintStream;
 public class PlayCommand extends LevelCommand {
 
     @Override
-    protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
-        Level l;
-        try {
-            Pack pack = getPack(name);
-            l = getLevel(pack, index);
-
-        } catch (InvalidArgument e) {
-            e.print(err, true);
-            return FAILURE;
-        }
+    protected int executeImpl(InputStream in, PrintStream out, PrintStream err) throws InvalidArgument {
+        Level l = getLevel(pack, level);
 
         PlayCommand.GameController controller = new PlayCommand.GameController(l);
 
