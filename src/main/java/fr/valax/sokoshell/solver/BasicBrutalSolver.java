@@ -169,8 +169,11 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
                     continue; // The player cannot reach the case to push the crate
                 }
 
+                int i = map.topLeftReachablePosition(crateX, crateY, crateDestX, crateDestY);
                 // The new player position is the crate position
-                State s = State.child(cur, crate, crateIndex, crateDestY * map.getWidth() + crateDestX);
+                State s = State.child(cur,
+                        i,
+                        crateIndex, crateDestY * map.getWidth() + crateDestX);
 
                 measurer.start("add");
                 if (processed.add(s)) {

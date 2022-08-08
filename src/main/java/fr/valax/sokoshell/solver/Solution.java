@@ -45,9 +45,13 @@ public class Solution {
 
 
     private List<Move> createFullSolution() {
-        Map map = parameters.getLevel().getMap();
+        Level level = parameters.getLevel();
+        Map map = level.getMap();
 
         List<Move> path = new ArrayList<>();
+
+        int playerX = level.getPlayerX();
+        int playerY = level.getPlayerY();
 
         for (int i = 0; i < states.size() - 1; i++) {
             State current = states.get(i);
@@ -56,26 +60,23 @@ public class Solution {
                 map.addStateCrates(current);
             }
 
-            int playerX = map.getX(current.playerPos());
-            int playerY = map.getY(current.playerPos());
-
             State next = states.get(i + 1);
-            Direction dir = getDirection(map, current, next);
+            DirectionWithPosition dir = getDirection(map, current, next);
 
-            int destX = next.playerPos() % map.getWidth() - dir.dirX();
-            int destY = next.playerPos() / map.getWidth() - dir.dirY();
+            int destX = dir.fromX - dir.dir().dirX();
+            int destY = dir.fromY - dir.dir().dirY();
 
             if (playerX != destX || playerY != destY) {
                 path.addAll(findPath(map, playerX, playerY, destX, destY));
             }
 
-            path.add(new Move(dir, true));
+            path.add(new Move(dir.dir(), true));
 
             map.removeStateCrates(current);
-        }
 
-        // reset
-        map.addStateCrates(states.get(0));
+            playerX = destX + dir.dir().dirX();
+            playerY = destY + dir.dir().dirY();
+        }
 
         return path;
     }
@@ -131,7 +132,7 @@ public class Solution {
         }
     }
 
-    private Direction getDirection(Map map, State from, State to) {
+    private DirectionWithPosition getDirection(Map map, State from, State to) {
         List<Integer> state1Crates = Arrays.stream(from.cratesIndices()).boxed().collect(Collectors.toList());
         List<Integer> state2Crates = Arrays.stream(to.cratesIndices()).boxed().collect(Collectors.toList());
 
@@ -150,7 +151,7 @@ public class Solution {
         int dirX = mvt2X - mvt1X;
         int dirY = mvt2Y - mvt1Y;
 
-        return Direction.of(dirX, dirY);
+        return new DirectionWithPosition(Direction.of(dirX, dirY), mvt1X, mvt1Y);
     }
 
 
@@ -348,4 +349,6 @@ public class Solution {
             return result;
         }
     }
+
+    private record DirectionWithPosition(Direction dir, int fromX, int fromY) {}
 }

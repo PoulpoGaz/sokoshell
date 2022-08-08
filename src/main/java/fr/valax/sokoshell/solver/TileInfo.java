@@ -42,6 +42,22 @@ public class TileInfo {
         mark = other.mark;
     }
 
+    public void addCrate() {
+        if (tile == Tile.FLOOR) {
+            tile = Tile.CRATE;
+        } else if (tile == Tile.TARGET) {
+            tile = Tile.CRATE_ON_TARGET;
+        }
+    }
+
+    public void removeCrate() {
+        if (tile == Tile.CRATE) {
+            tile = Tile.FLOOR;
+        } else if (tile == Tile.CRATE_ON_TARGET) {
+            tile = Tile.TARGET;
+        }
+    }
+
     public TileInfo adjacent(Direction dir) {
         return map.getAt(x + dir.dirX(), y + dir.dirY());
     }

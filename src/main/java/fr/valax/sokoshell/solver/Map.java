@@ -1,5 +1,7 @@
 package fr.valax.sokoshell.solver;
 
+import fr.valax.interval.IntWrapper;
+
 import java.util.function.Consumer;
 
 public class Map {
@@ -10,6 +12,9 @@ public class Map {
     private final TileInfo[][] content;
     private final int width;
     private final int height;
+
+    private int topLeftReachablePositionX = -1;
+    private int topLeftReachablePositionY = -1;
 
     public Map(Tile[][] content, int width, int height) {
         this.width = width;
@@ -44,11 +49,7 @@ public class Map {
      */
     public void addStateCrates(State state) {
         for (int i : state.cratesIndices()) {
-            if (getAt(i).isTarget()) {
-                setAt(i, Tile.CRATE_ON_TARGET);
-            } else if (getAt(i).isFloor()) { // extra check
-                setAt(i, Tile.CRATE);
-            }
+            getAt(i).addCrate();
         }
     }
 
@@ -58,11 +59,7 @@ public class Map {
      */
     public void removeStateCrates(State state) {
         for (int i : state.cratesIndices()) {
-            if (getAt(i).isCrateOnTarget()) {
-                setAt(i, Tile.TARGET);
-            } else if (getAt(i).isCrate()) {
-                setAt(i, Tile.FLOOR);
-            }
+            getAt(i).removeCrate();
         }
     }
 
@@ -153,10 +150,18 @@ public class Map {
 
     // * DYNAMIC *
 
+    /**
+     * Find reachable tiles
+     * @param playerPos
+     * @param reset
+     */
     protected void findReachableCases(int playerPos, boolean reset) {
         if (reset) {
             forEach((t) -> t.setReachable(false));
         }
+
+        topLeftReachablePositionX = width;
+        topLeftReachablePositionY = height;
 
         findReachableCases_aux(getAt(playerPos));
     }
@@ -168,7 +173,55 @@ public class Map {
 
             // the second part of the condition avoids to check already processed cases
             if (!adjacent.isSolid() && !adjacent.isReachable()) {
+                if (adjacent.getY() < topLeftReachablePositionY || (adjacent.getY() == topLeftReachablePositionY && adjacent.getX() < topLeftReachablePositionX)) {
+                    topLeftReachablePositionX = adjacent.getX();
+                    topLeftReachablePositionY = adjacent.getY();
+                }
+
                 findReachableCases_aux(adjacent);
+            }
+        }
+    }
+
+    /**
+     *
+     * @return the new top left reachable position after pushing the crate
+     */
+    protected int topLeftReachablePosition(int crateToMoveX, int crateToMoveY, int destX, int destY) {
+        if (topLeftReachablePositionX < 0 || topLeftReachablePositionY < 0) {
+            throw new IllegalStateException();
+        }
+
+        getAt(crateToMoveX, crateToMoveY).removeCrate();
+        getAt(destX, destY).addCrate();
+
+
+        IntWrapper topX = new IntWrapper(topLeftReachablePositionX);
+        IntWrapper topY = new IntWrapper(topLeftReachablePositionY);
+
+        topLeftReachablePosition_aux(getAt(crateToMoveX, crateToMoveY), topX, topY);
+        forEach(TileInfo::unmark);
+
+        // undo
+        getAt(crateToMoveX, crateToMoveY).addCrate();
+        getAt(destX, destY).removeCrate();
+
+        return topY.get() * width + topX.get();
+    }
+
+    private void topLeftReachablePosition_aux(TileInfo tile, IntWrapper topX, IntWrapper topY) {
+        if (tile.getY() < topY.get() || (tile.getY() == topY.get() && tile.getX() < topX.get())) {
+            topX.set(tile.getX());
+            topY.set(tile.getY());
+        }
+
+        tile.mark();
+        for (Direction d : Direction.values()) {
+            TileInfo adjacent = tile.adjacent(d);
+
+            // the second part of the condition avoids to check already processed cases
+            if (!adjacent.isSolid() && !adjacent.isMarked() && !adjacent.isReachable()) {
+                topLeftReachablePosition_aux(adjacent, topX, topY);
             }
         }
     }
@@ -273,5 +326,13 @@ public class Map {
             }
         }
         return true;
+    }
+
+    public int getTopLeftReachablePositionX() {
+        return topLeftReachablePositionX;
+    }
+
+    public int getTopLeftReachablePositionY() {
+        return topLeftReachablePositionY;
     }
 }
