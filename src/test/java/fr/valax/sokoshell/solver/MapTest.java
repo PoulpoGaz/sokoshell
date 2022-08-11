@@ -18,7 +18,7 @@ public class MapTest {
         Map map = level.getMap();
 
         int player = level.getPlayerY() * map.getWidth() + level.getPlayerX();
-        map.findReachableCases(player, false);
+        map.findReachableCases(player);
 
         Assertions.assertEquals(8, map.getTopLeftReachablePositionX());
         Assertions.assertEquals(4, map.getTopLeftReachablePositionY());

@@ -136,13 +136,15 @@ public class MapStyle {
                         case LEFT -> PLAYER_FLOOR_LEFT;
                         case RIGHT -> PLAYER_FLOOR_RIGHT;
                     };
-                } else {
+                } else if (tile == Tile.TARGET){
                     return switch (playerDir) {
                         case DOWN -> PLAYER_ON_TARGET_DOWN;
                         case UP -> PLAYER_ON_TARGET_UP;
                         case LEFT -> PLAYER_ON_TARGET_LEFT;
                         case RIGHT -> PLAYER_ON_TARGET_RIGHT;
                     };
+                } else {
+                    throw new IllegalArgumentException("Can't draw player on " + tile);
                 }
             } else {
                 return switch (tile) {

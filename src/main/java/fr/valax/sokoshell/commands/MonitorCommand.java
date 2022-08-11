@@ -28,10 +28,21 @@ public class MonitorCommand extends AbstractCommand {
             return FAILURE;
         }
 
+
+        Exception ex = null;
+        State last = null;
         try (Monitor monitor = new Monitor(helper.getTerminal(), helper, runningTask)) {
-            monitor.loop();
-        } catch (Exception e) { // due to the voluntary lack of synchronization, actually never happen
-            e.printStackTrace(err);
+            try {
+                monitor.loop();
+            } catch (Exception e) { // due to the voluntary lack of synchronization, actually never happen
+                ex = e;
+                last = monitor.state;
+            }
+        }
+
+        if (ex != null) {
+            ex.printStackTrace(err);
+            err.println(last);
         }
 
         return 0;

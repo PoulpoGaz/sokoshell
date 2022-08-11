@@ -1,6 +1,8 @@
 package fr.valax.sokoshell.solver;
 
 import fr.valax.interval.IntWrapper;
+import fr.valax.sokoshell.solver.mark.AbstractMarkSystem;
+import fr.valax.sokoshell.solver.mark.MarkSystem;
 
 import java.util.function.Consumer;
 
@@ -12,6 +14,9 @@ public class Map {
     private final TileInfo[][] content;
     private final int width;
     private final int height;
+
+    private final MarkSystem markSystem = newMarkSystem(TileInfo::unmark);
+    private final MarkSystem reachableMarkSystem = newMarkSystem((t) -> t.setReachable(false));
 
     private int topLeftReachablePositionX = -1;
     private int topLeftReachablePositionY = -1;
@@ -153,31 +158,28 @@ public class Map {
     /**
      * Find reachable tiles
      * @param playerPos
-     * @param reset
      */
-    protected void findReachableCases(int playerPos, boolean reset) {
-        if (reset) {
-            forEach((t) -> t.setReachable(false));
-        }
-
+    protected void findReachableCases(int playerPos) {
         topLeftReachablePositionX = width;
         topLeftReachablePositionY = height;
 
+        reachableMarkSystem.unmarkAll();
         findReachableCases_aux(getAt(playerPos));
     }
 
     private void findReachableCases_aux(TileInfo tile) {
+        if (tile.getY() < topLeftReachablePositionY ||
+                (tile.getY() == topLeftReachablePositionY && tile.getX() < topLeftReachablePositionX)) {
+            topLeftReachablePositionX = tile.getX();
+            topLeftReachablePositionY = tile.getY();
+        }
+
         tile.setReachable(true);
         for (Direction d : Direction.values()) {
             TileInfo adjacent = tile.adjacent(d);
 
             // the second part of the condition avoids to check already processed cases
             if (!adjacent.isSolid() && !adjacent.isReachable()) {
-                if (adjacent.getY() < topLeftReachablePositionY || (adjacent.getY() == topLeftReachablePositionY && adjacent.getX() < topLeftReachablePositionX)) {
-                    topLeftReachablePositionX = adjacent.getX();
-                    topLeftReachablePositionY = adjacent.getY();
-                }
-
                 findReachableCases_aux(adjacent);
             }
         }
@@ -196,11 +198,11 @@ public class Map {
         getAt(destX, destY).addCrate();
 
 
-        IntWrapper topX = new IntWrapper(topLeftReachablePositionX);
-        IntWrapper topY = new IntWrapper(topLeftReachablePositionY);
+        IntWrapper topX = new IntWrapper(width);
+        IntWrapper topY = new IntWrapper(height);
 
+        markSystem.unmarkAll();
         topLeftReachablePosition_aux(getAt(crateToMoveX, crateToMoveY), topX, topY);
-        forEach(TileInfo::unmark);
 
         // undo
         getAt(crateToMoveX, crateToMoveY).addCrate();
@@ -220,7 +222,7 @@ public class Map {
             TileInfo adjacent = tile.adjacent(d);
 
             // the second part of the condition avoids to check already processed cases
-            if (!adjacent.isSolid() && !adjacent.isMarked() && !adjacent.isReachable()) {
+            if (!adjacent.isSolid() && !adjacent.isMarked()) {
                 topLeftReachablePosition_aux(adjacent, topX, topY);
             }
         }
@@ -334,5 +336,23 @@ public class Map {
 
     public int getTopLeftReachablePositionY() {
         return topLeftReachablePositionY;
+    }
+
+    public MarkSystem getMarkSystem() {
+        return markSystem;
+    }
+
+    public MarkSystem getReachableMarkSystem() {
+        return reachableMarkSystem;
+    }
+
+    private MarkSystem newMarkSystem(Consumer<TileInfo> reset) {
+        return new AbstractMarkSystem() {
+            @Override
+            public void reset() {
+                mark = 0;
+                forEach(reset);
+            }
+        };
     }
 }

@@ -56,7 +56,6 @@ public class AbstractSolverTest {
             Map map = level.getMap();
             State init = level.getInitialState();
 
-            solver.it.setMap(map);
             map.removeStateCrates(init);
             map.computeDeadTiles();
             map.addStateCrates(init);
@@ -74,6 +73,9 @@ public class AbstractSolverTest {
         Assertions.assertNotNull(pack.levels());
         Assertions.assertNotEquals(0, pack.nLevel());
 
+        MapRenderer mr = new MapRenderer();
+        mr.setStyle(new MapStyleReader().read(Path.of("styles/isekai/isekai.style")));
+        mr.setShowDeadTiles(true);
 
         BasicBrutalSolver solver = BasicBrutalSolver.newBFSSolver();
 
@@ -81,7 +83,6 @@ public class AbstractSolverTest {
         Map map = level.getMap();
         State init = level.getInitialState();
 
-        solver.it.setMap(map);
         map.removeStateCrates(init);
         map.computeDeadTiles();
 
@@ -89,10 +90,7 @@ public class AbstractSolverTest {
 
         map.addStateCrates(myState);
 
-        MapRenderer mr = new MapRenderer();
-        mr.setStyle(new MapStyleReader().read(Path.of("styles/isekai/isekai.style")));
-        mr.setShowDeadTiles(true);
-        mr.sysPrint(map, myState.playerPos() % map.getWidth(), myState.playerPos() / map.getHeight());
+        mr.sysPrint(map, myState.playerPos() % map.getWidth(), myState.playerPos() / map.getWidth());
         System.out.println(solver.checkFreezeDeadlock(map, myState));
     }
 }

@@ -10,8 +10,6 @@ import java.util.List;
  */
 public abstract class AbstractSolver implements Solver {
 
-    protected final CrateIterator it = new CrateIterator();
-
     protected Solution buildSolution(State finalState, SolverParameters params, SolverStatistics stats) {
         List<State> solution = new ArrayList<>();
 
@@ -35,16 +33,11 @@ public abstract class AbstractSolver implements Solver {
     protected boolean checkFreezeDeadlock(Map map, State state) {
         int[] crates = state.cratesIndices();
 
-        it.setCrates(crates);
+        map.getMarkSystem().unmarkAll();
+        for (int crate : crates) {
+            TileInfo info = map.getAt(crate);
 
-        // maybe use CrateIterator to avoid checking twice the same crate
-        while (it.hasNext()) {
-            int crate = it.next();
-
-            int x = map.getX(crate);
-            int y = map.getY(crate);
-
-            if (checkFreezeDeadlock(it, map, x, y)) {
+            if (!info.isMarked() && checkFreezeDeadlock(info)) {
                 return true;
             }
         }
@@ -53,24 +46,16 @@ public abstract class AbstractSolver implements Solver {
     }
 
 
-    private boolean checkFreezeDeadlock(CrateIterator it, Map map, int crateX, int crateY) {
-        return checkAxisFreezeDeadlock(it, map, crateX, crateY, Direction.LEFT) &&
-                checkAxisFreezeDeadlock(it, map, crateX, crateY, Direction.UP);
+    private boolean checkFreezeDeadlock(TileInfo crate) {
+        return checkAxisFreezeDeadlock(crate, Direction.LEFT) &&
+                checkAxisFreezeDeadlock(crate, Direction.UP);
     }
 
-    private boolean checkAxisFreezeDeadlock(CrateIterator it, Map map, int crateX, int crateY, Direction axis) {
+    private boolean checkAxisFreezeDeadlock(TileInfo current, Direction axis) {
         boolean deadlock = false;
 
-        int leftX = crateX + axis.dirX();
-        int leftY = crateY + axis.dirY();
-
-        int rightX = crateX - axis.dirX();
-        int rightY = crateY - axis.dirY();
-
-        TileInfo current = map.getAt(crateX, crateY);
-
-        TileInfo left = map.safeGetAt(leftX, leftY);
-        TileInfo right = map.safeGetAt(rightX, rightY);
+        TileInfo left = current.safeAdjacent(axis);
+        TileInfo right = current.safeAdjacent(axis.negate());
 
         if ((left != null && left.isWall()) || (right != null && right.isWall())) { // rule 1
             deadlock = true;
@@ -81,19 +66,19 @@ public abstract class AbstractSolver implements Solver {
             deadlock = true;
         } else { // rule 3
             Tile oldCurr = current.getTile();
-            map.setAt(crateX, crateY, Tile.WALL);
+            current.setTile(Tile.WALL);
 
             if (left != null && left.isCrate()) {
-                it.skipCrate(left);
-                deadlock = checkFreezeDeadlock(it, map, leftX, leftY);
+                left.mark();
+                deadlock = checkFreezeDeadlock(left);
             }
 
             if (!deadlock && right != null && right.isCrate()) {
-                it.skipCrate(right);
-                deadlock = checkFreezeDeadlock(it, map, rightX, rightY);
+                right.mark();
+                deadlock = checkFreezeDeadlock(right);
             }
 
-            map.setAt(crateX, crateY, oldCurr);
+            current.setTile(oldCurr);
         }
 
         // ultimate check, the crate is frozen if it is only a crate and not a crate on target

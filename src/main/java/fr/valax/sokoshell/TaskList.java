@@ -55,14 +55,6 @@ public class TaskList {
 
     private synchronized void onStatusChanged(SolverTask task, TaskStatus old, TaskStatus newStatus) {
         if (newStatus != TaskStatus.PENDING && newStatus != TaskStatus.RUNNING) {
-            List<Solution> solutions = task.getSolutions();
-
-            if (solutions != null) {
-                for (Solution solution : solutions) {
-                    Level level = solution.getParameters().getLevel();
-                    level.addSolution(solution);
-                }
-            }
             finished.add(task);
 
             if (runningTask == task) {

@@ -240,7 +240,7 @@ public class SokoShell {
             int level = helper.getSelectedLevelIndex();
             if (level >= 0) {
                 asb.append(":");
-                asb.styled(DEFAULT.foreground(GREEN + BRIGHT), String.valueOf(level));
+                asb.styled(DEFAULT.foreground(GREEN + BRIGHT), String.valueOf(level + 1));
             }
         }
 

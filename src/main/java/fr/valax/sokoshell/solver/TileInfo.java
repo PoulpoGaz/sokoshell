@@ -1,5 +1,28 @@
 package fr.valax.sokoshell.solver;
 
+import fr.valax.sokoshell.solver.mark.Mark;
+
+/**
+ * TileInfo stores information about a Tile. It stores:
+ * <ul>
+ *     <li>
+ *         Static information
+ *         <ul>
+ *             <li>the {@link Map}</li>
+ *             <li>the position</li>
+ *             <li>the {@link Tile}</li>
+ *             <li>if tile is a 'dead tile'</li>
+ *         </ul>
+ *     </li>
+ *     <li>
+ *         Dynamic information
+ *         <ul>
+ *             <li>if the tile is reachable</li>
+ *             <li>a mark</li>
+ *         </ul>
+ *     </li>
+ * </ul>
+ */
 public class TileInfo {
 
     private final Map map;
@@ -12,34 +35,28 @@ public class TileInfo {
     private boolean deadTile;
 
     // Dynamic information
-    private boolean reachable; // from Map.playerX; Map.playerY
-
-
-    // marker for CrateIterator
-    private boolean mark = false;
+    private final Mark reachable;
+    private final Mark mark;
 
     public TileInfo(Map map, Tile tile, int x, int y) {
         this.map = map;
         this.tile = tile;
         this.x = x;
         this.y = y;
+        this.reachable = map.getReachableMarkSystem().newMark();
+        this.mark = map.getMarkSystem().newMark();
     }
 
     public TileInfo(Map map, TileInfo tile) {
-        this.map = map;
-        this.x = tile.x;
-        this.y = tile.y;
-        this.tile = tile.tile;
-        this.deadTile = tile.deadTile;
-        this.reachable = tile.reachable;
-        this.mark = tile.mark;
+        this(map, tile.getTile(), tile.getX(), tile.getY());
+        set(tile);
     }
 
     public void set(TileInfo other) {
         tile = other.tile;
         deadTile = other.deadTile;
-        reachable = other.reachable;
-        mark = other.mark;
+        setReachable(other.isReachable());
+        mark.setMarked(other.isMarked());
     }
 
     public void addCrate() {
@@ -67,7 +84,7 @@ public class TileInfo {
     }
 
     public void resetDynamicInformation() {
-        reachable = true;
+
     }
 
     public boolean anyCrate() {
@@ -126,25 +143,32 @@ public class TileInfo {
         this.deadTile = deadTile;
     }
 
+
     public boolean isReachable() {
-        return reachable;
+        return reachable.isMarked();
     }
 
     public void setReachable(boolean reachable) {
-        this.reachable = reachable;
+        this.reachable.setMarked(reachable);
     }
 
+
     public void mark() {
-        mark = true;
+        mark.mark();
     }
 
     public void unmark() {
-        mark = false;
+        mark.unmark();
+    }
+
+    public void setMarked(boolean marked) {
+        mark.setMarked(marked);
     }
 
     public boolean isMarked() {
-        return mark;
+        return mark.isMarked();
     }
+
 
     @Override
     public String toString() {

@@ -1,5 +1,6 @@
 package fr.valax.sokoshell.solver;
 
+import fr.valax.sokoshell.SokoShellHelper;
 import fr.valax.sokoshell.utils.PerformanceMeasurer;
 
 import java.math.BigInteger;
@@ -70,7 +71,6 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
 
         Map map = level.getMap();
         map.removeStateCrates(initialState);
-        it.setMap(map);
 
         map.computeDeadTiles();
 
@@ -135,7 +135,7 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
 
     private void addChildrenStates(State cur, Map map) {
         measurer.start("reachable");
-        map.findReachableCases(cur.playerPos(), true);
+        map.findReachableCases(cur.playerPos());
         measurer.end("reachable");
 
         measurer.start("child");
