@@ -148,7 +148,7 @@ public class Map {
             if (getAt(nextX, nextY).isDeadTile()    // avoids to check already processed cases
                     && isTileEmpty(nextX, nextY)
                     && isTileEmpty(nextNextX, nextNextY)) {
-                findNonDeadCases(getAt(nextX, nextY), Direction.opposite(d));
+                findNonDeadCases(getAt(nextX, nextY), d.negate());
             }
         }
     }

@@ -44,13 +44,4 @@ public enum Direction {
             return RIGHT;
         }
     }
-
-    public static Direction opposite(Direction dir) {
-        return (switch (dir) {
-           case UP -> DOWN;
-           case DOWN -> UP;
-           case LEFT -> RIGHT;
-           case RIGHT -> LEFT;
-        });
-    }
 }
