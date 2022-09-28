@@ -3,10 +3,14 @@ package fr.valax.sokoshell.commands;
 import fr.valax.args.api.Option;
 import fr.valax.args.utils.ArgsUtils;
 import fr.valax.interval.Set;
+import fr.valax.sokoshell.graphics.Graphics;
+import fr.valax.sokoshell.graphics.Surface;
+import fr.valax.sokoshell.solver.Direction;
 import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.solver.Pack;
 import org.jline.reader.Candidate;
 import org.jline.reader.LineReader;
+import org.jline.terminal.Size;
 
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -24,6 +28,9 @@ public class PrintCommand extends AbstractCommand {
 
     @Option(names = {"l", "levels"}, hasArgument = true, argName = "Levels")
     protected String levels;
+
+    @Option(names = {"m", "maximize"})
+    protected boolean maximize;
 
     @Override
     protected int executeImpl(InputStream in, PrintStream out, PrintStream err) throws InvalidArgument {
@@ -44,7 +51,18 @@ public class PrintCommand extends AbstractCommand {
                 Level l = levels.next();
 
                 out.printf("<===== Level n°%d =====>%n", l.getIndex() + 1);
-                helper.getRenderer().print(out, l);
+
+                if (maximize) {
+                    Size s = helper.getTerminal().getSize();
+
+                    Surface surface = new Surface();
+                    surface.resize(s.getColumns(), s.getRows());
+                    Graphics g = new Graphics(surface);
+                    helper.getRenderer().draw(g, 0, 0, s.getColumns(), s.getRows(), l.getMap(), l.getPlayerX(), l.getPlayerY(), Direction.DOWN);
+                    surface.drawBuffer();
+                } else {
+                    helper.getRenderer().print(out, l);
+                }
             }
         }
 

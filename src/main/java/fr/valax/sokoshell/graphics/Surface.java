@@ -10,6 +10,7 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -83,8 +84,12 @@ public class Surface {
     }
 
     public void drawBuffer() {
+        drawBuffer(System.out);
+    }
+
+    public void drawBuffer(PrintStream out) {
         for (AttributedStringBuilder b : builders) {
-            System.out.println(new TrueColorString(b.toAttributedString()).toAnsi());
+            out.println(new TrueColorString(b.toAttributedString()).toAnsi());
         }
     }
 
