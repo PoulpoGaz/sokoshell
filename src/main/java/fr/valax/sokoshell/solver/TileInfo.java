@@ -2,8 +2,6 @@ package fr.valax.sokoshell.solver;
 
 import fr.valax.sokoshell.solver.mark.Mark;
 
-import java.util.ArrayList;
-
 /**
  * TileInfo stores information about a Tile. It stores:
  * <ul>

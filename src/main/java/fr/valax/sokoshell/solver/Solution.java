@@ -18,6 +18,10 @@ import java.util.stream.Collectors;
 
 public class Solution {
 
+    public static Solution empty(SolverParameters params, SolverStatistics stats, SolverStatus status) {
+        return new Solution(params, stats, null, status);
+    }
+
     private final SolverParameters parameters;
     private final SolverStatistics statistics;
 

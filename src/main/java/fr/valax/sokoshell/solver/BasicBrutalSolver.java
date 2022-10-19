@@ -1,9 +1,7 @@
 package fr.valax.sokoshell.solver;
 
-import fr.valax.sokoshell.SokoShellHelper;
 import fr.valax.sokoshell.utils.PerformanceMeasurer;
 
-import java.math.BigInteger;
 import java.util.ArrayDeque;
 import java.util.HashSet;
 import java.util.Objects;
@@ -123,13 +121,13 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
         toProcess.clear();
 
         if (hasTimedOut) {
-            return create(params, getStatistics(), SolverStatus.TIMEOUT);
+            return Solution.empty(params, getStatistics(), SolverStatus.TIMEOUT);
         } else if (stopped) {
-            return create(params, getStatistics(), SolverStatus.STOPPED);
+            return Solution.empty(params, getStatistics(), SolverStatus.STOPPED);
         } else if (finalState != null) {
             return buildSolution(finalState, params, getStatistics());
         } else {
-            return create(params, getStatistics(), SolverStatus.NO_SOLUTION);
+            return Solution.empty(params, getStatistics(), SolverStatus.NO_SOLUTION);
         }
     }
 
@@ -171,9 +169,7 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
 
                 int i = map.topLeftReachablePosition(crateX, crateY, crateDestX, crateDestY);
                 // The new player position is the crate position
-                State s = State.child(cur,
-                        i,
-                        crateIndex, crateDestY * map.getWidth() + crateDestX);
+                State s = State.child(cur, i, crateIndex, crateDestY * map.getWidth() + crateDestX);
 
                 measurer.start("add");
                 if (processed.add(s)) {

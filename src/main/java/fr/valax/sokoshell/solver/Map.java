@@ -109,7 +109,7 @@ public class Map {
      */
     public void computeDeadTiles() {
         // reset
-        forEach((tile) -> tile.setDeadTile(true));
+        forEach(tile -> tile.setDeadTile(true));
 
         // loop
         forEach((tile) -> {
