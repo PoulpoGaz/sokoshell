@@ -83,10 +83,6 @@ public class TileInfo {
         return map.safeGetAt(x + dir.dirX(), y + dir.dirY());
     }
 
-    public void resetDynamicInformation() {
-
-    }
-
     public boolean anyCrate() {
         return tile.isCrate();
     }

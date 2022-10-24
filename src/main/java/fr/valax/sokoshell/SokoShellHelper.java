@@ -12,16 +12,14 @@ import org.jline.terminal.Terminal;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
-public class SokoShellHelper implements Lock {
+/**
+ * Contains all packs, styles, the task list, the selected level, the selected pack and the map renderer.
+ * All commands will interact with this object to gather data
+ */
+public class SokoShellHelper {
 
     public static final SokoShellHelper INSTANCE = new SokoShellHelper();
-
-    private final ReentrantLock lock = new ReentrantLock();
 
     private final Map<String, Pack> packs = new HashMap<>();
     private final Map<String, MapStyle> styles = new HashMap<>();
@@ -79,6 +77,10 @@ public class SokoShellHelper implements Lock {
         }
     }
 
+    /**
+     * Add a pack. If there were a pack with the same name, it is removed
+     * @param pack the pack to add
+     */
     public void addPackReplace(Pack pack) {
         packs.put(pack.name(), pack);
     }
@@ -148,6 +150,11 @@ public class SokoShellHelper implements Lock {
 
     // styles
 
+    /**
+     * Add the map style if there is no map style with his name
+     * @param mapStyle the map style to add
+     * @return true if it was added
+     */
     public boolean addMapStyle(MapStyle mapStyle) {
         if (styles.containsKey(mapStyle.getName())) {
             return false;
@@ -158,6 +165,10 @@ public class SokoShellHelper implements Lock {
         }
     }
 
+    /**
+     * Add a map style. If there were a map style with the same name, it is removed
+     * @param mapStyle the map style to add
+     */
     public void addMapStyleReplace(MapStyle mapStyle) {
         styles.put(mapStyle.getName(), mapStyle);
     }
@@ -205,37 +216,5 @@ public class SokoShellHelper implements Lock {
 
     public void setCli(CommandLine cli) {
         this.cli = cli;
-    }
-
-
-
-    @Override
-    public void lock() {
-        lock.lock();
-    }
-
-    @Override
-    public void lockInterruptibly() throws InterruptedException {
-        lock.lockInterruptibly();
-    }
-
-    @Override
-    public boolean tryLock() {
-        return lock.tryLock();
-    }
-
-    @Override
-    public boolean tryLock(long time, TimeUnit unit) throws InterruptedException {
-        return lock.tryLock(time, unit);
-    }
-
-    @Override
-    public void unlock() {
-        lock.unlock();
-    }
-
-    @Override
-    public Condition newCondition() {
-        return lock.newCondition();
     }
 }

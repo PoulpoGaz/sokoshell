@@ -33,14 +33,15 @@ CLASSPATH="$PATH_TO_PROJECT"/target/classes:\
 "$HOME"/.m2/repository/org/jline/jline/3.21.0/jline-3.21.0.jar:\
 "$HOME"/.m2/repository/io/github/poulpogaz/json/1.2.2/json-1.2.2.jar:\
 "$HOME"/.m2/repository/org/dom4j/dom4j/2.1.3/dom4j-2.1.3.jar:\
-"$HOME"/.m2/repository/jaxen/jaxen/1.2.0/jaxen-1.2.0.jar
+"$HOME"/.m2/repository/jaxen/jaxen/1.2.0/jaxen-1.2.0.jar:\
+"$HOME"/.m2/repository/org/openjdk/jol/jol-core/0.16/jol-core-0.16.jar
 
 JVM_ARGS="-Dfile.encoding=UTF-8 -classpath ${CLASSPATH} ${MAIN_CLASS}"
 
 # word splitting is very important
 if [ $DEBUG -ne 0 ]
 then
-  java -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005 $JVM_ARGS $*
+  java -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005 -Djol.magicFieldOffset=true $JVM_ARGS $*
 else
-  java $JVM_ARGS $*
+  java -Djol.magicFieldOffset=true $JVM_ARGS $*
 fi

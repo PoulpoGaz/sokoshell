@@ -11,9 +11,15 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import static fr.valax.sokoshell.solver.Tile.*;
+
 public class IsekaiReader implements Reader {
 
     private static final byte[] PACK_MARKER = new byte[] {(byte) 0xFE, (byte) 0xDC, (byte) 0xBA};
+
+    private static final Tile[] INTERNAL_ORDER = new Tile[] {
+            FLOOR, WALL, CRATE, CRATE_ON_TARGET, TARGET
+    };
 
     @Override
     public Pack read(InputStream is) throws IOException {
@@ -89,7 +95,7 @@ public class IsekaiReader implements Reader {
         int width = level.getWidth();
         int height = level.getHeight();
 
-        Tile[] values = Tile.values();
+        Tile[] values = INTERNAL_ORDER;
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
@@ -134,7 +140,7 @@ public class IsekaiReader implements Reader {
         int width = level.getWidth();
         int height = level.getHeight();
 
-        Tile[] values = Tile.values();
+        Tile[] values = INTERNAL_ORDER;
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {

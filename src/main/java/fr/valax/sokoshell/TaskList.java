@@ -1,9 +1,5 @@
 package fr.valax.sokoshell;
 
-import fr.valax.sokoshell.solver.Level;
-import fr.valax.sokoshell.solver.Solution;
-import org.jline.utils.ShutdownHooks;
-
 import java.util.*;
 
 public class TaskList {

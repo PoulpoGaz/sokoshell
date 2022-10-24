@@ -13,9 +13,19 @@ import java.util.List;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+/**
+ * A pack is a collection of levels with a name and an author
+ */
 public final class Pack {
 
+    /**
+     * Some pack doesn't have a name while it is required by {@link fr.valax.sokoshell.SokoShellHelper}.
+     * So pack without a name as named as following: 'Unnamed[I]' where I is an integer which is increased
+     * each time an unnamed pack is created. This 'I' is the variable below
+     */
     private static int unnamedIndex = 0;
+
+
     private final String name;
     private final String author;
     private final List<Level> levels;

@@ -22,6 +22,21 @@ public class Solution {
         return new Solution(params, stats, null, status);
     }
 
+    public static Solution createValidSolution(State finalState, SolverParameters params, SolverStatistics stats) {
+        List<State> solution = new ArrayList<>();
+
+        State s = finalState;
+        while (s.parent() != null)
+        {
+            solution.add(s);
+            s = s.parent();
+        }
+        solution.add(s);
+        Collections.reverse(solution);
+
+        return new Solution(params, stats, solution, SolverStatus.SOLUTION_FOUND);
+    }
+
     private final SolverParameters parameters;
     private final SolverStatistics statistics;
 
@@ -162,7 +177,7 @@ public class Solution {
 
 
     public void writeSolution(JsonPrettyWriter jpw) throws JsonException, IOException {
-        jpw.field("status", status.name());
+        jpw.field("status", status.status());
         jpw.key("parameters");
         parameters.append(jpw);
 
@@ -321,10 +336,6 @@ public class Solution {
 
     public boolean isStopped() {
         return status == SolverStatus.STOPPED;
-    }
-
-    public boolean isPaused() {
-        return status == SolverStatus.PAUSED;
     }
 
     public SolverStatus getStatus() {

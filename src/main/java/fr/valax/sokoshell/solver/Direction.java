@@ -1,5 +1,11 @@
 package fr.valax.sokoshell.solver;
 
+/**
+ * A small but super useful enumeration. Contains all direction: left, up, right and down.
+ *
+ * @author PoulpogGaz
+ * @author darth-mole
+ */
 public enum Direction {
 
     LEFT(-1, 0),
@@ -7,20 +13,26 @@ public enum Direction {
     RIGHT(1, 0),
     DOWN(0, 1);
 
+    /**
+     * Directions along the horizontal axis
+     */
     public static final Direction[] HORIZONTAL = new Direction[] {UP, DOWN};
 
+    /**
+     * Directions along the verical axis
+     */
     public static final Direction[] VERTICAL = new Direction[] {LEFT, DOWN};
 
     private final int dirX;
     private final int dirY;
 
-    public int dirX() { return dirX; }
-    public int dirY() { return dirY; }
-
     Direction(int dirX, int dirY) {
         this.dirX = dirX;
         this.dirY = dirY;
     }
+
+    public int dirX() { return dirX; }
+    public int dirY() { return dirY; }
 
     public Direction negate() {
         return switch (this) {
@@ -32,7 +44,9 @@ public enum Direction {
     }
 
     public static Direction of(int dirX, int dirY) {
-        if (dirX == 0) {
+        if (dirX == 0 && dirY == 0) {
+            throw new IllegalArgumentException("(0,0) is not a direction");
+        } else if (dirX == 0) {
             if (dirY < 0) {
                 return UP;
             } else {

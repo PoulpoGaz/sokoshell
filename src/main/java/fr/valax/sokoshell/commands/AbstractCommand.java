@@ -79,15 +79,11 @@ public abstract class AbstractCommand implements JLineCommand {
 
     @Override
     public int execute(InputStream in, PrintStream out, PrintStream err) {
-        helper.lock();
-
         try {
             return executeImpl(in, out, err);
         } catch (InvalidArgument e) {
             e.print(err, true);
             return FAILURE;
-        } finally {
-            helper.unlock();
         }
     }
 

@@ -5,17 +5,23 @@ import fr.poulpogaz.json.IJsonWriter;
 import fr.poulpogaz.json.JsonException;
 import fr.poulpogaz.json.JsonToken;
 import fr.poulpogaz.json.utils.Pair;
-import fr.valax.sokoshell.SolverTask;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
- * Solver parameters.
- * Some parameters (tracker) are used by {@link SolverTask}.
- * Using them with only a {@link Solver} has no effect.
+ * Contains the level to solve, the type of the solver and various others parameters that are contained in a Map
+ * associating the name of the parameter (a string) and the parameter (an object). These parameters can be of any type,
+ * but they won't be serialized if the type is not a string, an enum or a number.<br>
+ * Some parameters:
+ * <ul>
+ *     <li>{@link SolverParameters#TIMEOUT}: a period of time after which the solver will stop</li>
+ *     <li>{@link SolverParameters#MAX_RAM}: the maximum amount of ram a solver can use</li>
+ *     <li>{@link Tracker#TRACKER_PARAM}: a custom {@link Tracker}</li>
+ * </ul>
  */
 public class SolverParameters {
 
@@ -31,36 +37,71 @@ public class SolverParameters {
     }
 
     public SolverParameters(SolverType solver, Level level, Map<String, Object> parameters) {
-        this.solver = solver;
-        this.level = level;
-        this.parameters = Collections.unmodifiableMap(parameters);
+        this.solver = Objects.requireNonNull(solver);
+        this.level = Objects.requireNonNull(level);
 
-        for (Object o : parameters.values()) {
-            if (!(o instanceof Enum<?>) && !(o instanceof String) && !(o instanceof Number)) {
-                throw new IllegalArgumentException("Invalid object class: " + o.getClass());
-            }
+        if (parameters == null) {
+            this.parameters = Map.of();
+        } else {
+            this.parameters = Collections.unmodifiableMap(parameters);
         }
     }
 
-    public Object get(String key) {
-        return parameters.get(key);
+    /**
+     * @param param parameter name
+     * @return the parameter named param
+     */
+    public Object get(String param) {
+        return parameters.get(param);
     }
 
+
+    public int get(String param, int default_) {
+        try {
+            Object o = get(param);
+
+            if (o instanceof Number n) {
+                return n.intValue();
+            } else if (o != null) {
+                return Integer.parseInt(o.toString());
+            } else {
+                return default_;
+            }
+        } catch (NumberFormatException e) {
+            return default_;
+        }
+    }
+
+    /**
+     * @param key parameter name
+     * @param defaultValue the default value
+     * @return the parameter named param or a default value
+     */
     public Object getOrDefault(String key, Object defaultValue) {
         return parameters.getOrDefault(key, defaultValue);
     }
 
+    /**
+     * @return all parameters
+     */
     public Map<String, Object> getParameters() {
         return parameters;
     }
 
+    /**
+     * @return the level to solve
+     */
     public Level getLevel() {
         return level;
     }
 
+    /**
+     * @return the type of the solver used
+     */
     public SolverType getSolver() {
         return solver;
     }
+
 
     public void append(IJsonWriter jw) throws JsonException, IOException {
         jw.beginObject();

@@ -14,7 +14,6 @@ import org.jline.reader.LineReader;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 public class ListSolution extends TableCommand {

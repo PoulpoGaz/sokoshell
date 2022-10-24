@@ -1,29 +1,10 @@
 package fr.valax.sokoshell.solver;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 /**
  * @author darth-mole
  * @author PoulpoGaz
  */
 public abstract class AbstractSolver implements Solver {
-
-    protected Solution buildSolution(State finalState, SolverParameters params, SolverStatistics stats) {
-        List<State> solution = new ArrayList<>();
-
-        State s = finalState;
-        while (s.parent() != null)
-        {
-            solution.add(s);
-            s = s.parent();
-        }
-        solution.add(s);
-        Collections.reverse(solution);
-
-        return new Solution(params, stats, solution, SolverStatus.SOLUTION_FOUND);
-    }
 
     // http://www.sokobano.de/wiki/index.php?title=How_to_detect_deadlocks
     protected boolean checkFreezeDeadlock(Map map, State state) {

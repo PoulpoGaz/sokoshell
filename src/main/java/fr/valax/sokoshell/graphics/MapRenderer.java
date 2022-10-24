@@ -1,12 +1,15 @@
 package fr.valax.sokoshell.graphics;
 
-import fr.valax.sokoshell.solver.*;
+import fr.valax.sokoshell.solver.Direction;
+import fr.valax.sokoshell.solver.Level;
+import fr.valax.sokoshell.solver.Map;
+import fr.valax.sokoshell.solver.TileInfo;
 import org.jline.terminal.Terminal;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStringBuilder;
 
-import java.awt.*;
 import java.awt.Color;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.PrintStream;
 import java.util.ArrayList;

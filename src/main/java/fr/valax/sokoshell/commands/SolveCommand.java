@@ -2,6 +2,7 @@ package fr.valax.sokoshell.commands;
 
 import fr.valax.args.api.Command;
 import fr.valax.args.api.Option;
+import fr.valax.args.api.VaArgs;
 import fr.valax.args.utils.ArgsUtils;
 import fr.valax.sokoshell.SolverTask;
 import fr.valax.sokoshell.TaskList;
@@ -12,8 +13,10 @@ import org.jline.reader.LineReader;
 
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.*;
 
 /**
  * @author PoulpoGaz
@@ -41,6 +44,9 @@ public class SolveCommand extends AbstractCommand {
     @Option(names = {"s", "split"}, description = "split all levels in different tasks")
     private boolean split;
 
+    @VaArgs(description = "solver parameters")
+    private String[] args;
+
     @Override
     protected int executeImpl(InputStream in, PrintStream out, PrintStream err) throws InvalidArgument {
         List<Level> levels = getLevels(this.levels, packs);
@@ -50,7 +56,10 @@ public class SolveCommand extends AbstractCommand {
         }
 
         Map<String, Object> params = new HashMap<>();
-        params.put(SolverParameters.TIMEOUT, timeout);
+        if (timeout > 0) {
+            params.put(SolverParameters.TIMEOUT, timeout);
+        }
+        addParameters(params);
 
         Solver solver = BasicBrutalSolver.newDFSSolver();
 
@@ -71,6 +80,25 @@ public class SolveCommand extends AbstractCommand {
         }
 
         return Command.SUCCESS;
+    }
+
+    // TODO: rework
+    private void addParameters(Map<String, Object> params) throws InvalidArgument {
+        if (args.length % 2 != 0) {
+            throw new InvalidArgument("Odd number of arguments");
+        }
+
+        for (int i = 0; i < args.length; i += 2) {
+            String name = args[i];
+            String value = args[i + 1];
+
+            switch (name) {
+                case SolverParameters.MAX_RAM -> params.put(SolverParameters.MAX_RAM, Integer.parseInt(value));
+                case "state-size" -> params.put("state-size", Integer.parseInt(value));
+                case "array-size" -> params.put("array-size", Integer.parseInt(value));
+                default -> params.put(name, value);
+            }
+        }
     }
 
     private SolverTask newTask(Solver solver, Map<String, Object> params, List<Level> levels, String packRequest) {

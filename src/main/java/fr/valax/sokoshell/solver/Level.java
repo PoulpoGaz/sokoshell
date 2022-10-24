@@ -41,6 +41,9 @@ public class Level {
         }
     }
 
+    /**
+     * @return a copy of the map
+     */
     public Map getMap() {
         return new Map(map);
     }
@@ -61,6 +64,10 @@ public class Level {
         return playerPos / getWidth();
     }
 
+    /**
+     * Returns the initial state i.e. a state representing the level at the beginning
+     * @return the initial state
+     */
     public State getInitialState() {
         List<Integer> cratesIndices = new ArrayList<>();
 
@@ -108,14 +115,24 @@ public class Level {
         return solutions.size() > 0;
     }
 
+    /**
+     * @return the index of this level in the pack
+     */
     public int getIndex() {
         return index;
     }
 
+    /**
+     * @return the pack in which this level is
+     */
     public Pack getPack() {
         return pack;
     }
 
+
+    /**
+     * An help class to create a level
+     */
     public static class Builder {
 
         private int playerX = -1;

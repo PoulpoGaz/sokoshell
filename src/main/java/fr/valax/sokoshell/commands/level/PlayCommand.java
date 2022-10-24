@@ -2,7 +2,10 @@ package fr.valax.sokoshell.commands.level;
 
 import fr.valax.sokoshell.graphics.MapRenderer;
 import fr.valax.sokoshell.graphics.TerminalEngine;
-import fr.valax.sokoshell.solver.*;
+import fr.valax.sokoshell.solver.Direction;
+import fr.valax.sokoshell.solver.Level;
+import fr.valax.sokoshell.solver.Map;
+import fr.valax.sokoshell.solver.Tile;
 import org.jline.keymap.KeyMap;
 import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;

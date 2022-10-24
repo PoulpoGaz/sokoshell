@@ -89,15 +89,6 @@ public class Map {
     // * ANALYSIS *
     // ************
 
-
-    /**
-     * Reset reachable flag
-     */
-    public void resetDynamicInformation() {
-        forEach(TileInfo::resetDynamicInformation);
-    }
-
-
     // * STATIC *
 
     /**

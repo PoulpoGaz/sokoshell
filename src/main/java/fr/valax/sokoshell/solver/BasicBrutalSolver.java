@@ -8,12 +8,10 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * @author darth-mole
- *
  * This class is the base for bruteforce-based solvers, i.e. solvers that use an exhaustive search to try and find a
  * solution. It serves as a base class for DFS and BFS solvers, as these class are nearly the same -- the only
  * difference being in the order in which they treat the states (LIFO for DFS and FIFO for BFS).
- *
+ * @author darth-mole
  */
 public abstract class BasicBrutalSolver extends AbstractSolver implements Trackable {
 
@@ -28,6 +26,7 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
     protected final ArrayDeque<State> toProcess = new ArrayDeque<>();
     protected final Set<State> processed = new HashSet<>();
 
+    private boolean running = false;
     private boolean stopped = false;
 
     // statistics
@@ -44,11 +43,16 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
 
     @Override
     public Solution solve(SolverParameters params) {
-        // init statistics, timeout and stop
+        Objects.requireNonNull(params);
 
+        // init statistics, timeout and stop
+        running = true;
         stopped = false;
 
         long timeout = getTimeout(params);
+        int maxRam = params.get(SolverParameters.MAX_RAM, -1);
+        int stateSize = params.get("state-size", -1);
+        int arraySize = params.get("array-size", -1);
         boolean hasTimedOut = false;
 
         timeStart = System.currentTimeMillis();
@@ -84,9 +88,16 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
                 break;
             }
 
-            if (processed.size() > 5_000_000) {
-                stopped = true;
-                break;
+            if (maxRam > 0) {
+                if (arraySize > 0 && stateSize > 0) {
+                    if (State.approxSize(arraySize, stateSize, initialState.cratesIndices().length) * (toProcess.size() + processed.size()) >= maxRam) {
+                        stopped = true;
+                        break;
+                    }
+                } else if (State.approxSize(initialState.cratesIndices().length) * (toProcess.size() + processed.size()) >= maxRam) {
+                    stopped = true;
+                    break;
+                }
             }
 
             State cur = getNext();
@@ -120,12 +131,14 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
         processed.clear();
         toProcess.clear();
 
+        running = false;
+
         if (hasTimedOut) {
             return Solution.empty(params, getStatistics(), SolverStatus.TIMEOUT);
         } else if (stopped) {
             return Solution.empty(params, getStatistics(), SolverStatus.STOPPED);
         } else if (finalState != null) {
-            return buildSolution(finalState, params, getStatistics());
+            return Solution.createValidSolution(finalState, params, getStatistics());
         } else {
             return Solution.empty(params, getStatistics(), SolverStatus.NO_SOLUTION);
         }
@@ -187,8 +200,14 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
     }
 
     @Override
-    public void stop() {
+    public boolean isRunning() {
+        return running;
+    }
+
+    @Override
+    public boolean stop() {
         stopped = true;
+        return true;
     }
 
     private SolverStatistics getStatistics() {
@@ -244,7 +263,7 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
 
     @Override
     public Tracker getTracker() {
-        return null;
+        return tracker;
     }
 
     private static class DFSSolver extends BasicBrutalSolver {

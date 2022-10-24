@@ -17,6 +17,7 @@ import fr.valax.sokoshell.commands.select.SelectPack;
 import fr.valax.sokoshell.commands.select.SelectStyle;
 import fr.valax.sokoshell.commands.table.*;
 import fr.valax.sokoshell.commands.unix.*;
+import fr.valax.sokoshell.solver.State;
 import fr.valax.sokoshell.utils.Utils;
 import org.jline.reader.EndOfFileException;
 import org.jline.reader.LineReader;
@@ -31,6 +32,7 @@ import org.jline.terminal.TerminalBuilder;
 import org.jline.terminal.impl.AbstractWindowsTerminal;
 import org.jline.utils.AttributedStringBuilder;
 import org.jline.widget.AutosuggestionWidgets;
+import org.openjdk.jol.info.ClassLayout;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,6 +44,9 @@ import static fr.valax.args.api.Command.SUCCESS;
 import static org.jline.utils.AttributedStyle.*;
 
 /**
+ * Entry point of sokoshell. It executes the startup script,
+ * reads lines and executes command.
+ *
  * @author PoulpoGaz
  */
 public class SokoShell {
@@ -60,8 +65,6 @@ public class SokoShell {
         } catch (CommandLineException e) {
             throw new IllegalStateException("Failed to initialize CLI", e);
         }
-
-        sokoshell.welcome();
 
         try {
             sokoshell.loop(args);
@@ -129,6 +132,8 @@ public class SokoShell {
                 .addCommand(AbstractCommand.newCommand(this::clear, "clear", "Clear screen"))
                 .addCommand(AbstractCommand.newCommand(this::gc, "gc", "Run garbage collector.\nYou may want to use this after solving a sokoban"))
 
+                .addCommand(new ObjectSizeCommand())
+
                 // unix-like commands
                 .addCommand(new Cat())
                 .addCommand(new Echo())
@@ -145,7 +150,7 @@ public class SokoShell {
     }
 
     private void welcome() {
-        System.out.printf("""
+        terminal.writer().printf("""
                 Welcome to %s - Version %s
                 Type 'help' to show help. More help for a command with 'help command'
                 """, NAME, VERSION);
@@ -181,6 +186,8 @@ public class SokoShell {
                     .variable(LineReader.HISTORY_FILE, HISTORY)
                     .option(LineReader.Option.DISABLE_EVENT_EXPANSION, true)
                     .build();
+
+            welcome();
 
             if (!executeStartupScript()) {
                 return;

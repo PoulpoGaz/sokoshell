@@ -11,7 +11,7 @@ import java.util.Objects;
 
 /**
  * An object that contains various statistics about a solution, including
- * time start and end, number of node explored and queue size every time unit
+ * time start and end, number of node explored and queue size at a specific instant
  */
 public class SolverStatistics {
 
@@ -103,7 +103,7 @@ public class SolverStatistics {
     }
 
     /**
-     * Contains statistics at a given instant
+     * Contains statistics at a specific instant
      */
     public record InstantStatistic(long time, int nodeExplored, int queueSize) {
 
