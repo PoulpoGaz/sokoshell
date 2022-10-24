@@ -46,14 +46,15 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
         Objects.requireNonNull(params);
 
         // init statistics, timeout and stop
+        SolverStatus endStatus = null;
+
         running = true;
         stopped = false;
 
-        long timeout = getTimeout(params);
-        int maxRam = params.get(SolverParameters.MAX_RAM, -1);
-        int stateSize = params.get("state-size", -1);
-        int arraySize = params.get("array-size", -1);
-        boolean hasTimedOut = false;
+        long timeout = params.getLong(SolverParameters.TIMEOUT, -1);
+        long maxRam = params.getLong(SolverParameters.MAX_RAM, -1);
+        int stateSize = params.getInt(SolverParameters.STATE_SIZE, -1);
+        int arraySize = params.getInt(SolverParameters.ARRAY_SIZE, -1);
 
         timeStart = System.currentTimeMillis();
         timeEnd = -1;
@@ -71,6 +72,8 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
         State initialState = level.getInitialState();
         State finalState = null;
 
+        int nState = initialState.cratesIndices().length;
+
         Map map = level.getMap();
         map.removeStateCrates(initialState);
 
@@ -83,21 +86,14 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
         measurer.reset();
 
         while (!toProcess.isEmpty() && !stopped) {
-            if (!checkTimeout(timeout)) {
-                hasTimedOut = true;
+            if (hasTimedOut(timeout)) {
+                endStatus = SolverStatus.TIMEOUT;
                 break;
             }
 
-            if (maxRam > 0) {
-                if (arraySize > 0 && stateSize > 0) {
-                    if (State.approxSize(arraySize, stateSize, initialState.cratesIndices().length) * (toProcess.size() + processed.size()) >= maxRam) {
-                        stopped = true;
-                        break;
-                    }
-                } else if (State.approxSize(initialState.cratesIndices().length) * (toProcess.size() + processed.size()) >= maxRam) {
-                    stopped = true;
-                    break;
-                }
+            if (hasRamExceeded(maxRam, stateSize, arraySize, nState)) {
+                endStatus = SolverStatus.RAM_EXCEED;
+                break;
             }
 
             State cur = getNext();
@@ -119,9 +115,9 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
             map.removeStateCrates(cur);
         }
 
-        System.out.println(measurer);
-
         // END OF RESEARCH
+
+        System.out.println(measurer);
 
         timeEnd = System.currentTimeMillis();
         nStateProcessed = processed.size();
@@ -133,8 +129,8 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
 
         running = false;
 
-        if (hasTimedOut) {
-            return Solution.empty(params, getStatistics(), SolverStatus.TIMEOUT);
+        if (endStatus != null) {
+            return Solution.empty(params, getStatistics(), endStatus);
         } else if (stopped) {
             return Solution.empty(params, getStatistics(), SolverStatus.STOPPED);
         } else if (finalState != null) {
@@ -195,8 +191,22 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
         measurer.end("child");
     }
 
-    protected boolean checkTimeout(long timeout) {
-        return timeout <= 0 || timeout + timeStart > System.currentTimeMillis();
+    protected boolean hasTimedOut(long timeout) {
+        return timeout > 0 && timeout + timeStart < System.currentTimeMillis();
+    }
+
+    protected boolean hasRamExceeded(long maxRam, int arraySize, int stateSize, int nCrate) {
+        if (maxRam > 0) {
+            long totalState = toProcess.size() + processed.size();
+
+            if (arraySize > 0 && stateSize > 0) {
+                return State.approxSize(arraySize, stateSize, nCrate) * totalState >= maxRam;
+            } else {
+                return State.approxSize(nCrate) * totalState >= maxRam;
+            }
+        }
+
+        return false;
     }
 
     @Override

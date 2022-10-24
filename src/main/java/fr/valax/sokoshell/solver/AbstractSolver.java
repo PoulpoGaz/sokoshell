@@ -61,14 +61,4 @@ public abstract class AbstractSolver implements Solver {
         // ultimate check, the crate is frozen if it is only a crate and not a crate on target
         return deadlock && current.isCrate();
     }
-
-    protected long getTimeout(SolverParameters params) {
-        Object timeout = params.get(SolverParameters.TIMEOUT);
-
-        if (timeout instanceof Long l) {
-            return l;
-        } else {
-            return -1;
-        }
-    }
 }

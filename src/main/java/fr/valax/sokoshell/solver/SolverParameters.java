@@ -26,7 +26,9 @@ import java.util.Objects;
 public class SolverParameters {
 
     public static final String TIMEOUT = "timeout";
-    public static final String MAX_RAM = "max_ram";
+    public static final String MAX_RAM = "max-ram";
+    public static final String STATE_SIZE = "state-size";
+    public static final String ARRAY_SIZE = "array-size";
 
     private final SolverType solver;
     private final Level level;
@@ -56,7 +58,7 @@ public class SolverParameters {
     }
 
 
-    public int get(String param, int default_) {
+    public int getInt(String param, int default_) {
         try {
             Object o = get(param);
 
@@ -64,6 +66,22 @@ public class SolverParameters {
                 return n.intValue();
             } else if (o != null) {
                 return Integer.parseInt(o.toString());
+            } else {
+                return default_;
+            }
+        } catch (NumberFormatException e) {
+            return default_;
+        }
+    }
+
+    public long getLong(String param, int default_) {
+        try {
+            Object o = get(param);
+
+            if (o instanceof Number n) {
+                return n.longValue();
+            } else if (o != null) {
+                return Long.parseLong(o.toString());
             } else {
                 return default_;
             }

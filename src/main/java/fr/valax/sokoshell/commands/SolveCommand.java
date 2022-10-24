@@ -17,6 +17,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author PoulpoGaz
@@ -93,11 +95,36 @@ public class SolveCommand extends AbstractCommand {
             String value = args[i + 1];
 
             switch (name) {
-                case SolverParameters.MAX_RAM -> params.put(SolverParameters.MAX_RAM, Integer.parseInt(value));
-                case "state-size" -> params.put("state-size", Integer.parseInt(value));
-                case "array-size" -> params.put("array-size", Integer.parseInt(value));
+                case SolverParameters.MAX_RAM -> params.put(SolverParameters.MAX_RAM, parseRAM(value));
+                case SolverParameters.STATE_SIZE -> params.put(SolverParameters.STATE_SIZE, Integer.parseInt(value));
+                case SolverParameters.ARRAY_SIZE -> params.put(SolverParameters.ARRAY_SIZE, Integer.parseInt(value));
                 default -> params.put(name, value);
             }
+        }
+    }
+
+    private long parseRAM(String value) {
+        Pattern p = Pattern.compile("^(\\d+)\\s*([gmk])?b$", Pattern.CASE_INSENSITIVE);
+        Matcher matcher = p.matcher(value);
+
+        if (matcher.matches() && matcher.groupCount() >= 1 && matcher.groupCount() <= 2) {
+            long r = Long.parseLong(matcher.group(1));
+
+            if (matcher.groupCount() == 2) {
+                r = switch (matcher.group(2)) {
+                    case "g" -> r * 1024 * 1024 * 1024;
+                    case "m" -> r * 1024 * 1024;
+                    case "k" -> r * 1024;
+                    default -> {
+                        System.out.printf(matcher.group(2));
+                        yield  r;
+                    }
+                };
+            }
+
+            return r;
+        } else {
+            return -1;
         }
     }
 
