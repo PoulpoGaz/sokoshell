@@ -2,13 +2,13 @@ package fr.valax.sokoshell.solver.mark;
 
 /**
  * <p>
- *     A MarkSystem is used to by dfs/bfs/others algorithm to avoid checking twice an object.
+ *     A MarkSystem is used by dfs/bfs/others algorithm to avoid checking twice an object.
  *     With a MarkSystem, you don't need to unmark all visited objects
  *     {@link Mark} associated with this system can be created using {@link #newMark()}.
  * </p>
  * <h2>How it works</h2>
  * <p>
- *     A mark have a value, the same for MarkSystem. A mark is marked if it value is equals
+ *     A mark have a value, the same for a MarkSystem. A mark is marked if it value is equals
  *     to the value of the MarkSystem. So, to unmark all mark, you just have to increase
  *     the MarkSystem's value.
  * </p>

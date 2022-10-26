@@ -4,7 +4,9 @@ import fr.poulpogaz.json.JsonException;
 import fr.poulpogaz.json.JsonPrettyWriter;
 import fr.valax.sokoshell.utils.BuilderException;
 
+import java.awt.*;
 import java.io.IOException;
+import java.net.http.HttpRequest;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -131,7 +133,7 @@ public class Level {
 
 
     /**
-     * An help class to create a level
+     * A builder of {@link Level}
      */
     public static class Builder {
 

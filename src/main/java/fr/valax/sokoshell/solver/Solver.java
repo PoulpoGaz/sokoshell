@@ -1,6 +1,8 @@
 package fr.valax.sokoshell.solver;
 
 /**
+ * Defines the basics for all sokoban solver
+ *
  * @author darth-mole
  * @author PoulpoGaz
  */

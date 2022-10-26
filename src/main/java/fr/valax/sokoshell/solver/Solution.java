@@ -9,6 +9,7 @@ import fr.valax.graph.ScatterPlot;
 import fr.valax.graph.Series;
 
 import java.awt.*;
+import java.awt.geom.Area;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.List;
@@ -16,9 +17,25 @@ import java.util.Queue;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * An object representing the output of a solver. It contains the parameters given to the solver,
+ * some statistics, the solver status and if the status is {@link SolverStatus#SOLUTION_FOUND},
+ * it contains two representation of the solution: a sequence of {@link State} and a sequence of {@link Move}.
+ *
+ * @see SolverParameters
+ * @see SolverStatistics
+ * @see State
+ * @see Move
+ * @see SolverStatus
+ * @author PoulpoGaz
+ */
 public class Solution {
 
     public static Solution empty(SolverParameters params, SolverStatistics stats, SolverStatus status) {
+        if (status == SolverStatus.SOLUTION_FOUND) {
+            throw new IllegalArgumentException("SolverStatus is SOLUTION_FOUND. You must give the solution");
+        }
+
         return new Solution(params, stats, null, status);
     }
 
@@ -63,6 +80,10 @@ public class Solution {
     }
 
 
+    /**
+     * Deduce from solution's states all the moves needed to solve the sokoban
+     * @return the full solution
+     */
     private List<Move> createFullSolution() {
         Level level = parameters.getLevel();
         Map map = level.getMap();
@@ -101,7 +122,9 @@ public class Solution {
     }
 
     /**
-     * Doesn't move any crates
+     * Find a path in the map between (fromX, fromY) and (destX, destY). This method doesn't
+     * move any crates.
+     * @return the path between the two points
      */
     private List<Move> findPath(Map map, int fromX, int fromY, int destX, int destY) {
         Set<Node> visited = new HashSet<>();
@@ -151,6 +174,31 @@ public class Solution {
         }
     }
 
+    /**
+     * This method compute the push made by the player between two states.
+     * If the first state is:
+     * <pre>
+     *     #####
+     *     #@  #
+     *     ###$#
+     *       # #
+     *       ###
+     * </pre>
+     * and the second state:
+     * <pre>
+     *     #####
+     *     #   #
+     *     ###@#
+     *       #$#
+     *       ###
+     * </pre>
+     * This method will deduce that the player pushed the crate to the down
+     *
+     * @param map the map
+     * @param from the first state
+     * @param to the second state
+     * @return the movement made by the player between two states
+     */
     private DirectionWithPosition getDirection(Map map, State from, State to) {
         List<Integer> state1Crates = Arrays.stream(from.cratesIndices()).boxed().collect(Collectors.toList());
         List<Integer> state2Crates = Arrays.stream(to.cratesIndices()).boxed().collect(Collectors.toList());

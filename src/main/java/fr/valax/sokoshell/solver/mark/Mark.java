@@ -22,7 +22,13 @@ public interface Mark {
      * Mark or not the object. After this method is called, {@link #isMarked()}
      * will return {@code marked}
      */
-    void setMarked(boolean marked);
+    default void setMarked(boolean marked) {
+        if (marked) {
+            mark();
+        } else {
+            unmark();
+        }
+    }
 
     /**
      * @return true is the object is marked

@@ -58,6 +58,11 @@ public class SolverParameters {
     }
 
 
+    /**
+     * @param param parameter name
+     * @param default_ default value
+     * @return the parameter named param as int or default_ if it doesn't exist or isn't an int
+     */
     public int getInt(String param, int default_) {
         try {
             Object o = get(param);
@@ -74,6 +79,11 @@ public class SolverParameters {
         }
     }
 
+    /**
+     * @param param parameter name
+     * @param default_ default value
+     * @return the parameter named param as long or default_ if it doesn't exist or isn't a long
+     */
     public long getLong(String param, int default_) {
         try {
             Object o = get(param);

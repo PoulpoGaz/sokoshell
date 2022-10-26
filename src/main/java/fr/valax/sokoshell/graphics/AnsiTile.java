@@ -30,6 +30,8 @@ public class AnsiTile extends TileStyle {
 
         for (AttributedString str : ansi) {
             if (str == null || str.columnLength() != size) {
+                throw new IllegalArgumentException("Invalid length: " + str + ".");
+            } else if (str.columnLength() != size) {
                 throw new IllegalArgumentException("Invalid length: " + str + ". length=" + str.columnLength());
             }
         }

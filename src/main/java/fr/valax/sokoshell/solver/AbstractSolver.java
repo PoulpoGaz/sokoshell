@@ -1,6 +1,7 @@
 package fr.valax.sokoshell.solver;
 
 /**
+ * May be removed in the future
  * @author darth-mole
  * @author PoulpoGaz
  */

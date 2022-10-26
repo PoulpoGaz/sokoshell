@@ -21,15 +21,6 @@ public class DefaultMark implements Mark {
     }
 
     @Override
-    public void setMarked(boolean marked) {
-        if (marked) {
-            mark();
-        } else {
-            unmark();
-        }
-    }
-
-    @Override
     public boolean isMarked() {
         return mark == markSystem.getMark();
     }

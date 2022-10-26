@@ -4,8 +4,9 @@ import java.util.Arrays;
 import java.util.Random;
 
 /**
- * <strong>DO NOT MODIFY THE ARRAY AFTER THE INITIALIZATION. THE HASH WON'T BE RECALCULATED</strong>
+ * A state represent an arrangement of the crates in the map and the location of the player.
  *
+ * @implNote <strong>DO NOT MODIFY THE ARRAY AFTER THE INITIALIZATION. THE HASH WON'T BE RECALCULATED</strong>
  * @author darth-mole
  * @author PoulpoGaz
  */
@@ -87,6 +88,15 @@ public record State(int playerPos, int[] cratesIndices, int hash, State parent) 
         return equals(cratesIndices, state.cratesIndices);
     }
 
+    /**
+     * Returns true if all elements of array1 are included in array2 and vice-versa.
+     * However, because there is no duplicate and the two array have the same length,
+     * it is only necessary to check if array1 is included in array2.
+     *
+     * @param array1 the first array
+     * @param array2 the second array
+     * @return true if all elements are included in the second one
+     */
     private boolean equals(int[] array1, int[] array2) {
         for (int a : array1) {
             if (!contains(a, array2)) {
@@ -105,6 +115,11 @@ public record State(int playerPos, int[] cratesIndices, int hash, State parent) 
         }
 
         return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return hash;
     }
 
     /**
@@ -133,11 +148,6 @@ public record State(int playerPos, int[] cratesIndices, int hash, State parent) 
      */
     public static int approxSize(int stateSize, int arraySize, int nCrate) {
         return stateSize + arraySize + nCrate * Integer.BYTES;
-    }
-
-    @Override
-    public int hashCode() {
-        return hash;
     }
 
     @Override

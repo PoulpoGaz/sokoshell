@@ -3,6 +3,9 @@ package fr.valax.sokoshell.solver.mark;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A heavyweight mark system contains a pointer to every mark associated with this system
+ */
 public class HeavyweightMarkSystem extends AbstractMarkSystem {
 
     protected final List<Mark> marks;
