@@ -1587,7 +1587,7 @@ and others.
       <L>#.#   #### $ .  #</L>
       <L>#################</L>
     </Level>
-    <Level Id="refreshment solution" Width="14" Height="8" Copyright="">
+    <Level Id="refreshment solverReport" Width="14" Height="8" Copyright="">
       <L>##############</L>
       <L>#   ..  ..   #</L>
       <L># $#$* $$$*$ #</L>

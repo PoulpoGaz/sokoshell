@@ -9,7 +9,6 @@ import fr.valax.graph.ScatterPlot;
 import fr.valax.graph.Series;
 
 import java.awt.*;
-import java.awt.geom.Area;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.List;
@@ -28,18 +27,37 @@ import java.util.stream.Collectors;
  * @see Move
  * @see SolverStatus
  * @author PoulpoGaz
+ * @author darth-mole
  */
-public class Solution {
+public class SolverReport {
 
-    public static Solution empty(SolverParameters params, SolverStatistics stats, SolverStatus status) {
+    /**
+     * Creates and returns a report that doesn't contain a solution
+     *
+     * @param params the parameters of the solver
+     * @param stats the statistics
+     * @param status the solver status
+     * @return a report without a solution
+     * @throws IllegalArgumentException if the state is {@link SolverStatus#SOLUTION_FOUND}
+     */
+    public static SolverReport withoutSolution(SolverParameters params, SolverStatistics stats, SolverStatus status) {
         if (status == SolverStatus.SOLUTION_FOUND) {
             throw new IllegalArgumentException("SolverStatus is SOLUTION_FOUND. You must give the solution");
         }
 
-        return new Solution(params, stats, null, status);
+        return new SolverReport(params, stats, null, status);
     }
 
-    public static Solution createValidSolution(State finalState, SolverParameters params, SolverStatistics stats) {
+    /**
+     * Creates and returns a report containing a solution. The solution is determined
+     * from the final state.
+     *
+     * @param finalState the final state
+     * @param params the parameters of the solver
+     * @param stats the statistics
+     * @return a report with a solution
+     */
+    public static SolverReport withSolution(State finalState, SolverParameters params, SolverStatistics stats) {
         List<State> solution = new ArrayList<>();
 
         State s = finalState;
@@ -51,7 +69,7 @@ public class Solution {
         solution.add(s);
         Collections.reverse(solution);
 
-        return new Solution(params, stats, solution, SolverStatus.SOLUTION_FOUND);
+        return new SolverReport(params, stats, solution, SolverStatus.SOLUTION_FOUND);
     }
 
     private final SolverParameters parameters;
@@ -63,14 +81,14 @@ public class Solution {
 
     private final List<Move> fullSolution;
 
-    public Solution(SolverParameters parameters,
-                    SolverStatistics statistics,
-                    List<State> states,
-                    SolverStatus status) {
-        this.parameters = parameters;
-        this.statistics = statistics;
+    public SolverReport(SolverParameters parameters,
+                        SolverStatistics statistics,
+                        List<State> states,
+                        SolverStatus status) {
+        this.parameters = Objects.requireNonNull(parameters);
+        this.statistics = Objects.requireNonNull(statistics);
         this.states = states;
-        this.status = status;
+        this.status = Objects.requireNonNull(status);
 
         if (states != null && status == SolverStatus.SOLUTION_FOUND) {
             fullSolution = createFullSolution();
@@ -82,6 +100,7 @@ public class Solution {
 
     /**
      * Deduce from solution's states all the moves needed to solve the sokoban
+     *
      * @return the full solution
      */
     private List<Move> createFullSolution() {
@@ -123,7 +142,8 @@ public class Solution {
 
     /**
      * Find a path in the map between (fromX, fromY) and (destX, destY). This method doesn't
-     * move any crates.
+     * move any crates. It performs a simple graph traversal to find the path
+     *
      * @return the path between the two points
      */
     private List<Move> findPath(Map map, int fromX, int fromY, int destX, int destY) {
@@ -258,7 +278,7 @@ public class Solution {
     }
 
 
-    public static Solution fromJson(JsonReader jr, Level level) throws JsonException, IOException {
+    public static SolverReport fromJson(JsonReader jr, Level level) throws JsonException, IOException {
         SolverStatus status = SolverStatus.valueOf(jr.assertKeyEquals("status").nextString());
 
         jr.assertKeyEquals("parameters");
@@ -294,7 +314,7 @@ public class Solution {
 
         SolverStatistics stats = SolverStatistics.fromJson(jr);
 
-        return new Solution(parameters, stats, states, status);
+        return new SolverReport(parameters, stats, states, status);
     }
 
     private static int[] readIntArray(IJsonReader jr) throws JsonException, IOException {
@@ -345,53 +365,118 @@ public class Solution {
         return series;
     }
 
+    /**
+     * Returns the type of the solver used to produce this report
+     *
+     * @return the type of the solver used to produce this report
+     */
     public SolverType getType() {
         return parameters.getSolver();
     }
 
+    /**
+     * Returns the parameters given to the solver that produce this report
+     *
+     * @return the parameters given to the solver
+     */
     public SolverParameters getParameters() {
         return parameters;
     }
 
+    /**
+     * Returns the statistics produce by the solver that produce this report.
+     * However, {@linkplain Solver solvers} are only capable of recording when
+     * the research start and end. Others statistics are produced by {@link Tracker}
+     *
+     * @return the parameters given to the solver
+     */
     public SolverStatistics getStatistics() {
         return statistics;
     }
 
+    /**
+     * If the sokoban was solved, this report contains the solution as a sequence
+     * of states. It describes all pushes made by the player
+     *
+     * @return the solution or {@code null} if the sokoban wasn't solved
+     */
     public List<State> getStates() {
         return states;
     }
 
+    /**
+     * If the sokoban was solved, this report contains the solution as a sequence
+     * of moves. It describes all moves made by the player.
+     *
+     * @return the solution or {@code null} if the sokoban wasn't solved
+     */
     public List<Move> getFullSolution() {
         return fullSolution;
     }
 
+    /**
+     * Returns the number of pushes the player made to solve the sokoban
+     *
+     * @return {@code -1} if the sokoban wasn't solved or the number of pushes the player made to solve the sokoban
+     */
     public int numberOfPushes() {
         return states == null ? -1 : states.size() - 1;
     }
 
+    /**
+     * Returns the number of moves the player made to solve the sokoban
+     *
+     * @return {@code -1} if the sokoban wasn't solved or the number of moves the player made to solve the sokoban
+     */
     public int numberOfMoves() {
         return fullSolution == null ? -1 : fullSolution.size();
     }
 
 
+    /**
+     * Returns {@code true} if this report contains a solution
+     *
+     * @return {@code true} if this report contains a solution
+     */
     public boolean isSolved() {
         return status == SolverStatus.SOLUTION_FOUND;
     }
 
+    /**
+     * Returns {@code true} if this report doesn't contain a solution
+     *
+     * @return {@code true} if this report doesn't contain a solution
+     */
     public boolean hasNoSolution() {
-        return status == SolverStatus.NO_SOLUTION;
+        return status != SolverStatus.SOLUTION_FOUND;
     }
 
+    /**
+     * Returns {@code true} if the solver was stopped by the user
+     *
+     * @return {@code true} if the solver was stopped by the user
+     */
     public boolean isStopped() {
         return status == SolverStatus.STOPPED;
     }
 
+    /**
+     * TODO: documentation, cf SolverStatus
+     */
     public SolverStatus getStatus() {
         return status;
     }
 
 
-
+    /**
+     * Used by {@link #findPath(Map, int, int, int, int)} to find a path. It represents
+     * a node in a graph.
+     *
+     * @param parent the parent node
+     * @param playerX player x
+     * @param playerY player y
+     * @param dir the direction made by the player to move from the parent node to this node
+     */
     private record Node(Node parent, int playerX, int playerY, Direction dir) {
 
         @Override
@@ -413,5 +498,12 @@ public class Solution {
         }
     }
 
+    /**
+     * Represents a movement of a player from (fromX, fromY).
+     *
+     * @param dir the direction taken by the player
+     * @param fromX player x original position
+     * @param fromY player y original position
+     */
     private record DirectionWithPosition(Direction dir, int fromX, int fromY) {}
 }

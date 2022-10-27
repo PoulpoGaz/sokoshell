@@ -222,7 +222,7 @@ Birthday collection by Alberto Garcia
       <L>### .#</L>
       <L>  ####</L>
     </Level>
-    <Level Id="Birthday 18 The invisible solution" Width="7" Height="10">
+    <Level Id="Birthday 18 The invisible solverReport" Width="7" Height="10">
       <L> ####</L>
       <L> #  #</L>
       <L> #  ###</L>
@@ -450,7 +450,7 @@ Birthday collection by Alberto Garcia
       <L>#######   #######</L>
       <L>      #####</L>
     </Level>
-    <Level Id="Birthday 34 Invisible solution" Width="14" Height="14">
+    <Level Id="Birthday 34 Invisible solverReport" Width="14" Height="14">
       <L>         #####</L>
       <L>         #   #</L>
       <L>   ####### $ #</L>
@@ -585,7 +585,7 @@ Birthday collection by Alberto Garcia
       <L> #@ .#  ##</L>
       <L> ########</L>
     </Level>
-    <Level Id="Birthday 43 The solution is hidden" Width="11" Height="14">
+    <Level Id="Birthday 43 The solverReport is hidden" Width="11" Height="14">
       <L>####</L>
       <L>#  ###</L>
       <L># $  ##</L>
@@ -611,7 +611,7 @@ Birthday collection by Alberto Garcia
       <L>#  ########</L>
       <L>####</L>
     </Level>
-    <Level Id="Birthday 45 Another level with invisible solution" Width="15" Height="17">
+    <Level Id="Birthday 45 Another level with invisible solverReport" Width="15" Height="17">
       <L> ####</L>
       <L> #  #</L>
       <L> # $#</L>
@@ -648,7 +648,7 @@ Birthday collection by Alberto Garcia
       <L>#  #  ###</L>
       <L>#######</L>
     </Level>
-    <Level Id="Birthday 47 Invisible solution" Width="10" Height="10">
+    <Level Id="Birthday 47 Invisible solverReport" Width="10" Height="10">
       <L>######</L>
       <L>#    ####</L>
       <L># $$  $ #</L>
@@ -777,7 +777,7 @@ Birthday collection by Alberto Garcia
       <L>           #  #</L>
       <L>           ####</L>
     </Level>
-    <Level Id="Birthday 56 Discover the solution" Width="9" Height="11">
+    <Level Id="Birthday 56 Discover the solverReport" Width="9" Height="11">
       <L> #####</L>
       <L>##   #</L>
       <L>#  $ #</L>
@@ -891,7 +891,7 @@ Birthday collection by Alberto Garcia
       <L>     #...  #</L>
       <L>     #######</L>
     </Level>
-    <Level Id="Birthday 64 Another level with solution hidden" Width="14" Height="10">
+    <Level Id="Birthday 64 Another level with solverReport hidden" Width="14" Height="10">
       <L> ######</L>
       <L>##    ########</L>
       <L>#  # $ ##    #</L>
@@ -2365,7 +2365,7 @@ Birthday collection by Alberto Garcia
       <L>    #    #  ####</L>
       <L>    #########</L>
     </Level>
-    <Level Id="Birthday 154 Invisible solution (Intermediate level...)" Width="17" Height="15">
+    <Level Id="Birthday 154 Invisible solverReport (Intermediate level...)" Width="17" Height="15">
       <L>       #####</L>
       <L>##### ##   ######</L>
       <L>#   ###  $  $   #</L>
@@ -2520,7 +2520,7 @@ Birthday collection by Alberto Garcia
       <L> ##  ##</L>
       <L>  ####</L>
     </Level>
-    <Level Id="Birthday 163 Discover the solution" Width="7" Height="11">
+    <Level Id="Birthday 163 Discover the solverReport" Width="7" Height="11">
       <L>####</L>
       <L>#  ####</L>
       <L># $$  #</L>

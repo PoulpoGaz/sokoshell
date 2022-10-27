@@ -17,7 +17,6 @@ import fr.valax.sokoshell.commands.select.SelectPack;
 import fr.valax.sokoshell.commands.select.SelectStyle;
 import fr.valax.sokoshell.commands.table.*;
 import fr.valax.sokoshell.commands.unix.*;
-import fr.valax.sokoshell.solver.State;
 import fr.valax.sokoshell.utils.Utils;
 import org.jline.reader.EndOfFileException;
 import org.jline.reader.LineReader;
@@ -32,7 +31,6 @@ import org.jline.terminal.TerminalBuilder;
 import org.jline.terminal.impl.AbstractWindowsTerminal;
 import org.jline.utils.AttributedStringBuilder;
 import org.jline.widget.AutosuggestionWidgets;
-import org.openjdk.jol.info.ClassLayout;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -110,7 +108,7 @@ public class SokoShell {
 
                 .subCommand(new ListPacks())
                     .addCommand(new ListStyle())
-                    .addCommand(new ListSolution())
+                    .addCommand(new ListReports())
                     .addCommand(new ListTasks())
                 .endSubCommand()
 

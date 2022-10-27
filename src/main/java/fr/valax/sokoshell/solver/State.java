@@ -67,16 +67,6 @@ public record State(int playerPos, int[] cratesIndices, int hash, State parent) 
         this(playerPos, cratesIndices, hashCode(playerPos, cratesIndices), parent);
     }
 
-    public static int hashCode(int playerPos, int[] cratesIndices) {
-        int hash = zobristValues[playerPos][0];
-
-        for (int crate : cratesIndices) {
-            hash ^= zobristValues[crate][1];
-        }
-
-        return hash;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -122,10 +112,21 @@ public record State(int playerPos, int[] cratesIndices, int hash, State parent) 
         return hash;
     }
 
+    public static int hashCode(int playerPos, int[] cratesIndices) {
+        int hash = zobristValues[playerPos][0];
+
+        for (int crate : cratesIndices) {
+            hash ^= zobristValues[crate][1];
+        }
+
+        return hash;
+    }
+
     /**
      * Compute the approximate size of this object. It is deduced from the size
      * of an integer (4 bytes. fixed for all jvm), the minimal size of an object in java (16 bytes on
      * 64 bits architectures) and the maximal size of a pointer (8 bytes)
+     *
      * @return the approximate size of this object
      */
     public static int approxSize(int nCrate) {
@@ -142,6 +143,7 @@ public record State(int playerPos, int[] cratesIndices, int hash, State parent) 
 
     /**
      * Compute the approximate size of this object but the user supplied the size of a state and an int array
+     *
      * @param stateSize the size of a {@code State} in bytes
      * @param arraySize the size of a {@code int[]} in bytes
      * @return the approximate size of this object

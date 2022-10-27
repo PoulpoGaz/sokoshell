@@ -4,7 +4,7 @@ import fr.valax.args.api.Command;
 import fr.valax.args.api.Option;
 import fr.valax.args.utils.ArgsUtils;
 import fr.valax.sokoshell.solver.Level;
-import fr.valax.sokoshell.solver.Solution;
+import fr.valax.sokoshell.solver.SolverReport;
 import fr.valax.sokoshell.solver.SolverParameters;
 import fr.valax.sokoshell.solver.SolverStatistics;
 import fr.valax.sokoshell.utils.Alignment;
@@ -35,14 +35,14 @@ public class StatsCommand extends TableCommand {
     protected int executeImpl(InputStream in, PrintStream out, PrintStream err) throws InvalidArgument {
         Level l = getLevel(pack, index);
 
-        if (!l.hasSolution()) {
+        if (!l.hasReport()) {
             err.println("Not solved");
             return FAILURE;
         }
 
-        Solution s;
+        SolverReport s;
         if (solution != null) {
-            s = l.getSolution(solution);
+            s = l.getSolverReport(solution);
 
             if (s == null) {
                 err.println("Index out of bounds");

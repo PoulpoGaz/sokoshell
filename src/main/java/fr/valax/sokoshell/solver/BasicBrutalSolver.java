@@ -42,7 +42,7 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
     protected abstract State getNext();
 
     @Override
-    public Solution solve(SolverParameters params) {
+    public SolverReport solve(SolverParameters params) {
         Objects.requireNonNull(params);
 
         // init statistics, timeout and stop
@@ -130,13 +130,13 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
         running = false;
 
         if (endStatus != null) {
-            return Solution.empty(params, getStatistics(), endStatus);
+            return SolverReport.withoutSolution(params, getStatistics(), endStatus);
         } else if (stopped) {
-            return Solution.empty(params, getStatistics(), SolverStatus.STOPPED);
+            return SolverReport.withoutSolution(params, getStatistics(), SolverStatus.STOPPED);
         } else if (finalState != null) {
-            return Solution.createValidSolution(finalState, params, getStatistics());
+            return SolverReport.withSolution(finalState, params, getStatistics());
         } else {
-            return Solution.empty(params, getStatistics(), SolverStatus.NO_SOLUTION);
+            return SolverReport.withoutSolution(params, getStatistics(), SolverStatus.NO_SOLUTION);
         }
     }
 

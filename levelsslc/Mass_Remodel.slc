@@ -31654,7 +31654,7 @@ sets).
       <L>#  #   #</L>
       <L>########</L>
     </Level>
-    <Level Id="Close to solution / Level 1 R--1" Width="7" Height="7" Copyright="Martí Homs Caussa">
+    <Level Id="Close to solverReport / Level 1 R--1" Width="7" Height="7" Copyright="Martí Homs Caussa">
       <L> ######</L>
       <L>##.  .#</L>
       <L># . # #</L>
@@ -31663,7 +31663,7 @@ sets).
       <L>## @ #</L>
       <L> #####</L>
     </Level>
-    <Level Id="Close to solution / Level 2 R--1" Width="7" Height="7" Copyright="Martí Homs Caussa">
+    <Level Id="Close to solverReport / Level 2 R--1" Width="7" Height="7" Copyright="Martí Homs Caussa">
       <L>#######</L>
       <L>#  .  #</L>
       <L># #*# #</L>

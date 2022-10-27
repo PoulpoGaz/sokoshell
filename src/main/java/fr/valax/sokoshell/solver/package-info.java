@@ -35,15 +35,15 @@
  *     </tr>
  *     <tr>
  *         <td>{@link fr.valax.sokoshell.solver.Direction}</td>
- *         <td>NO</td>
+ *         <td>Partially - Help needed</td>
  *     </tr>
  *     <tr>
  *         <td>{@link fr.valax.sokoshell.solver.Level}</td>
- *         <td>Partially</td>
+ *         <td>OK</td>
  *     </tr>
  *     <tr>
  *         <td>{@link fr.valax.sokoshell.solver.Map}</td>
- *         <td>Partially</td>
+ *         <td>OK</td>
  *     </tr>
  *     <tr>
  *         <td>{@link fr.valax.sokoshell.solver.Move}</td>
@@ -51,11 +51,11 @@
  *     </tr>
  *     <tr>
  *         <td>{@link fr.valax.sokoshell.solver.Pack}</td>
- *         <td>Partially</td>
+ *         <td>OK</td>
  *     </tr>
  *     <tr>
- *         <td>{@link fr.valax.sokoshell.solver.Solution}</td>
- *         <td>Partially</td>
+ *         <td>{@link fr.valax.sokoshell.solver.SolverReport}</td>
+ *         <td>OK</td>
  *     </tr>
  *     <tr>
  *         <td>{@link fr.valax.sokoshell.solver.Solver}</td>
@@ -67,7 +67,7 @@
  *     </tr>
  *     <tr>
  *         <td>{@link fr.valax.sokoshell.solver.SolverStatistics}</td>
- *         <td>Partially</td>
+ *         <td>OK</td>
  *     </tr>
  *     <tr>
  *         <td>{@link fr.valax.sokoshell.solver.SolverType}</td>
@@ -94,5 +94,7 @@
  *         <td>OK</td>
  *     </tr>
  * </table>
+ *
+ * But, all methods related to json are not documented
  */
 package fr.valax.sokoshell.solver;

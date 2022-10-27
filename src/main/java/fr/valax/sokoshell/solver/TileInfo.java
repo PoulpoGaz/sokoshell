@@ -42,6 +42,7 @@ public class TileInfo {
 
     /**
      * Create a new TileInfo
+     *
      * @param map the map in which this TileInfo is
      * @param tile the tile
      * @param x the position on the x-axis in the map
@@ -58,6 +59,7 @@ public class TileInfo {
 
     /**
      * Copy a TileInfo to another map
+     *
      * @param map the map that will contain the copied TileInfo
      * @return the copied TileInfo in the new map
      */
@@ -69,6 +71,7 @@ public class TileInfo {
 
     /**
      * Copy the information of other into this tile info
+     *
      * @param other the TileInfo from which we extract information
      */
     public void set(TileInfo other) {
@@ -92,7 +95,7 @@ public class TileInfo {
 
     /**
      * If this was a crate, this is now a floor
-     * If this was a crate on target, this is noaw of target
+     * If this was a crate on target, this is now a target
      */
     public void removeCrate() {
         if (tile == Tile.CRATE) {
@@ -106,7 +109,7 @@ public class TileInfo {
      * @param dir the direction
      * @return the tile that is adjacent to this TileInfo in the {@link Direction} dir
      * @throws IndexOutOfBoundsException if this TileInfo is near the border of the map and
-     * the direction point outside of th emap
+     * the direction point outside the emap
      */
     public TileInfo adjacent(Direction dir) {
         return map.getAt(x + dir.dirX(), y + dir.dirY());

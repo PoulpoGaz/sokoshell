@@ -41,7 +41,7 @@ public class SolverTask {
     private long finishedAt = -1;
     private volatile TaskStatus taskStatus = TaskStatus.PENDING;
 
-    private List<Solution> solutions;
+    private List<SolverReport> solverReports;
 
     public SolverTask(Solver solver, Map<String, Object> params, List<Level> levels, String pack, String level) {
         this.solver = solver;
@@ -104,7 +104,7 @@ public class SolverTask {
         startedAt = System.currentTimeMillis();
 
         try {
-            List<Solution> solutions = new ArrayList<>();
+            List<SolverReport> solverReports = new ArrayList<>();
 
             boolean noChange = false;
 
@@ -112,16 +112,16 @@ public class SolverTask {
                 Level level = levels.get(currentLevel);
                 SolverParameters parameters = new SolverParameters(solver.getSolverType(), level, params);
 
-                Solution solution = solver.solve(parameters);
-                level.addSolution(solution);
-                solutions.add(solution);
+                SolverReport solverReport = solver.solve(parameters);
+                level.addSolverReport(solverReport);
+                solverReports.add(solverReport);
 
                 if (taskStatus != TaskStatus.RUNNING) {
                     noChange = true;
                     break;
                 }
             }
-            this.solutions = solutions;
+            this.solverReports = solverReports;
 
             if (!noChange) {
                 changeStatus(TaskStatus.FINISHED);
@@ -222,11 +222,11 @@ public class SolverTask {
         return levels.size();
     }
 
-    public List<Solution> getSolutions() {
-        if (solutions == null) {
+    public List<SolverReport> getSolutions() {
+        if (solverReports == null) {
             return null;
         } else {
-            return Collections.unmodifiableList(solutions);
+            return Collections.unmodifiableList(solverReports);
         }
     }
 }

@@ -16,7 +16,7 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ListSolution extends TableCommand {
+public class ListReports extends TableCommand {
 
     @Option(names = {"p", "pack"}, hasArgument = true, argName = "Pack name", allowDuplicate = true)
     private String[] packName;
@@ -44,18 +44,18 @@ public class ListSolution extends TableCommand {
         } else {
             List<Level> levels = getLevels(levelIndex, packName);
 
-            List<Solution> solutions = new ArrayList<>();
+            List<SolverReport> solverReports = new ArrayList<>();
             for (Level level : levels) {
-                solutions.addAll(level.getSolutions());
+                solverReports.addAll(level.getSolverReports());
             }
 
-            printTable(out, err, solutions);
+            printTable(out, err, solverReports);
         }
 
         return SUCCESS;
     }
 
-    private void printTable(PrintStream out, PrintStream err, List<Solution> solutions) {
+    private void printTable(PrintStream out, PrintStream err, List<SolverReport> solverReports) {
         PrettyTable table = new PrettyTable();
 
         PrettyColumn<String> packName = new PrettyColumn<>("Pack");
@@ -71,7 +71,7 @@ public class ListSolution extends TableCommand {
         PrettyColumn<Long> time = new PrettyColumn<>("Time");
         time.setToString(time1 -> PrettyTable.wrap(Utils.prettyDate(time1)));
 
-        for (Solution s : solutions) {
+        for (SolverReport s : solverReports) {
             SolverStatistics stats = s.getStatistics();
 
             packName.add(s.getParameters().getLevel().getPack().name());
@@ -94,17 +94,17 @@ public class ListSolution extends TableCommand {
         table.addColumn(time);
 
         printTable(out, err, table);
-        out.printf("%nNumber of solutions: %d%n", solutions.size());
+        out.printf("%nNumber of solutions: %d%n", solverReports.size());
     }
 
     @Override
     public String getName() {
-        return "solution";
+        return "reports";
     }
 
     @Override
     public String getShortDescription() {
-        return "List all solutions of a level, a pack or a task";
+        return "List all solver reports of a level, a pack or a task";
     }
 
     @Override

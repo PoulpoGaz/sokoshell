@@ -12,10 +12,10 @@ public interface Solver {
      * Try to solve the sokoban that is in the {@link SolverParameters}.
      * @param params non null solver parameters
      * @return a solution object
-     * @see Solution
+     * @see SolverReport
      * @see SolverParameters
      */
-    Solution solve(SolverParameters params);
+    SolverReport solve(SolverParameters params);
 
     /**
      * @return the type of solver

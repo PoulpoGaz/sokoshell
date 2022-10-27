@@ -6,6 +6,11 @@ import fr.valax.sokoshell.solver.mark.MarkSystem;
 
 import java.util.function.Consumer;
 
+/**
+ * TODO: help
+ * @author darth-mole
+ * @author PoulpoGaz
+ */
 public class Map {
 
     public static final int MINIMUM_WIDTH = 5;
@@ -18,9 +23,14 @@ public class Map {
     private final MarkSystem markSystem = newMarkSystem(TileInfo::unmark);
     private final MarkSystem reachableMarkSystem = newMarkSystem((t) -> t.setReachable(false));
 
-    private int topLeftReachablePositionX = -1;
-    private int topLeftReachablePositionY = -1;
-
+    /**
+     * Creates a Map with the specified width, height and tiles
+     *
+     * @param content a rectangular matrix of size width * height. The first index is for the rows
+     *                and the second for the columns
+     * @param width map width
+     * @param height map height
+     */
     public Map(Tile[][] content, int width, int height) {
         this.width = width;
         this.height = height;
@@ -36,6 +46,11 @@ public class Map {
         State.initZobristValues(width * height);
     }
 
+    /**
+     * Creates a copy of other
+     *
+     * @param other the map to copy
+     */
     public Map(Map other) {
         this.width = other.width;
         this.height = other.height;
@@ -43,13 +58,14 @@ public class Map {
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                this.content[y][x] = new TileInfo(this, other.content[y][x]);
+                this.content[y][x] = other.content[y][x].copyTo(this);
             }
         }
     }
 
     /**
      * Puts the crates of the given state in the content array.
+     *
      * @param state The state with the crates
      */
     public void addStateCrates(State state) {
@@ -60,6 +76,7 @@ public class Map {
 
     /**
      * Removes the crates of the given state from the content array.
+     *
      * @param state The state with the crates
      */
     public void removeStateCrates(State state) {
@@ -69,6 +86,11 @@ public class Map {
     }
 
 
+    /**
+     * Apply the consumer on every tile info
+     *
+     * @param consumer the consumer to apply
+     */
     public void forEach(Consumer<TileInfo> consumer) {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
@@ -77,6 +99,11 @@ public class Map {
         }
     }
 
+    /**
+     * Copy the other map in this map. Mark systems are not copied
+     *
+     * @param map the map to copy
+     */
     public void set(Map map) {
         forEach((tile) -> {
             TileInfo other = map.getAt(tile.getX(), tile.getY());
@@ -151,20 +178,11 @@ public class Map {
      * @param playerPos
      */
     protected void findReachableCases(int playerPos) {
-        topLeftReachablePositionX = width;
-        topLeftReachablePositionY = height;
-
         reachableMarkSystem.unmarkAll();
         findReachableCases_aux(getAt(playerPos));
     }
 
     private void findReachableCases_aux(TileInfo tile) {
-        if (tile.getY() < topLeftReachablePositionY ||
-                (tile.getY() == topLeftReachablePositionY && tile.getX() < topLeftReachablePositionX)) {
-            topLeftReachablePositionX = tile.getX();
-            topLeftReachablePositionY = tile.getY();
-        }
-
         tile.setReachable(true);
         for (Direction d : Direction.values()) {
             TileInfo adjacent = tile.adjacent(d);
@@ -177,17 +195,19 @@ public class Map {
     }
 
     /**
+     * This method compute the top left reachable position of the player of pushing a crate
+     * at (crateToMoveX, crateToMoveY) to (destX, destY). It is used to calculate the position
+     * of the player in a {@link State}.
+     * This is also an example of use of {@link MarkSystem}
      *
-     * @return the new top left reachable position after pushing the crate
+     * @return the top left reachable position after pushing the crate
+     * @see MarkSystem
+     * @see fr.valax.sokoshell.solver.mark.Mark
      */
     protected int topLeftReachablePosition(int crateToMoveX, int crateToMoveY, int destX, int destY) {
-        if (topLeftReachablePositionX < 0 || topLeftReachablePositionY < 0) {
-            throw new IllegalStateException();
-        }
-
+        // temporary move the crate
         getAt(crateToMoveX, crateToMoveY).removeCrate();
         getAt(destX, destY).addCrate();
-
 
         IntWrapper topX = new IntWrapper(width);
         IntWrapper topY = new IntWrapper(height);
@@ -212,7 +232,6 @@ public class Map {
         for (Direction d : Direction.values()) {
             TileInfo adjacent = tile.adjacent(d);
 
-            // the second part of the condition avoids to check already processed cases
             if (!adjacent.isSolid() && !adjacent.isMarked()) {
                 topLeftReachablePosition_aux(adjacent, topX, topY);
             }
@@ -225,22 +244,93 @@ public class Map {
     // *********************
 
 
+    /**
+     * Returns the width of the map
+     *
+     * @return the width of the map
+     */
     public int getWidth() { return width; }
 
+    /**
+     * Returns the height of the map
+     *
+     * @return the height of the map
+     */
     public int getHeight() { return height; }
 
+    /**
+     * Convert an index to a position on the x-axis
+     *
+     * @param index the index to convert
+     * @return the converted position
+     */
     public int getX(int index) { return index % width; }
 
+    /**
+     * Convert an index to a position on the y-axis
+     *
+     * @param index the index to convert
+     * @return the converted position
+     */
     public int getY(int index) { return index / width; }
 
+    /**
+     * Returns the {@link TileInfo} at the specific index
+     *
+     * @param index the index of the {@link TileInfo}
+     * @return the TileInfo at the specific index
+     * @throws IndexOutOfBoundsException if the index lead to a position outside the map
+     * @see #getX(int)
+     * @see #getY(int)
+     * @see #safeGetAt(int)
+     */
     public TileInfo getAt(int index) {
         return content[getY(index)][getX(index)];
     }
 
+    /**
+     * Returns the {@link TileInfo} at the specific index
+     *
+     * @param index the index of the {@link TileInfo}
+     * @return the TileInfo at the specific index or {@code null}
+     * if the index represent a position outside the map
+     * @see #getX(int)
+     * @see #getY(int)
+     */
+    public TileInfo safeGetAt(int index) {
+        int x = getX(index);
+        int y = getY(index);
+
+        if (caseExists(x, y)) {
+            return getAt(x, y);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Returns the {@link TileInfo} at the specific position
+     *
+     * @param x x the of the tile
+     * @param y y the of the tile
+     * @return the TileInfo at the specific coordinate
+     * @throws IndexOutOfBoundsException if the position is outside the map
+     * @see #safeGetAt(int, int)
+     */
     public TileInfo getAt(int x, int y) {
         return content[y][x];
     }
 
+    /**
+     * Returns the {@link TileInfo} at the specific position
+     *
+     * @param x x the of the tile
+     * @param y y the of the tile
+     * @return the TileInfo at the specific index or {@code null}
+     * if the index represent a position outside the map
+     * @see #getX(int)
+     * @see #getY(int)
+     */
     public TileInfo safeGetAt(int x, int y) {
         if (caseExists(x, y)) {
             return getAt(x, y);
@@ -249,6 +339,10 @@ public class Map {
         }
     }
 
+    /**
+     * Returns the adjacent tile to (x, y) according to dir
+     * TODO: help me to write the documentation of this method
+     */
     public TileInfo safeGetAt(int x, int y, Direction dir) {
         int x2 = x + dir.dirX();
         int y2 = y + dir.dirY();
@@ -256,17 +350,33 @@ public class Map {
         return safeGetAt(x2, y2);
     }
 
+    /**
+     * Set at tile at the specified index. The index will be converted to
+     * cartesian coordinate with {@link #getX(int)} and {@link  #getY(int)}
+     *
+     * @param index index in the map
+     * @param tile the new tile
+     * @throws IndexOutOfBoundsException if the index lead to a position outside the map
+     */
     public void setAt(int index, Tile tile) { content[getY(index)][getX(index)].setTile(tile); }
 
+    /**
+     * Set at tile at (x, y)
+     *
+     * @param x x position in the map
+     * @param y y position in the map
+     * @throws IndexOutOfBoundsException if the position is outside the map
+     */
     public void setAt(int x, int y, Tile tile) {
         content[y][x].setTile(tile);
     }
 
     /**
      * Tells whether the case at (x,y) exists or not (i.e. if the case is in the map)
+     * 
      * @param x x-coordinate
      * @param y y-coordinate
-     * @return true if the case exists, false otherwise
+     * @return {@code true} if the case exists, {@code false} otherwise
      */
     public boolean caseExists(int x, int y) {
         return (0 <= x && x < width) && (0 <= y && y < height);
@@ -274,8 +384,10 @@ public class Map {
 
     /**
      * Same than caseExists(x, y) but with an index
+     * 
      * @param index index of the case
-     * @return true if the case exists, false otherwise
+     * @return {@code true} if the case exists, {@code false} otherwise
+     * @see #caseExists(int, int) 
      */
     public boolean caseExists(int index) {
         return caseExists(getX(index), getY(index));
@@ -283,9 +395,10 @@ public class Map {
 
     /**
      * Tells whether the tile at the given coordinates is empty or not.
+     * 
      * @param x x coordinate of the case
      * @param y y coordinate of the case
-     * @return true if empty, false otherwise
+     * @return {@code true} if empty, {@code false} otherwise
      */
     public boolean isTileEmpty(int x, int y) {
         TileInfo t = getAt(x, y);
@@ -295,7 +408,8 @@ public class Map {
     /**
      * Checks if the map is solved (i.e. all the crates are on a target)
      * /!\ The crates MUST have been put on the map for this function to work as expected.
-     * @return true if the map is completed, false otherwise
+     * 
+     * @return {@code true} if the map is completed, false otherwise
      */
     public boolean isCompletedWith(State s) {
         for (int i : s.cratesIndices()) {
@@ -308,6 +422,7 @@ public class Map {
 
     /**
      * Checks if the map is completed (i.e. all the crates are on a target)
+     * 
      * @return true if completed, false otherwise
      */
     public boolean isCompleted() {
@@ -321,22 +436,35 @@ public class Map {
         return true;
     }
 
-    public int getTopLeftReachablePositionX() {
-        return topLeftReachablePositionX;
-    }
-
-    public int getTopLeftReachablePositionY() {
-        return topLeftReachablePositionY;
-    }
-
+    /**
+     * Returns a {@link MarkSystem} that can be used to avoid checking twice  a tile
+     *
+     * @return a mark system
+     * @see MarkSystem
+     */
     public MarkSystem getMarkSystem() {
         return markSystem;
     }
 
+    /**
+     * Returns the {@link MarkSystem} used by the {@link #findReachableCases(int)} algorithm
+     *
+     * @return the reachable mark system
+     * @see MarkSystem
+     */
     public MarkSystem getReachableMarkSystem() {
         return reachableMarkSystem;
     }
 
+    /**
+     * Creates a {@link MarkSystem} that apply the specified reset consumer to every
+     * {@link TileInfo} that are in this {@link Map}.
+     *
+     * @param reset the reset function
+     * @return a new MarkSystem
+     * @see MarkSystem
+     * @see fr.valax.sokoshell.solver.mark.Mark
+     */
     private MarkSystem newMarkSystem(Consumer<TileInfo> reset) {
         return new AbstractMarkSystem() {
             @Override

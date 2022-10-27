@@ -2,7 +2,7 @@
 <SokobanLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="SokobanLev.xsd">
   <Title>Mastervip</Title>
   <Description>
-This is my first set.Many of them have solution close to one lac
+This is my first set.Many of them have solverReport close to one lac
 moves. But all are solvable either in one lac or less moves. Thanks.
   </Description>
   <Email>zalak_lab@yahoo.co.in</Email>

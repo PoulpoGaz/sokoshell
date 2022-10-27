@@ -55,7 +55,7 @@ public final class Pack {
 
         boolean write = false;
         for (Level level : levels) {
-            if (level.hasSolution()) {
+            if (level.hasReport()) {
                 write = true;
             }
         }
@@ -75,7 +75,7 @@ public final class Pack {
             jpw.field("author", author);
 
             for (Level level : levels) {
-                if (level.hasSolution()) {
+                if (level.hasReport()) {
 
                     jpw.key(String.valueOf(level.getIndex()));
                     jpw.beginArray();
@@ -116,7 +116,7 @@ public final class Pack {
 
                     while (!jr.isArrayEnd()) {
                         jr.beginObject();
-                        l.addSolution(Solution.fromJson(jr, l));
+                        l.addSolverReport(SolverReport.fromJson(jr, l));
                         jr.endObject();
                     }
 
@@ -129,30 +129,68 @@ public final class Pack {
         }
     }
 
+    /**
+     * Returns the name of the pack
+     *
+     * @return the name of the pack
+     */
     public String name() {
         return name;
     }
 
+    /**
+     * Returns the author of the pack
+     *
+     * @return pack's author
+     */
     public String author() {
         return author;
     }
 
+    /**
+     * Returns all levels that are in this pack
+     *
+     * @return levels of this pack
+     */
     public List<Level> levels() {
         return levels;
     }
 
+    /**
+     * Returns the level at the specified index
+     *
+     * @param index the index of the level
+     * @return the level at the specified index
+     * @throws IndexOutOfBoundsException if the index is out of range
+     */
     public Level getLevel(int index) {
         return levels.get(index);
     }
 
+    /**
+     * Returns the number of level in this pack
+     *
+     * @return the number of level in this pack
+     */
     public int nLevel() {
         return levels.size();
     }
 
+    /**
+     * Returns the location of the file describing this pack. This is used for writing solutions
+     *
+     * @return the location of the file describing this pack
+     * @see fr.valax.sokoshell.readers.Reader#read(Path, boolean)
+     */
     public Path getSourcePath() {
         return sourcePath;
     }
 
+    /**
+     * Sets the location of the file describing this pack. This is used for writing solutions
+     *
+     * @see fr.valax.sokoshell.readers.Reader#read(Path, boolean)
+     */
     public void setSourcePath(Path sourcePath) {
         this.sourcePath = sourcePath;
     }

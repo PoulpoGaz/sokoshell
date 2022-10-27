@@ -28,9 +28,9 @@ public class SolutionCommand extends LevelCommand {
             return FAILURE;
         }
 
-        Solution s;
+        SolverReport s;
         if (solution != null) {
-            s = l.getSolution(solution);
+            s = l.getSolverReport(solution);
 
             if (s == null) {
                 err.println("Index out of bounds");
@@ -232,7 +232,7 @@ public class SolutionCommand extends LevelCommand {
 
     public static class SolutionAnimator {
 
-        private final Solution solution;
+        private final SolverReport solution;
         private final Map map;
 
         private final List<Move> path;
@@ -244,7 +244,7 @@ public class SolutionCommand extends LevelCommand {
         private int move;
         private int push;
 
-        public SolutionAnimator(Solution solution) {
+        public SolutionAnimator(SolverReport solution) {
             this.solution = solution;
             Level level = solution.getParameters().getLevel();
 

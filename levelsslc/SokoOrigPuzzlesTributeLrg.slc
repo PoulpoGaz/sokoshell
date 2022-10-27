@@ -9,11 +9,11 @@ this file contains only the 14 levels that differ from each other.
 There are four puzzles that are not playable in each set. They are:
 12, 13, 15 and 47. This is due to their designs requiring start
 positions unreachable from anywhere outside their respective blocks.
-These puzzles are shown in a overstated solution, including all boxes
+These puzzles are shown in a overstated solverReport, including all boxes
 (balls) and targets (goals) as boxes on targets. Differences between
 variants is shown. The Commodore 64 variant of puzzle 42 is not
 solvable. This error has existed since the game was released. This
-puzzle is shown in overstated solution.
+puzzle is shown in overstated solverReport.
   </Description>
   <Email>asa.rand@gmail.com</Email>
   <Url>http://sokotribute.blogspot.com/</Url>

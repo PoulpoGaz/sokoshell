@@ -71,33 +71,57 @@ public class SolverStatistics {
         return new SolverStatistics(statistics, timeStarted, timeEnded);
     }
 
-    public void add(int nodeExplored, int queueSize) {
-        long time = System.currentTimeMillis();
-
-        statistics.add(new InstantStatistic(time, nodeExplored, queueSize));
-    }
-
+    /**
+     * Sets this instant statistics. The previous statistics are discarded and the new one are copied.
+     *
+     * @param statistics the instant statistics
+     */
     public void setStatistics(List<InstantStatistic> statistics) {
         this.statistics.clear();
         this.statistics.addAll(statistics);
     }
 
+    /**
+     * Returns a list of instant statistics which are statistics at a specific instant
+     *
+     * @return the statistics
+     */
     public List<InstantStatistic> getStatistics() {
         return statistics;
     }
 
+    /**
+     * Returns the time in millis when the solver was started
+     *
+     * @return the time in millis when the solver was started
+     */
     public long getTimeStarted() {
         return timeStarted;
     }
 
+    /**
+     * Sets at what time (in millis) the solver was started
+     *
+     * @param timeStarted time (in millis) the solver was started
+     */
     public void setTimeStarted(long timeStarted) {
         this.timeStarted = timeStarted;
     }
 
+    /**
+     * Returns the time in millis when the solver stopped running
+     *
+     * @return the time in millis when the solver stopped running
+     */
     public long getTimeEnded() {
         return timeEnded;
     }
 
+    /**
+     * Sets at what time (in millis) the solver stopped running
+     *
+     * @param timeEnded time (in millis) the solver stopped running
+     */
     public void setTimeEnded(long timeEnded) {
         this.timeEnded = timeEnded;
     }
@@ -105,7 +129,5 @@ public class SolverStatistics {
     /**
      * Contains statistics at a specific instant
      */
-    public record InstantStatistic(long time, int nodeExplored, int queueSize) {
-
-    }
+    public record InstantStatistic(long time, int nodeExplored, int queueSize) {}
 }

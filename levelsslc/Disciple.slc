@@ -7,12 +7,12 @@ MEGER. These levels may be freely distributed provided they remain
 credited with this copyright and all commentaries.
 
 The Disciple levels range from easy to moderately difficult. They have
-been designed for Sokoban players who enjoy &quot;optimizing&quot; solutions.
+been designed for Sokoban players who enjoy &quot;optimizing&quot; solverReports.
 Some levels present an arranged version designed by Matthias Meger
 (codified changes). Those remodels are more difficult than the initial
 mazes.
 
-Send comments and best solutions to: sokomonk@laposte.net
+Send comments and best solverReports to: sokomonk@laposte.net
   </Description>
   <Email>sokomonk@laposte.net</Email>
   <LevelCollection Copyright="Crazy Monk" MaxWidth="22" MaxHeight="21">

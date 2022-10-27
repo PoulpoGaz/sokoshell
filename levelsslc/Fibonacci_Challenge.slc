@@ -2,7 +2,7 @@
 <SokobanLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="SokobanLev.xsd">
   <Title>Fibonacci Challenge</Title>
   <Description>
-A wacky style of playing sokoban: by managing LURD solutions. You can
+A wacky style of playing sokoban: by managing LURD solverReports. You can
 find the Golden Ratio (phi=1,618...) by dividing the number of moves
 of a level by the moves of the previous level. The higher &quot;n&quot; can
 reach, closer to &quot;phi&quot; the ratio comes. The same happens to pushes,
