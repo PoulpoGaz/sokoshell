@@ -1,6 +1,5 @@
 package fr.valax.sokoshell.readers;
 
-import fr.poulpogaz.json.JsonException;
 import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.solver.Pack;
 import fr.valax.sokoshell.solver.Tile;
@@ -16,13 +15,16 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * Reads a pack from the slc format
+ */
 public class SLCReader implements Reader {
 
     private static final SAXReader reader = new SAXReader();
 
 
     @Override
-    public Pack read(InputStream is) throws IOException, JsonException {
+    public Pack read(InputStream is) throws IOException {
         Document document;
         try {
             document = reader.read(is);

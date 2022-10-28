@@ -90,7 +90,11 @@ public class SolverReport {
         this.states = states;
         this.status = Objects.requireNonNull(status);
 
-        if (states != null && status == SolverStatus.SOLUTION_FOUND) {
+        if (status == SolverStatus.SOLUTION_FOUND) {
+            if (states == null) {
+                throw new IllegalArgumentException("SolverStatus is SOLUTION_FOUND. You must give the solution");
+            }
+
             fullSolution = createFullSolution();
         } else {
             fullSolution = null;

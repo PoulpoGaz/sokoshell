@@ -13,7 +13,19 @@ import java.util.List;
 
 import static fr.valax.sokoshell.solver.Tile.*;
 
+/**
+ * Reads a pack from the
+ * <a href="https://github.com/PoulpoGaz/Isekai/blob/master/isekai-commons/src/main/java/fr/poulpogaz/isekai/commons/pack/PackIO.java#L38">
+ *     Isekai file format
+ * </a>
+ */
 public class IsekaiReader implements Reader {
+
+    // Constants relative to the .8xv format
+    // see https://github.com/mateoconlechuga/convbin/blob/master/src/convert.c#L132
+
+    private static final byte CHECKSUM_LEN = 2;
+    private static final byte DATA = 0x4a;
 
     private static final byte[] PACK_MARKER = new byte[] {(byte) 0xFE, (byte) 0xDC, (byte) 0xBA};
 
@@ -25,7 +37,7 @@ public class IsekaiReader implements Reader {
     public Pack read(InputStream is) throws IOException {
         byte[] fileBytes = is.readAllBytes();
 
-        byte[] data = Converter.extract(fileBytes);
+        byte[] data = extract(fileBytes);
 
         if (data == null) {
             throw new IOException("Not 8xv format");
@@ -152,6 +164,20 @@ public class IsekaiReader implements Reader {
 
                 level.set(values[data[i]], x, y);
             }
+        }
+    }
+
+    public static byte[] extract(byte[] in) {
+        int length = in.length - DATA - CHECKSUM_LEN;
+
+        if (length < 0) {
+            return null;
+        } else {
+            byte[] output = new byte[length];
+
+            System.arraycopy(in, DATA, output, 0, output.length);
+
+            return output;
         }
     }
 }
