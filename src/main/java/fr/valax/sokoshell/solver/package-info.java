@@ -1,5 +1,5 @@
 /**
- * Documentation percentage:
+ * Documentation status:
  * <table>
  *     <tr>
  *         <th>Class</th>

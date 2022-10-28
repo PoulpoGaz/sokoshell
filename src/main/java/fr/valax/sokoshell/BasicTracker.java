@@ -7,6 +7,10 @@ import fr.valax.sokoshell.solver.Tracker;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Basic implementation of {@link Tracker}. It just tries to get information
+ * as much as possible from a {@link Trackable}
+ */
 public class BasicTracker implements Tracker {
 
     private final List<SolverStatistics.InstantStatistic> stats = new ArrayList<>();

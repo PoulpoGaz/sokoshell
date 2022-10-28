@@ -2,6 +2,11 @@ package fr.valax.sokoshell;
 
 import java.util.*;
 
+/**
+ * A task list manages a queue of {@link SolverTask}. It holds finished, pending tasks
+ * and the running tasks. It is responsible for automatically starting a pending task if the
+ * running task has finished
+ */
 public class TaskList {
 
     private final List<SolverTask> finished;
@@ -14,15 +19,21 @@ public class TaskList {
         pending = new LinkedList<>();
     }
 
+    /**
+     * Adds the specified task to the end of the queue
+     *
+     * @param task the task to add
+     */
     public synchronized void offerTask(SolverTask task) {
         offerTask(task, pending.size());
     }
 
     /**
+     * Adds a task at the specified index.
      *
-     * @param task
+     * @param task the task to add
      * @param index 0 to add to the top, nPendingTask() to add to the end
-     *              out of bounds index will add to the end
+     *              Out of range index will add the task to the end
      */
     public synchronized void offerTask(SolverTask task, int index) {
         if (task.getTaskStatus() == TaskStatus.PENDING) {
@@ -68,6 +79,12 @@ public class TaskList {
         }
     }
 
+    /**
+     * Returns the task which has the specified index
+     *
+     * @param index task index
+     * @return the task which has the specified index
+     */
     public synchronized SolverTask getTask(int index) {
         for (SolverTask finished : finished) {
             if (finished.getTaskIndex() == index) {
@@ -88,6 +105,9 @@ public class TaskList {
         return null;
     }
 
+    /**
+     * Cancel all pending tasks and stop the running task
+     */
     public synchronized void stopAll() {
         while (!pending.isEmpty()) {
             SolverTask p = pending.getLast();
@@ -99,10 +119,34 @@ public class TaskList {
         }
     }
 
+    /**
+     * Move at task at the index position in the pending queue. Example:
+     * <pre>
+     *     pending tasks: #1 #2 #3 #4
+     *     move(#2, 3) will result in
+     *     pending tasks: #1 #3 #4 #2
+     * </pre>
+     *
+     * @param task the task to move
+     * @param position the new position of the task
+     * @throws IllegalArgumentException if the task isn't pending or not owned by the TaskList
+     */
     public synchronized void move(SolverTask task, int position) {
         move(task, position, false);
     }
 
+    /**
+     * Swap the specified task with the task at the index position in the pending queue. Example:
+     * <pre>
+     *     pending tasks: #1 #2 #3 #4
+     *     swap(#2, 3) will result in
+     *     pending tasks: #1 #4 #3 #2
+     * </pre>
+     *
+     * @param task the task to move
+     * @param position the new position of the task
+     * @throws IllegalArgumentException if the task isn't pending or not owned by the TaskList
+     */
     public synchronized void swap(SolverTask task, int position) {
         move(task, position, true);
     }
@@ -131,10 +175,21 @@ public class TaskList {
         }
     }
 
+    /**
+     * Returns {@code true} if a task is running
+     *
+     * @return {@code true} if a task is running
+     */
     public boolean isRunning() {
         return runningTask != null;
     }
 
+    /**
+     * Returns a list of all tasks that are in this TaskList, this includes finished, running and pending task.
+     * Modification of the returned list has no effect over the TaskList
+     *
+     * @return a list of all tasks that are in this TaskList, this includes finished, running and pending task
+     */
     public synchronized List<SolverTask> getTasks() {
         List<SolverTask> tasks = new ArrayList<>(finished.size() + pending.size() + (runningTask == null ? 0 : 1));
         tasks.addAll(finished);
@@ -146,22 +201,47 @@ public class TaskList {
         return tasks;
     }
 
+    /**
+     * Returns an unmodifiable list of all finished task
+     *
+     * @return an unmodifiable list of all finished task
+     */
     public List<SolverTask> getFinished() {
         return Collections.unmodifiableList(finished);
     }
 
+    /**
+     * Returns the running task
+     *
+     * @return the running task
+     */
     public SolverTask getRunningTask() {
         return runningTask;
     }
 
+    /**
+     * Returns an unmodifiable collection of all pending tasks
+     *
+     * @return an unmodifiable collection of all pending tasks
+     */
     public Collection<SolverTask> getPendingTask() {
         return Collections.unmodifiableCollection(pending);
     }
 
+    /**
+     * Returns the number of task that are in this TaskList. This includes finished, pending and running tasks.
+     *
+     * @return the number of task that are in this TaskList.
+     */
     public int nTask() {
         return finished.size() + (runningTask == null ? 0 : 1) + pending.size();
     }
 
+    /**
+     * Returns the number of pending tasks
+     *
+     * @return the number of pending tasks
+     */
     public int nPendingTask() {
         return pending.size();
     }

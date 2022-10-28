@@ -8,18 +8,19 @@ import java.util.Map;
 import java.util.*;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static fr.valax.sokoshell.utils.Utils.SCHEDULED_EXECUTOR;
 import static fr.valax.sokoshell.utils.Utils.SOKOSHELL_EXECUTOR;
 
 /**
- * A solver task is used to solve a sokoban in another thread.
+ * A solver task is used to solve a collection of level in another thread.
  * If the solver implements {@link Trackable}, a {@link Tracker} is added
  * to the solver.
  */
 public class SolverTask {
 
-    private static int index = 1;
+    private static final AtomicInteger index = new AtomicInteger(1);
 
     protected final Solver solver;
 
@@ -53,13 +54,21 @@ public class SolverTask {
         listeners = new ArrayList<>();
 
         requestedAt = System.currentTimeMillis();
-        taskIndex = index++;
+        taskIndex = index.getAndIncrement();
     }
 
+    /**
+     * Starts the task asynchronously
+     */
     public void start() {
         start(true);
     }
 
+    /**
+     * Starts the task, it will run asynchronously or not depending on the parameter
+     *
+     * @param asynchronously should the task run asynchronously?
+     */
     public void start(boolean asynchronously) {
         boolean solve = false;
         synchronized (this) {
@@ -139,6 +148,10 @@ public class SolverTask {
         }
     }
 
+    /**
+     * Stop this tasks. If it's running, the solver is stopped and the status change to {@link TaskStatus#STOPPED}.
+     * IF it's pending, the status change to {@link TaskStatus#CANCELED}. Otherwise, it does nothing
+     */
     public synchronized void stop() {
         if (taskStatus == TaskStatus.RUNNING) {
             changeStatus(TaskStatus.STOPPED);
@@ -166,62 +179,146 @@ public class SolverTask {
         }
     }
 
+    /**
+     * Adds a listener to this task
+     *
+     * @param listener the listener to add
+     */
     public void addListener(TaskListener listener) {
-        listeners.add(listener);
+        synchronized (listeners) {
+            listeners.add(listener);
+        }
     }
 
+    /**
+     * Removes a listener
+     *
+     * @param listener the listener to remove
+     */
     public void removeListener(TaskListener listener) {
-        listeners.remove(listener);
+        synchronized (listeners) {
+            listeners.remove(listener);
+        }
     }
 
+    /**
+     * Returns all listeners attached to this task
+     *
+     * @return all listeners attached to this task
+     */
     public TaskListener[] getListeners() {
-        return listeners.toArray(new TaskListener[0]);
+        synchronized (listeners) {
+            return listeners.toArray(new TaskListener[0]);
+        }
     }
 
+    /**
+     * Returns the solver used by this task
+     *
+     * @return the solver used by this task
+     */
     public Solver getSolver() {
         return solver;
     }
 
+    /**
+     * The index of this task. It is independent of the {@link TaskList}.
+     *
+     * @return The index of this task
+     */
     public int getTaskIndex() {
         return taskIndex;
     }
 
+    /**
+     * Returns which packs the user requested to solve in a form of a {@link fr.valax.sokoshell.utils.GlobIterator}
+     *
+     * @return which packs the user requested to solve in a form of a glob
+     * @see fr.valax.sokoshell.utils.GlobIterator
+     */
     public String getPack() {
         return pack;
     }
 
+    /**
+     * Returns which levels the user requested to solve in a form of a {@link fr.valax.interval.Set}
+     *
+     * @return which pack the user requested to solve in a form of a {@link fr.valax.interval.Set}
+     * @see fr.valax.interval.Set
+     */
     public String getLevel() {
         return level;
     }
 
+    /**
+     * Returns the time in millis at that the user requested this task
+     *
+     * @return the time in millis at that the user requested this task
+     */
     public long getRequestedAt() {
         return requestedAt;
     }
 
+    /**
+     * Returns the time in millis at the task was started i.e. when his status changed to {@link TaskStatus#RUNNING}
+     *
+     * @return the time in millis at the task was started or -1
+     */
     public long getStartedAt() {
         return startedAt;
     }
 
+    /**
+     * Returns the time in millis at the task finished i.e. when his status changed to {@link TaskStatus#STOPPED},
+     * {@link TaskStatus#ERROR} or {@link TaskStatus#FINISHED}
+     *
+     * @return the time in millis at the task finished or -1
+     */
     public long getFinishedAt() {
         return finishedAt;
     }
 
+    /**
+     * Returns The status of this task
+     *
+     * @return The status of this task
+     */
     public TaskStatus getTaskStatus() {
         return taskStatus;
     }
 
+    /**
+     * Returns the index of the level that is currently being solved
+     *
+     * @return the index of the level that is currently being solved
+     */
     public int getCurrentLevel() {
         return currentLevel;
     }
 
+    /**
+     * Returns an unmodifiable list of all levels that will be solved
+     *
+     * @return an unmodifiable list of all levels that will be solved
+     */
     public List<Level> getLevels() {
         return Collections.unmodifiableList(levels);
     }
 
+    /**
+     * Returns the number of level to solve
+     *
+     * @return the number of level to solve
+     */
     public int size() {
         return levels.size();
     }
 
+    /**
+     * Returns all {@link SolverReport} that were produced at the end of task
+     *
+     * @return all {@link SolverReport} that were produced at the end of task or {@code null}
+     */
     public List<SolverReport> getSolutions() {
         if (solverReports == null) {
             return null;
