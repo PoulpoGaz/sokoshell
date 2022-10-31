@@ -16,12 +16,12 @@ public enum Direction {
     /**
      * Directions along the horizontal axis
      */
-    public static final Direction[] HORIZONTAL = new Direction[] {UP, DOWN};
+    public static final Direction[] HORIZONTAL = new Direction[] {LEFT, RIGHT};
 
     /**
      * Directions along the verical axis
      */
-    public static final Direction[] VERTICAL = new Direction[] {LEFT, DOWN};
+    public static final Direction[] VERTICAL = new Direction[] {UP, DOWN};
 
     private final int dirX;
     private final int dirY;

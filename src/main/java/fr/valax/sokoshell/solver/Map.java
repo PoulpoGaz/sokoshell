@@ -7,7 +7,21 @@ import fr.valax.sokoshell.solver.mark.MarkSystem;
 import java.util.function.Consumer;
 
 /**
- * TODO: help
+ * Represents the Sokoban map.<br />
+ * This is essentially a 2D-array of {@link TileInfo}, the indices being the y and x coordinates
+ * (i.e. {@code content[y][x]} is the tile at (x;y)).<br />
+ * This class also implements static and dynamic analysis of the Sokoban map:
+ * <ul>
+ *     <li>Static</li>
+ *     <ul>
+ *         <li>Dead positions: cases that make the level unsolvable when a crate is pushed on them</li>
+ *     </ul>
+ *     <li>Dynamic</li>
+ *     <ul>
+ *         <li>Reachable cases: cases that the player can reach according to his position</li>
+ *     </ul>
+ * </ul>
+ *
  * @author darth-mole
  * @author PoulpoGaz
  */
@@ -340,8 +354,7 @@ public class Map {
     }
 
     /**
-     * Returns the adjacent tile to (x, y) according to dir
-     * TODO: help me to write the documentation of this method
+     * Returns the tile next to the tile at (x, y) according to dir
      */
     public TileInfo safeGetAt(int x, int y, Direction dir) {
         int x2 = x + dir.dirX();
@@ -406,8 +419,8 @@ public class Map {
     }
 
     /**
-     * Checks if the map is solved (i.e. all the crates are on a target)
-     * /!\ The crates MUST have been put on the map for this function to work as expected.
+     * Checks if the map is solved (i.e. all the crates are on a target).<br />
+     * <strong>The crates MUST have been put on the map for this function to work as expected.</strong>
      * 
      * @return {@code true} if the map is completed, false otherwise
      */
