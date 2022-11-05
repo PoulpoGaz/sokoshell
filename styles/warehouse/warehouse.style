@@ -1,0 +1,306 @@
+name Warehouse
+author PoulpoGaz
+version 1.0
+
+
+[alias]
+    cratebg 96 70 49
+    cratefg 153 112 78
+
+    crate_targetbg 182 61 0
+    crate_targetfg 182 165 0
+
+    floor1 47 132 55
+    floor2 45 121 50
+    floor3 37 112 44
+
+    wallbg 106 111 106
+    wallfg 13 14 13
+
+
+[size] 1
+    [floor] ansi
+        $(bg floor1) $()
+
+    [wall] ansi
+        $(bg wallbg) $()
+
+    [target] ansi
+        $(bg red) $()
+
+    [crate] ansi
+        $(bg cratebg fg cratefg) $()
+
+    [crate_on_target] ansi
+        $(bg crate_targetbg fg crate_targetfg in) $()
+
+    [player] ansi merge floor-target
+        $(fg black)o
+
+
+[size] 2
+    [floor] ansi
+        $(bg floor1) $(bg floor2) $()
+         $(bg floor1) $()
+
+    [wall] ansi
+        $(bg wallbg fg wallfg)┴┬
+        ┬┴
+
+    [target] ansi
+        $(bg red)  $()
+          $()
+
+    [crate] ansi
+        $(bg cratebg fg cratefg)▛▜
+        ▙▟
+
+    [crate_on_target] ansi
+        $(bg crate_targetbg fg crate_targetfg)▛▜
+        ▙▟
+
+    [player] ansi merge floor-target
+        $(fg black)┌┐
+        └┘
+
+[size] 3
+    [floor] ansi
+        $(bg floor1) $(bg floor2) $(bg floor1) $()
+         $(bg floor2)  $()
+         $(bg floor3) $(bg floor1) $()
+
+    [wall] ansi
+        $(bg wallbg fg wallfg)┴┬┴
+        ─┼─
+        ┬┴┬
+
+    [target] ansi
+        $(bg red fg black blink) ▼ $()
+        ▶ ◀
+         ▲ $()
+
+    [crate] ansi
+        $(bg cratebg fg cratefg)▛▀▜
+        ▌ ▐
+        ▙▄▟
+
+    [crate_on_target] ansi
+        $(bg crate_targetbg fg crate_targetfg)▛▀▜
+        ▌ ▐
+        ▙▄▟
+
+    [player_up] ansi merge floor-target
+        $(fg black) ◯ $()
+        ─┼─
+        ╱ ╲
+
+    [player_down] ansi merge floor-target
+        $(fg black) ◯ $()
+        ─┼─
+        ╱ ╲
+
+    [player_left] ansi merge floor-target
+        $(fg black) ◯ $()
+        ─┤ $()
+         │ $()
+
+    [player_right] ansi merge floor-target
+        $(fg black) ◯ $()
+         ├─$()
+         │ $()
+
+
+[size] 4
+    [floor] ansi
+        $(bg floor1) $(bg floor2) $(bg floor1)  $()
+         $(bg floor2)  $(bg floor3) $()
+         $(bg floor3) $(bg floor1)  $()
+          $(bg floor2) $(bg floor3) $()
+
+    [wall] ansi
+        $(bg wallbg fg wallfg)┴┬┴┬
+         │ │
+        ┬┴┬┴
+        │ │ $()
+
+    [target] ansi
+        $(bg red fg black blink)⬊  ⬋
+            $()
+            $()
+        ⬈  ⬉
+
+    [crate] ansi
+        $(bg cratebg fg cratefg)▛▀▀▜
+        ▌▗▖▐
+        ▌▝▘▐
+        ▙▄▄▟
+
+    [crate_on_target] ansi
+        $(bg crate_targetbg fg crate_targetfg)▛▀▀▜
+        ▌▗▖▐
+        ▌▝▘▐
+        ▙▄▄▟
+
+    [player_up] ansi merge floor-target
+        $(fg black) ◯  $()
+        ─┼─ $()
+         │  $()
+        ╱ ╲ $()
+
+    [player_down] ansi merge floor-target
+        $(fg black) ◯  $()
+        ─┼─ $()
+         │  $()
+        ╱ ╲ $()
+
+    [player_left] ansi merge floor-target
+        $(fg black) ◯  $()
+        ─┤  $()
+         │  $()
+         │  $()
+
+    [player_right] ansi merge floor-target
+        $(fg black)  ◯ $()
+          ├─$()
+          │ $()
+          │ $()
+
+[size] 8
+    [floor] image
+        tileset.png 0 52
+
+    [wall] image
+        tileset.png 16 52
+
+    [crate] image
+        tileset.png 32 52
+
+    [crate_on_target] image
+        tileset.png 48 52
+
+    [target] image
+        tileset.png 64 52
+
+    [player_left] image merge floor-target
+        tileset.png 80 52
+
+    [player_right] image merge floor-target
+        tileset.png 96 52
+
+    [player_down] image merge floor-target
+        tileset.png 112 52
+
+    [player_up] image merge floor-target
+        tileset.png 128 52
+
+[size] 10
+    [floor] image
+        tileset.png 0 42
+
+    [wall] image
+        tileset.png 16 42
+
+    [crate] image
+        tileset.png 32 42
+
+    [crate_on_target] image
+        tileset.png 48 42
+
+    [target] image
+        tileset.png 64 42
+
+    [player_right] image merge floor-target
+        tileset.png 80 42
+
+    [player_left] image merge floor-target
+        tileset.png 96 42
+
+    [player_down] image merge floor-target
+        tileset.png 112 42
+
+    [player_up] image merge floor-target
+        tileset.png 128 42
+
+[size] 12
+    [floor] image
+        tileset.png 0 30
+
+    [wall] image
+        tileset.png 16 30
+
+    [crate] image
+        tileset.png 32 30
+
+    [crate_on_target] image
+        tileset.png 48 30
+
+    [target] image
+        tileset.png 64 30
+
+    [player_left] image merge floor-target
+        tileset.png 80 30
+
+    [player_right] image merge floor-target
+        tileset.png 96 30
+
+    [player_down] image merge floor-target
+        tileset.png 112 30
+
+    [player_up] image merge floor-target
+        tileset.png 128 30
+
+[size] 14
+    [floor] image
+        tileset.png 0 16
+
+    [wall] image
+        tileset.png 16 16
+
+    [crate] image
+        tileset.png 32 16
+
+    [crate_on_target] image
+        tileset.png 48 16
+
+    [target] image
+        tileset.png 64 16
+
+    [player_left] image merge floor-target
+        tileset.png 80 16
+
+    [player_right] image merge floor-target
+        tileset.png 96 16
+
+    [player_down] image merge floor-target
+        tileset.png 112 16
+
+    [player_up] image merge floor-target
+        tileset.png 128 16
+
+[size] 16
+    [floor] image
+        tileset.png 0 0
+
+    [wall] image
+        tileset.png 16 0
+
+    [crate] image
+        tileset.png 32 0
+
+    [crate_on_target] image
+        tileset.png 48 0
+
+    [target] image
+        tileset.png 64 0
+
+    [player_left] image merge floor-target
+        tileset.png 80 0
+
+    [player_right] image merge floor-target
+        tileset.png 96 0
+
+    [player_down] image merge floor-target
+        tileset.png 112 0
+
+    [player_up] image merge floor-target
+        tileset.png 128 0

@@ -19,7 +19,7 @@ public enum Direction {
     public static final Direction[] HORIZONTAL = new Direction[] {LEFT, RIGHT};
 
     /**
-     * Directions along the verical axis
+     * Directions along the vertical axis
      */
     public static final Direction[] VERTICAL = new Direction[] {UP, DOWN};
 
