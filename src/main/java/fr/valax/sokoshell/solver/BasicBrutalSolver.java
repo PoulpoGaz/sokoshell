@@ -155,10 +155,9 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
 
             for (Direction d : Direction.values()) {
 
-                int crateDestX = crateX + d.dirX();
-                int crateDestY = crateY + d.dirY();
-                if (crateDestX < 0 || crateDestX >= map.getWidth()
-                 || crateDestY < 0 || crateDestY >= map.getHeight()
+                final int crateDestX = crateX + d.dirX();
+                final int crateDestY = crateY + d.dirY();
+                if (!map.caseExists(crateDestX, crateDestY)
                  || !map.isTileEmpty(crateDestX, crateDestY)) {
                     continue; // The destination case is not empty
                 }
@@ -167,16 +166,15 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
                     continue; // Useless to push a crate on a dead position
                 }
 
-                int playerX = crateX - d.dirX();
-                int playerY = crateY - d.dirY();
-                if (playerX < 0 || playerX >= map.getWidth()
-                 || playerY < 0 || playerY >= map.getHeight()
+                final int playerX = crateX - d.dirX();
+                final int playerY = crateY - d.dirY();
+                if (!map.caseExists(playerX, playerY)
                  || !map.getAt(playerX, playerY).isReachable()
                  || !map.isTileEmpty(playerX, playerY)) {
                     continue; // The player cannot reach the case to push the crate
                 }
 
-                int i = map.topLeftReachablePosition(crateX, crateY, crateDestX, crateDestY);
+                final int i = map.topLeftReachablePosition(crateX, crateY, crateDestX, crateDestY);
                 // The new player position is the crate position
                 State s = State.child(cur, i, crateIndex, crateDestY * map.getWidth() + crateDestX);
 
