@@ -474,7 +474,7 @@ public class MapStyleReader {
         try {
             return Integer.parseInt(str);
         } catch (NumberFormatException e) {
-            throw error(e, "Failed to parse %d to int", str);
+            throw error(e, "Failed to parse %s to int", str);
         }
     }
 

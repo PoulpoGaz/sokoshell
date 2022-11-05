@@ -209,10 +209,10 @@ version 1.0
     [target] image
         tileset.png 64 42
 
-    [player_right] image merge floor-target
+    [player_left] image merge floor-target
         tileset.png 80 42
 
-    [player_left] image merge floor-target
+    [player_right] image merge floor-target
         tileset.png 96 42
 
     [player_down] image merge floor-target

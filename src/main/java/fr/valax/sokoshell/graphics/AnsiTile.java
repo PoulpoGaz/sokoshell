@@ -100,23 +100,32 @@ public class AnsiTile extends TileStyle {
                 AttributedStyle fgStyle = fg.ansi[y].styleAt(x);
                 char fgChar = fg.ansi[y].charAt(x);
 
-                char c;
-                if (Character.isWhitespace(fgChar)) {
-                    c = bgChar;
-                } else {
-                    c = fgChar;
+                if (Character.isWhitespace(bgChar)) {
+                    Color bgBgColor = Color.background(bgStyle);
+                    Color fgBgColor = Color.background(fgStyle);
+
+                    if (bgBgColor == null || fgBgColor != null) {
+                        asb.styled(fgStyle, Character.toString(fgChar));
+                    } else {
+                        asb.styled(bgBgColor.setBG(fgStyle), Character.toString(fgChar));
+                    }
+                } else if (Character.isWhitespace(fgChar)) {
+                    Color fgFgColor = Color.background(fgStyle);
+
+                    if (fgFgColor == null) {
+                        asb.styled(bgStyle, Character.toString(bgChar));
+                    } else {
+                        asb.styled(fgFgColor.setFG(bgStyle), Character.toString(fgChar));
+                    }
+                } else { // none of them is whitespace
+                    Color bgBgColor = Color.background(bgStyle);
+
+                    if (bgBgColor == null) {
+                        asb.styled(fgStyle, Character.toString(fgChar));
+                    } else {
+                        asb.styled(bgBgColor.setBG(fgStyle), Character.toString(fgChar));
+                    }
                 }
-
-                Color bg = Color.background(bgStyle);
-
-                AttributedStyle style;
-                if (bg != null) {
-                    style = bg.setBG(fgStyle);
-                } else {
-                    style = fgStyle;
-                }
-
-                asb.styled(style, c + "");
             }
 
             strings[y] = asb.toAttributedString();

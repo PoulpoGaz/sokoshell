@@ -19,6 +19,9 @@ public class SolutionCommand extends LevelCommand {
     @Option(names = {"s", "solution"}, hasArgument = true, argName = "Solution index")
     private Integer solution;
 
+    @Option(names = {"n", "no-animation"})
+    private boolean noAnimation;
+
     @Override
     protected int executeImpl(InputStream in, PrintStream out, PrintStream err) throws InvalidArgument {
         Level l = getLevel(pack, level);
@@ -40,10 +43,25 @@ public class SolutionCommand extends LevelCommand {
             s = l.getLastSolution();
         }
 
-        SolutionAnimator animator = new SolutionAnimator(s);
+        if (!noAnimation) {
+            SolutionAnimator animator = new SolutionAnimator(s);
 
-        try (SolutionView view = new SolutionView(helper.getTerminal(), animator)) {
-            view.loop();
+            try (SolutionView view = new SolutionView(helper.getTerminal(), animator)) {
+                view.loop();
+            }
+        } else {
+            List<Move> moves = s.getFullSolution();
+
+            for (Move m : moves) {
+                switch (m.direction()) {
+                    case RIGHT -> out.append('r');
+                    case LEFT -> out.append('l');
+                    case DOWN -> out.append('d');
+                    case UP -> out.append('u');
+                }
+            }
+
+            out.append(System.lineSeparator());
         }
 
         return SUCCESS;

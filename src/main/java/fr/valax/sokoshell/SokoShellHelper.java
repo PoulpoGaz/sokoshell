@@ -171,6 +171,10 @@ public class SokoShellHelper {
      */
     public void addMapStyleReplace(MapStyle mapStyle) {
         styles.put(mapStyle.getName(), mapStyle);
+
+        if (renderer.getStyle().getName().equals(mapStyle.getName())) {
+            renderer.setStyle(mapStyle);
+        }
     }
 
     public MapStyle getMapStyle(String name) {
