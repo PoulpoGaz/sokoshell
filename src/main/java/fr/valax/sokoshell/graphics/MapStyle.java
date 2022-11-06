@@ -96,6 +96,36 @@ public class MapStyle {
         return tileStyles.get(Element.convert(tile, direction));
     }
 
+    public int findBestSize(int size) {
+        int i = findBestSizeIndex(size);
+
+        if (i < 0) {
+            return -1;
+        } else {
+            return availableSizes[i];
+        }
+    }
+
+    private int findBestSizeIndex(int size) {
+        int bestI = -1;
+
+        for (int i = 0; i < availableSizes.length; i++) {
+
+            if (availableSizes[i] == size) {
+                return i;
+            } else if (availableSizes[i] < size) {
+                if (bestI < 0) {
+                    bestI = i;
+                } else if (availableSizes[i] > availableSizes[bestI]) {
+                    bestI = i;
+                }
+            }
+
+        }
+
+        return bestI;
+    }
+
     public int[] availableSizes() {
         return availableSizes;
     }

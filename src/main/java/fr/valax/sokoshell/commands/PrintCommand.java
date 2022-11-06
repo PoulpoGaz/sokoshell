@@ -2,6 +2,7 @@ package fr.valax.sokoshell.commands;
 
 import fr.valax.args.api.Option;
 import fr.valax.args.utils.ArgsUtils;
+import fr.valax.interval.ParseException;
 import fr.valax.interval.Set;
 import fr.valax.sokoshell.graphics.Graphics;
 import fr.valax.sokoshell.graphics.Surface;
@@ -12,6 +13,7 @@ import org.jline.reader.Candidate;
 import org.jline.reader.LineReader;
 import org.jline.terminal.Size;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.Collection;
@@ -32,8 +34,20 @@ public class PrintCommand extends AbstractCommand {
     @Option(names = {"m", "maximize"})
     protected boolean maximize;
 
+    @Option(names = {"d", "player-direction"}, hasArgument = true)
+    protected String direction;
+
+    @Option(names = {"e", "export"})
+    private boolean export;
+
     @Override
     protected int executeImpl(InputStream in, PrintStream out, PrintStream err) throws InvalidArgument {
+        Direction playerDir = Direction.DOWN;
+
+        if (direction != null) {
+            playerDir = parseDirection(direction);
+        }
+
         Collection<Pack> packs = getPacks(this.packs);
 
         if (packs.isEmpty()) {
@@ -58,15 +72,37 @@ public class PrintCommand extends AbstractCommand {
                     Surface surface = new Surface();
                     surface.resize(s.getColumns(), s.getRows());
                     Graphics g = new Graphics(surface);
-                    helper.getRenderer().draw(g, 0, 0, s.getColumns(), s.getRows(), l.getMap(), l.getPlayerX(), l.getPlayerY(), Direction.DOWN);
+                    helper.getRenderer().draw(g, 0, 0, s.getColumns(), s.getRows(), l.getMap(), l.getPlayerX(), l.getPlayerY(), playerDir);
                     surface.drawBuffer();
                 } else {
                     helper.getRenderer().print(out, l);
+                }
+
+                if (export) {
+                    try {
+                        helper.exportPNG(l, 16);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             }
         }
 
         return SUCCESS;
+    }
+
+    private Direction parseDirection(String direction) throws InvalidArgument {
+        if (direction.equalsIgnoreCase("left") || direction.equalsIgnoreCase("l")) {
+            return Direction.LEFT;
+        } else if (direction.equalsIgnoreCase("right") || direction.equalsIgnoreCase("r")) {
+            return Direction.RIGHT;
+        } else if (direction.equalsIgnoreCase("up") || direction.equalsIgnoreCase("u")) {
+            return Direction.UP;
+        } else if (direction.equalsIgnoreCase("down") || direction.equals("d")) {
+            return Direction.DOWN;
+        } else {
+            throw new InvalidArgument("Unknown direction: " + direction);
+        }
     }
 
     @Override
@@ -88,6 +124,11 @@ public class PrintCommand extends AbstractCommand {
     public void completeOption(LineReader reader, String argument, List<Candidate> candidates, Option option) {
         if (ArgsUtils.contains(option.names(), "p")) {
             helper.addPackCandidates(candidates);
+        } else if (ArgsUtils.contains(option.names(), "d")) {
+            candidates.add(new Candidate("left"));
+            candidates.add(new Candidate("right"));
+            candidates.add(new Candidate("up"));
+            candidates.add(new Candidate("down"));
         }
     }
 }

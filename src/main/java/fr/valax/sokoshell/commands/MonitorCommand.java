@@ -11,6 +11,7 @@ import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
 import org.jline.utils.InfoCmp;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.math.BigInteger;
@@ -70,7 +71,8 @@ public class MonitorCommand extends AbstractCommand {
         RIGHT,
         DOWN,
         UP,
-        ENTER
+        ENTER,
+        E
     }
 
     private static class Monitor extends TerminalEngine<Key> {
@@ -112,6 +114,7 @@ public class MonitorCommand extends AbstractCommand {
             keyMap.bind(Key.DOWN, KeyMap.key(terminal, InfoCmp.Capability.key_down));
             keyMap.bind(Key.UP, KeyMap.key(terminal, InfoCmp.Capability.key_up));
             keyMap.bind(Key.ENTER, "\r");
+            keyMap.bind(Key.E, "e");
             keyMap.bind(Key.ESCAPE, KeyMap.esc());
             keyMap.setAmbiguousTimeout(100L);
         }
@@ -257,6 +260,25 @@ public class MonitorCommand extends AbstractCommand {
 
             if (trackable != null) {
                 state = trackable.currentState();
+            }
+
+            if (justPressed(Key.E)) {
+                int playerX = -1;
+                int playerY = -1;
+                if (state != null) {
+                    map.addStateCrates(state);
+                    playerX = map.getX(state.playerPos());
+                    playerY = map.getY(state.playerPos());
+                }
+
+                try {
+                    helper.exportPNG(currentPack, currentLevel, map, playerX, playerY, Direction.DOWN, 16);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                if (state != null) {
+                    map.removeStateCrates(state);
+                }
             }
         }
 

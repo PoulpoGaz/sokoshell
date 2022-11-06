@@ -255,6 +255,16 @@ public abstract class TerminalEngine<T> implements AutoCloseable {
     }
 
     /**
+     * @param t the key
+     * @return {@code true} if the key was just pressed
+     */
+    protected boolean justPressed(T t) {
+        Integer v = occurrences.get(t);
+
+        return v != null && v == 1;
+    }
+
+    /**
      * @return frame per second
      */
     public int getFPS() {

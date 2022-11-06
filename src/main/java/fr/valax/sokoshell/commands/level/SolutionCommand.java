@@ -10,6 +10,7 @@ import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
 import org.jline.utils.InfoCmp;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.List;
@@ -90,7 +91,8 @@ public class SolutionCommand extends LevelCommand {
         UP,
         ENTER,
         SPACE,
-        R
+        R,
+        E
     }
 
     public class SolutionView extends TerminalEngine<Key> {
@@ -119,6 +121,7 @@ public class SolutionCommand extends LevelCommand {
             keyMap.bind(Key.ENTER, "\r");
             keyMap.bind(Key.SPACE, " ");
             keyMap.bind(Key.R, "r");
+            keyMap.bind(Key.E, "e");
             keyMap.bind(Key.ESCAPE, KeyMap.esc());
             keyMap.setAmbiguousTimeout(100L);
         }
@@ -221,6 +224,16 @@ public class SolutionCommand extends LevelCommand {
                 }
             } else if (pressed(Key.R)) {
                 animator.reset();
+            } else if (justPressed(Key.E)) {
+                SolverReport report = animator.getSolution();
+                Level level = report.getLevel();
+
+                try {
+                    helper.exportPNG(level.getPack(), level, animator.getMap(),
+                            animator.getPlayerX(), animator.getPlayerY(), animator.getLastMove());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
 
@@ -402,6 +415,10 @@ public class SolutionCommand extends LevelCommand {
             }
 
             return path.get(pathIndex - 1).direction();
+        }
+
+        public SolverReport getSolution() {
+            return solution;
         }
     }
 }

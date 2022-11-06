@@ -471,6 +471,24 @@ public class SolverReport {
         return status;
     }
 
+    /**
+     * Returns the level that was given to the solver
+     *
+     * @return the level that was given to the solver
+     */
+    public Level getLevel() {
+        return parameters.getLevel();
+    }
+
+
+    /**
+     * Returns the pack of the level that was given to the solver
+     *
+     * @return the pack of the level that was given to the solver
+     */
+    public Pack getPack() {
+        return parameters.getLevel().getPack();
+    }
 
     /**
      * Used by {@link #findPath(Map, int, int, int, int)} to find a path. It represents

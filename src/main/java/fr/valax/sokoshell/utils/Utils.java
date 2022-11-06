@@ -111,6 +111,45 @@ public class Utils {
         return FORMAT.format(d);
     }
 
+    public static Path checkExists(Path path) {
+        if (Files.exists(path)) {
+            String p = path.getFileName().toString();
+            int dot = p.indexOf('.');
+
+            String fileName;
+            String extension;
+
+            if (dot < 0) {
+                fileName = p;
+                extension = "";
+            } else {
+                fileName = p.substring(0, dot);
+                extension = p.substring(dot); // keep dot
+            }
+
+            int i = 1;
+            Path parent = path.getParent();
+            Path newPath = resolve(parent, fileName + "_" + i + extension);
+            while (Files.exists(newPath)) {
+                i++;
+                newPath = resolve(parent, fileName + "_" + i + extension);
+            }
+
+            return newPath;
+        }
+
+        return path;
+    }
+
+    private static Path resolve(Path parent, String s) {
+        if (parent == null) {
+            return Path.of(s);
+        } else {
+            return parent.resolve(s);
+        }
+    }
+
+
     public static void shutdownExecutors() {
         SOKOSHELL_EXECUTOR.shutdown();
         SCHEDULED_EXECUTOR.shutdown();

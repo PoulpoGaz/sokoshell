@@ -186,35 +186,7 @@ public class MapRenderer {
     }
 
     public int findBestSize(int size) {
-        int i = findBestSizeIndex(size);
-
-        if (i < 0) {
-            return -1;
-        } else {
-            return style.availableSizes()[i];
-        }
-    }
-
-    private int findBestSizeIndex(int size) {
-        int[] sizes = style.availableSizes();
-
-        int bestI = -1;
-
-        for (int i = 0; i < sizes.length; i++) {
-
-            if (sizes[i] == size) {
-                return i;
-            } else if (sizes[i] < size) {
-                if (bestI < 0) {
-                    bestI = i;
-                } else if (sizes[i] > sizes[bestI]) {
-                    bestI = i;
-                }
-            }
-
-        }
-
-        return bestI;
+        return style.findBestSize(size);
     }
 
     public MapStyle getStyle() {

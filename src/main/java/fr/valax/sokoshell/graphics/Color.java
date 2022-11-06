@@ -56,6 +56,26 @@ public class Color {
         return null;
     }
 
+    public static java.awt.Color awtForeground(AttributedStyle style) {
+        Color foreground = foreground(style);
+
+        if (foreground == null) {
+            return null;
+        } else {
+            return foreground.asAWTColor();
+        }
+    }
+
+    public static java.awt.Color awtBackground(AttributedStyle style) {
+        Color background = background(style);
+
+        if (background == null) {
+            return null;
+        } else {
+            return background.asAWTColor();
+        }
+    }
+
     private final int index;
     private final int red;
     private final int green;
@@ -113,5 +133,9 @@ public class Color {
 
     public int getBlue() {
         return blue;
+    }
+
+    public java.awt.Color asAWTColor() {
+        return new java.awt.Color(red, green, blue);
     }
 }

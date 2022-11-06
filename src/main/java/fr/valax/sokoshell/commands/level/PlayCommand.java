@@ -2,15 +2,13 @@ package fr.valax.sokoshell.commands.level;
 
 import fr.valax.sokoshell.graphics.MapRenderer;
 import fr.valax.sokoshell.graphics.TerminalEngine;
-import fr.valax.sokoshell.solver.Direction;
-import fr.valax.sokoshell.solver.Level;
-import fr.valax.sokoshell.solver.Map;
-import fr.valax.sokoshell.solver.Tile;
+import fr.valax.sokoshell.solver.*;
 import org.jline.keymap.KeyMap;
 import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
 import org.jline.utils.InfoCmp;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 
@@ -25,7 +23,7 @@ public class PlayCommand extends LevelCommand {
 
         PlayCommand.GameController controller = new PlayCommand.GameController(l);
 
-        try (PlayCommand.PlayView view = new PlayCommand.PlayView(helper.getTerminal(), controller)) {
+        try (PlayCommand.PlayView view = new PlayCommand.PlayView(helper.getTerminal(), l, controller)) {
             view.loop();
         }
 
@@ -50,15 +48,18 @@ public class PlayCommand extends LevelCommand {
         RIGHT,
         DOWN,
         UP,
-        ENTER
+        ENTER,
+        E
     }
 
     public class PlayView extends TerminalEngine<Key> {
 
+        private final Level level;
         private final GameController controller;
 
-        public PlayView(Terminal terminal, GameController controller) {
+        public PlayView(Terminal terminal, Level level, GameController controller) {
             super(terminal);
+            this.level = level;
             this.controller = controller;
         }
 
@@ -69,6 +70,7 @@ public class PlayCommand extends LevelCommand {
             keyMap.bind(PlayCommand.Key.DOWN, KeyMap.key(terminal, InfoCmp.Capability.key_down));
             keyMap.bind(PlayCommand.Key.UP, KeyMap.key(terminal, InfoCmp.Capability.key_up));
             keyMap.bind(PlayCommand.Key.ENTER, "\r");
+            keyMap.bind(PlayCommand.Key.E, "e");
             keyMap.bind(PlayCommand.Key.ESCAPE, KeyMap.esc());
             keyMap.setAmbiguousTimeout(100L);
         }
@@ -126,6 +128,18 @@ public class PlayCommand extends LevelCommand {
                 controller.move(Direction.UP);
             } else if (pressed(PlayCommand.Key.DOWN)) {
                 controller.move(Direction.DOWN);
+            } else if (justPressed(PlayCommand.Key.E)) {
+                Direction lastMove = controller.getLastDir();
+                if (lastMove == null) {
+                    lastMove = Direction.DOWN;
+                }
+
+                try {
+                    helper.exportPNG(level.getPack(), level, controller.getMap(),
+                            controller.getPlayerX(), controller.getPlayerY(), lastMove);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
     }

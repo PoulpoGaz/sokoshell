@@ -226,7 +226,7 @@ public class SokoShell {
             return false;
         } catch (UserInterruptException e) {
             return !reading;
-        } catch (IOException | CommandLineException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }

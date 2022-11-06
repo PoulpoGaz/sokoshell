@@ -4,13 +4,19 @@ import fr.poulpogaz.json.JsonException;
 import fr.valax.args.CommandLine;
 import fr.valax.sokoshell.graphics.MapRenderer;
 import fr.valax.sokoshell.graphics.MapStyle;
+import fr.valax.sokoshell.solver.Direction;
 import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.solver.Pack;
 import fr.valax.sokoshell.solver.Solver;
+import fr.valax.sokoshell.utils.Utils;
 import org.jline.reader.Candidate;
 import org.jline.terminal.Terminal;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 
 /**
@@ -19,12 +25,15 @@ import java.util.*;
  */
 public class SokoShellHelper {
 
+    private static final Path exportFolder = Path.of("export");
+
     public static final SokoShellHelper INSTANCE = new SokoShellHelper();
 
     private final Map<String, Pack> packs = new HashMap<>();
     private final Map<String, MapStyle> styles = new HashMap<>();
 
     private final MapRenderer renderer = new MapRenderer();
+    private final PNGExporter exporter = new PNGExporter();
 
     private CommandLine cli;
     private Terminal terminal;
@@ -39,6 +48,7 @@ public class SokoShellHelper {
     private SokoShellHelper() {
         addMapStyle(MapStyle.DEFAULT_STYLE);
         renderer.setStyle(MapStyle.DEFAULT_STYLE);
+        exporter.setMapStyle(MapStyle.DEFAULT_STYLE);
 
         taskList = new TaskList();
     }
@@ -58,6 +68,44 @@ public class SokoShellHelper {
 
     public TaskList getTaskList() {
         return taskList;
+    }
+
+    // export
+
+    public void exportPNG(Level level, int size) throws IOException {
+        exportPNG(level.getPack(), level, level.getMap(), level.getPlayerX(), level.getPlayerY(), Direction.DOWN, size);
+    }
+
+    public void exportPNG(Pack pack, Level level, fr.valax.sokoshell.solver.Map map,
+                          int playerX, int playerY, Direction playerDir)
+            throws IOException {
+        exportPNG(pack, level, map, playerX, playerY, playerDir, 16);
+    }
+
+    public void exportPNG(Pack pack, Level level, fr.valax.sokoshell.solver.Map map,
+                          int playerX, int playerY, Direction playerDir, int size)
+            throws IOException {
+        BufferedImage image = exporter.asImage(map, playerX, playerY, playerDir, size);
+
+        Path out;
+        if (pack == null && level == null) {
+            out = exportFolder.resolve("level.png");
+        } else if (pack != null && level == null) {
+            out = exportFolder.resolve(pack.name() + ".png");
+        } else if (pack == null) {
+            out = exportFolder.resolve(level.getIndex() + ".png");
+        } else {
+            out = exportFolder.resolve(pack.name() + "_" + level.getIndex() + ".png");
+        }
+
+        out = Utils.checkExists(out);
+
+        Path parent = out.getParent();
+        if (pack != null && Files.notExists(parent)) {
+            Files.createDirectories(parent);
+        }
+
+        ImageIO.write(image, "png", out.toFile());
     }
 
     // packs
@@ -174,6 +222,7 @@ public class SokoShellHelper {
 
         if (renderer.getStyle().getName().equals(mapStyle.getName())) {
             renderer.setStyle(mapStyle);
+            exporter.setMapStyle(mapStyle);
         }
     }
 
@@ -193,6 +242,7 @@ public class SokoShellHelper {
 
     public void setMapStyle(MapStyle style) {
         renderer.setStyle(style);
+        exporter.setMapStyle(style);
     }
 
     public Collection<MapStyle> getMapStyles() {
@@ -204,6 +254,9 @@ public class SokoShellHelper {
         return renderer;
     }
 
+    public PNGExporter getExporter() {
+        return exporter;
+    }
 
 
     public Terminal getTerminal() {
