@@ -57,6 +57,8 @@ public abstract class TerminalEngine<T> implements AutoCloseable {
     protected final Surface surface;
     protected final Graphics graphics;
 
+    private Component rootComponent;
+
     // input
     private final Object LOCK = new Object();
 
@@ -156,10 +158,8 @@ public abstract class TerminalEngine<T> implements AutoCloseable {
      * The main loop.
      * It calls 60 times the update function.
      * The render function is not regulated.
-     *
      * It automatically, resize the surface and the display.
      * The terminal is also cleared.
-     *
      * After updating, key events are reset and then pooled from
      * the input thread.
      */
@@ -182,6 +182,9 @@ public abstract class TerminalEngine<T> implements AutoCloseable {
             delta += (double) (now - lastTime) / ns;
 
             for (lastTime = now; delta >= 1.0; delta--) {
+                if (rootComponent != null) {
+                    rootComponent.update();
+                }
                 update();
                 resetOccurrences();
                 pollEvents();
@@ -192,12 +195,25 @@ public abstract class TerminalEngine<T> implements AutoCloseable {
             Size size = terminal.getSize();
             display.resize(size.getRows(), size.getColumns());
             surface.resize(size.getColumns(), size.getRows());
+            surface.setTranslation(0, 0);
+            surface.setClip(0, 0, size.getColumns(), size.getRows());
 
             if (lastSize != null && !lastSize.equals(size)) {
                 display.clear();
             }
 
-            render(size);
+            if (rootComponent != null) {
+                surface.clear();
+                rootComponent.setSize(size.getColumns(), size.getRows());
+                rootComponent.draw(surface, graphics);
+            }
+
+            int cursor = render(size);
+
+            if (cursor >= 0) {
+                surface.drawBuffer(display, cursor);
+            }
+
             fps++;
             if (System.currentTimeMillis() - timer > 1000) {
                 timer += 1000;
@@ -225,8 +241,9 @@ public abstract class TerminalEngine<T> implements AutoCloseable {
      * the {@link Surface} and {@link Graphics} object
      *
      * @param size terminal size
+     * @return an integer indicating the position of cursor or negative to prevent drawing
      */
-    protected abstract void render(Size size);
+    protected abstract int render(Size size);
 
     /**
      * Called 60 times per seconds by {@link #loop()}.
@@ -276,6 +293,31 @@ public abstract class TerminalEngine<T> implements AutoCloseable {
      */
     public int getTPS() {
         return tps;
+    }
+
+    public Component getRootComponent() {
+        return rootComponent;
+    }
+
+    public void setRootComponent(Component rootComponent) {
+        if (this.rootComponent != rootComponent) {
+            if (!rootComponent.isRoot()) {
+                throw new IllegalArgumentException("Not root");
+            }
+
+            this.rootComponent = rootComponent;
+            setTerminal(rootComponent);
+        }
+    }
+
+    private void setTerminal(Component component) {
+        component.terminal = terminal;
+        component.engine = this;
+
+        List<Component> comps = component.components;
+        for (int i = 0; i < comps.size(); i++) {
+            setTerminal(comps.get(i));
+        }
     }
 
     /**

@@ -127,7 +127,7 @@ public class SolutionCommand extends LevelCommand {
         }
 
         @Override
-        protected void render(Size size) {
+        protected int render(Size size) {
             surface.clear();
 
             int width = drawInfo(size.getColumns(), size.getRows());
@@ -143,7 +143,7 @@ public class SolutionCommand extends LevelCommand {
             renderer.draw(graphics, 0, 0, size.getColumns() - width, size.getRows(),
                     map, animator.getPlayerX(), animator.getPlayerY(), lastMove);
 
-            surface.drawBuffer(display, 0);
+            return 0;
         }
 
         private int drawInfo(int width, int height) {

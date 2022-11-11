@@ -1,5 +1,6 @@
 package fr.valax.sokoshell.graphics;
 
+import fr.valax.graph.ScatterPlotPoint;
 import org.jline.keymap.KeyMap;
 import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
@@ -9,8 +10,10 @@ import org.jline.utils.*;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -33,6 +36,10 @@ public class Surface {
     private int height = 0;
 
     private AttributedString background = new AttributedString(" ");
+
+    private int tx;
+    private int ty;
+    private Rectangle clip = new Rectangle(0, 0, 65536, 65536);
 
     public Surface() {
         builders = new AttributedStringBuilder[0];
@@ -113,7 +120,13 @@ public class Surface {
         if (str.columnLength() == 1) {
             draw(str, x, y);
         } else if (str.columnLength() > 1) {
-            set(str.substring(0, 1), x, y);
+            AttributedString sub = str.subSequence(0, 1);
+
+            if (sub.columnLength() > 1) {
+                throw new IllegalArgumentException();
+            }
+
+            draw(sub, x, y);
         }
     }
 
@@ -144,29 +157,50 @@ public class Surface {
      * @param y destination y
      */
     public void draw(AttributedString str, int x, int y) {
+        int len = str.columnLength();
+
         if (str.length() != str.columnLength()) {
             throw new IllegalArgumentException("Attempting to draw a string that contains non 1-column-length char");
         }
 
-        int endX = x + str.columnLength();
+        int origDrawX = x + tx;
+        int drawY = y + ty;
+        int origEndX = origDrawX + len;
 
-        if (y < 0 || y >= height || endX < 0 || x >= width) {
+        if (drawY < clip.y || drawY >= clip.y + clip.height || drawY < 0 || drawY >= height) {
             return;
         }
 
-        int drawX = x;
-        int start = 0;
-        if (x < 0) {
-            start = -x;
-            drawX = 0;
+        int drawX = origDrawX;
+        int endX = origEndX;
+
+        int minX = Math.max(clip.x, 0);
+        if (drawX < minX) {
+            drawX = minX;
         }
 
-        int end = str.length();
-        if (endX > width) {
-            end = end - (endX - width);
+        int maxX = Math.min(width, clip.x + clip.width);
+        if (endX >= maxX) {
+            endX = maxX;
         }
 
-        drawUnchecked(str.substring(start, end), drawX, y);
+        if (drawX >= endX) {
+            return;
+        }
+
+        try {
+            drawUnchecked(str.substring(drawX - origDrawX, endX - origDrawX), drawX, drawY);
+        } catch (IndexOutOfBoundsException | InvalidParameterException e) {
+            System.out.println(str);
+            System.out.println(origDrawX + " - " + origEndX);
+            System.out.println(drawX + " - " + endX);
+            System.out.println((drawX - origDrawX + " - " + (endX - drawX)));
+            System.out.println(clip);
+            System.out.println(tx + " - " + ty);
+            e.printStackTrace();
+
+            System.exit(0);
+        }
     }
 
     /**
@@ -230,6 +264,46 @@ public class Surface {
         }
     }
 
+    public void translate(int tx, int ty) {
+        this.tx += tx;
+        this.ty += ty;
+    }
+
+    public void setTranslation(int x, int y) {
+        tx = x;
+        ty = y;
+    }
+
+    public int getTx() {
+        return tx;
+    }
+
+    public int getTy() {
+        return ty;
+    }
+
+    /**
+     * set clip. clip are translated
+     */
+    public void setClip(int x, int y, int width, int height) {
+        clip.setBounds(tx + x, ty + y, width, height);
+    }
+
+    /**
+     * intersect clips. clip are translated
+     */
+    public void intersectClip(int x, int y, int width, int height) {
+        clip.setBounds(clip.intersection(tx + x, ty + y, width, height));
+    }
+
+    public void setClip(Rectangle clip) {
+        this.clip.setBounds(clip);
+    }
+
+    public Rectangle getClip() {
+        return new Rectangle(clip);
+    }
+
     public String toString() {
         StringBuilder sb = new StringBuilder();
 
@@ -286,7 +360,7 @@ public class Surface {
 
             g = new Graphics(surface);
             try {
-                img = ImageIO.read(TestClass.class.getResourceAsStream("/tileset.png"));
+                img = ImageIO.read(new File("styles/isekai/tileset.png"));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -296,8 +370,9 @@ public class Surface {
         }
 
         @Override
-        protected void render(Size size) {
+        protected int render(Size size) {
             surface.clear();
+            surface.setClip(0, 0, size.getColumns(), size.getRows());
             surface.draw(AttributedString.fromAnsi("hello world!"), 5, 5);
             surface.draw(AttributedString.fromAnsi("oooooooorld!"), 13, 5);
             surface.draw(AttributedString.fromAnsi("aqzsedrftgHello world!"), -10, 0);
@@ -328,22 +403,30 @@ public class Surface {
 
             g.drawLine(0, 0, surface.getWidth(), surface.getHeight());
 
+            surface.translate(100, 10);
             g.setChar(' ');
             g.setStyle(AttributedStyle.DEFAULT.background(AttributedStyle.YELLOW));
-            g.fillRectangle(100, 10, 50, 10);
+            g.fillRectangle(0, 0, 50, 10);
 
+            surface.translate(10, 2);
             g.setStyle(AttributedStyle.DEFAULT.background(AttributedStyle.MAGENTA));
-            g.drawRectangle(110, 12, 30, 6);
+            g.drawRectangle(0, 0, 30, 6);
+            surface.translate(-110, -12);
 
             surface.draw(new AttributedString("FPS: " + getFPS()), 0, surface.getHeight() - 2);
             surface.draw(new AttributedString("TPS: " + getTPS()), 0, surface.getHeight() - 1);
             g.drawImage(img, 50, 20);
 
+            surface.translate(0, 40);
 
+            Rectangle old = surface.getClip();
+            surface.setClip(0, 0, 10, 20);
             g.setPaint(new RadialGradient(java.awt.Color.RED, java.awt.Color.BLUE));
-            g.fillRectangle(0, 40, 20, 20);
+            g.fillRectangle(0, 0, 20, 20);
+            surface.setClip(old);
+            surface.translate(0, -40);
 
-            surface.drawBuffer(display, 0);
+            return 0;
         }
 
         @Override

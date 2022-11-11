@@ -11,6 +11,7 @@ import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
 import org.jline.utils.InfoCmp;
 
+import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -120,7 +121,7 @@ public class MonitorCommand extends AbstractCommand {
         }
 
         @Override
-        protected void render(Size size) {
+        protected int render(Size size) {
             surface.clear();
 
             drawHeaderAndFooter(size);
@@ -129,6 +130,8 @@ public class MonitorCommand extends AbstractCommand {
             }
 
             surface.drawBuffer(display, 0);
+
+            return 0;
         }
 
         private void drawMap(Size size) {

@@ -97,6 +97,7 @@ public class SokoShell {
                 .addDefaultConverters()
                 .setHelpFormatter(new REPLHelpFormatter())
 
+                .addCommand(new TestCommand())
                 .addCommand(new SolveCommand())    // the most important command!
                 .addCommand(new CancelCommand())
                 .addCommand(new MonitorCommand())
