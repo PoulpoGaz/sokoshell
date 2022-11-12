@@ -88,14 +88,15 @@ public class TestCommand extends AbstractCommand {
             return label;
         }
 
-        @Override
         protected int render(Size size) {
             if (debugInfo) {
                 Component root = getRootComponent();
                 print(root, 0, size.getRows());
+
+                return 0;
             }
 
-            return 0;
+            return -1;
         }
 
         private int print(Component component, int y, int maxY) {
@@ -127,7 +128,6 @@ public class TestCommand extends AbstractCommand {
             return "(x=%d; y=%d; w=%d; h=%d)".formatted(c.getX(), c.getY(), c.getWidth(), c.getHeight());
         }
 
-        @Override
         protected void update() {
             if (pressed(Key.ESCAPE)) {
                 running = false;

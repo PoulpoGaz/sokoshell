@@ -373,7 +373,6 @@ public class Surface {
             keyMap.bind(KeyEvent.UP, KeyMap.key(terminal, InfoCmp.Capability.key_up));
         }
 
-        @Override
         protected int render(Size size) {
             surface.clear();
             surface.setClip(0, 0, size.getColumns(), size.getRows());
@@ -433,7 +432,6 @@ public class Surface {
             return 0;
         }
 
-        @Override
         protected void update() {
             surface.resize(terminal.getWidth(), terminal.getHeight());
         }

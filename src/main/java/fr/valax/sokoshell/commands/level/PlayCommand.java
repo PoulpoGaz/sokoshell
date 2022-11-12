@@ -75,7 +75,6 @@ public class PlayCommand extends LevelCommand {
             keyMap.setAmbiguousTimeout(100L);
         }
 
-        @Override
         protected int render(Size size) {
             surface.clear();
 
@@ -116,7 +115,6 @@ public class PlayCommand extends LevelCommand {
             return Math.max(moves.length(), pushes.length());
         }
 
-        @Override
         protected void update() {
             if (pressed(PlayCommand.Key.ESCAPE) || pressed(PlayCommand.Key.ENTER)) {
                 running = false;

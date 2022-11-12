@@ -156,8 +156,7 @@ public abstract class TerminalEngine<T> implements AutoCloseable {
 
     /**
      * The main loop.
-     * It calls 60 times the update function.
-     * The render function is not regulated.
+     * It calls 60 times the update and render function.
      * It automatically, resize the surface and the display.
      * The terminal is also cleared.
      * After updating, key events are reset and then pooled from
@@ -169,7 +168,6 @@ public abstract class TerminalEngine<T> implements AutoCloseable {
         double delta = 0.0;
 
         long timer = System.currentTimeMillis();
-        int fps = 0;
         int tps = 0;
 
         running = true;
@@ -182,51 +180,52 @@ public abstract class TerminalEngine<T> implements AutoCloseable {
             delta += (double) (now - lastTime) / ns;
 
             for (lastTime = now; delta >= 1.0; delta--) {
+
+                // update
                 if (rootComponent != null) {
                     rootComponent.update();
                 }
-                update();
                 resetOccurrences();
                 pollEvents();
 
+
+                // draw
+                Size size = terminal.getSize();
+
+                display.resize(size.getRows(), size.getColumns());
+                surface.resize(size.getColumns(), size.getRows());
+                surface.setTranslation(0, 0);
+                surface.setClip(0, 0, size.getColumns(), size.getRows());
+
+                if (lastSize != null && !lastSize.equals(size)) {
+                    display.clear();
+                }
+
+                if (rootComponent != null) {
+                    surface.clear();
+                    rootComponent.setSize(size.getColumns(), size.getRows());
+
+                    if (rootComponent.repaint) {
+                        drawComponents();
+                        surface.drawBuffer(display, 0);
+                    }
+                }
+
+                lastSize = size;
                 tps++;
             }
 
-            Size size = terminal.getSize();
-            display.resize(size.getRows(), size.getColumns());
-            surface.resize(size.getColumns(), size.getRows());
-            surface.setTranslation(0, 0);
-            surface.setClip(0, 0, size.getColumns(), size.getRows());
 
-            if (lastSize != null && !lastSize.equals(size)) {
-                display.clear();
-            }
-
-            if (rootComponent != null) {
-                surface.clear();
-                rootComponent.setSize(size.getColumns(), size.getRows());
-                rootComponent.draw(graphics);
-            }
-
-            int cursor = render(size);
-
-            if (cursor >= 0) {
-                surface.drawBuffer(display, cursor);
-            }
-
-            fps++;
             if (System.currentTimeMillis() - timer > 1000) {
                 timer += 1000;
-
-                this.fps = fps;
                 this.tps = tps;
-
-                fps = 0;
                 tps = 0;
             }
-
-            lastSize = size;
         }
+    }
+
+    protected void drawComponents() {
+        rootComponent.draw(graphics);
     }
 
     /**
@@ -234,22 +233,6 @@ public abstract class TerminalEngine<T> implements AutoCloseable {
      * It is used to bind keys
      */
     protected abstract void init();
-
-    /**
-     * Called as often as possible by {@link #loop()}.
-     * It is used to draw on the screen. Implementations can use
-     * the {@link Surface} and {@link Graphics} object
-     *
-     * @param size terminal size
-     * @return an integer indicating the position of cursor or negative to prevent drawing
-     */
-    protected abstract int render(Size size);
-
-    /**
-     * Called 60 times per seconds by {@link #loop()}.
-     * It is used to read binding and update objets
-     */
-    protected abstract void update();
 
     /**
      * @param t the key
@@ -306,17 +289,7 @@ public abstract class TerminalEngine<T> implements AutoCloseable {
             }
 
             this.rootComponent = rootComponent;
-            setTerminal(rootComponent);
-        }
-    }
-
-    private void setTerminal(Component component) {
-        component.terminal = terminal;
-        component.engine = this;
-
-        List<Component> comps = component.components;
-        for (int i = 0; i < comps.size(); i++) {
-            setTerminal(comps.get(i));
+            rootComponent.setTerminal(terminal, this);
         }
     }
 

@@ -58,6 +58,7 @@ public class MemoryBar extends Component {
             percent = (float) usage.getUsed() / usage.getCommitted();
 
             lastTime = System.currentTimeMillis();
+            repaint();
         }
     }
 
@@ -67,7 +68,10 @@ public class MemoryBar extends Component {
 
     @Override
     protected Dimension compPreferredSize() {
-        return new Dimension(20, 1);
+        MemoryUsage mem = getMemoryUsage();
+        String text = asMegaByte(mem.getCommitted()) + " of " + asMegaByte(mem.getCommitted()) + "M";
+
+        return new Dimension(text.length(), 1);
     }
 
     private MemoryUsage getMemoryUsage() {

@@ -126,7 +126,6 @@ public class SolutionCommand extends LevelCommand {
             keyMap.setAmbiguousTimeout(100L);
         }
 
-        @Override
         protected int render(Size size) {
             surface.clear();
 
@@ -189,7 +188,6 @@ public class SolutionCommand extends LevelCommand {
             );
         }
 
-        @Override
         protected void update() {
             if (!paused) {
                 animate();

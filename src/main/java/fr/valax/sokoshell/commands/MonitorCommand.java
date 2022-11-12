@@ -120,7 +120,6 @@ public class MonitorCommand extends AbstractCommand {
             keyMap.setAmbiguousTimeout(100L);
         }
 
-        @Override
         protected int render(Size size) {
             surface.clear();
 
@@ -251,7 +250,6 @@ public class MonitorCommand extends AbstractCommand {
             surface.draw(str, (width - str.length()) / 2, y);
         }
 
-        @Override
         protected void update() {
             if (pressed(Key.ESCAPE)) {
                 running = false;

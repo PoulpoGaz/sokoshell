@@ -3,6 +3,7 @@ package fr.valax.sokoshell.graphics;
 import org.jline.utils.AttributedString;
 
 import java.awt.*;
+import java.util.Objects;
 
 public class Label extends Component {
 
@@ -83,11 +84,14 @@ public class Label extends Component {
     }
 
     public void setText(AttributedString text) {
-        this.text = text;
+        if (!Objects.equals(text, this.text)) {
+            this.text = text;
+            repaint();
+        }
     }
 
     public void setText(String text) {
-        this.text = new AttributedString(text);
+        setText(new AttributedString(text));
     }
 
     public AttributedString getText() {
@@ -103,7 +107,10 @@ public class Label extends Component {
             throw new IllegalArgumentException("Horizontal alignment should be one of Label.CENTER, Label.WEST, Label.EAST");
         }
 
-        this.horizAlign = horizAlign;
+        if (horizAlign != this.horizAlign) {
+            this.horizAlign = horizAlign;
+            repaint();
+        }
     }
 
     public int getVertAlign() {
@@ -115,6 +122,9 @@ public class Label extends Component {
             throw new IllegalArgumentException("Vertical alignment should be one of Label.CENTER, Label.NORTH, Label.SOUTH");
         }
 
-        this.vertAlign = vertAlign;
+        if (vertAlign != this.vertAlign) {
+            this.vertAlign = vertAlign;
+            repaint();
+        }
     }
 }

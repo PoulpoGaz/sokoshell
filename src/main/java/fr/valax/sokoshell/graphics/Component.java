@@ -33,14 +33,21 @@ public class Component {
     private boolean valid = false;
     private final ComponentListener componentListener;
 
+    boolean repaint = true;
+
     private Dimension prefSize;
     private boolean prefSizeSet;
 
     public Component() {
-        componentListener = comp -> invalidate();
+        componentListener = comp -> {
+            invalidate();
+            repaint();
+        };
     }
 
     public void draw(Graphics g) {
+        repaint = false;
+
         if (isVisible() && getHeight() > 0 && getWidth() > 0) {
             drawBorder(g);
             drawComponent(g);
@@ -90,6 +97,17 @@ public class Component {
         }
     }
 
+    /**
+     * When called, the next pass will repaint all components
+     */
+    public void repaint() {
+        repaint = true;
+
+        if (parent != null && !parent.repaint) {
+            parent.repaint();
+        }
+    }
+
     //
     // Layout
     //
@@ -135,6 +153,10 @@ public class Component {
                 layout.addComponent(component, constraints);
             }
 
+            if (terminal != null || component.terminal != null) {
+                component.setTerminal(terminal, engine);
+            }
+
             component.addComponentListener(componentListener);
             invalidate();
         }
@@ -161,6 +183,7 @@ public class Component {
 
     public boolean remove(Component component) {
         if (component != null && components.remove(component)) {
+            component.setTerminal(null, null);
             invalidate();
             return true;
         } else {
@@ -337,5 +360,19 @@ public class Component {
 
     public ComponentListener[] getComponentListeners() {
         return listeners.getListeners(ComponentListener.class);
+    }
+
+
+
+
+
+
+    void setTerminal(Terminal terminal, TerminalEngine<?> engine) {
+        this.terminal = terminal;
+        this.engine = engine;
+
+        for (int i = 0; i < components.size(); i++) {
+            components.get(i).setTerminal(terminal, engine);
+        }
     }
 }
