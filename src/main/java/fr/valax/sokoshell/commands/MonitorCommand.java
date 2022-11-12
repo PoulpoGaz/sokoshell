@@ -11,7 +11,6 @@ import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
 import org.jline.utils.InfoCmp;
 
-import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -31,11 +30,11 @@ public class MonitorCommand extends AbstractCommand {
         }
 
 
-        Exception ex = null;
+        /*Exception ex = null;
         State last = null;
         try (Monitor monitor = new Monitor(helper.getTerminal(), helper, runningTask)) {
             try {
-                monitor.loop();
+                monitor.show();
             } catch (Exception e) { // due to the voluntary lack of synchronization, actually never happen
                 ex = e;
                 last = monitor.state;
@@ -45,7 +44,7 @@ public class MonitorCommand extends AbstractCommand {
         if (ex != null) {
             ex.printStackTrace(err);
             err.println(last);
-        }
+        }*/
 
         return 0;
     }
@@ -76,7 +75,7 @@ public class MonitorCommand extends AbstractCommand {
         E
     }
 
-    private static class Monitor extends TerminalEngine<Key> {
+    /*private static class Monitor extends TerminalEngine<Key> {
 
         private final SokoShellHelper helper;
         private final SolverTask task;
@@ -109,7 +108,7 @@ public class MonitorCommand extends AbstractCommand {
         }
 
         @Override
-        protected void init() {
+        protected void start() {
             keyMap.bind(Key.LEFT, KeyMap.key(terminal, InfoCmp.Capability.key_left));
             keyMap.bind(Key.RIGHT, KeyMap.key(terminal, InfoCmp.Capability.key_right));
             keyMap.bind(Key.DOWN, KeyMap.key(terminal, InfoCmp.Capability.key_down));
@@ -251,7 +250,7 @@ public class MonitorCommand extends AbstractCommand {
         }
 
         protected void update() {
-            if (pressed(Key.ESCAPE)) {
+            if (keyPressed(Key.ESCAPE)) {
                 running = false;
             }
 
@@ -311,7 +310,7 @@ public class MonitorCommand extends AbstractCommand {
          * <br>
          * (f c) counts the number of way to organize the crate (c) and the player ( + 1)<br>
          */
-        private BigInteger estimateMaxNumberOfStates(Map map) {
+        /*private BigInteger estimateMaxNumberOfStates(Map map) {
             int nCrate = 0;
             int nFloor = 0;
 
@@ -362,5 +361,5 @@ public class MonitorCommand extends AbstractCommand {
     }
 
 
-    private record Tuple(BigInteger a, BigInteger b, BigInteger c) {}
+    private record Tuple(BigInteger a, BigInteger b, BigInteger c) {}*/
 }

@@ -11,17 +11,14 @@ import org.jline.utils.InfoCmp;
 
 import java.io.IOError;
 import java.io.InterruptedIOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Future;
 
 /**
  * TerminalEngine is an object used to facilitate drawing
  * and input reading in fullscreen mode.
  *
- * It's divided in three methods: {@link TerminalEngine#init()},
+ * It's divided in three methods: {@link TerminalEngine#start()},
  * {@link TerminalEngine#render(Size)} and {@link TerminalEngine#update()}
  *
  * In the init method, you define shortcuts.
@@ -41,117 +38,39 @@ import java.util.concurrent.Future;
  *         engine.loop();
  *     }
  * </pre>
- *
- * @param <T> type of binding
  */
-public abstract class TerminalEngine<T> implements AutoCloseable {
+public class TerminalEngine implements AutoCloseable {
 
     public static final int TPS = 60;
 
     // old state
-    private final Attributes attr;
+    private Attributes attr;
 
     // drawing
     protected final Terminal terminal;
-    protected final Display display;
-    protected final Surface surface;
-    protected final Graphics graphics;
+    protected Display display;
+    protected Surface surface;
+    protected Graphics graphics;
 
     private Component rootComponent;
 
     // input
     private final Object LOCK = new Object();
 
-    private final BindingReader reader;
-    private final List<T> keyEvents;
-    protected final KeyMap<T> keyMap;
-    protected final Map<T, Integer> occurrences;
+    private BindingReader reader;
+    private final ArrayDeque<Key> keyEvents = new ArrayDeque<>();
+    protected final KeyMap<Key> keyMap = new KeyMap<>();
+    protected final Map<Key, KeyInfo> keyInfos = new HashMap<>();
 
     private Future<?> readerFuture;
 
 
     // state
     protected boolean running;
-
-    protected int fps;
     protected int tps;
 
     public TerminalEngine(Terminal terminal) {
-        this.terminal = terminal;
-        this.display = new Display(terminal, true);
-        display.setDelayLineWrap(false);
-
-        keyMap = new KeyMap<>();
-        reader = new BindingReader(terminal.reader());
-        keyEvents = new ArrayList<>();
-        occurrences = new HashMap<>();
-
-        init();
-
-        attr = terminal.enterRawMode();
-
-        terminal.puts(InfoCmp.Capability.enter_ca_mode);
-        terminal.puts(InfoCmp.Capability.keypad_xmit);
-        terminal.writer().flush();
-
-        display.clear();
-        display.reset();
-
-        surface = new Surface();
-        surface.resize(terminal.getSize());
-        graphics = new Graphics(surface);
-    }
-
-    // INPUT
-
-    /**
-     * Read bindings and add them to the keyEvents list.
-     * Because {@link BindingReader#readBinding(KeyMap)} block
-     * the thread, it is executed in another thread.
-     */
-    private void read() {
-        try {
-            while (running) {
-                T object = reader.readBinding(keyMap);
-
-                synchronized (LOCK) {
-                    keyEvents.add(object);
-                }
-            }
-        } catch (IOError e) {
-            if (e.getCause() instanceof InterruptedIOException && !running) {
-                return;
-            }
-
-            throw e;
-        }
-    }
-
-    /**
-     * Count occurrences of all key events and clear all key events
-     */
-    private void pollEvents() {
-        synchronized (LOCK) {
-
-            for (T t : keyEvents) {
-                Integer v = occurrences.get(t);
-
-                if (v == null) {
-                    v = 0;
-                }
-
-                occurrences.put(t, v + 1);
-            }
-
-            keyEvents.clear();
-        }
-    }
-
-    /**
-     * Clear occurrences
-     */
-    private void resetOccurrences() {
-        occurrences.clear();
+        this.terminal = Objects.requireNonNull(terminal);
     }
 
     /**
@@ -162,15 +81,15 @@ public abstract class TerminalEngine<T> implements AutoCloseable {
      * After updating, key events are reset and then pooled from
      * the input thread.
      */
-    public void loop() {
+    public void show() {
+        start();
+
         long lastTime = System.nanoTime();
         double ns = 1000000000.0 / TPS;
         double delta = 0.0;
 
         long timer = System.currentTimeMillis();
         int tps = 0;
-
-        running = true;
 
         Size lastSize = null;
 
@@ -182,11 +101,14 @@ public abstract class TerminalEngine<T> implements AutoCloseable {
             for (lastTime = now; delta >= 1.0; delta--) {
 
                 // update
+                pollEvents();
                 if (rootComponent != null) {
                     rootComponent.update();
+
+                    if (!running) {
+                        break;
+                    }
                 }
-                resetOccurrences();
-                pollEvents();
 
 
                 // draw
@@ -215,7 +137,6 @@ public abstract class TerminalEngine<T> implements AutoCloseable {
                 tps++;
             }
 
-
             if (System.currentTimeMillis() - timer > 1000) {
                 timer += 1000;
                 this.tps = tps;
@@ -224,51 +145,141 @@ public abstract class TerminalEngine<T> implements AutoCloseable {
         }
     }
 
+    protected void start() {
+        if (running) {
+            throw new IllegalStateException("Already running");
+        }
+
+        Objects.requireNonNull(terminal);
+        running = true;
+        tps = 0;
+
+        display = new Display(terminal, true);
+        display.setDelayLineWrap(false);
+
+        reader = new BindingReader(terminal.reader());
+
+        attr = terminal.enterRawMode();
+
+        terminal.puts(InfoCmp.Capability.enter_ca_mode);
+        terminal.puts(InfoCmp.Capability.keypad_xmit);
+        terminal.writer().flush();
+
+        display.clear();
+        display.reset();
+
+        surface = new Surface();
+        surface.resize(terminal.getSize());
+        graphics = new Graphics(surface);
+    }
+
+
+    // INPUT
+
+    /**
+     * Read bindings and add them to the keyEvents list.
+     * Because {@link BindingReader#readBinding(KeyMap)} block
+     * the thread, it is executed in another thread.
+     */
+    private void read() {
+        try {
+            while (running) {
+                Key object = reader.readBinding(keyMap);
+
+                synchronized (LOCK) {
+                    keyEvents.add(object);
+                }
+            }
+        } catch (IOError e) {
+            if (e.getCause() instanceof InterruptedIOException && !running) {
+                return;
+            }
+
+            throw e;
+        }
+    }
+
+    /**
+     * Count occurrences of all key events and clear all key events
+     */
+    private void pollEvents() {
+        synchronized (LOCK) {
+
+            for (KeyInfo i : keyInfos.values()) {
+                i.pressed = false;
+            }
+
+            while (!keyEvents.isEmpty()) {
+                Key k = keyEvents.poll();
+                KeyInfo key = keyInfos.get(k);
+
+                if (key == null) {
+                    key = new KeyInfo(k);
+                    keyInfos.put(k, key);
+                }
+
+                key.press();
+            }
+
+            for (KeyInfo i : keyInfos.values()) {
+                if (!i.pressed && i.count > 0) {
+                    i.released = true;
+                    i.count = 0;
+                } else if (i.released) {
+                    i.released = false;
+                }
+            }
+        }
+    }
+
+
     protected void drawComponents() {
         rootComponent.draw(graphics);
     }
 
     /**
-     * The init method is called once by the constructor.
-     * It is used to bind keys
-     */
-    protected abstract void init();
-
-    /**
-     * @param t the key
+     * @param k the key
      * @return true if t is pressed
      */
-    protected boolean pressed(T t) {
-        return pressedNTime(t) > 0;
+    protected boolean keyPressed(Key k) {
+        KeyInfo key = keyInfos.get(k);
+
+        return key != null && key.isPressed();
     }
 
     /**
-     * @param t the key
+     * @param k the key
      * @return the number of time t was pressed
      * between now and the last time the update function
      * was called
      */
-    protected int pressedNTime(T t) {
-        Integer v = occurrences.get(t);
+    protected int keyPressedCount(Key k) {
+        KeyInfo key = keyInfos.get(k);
 
-        return v == null ? 0 : v;
+        return key == null ? 0 : key.pressedFor();
+    }
+
+    public boolean keyReleased(Key k) {
+        KeyInfo key = keyInfos.get(k);
+
+        return key != null && key.isReleased();
     }
 
     /**
-     * @param t the key
+     * @param k the key
      * @return {@code true} if the key was just pressed
      */
-    protected boolean justPressed(T t) {
-        Integer v = occurrences.get(t);
-
-        return v != null && v == 1;
+    @Deprecated
+    protected boolean justPressed(Key k) {
+        return keyPressedCount(k) == 1;
     }
 
     /**
      * @return frame per second
      */
+    @Deprecated
     public int getFPS() {
-        return fps;
+        return 0;
     }
 
     /**
@@ -293,16 +304,89 @@ public abstract class TerminalEngine<T> implements AutoCloseable {
         }
     }
 
+    public boolean isRunning() {
+        return running;
+    }
+
+    public Terminal getTerminal() {
+        return terminal;
+    }
+
+    public KeyMap<Key> getKeyMap() {
+        return keyMap;
+    }
+
+    public void stop() {
+        running = false;
+    }
+
     /**
-     * Disable fullscreen mode and stop {@link #loop()}
+     * Disable fullscreen mode and stop {@link #show()}
      */
     @Override
-    public void close() {
+    public synchronized void close() {
         running = false;
-        readerFuture.cancel(true);
+
+        if (readerFuture != null) {
+            readerFuture.cancel(true);
+        }
+
         terminal.setAttributes(attr);
         terminal.puts(InfoCmp.Capability.exit_ca_mode);
         terminal.puts(InfoCmp.Capability.keypad_local);
         terminal.writer().flush();
+
+        readerFuture = null;
+        reader = null;
+        display = null;
+        attr = null;
+        surface = null;
+        graphics = null;
+    }
+
+    private static class KeyInfo {
+
+        /**
+         * The key that represent this KeyInfo
+         */
+        private final Key key;
+
+        /**
+         * How many times this key was pressed
+         */
+        private int count;
+
+        /**
+         * If the key is pressed
+         */
+        private boolean pressed = false;
+
+        private boolean released = false;
+
+        public KeyInfo(Key key) {
+            this.key = key;
+        }
+
+        public void press() {
+            count++;
+            pressed = true;
+            released = false;
+        }
+
+        public boolean isPressed() {
+            return pressed;
+        }
+
+        public boolean isReleased() {
+            return released;
+        }
+
+        public boolean isPressed(int count) {
+            return pressed && this.count > count;
+        }
+
+        private int pressedFor() {
+            return count;
+        }
     }
 }

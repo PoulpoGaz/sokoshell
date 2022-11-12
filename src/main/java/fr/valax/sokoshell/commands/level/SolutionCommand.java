@@ -45,11 +45,11 @@ public class SolutionCommand extends LevelCommand {
         }
 
         if (!noAnimation) {
-            SolutionAnimator animator = new SolutionAnimator(s);
+            /*SolutionAnimator animator = new SolutionAnimator(s);
 
             try (SolutionView view = new SolutionView(helper.getTerminal(), animator)) {
-                view.loop();
-            }
+                view.show();
+            }*/
         } else {
             List<Move> moves = s.getFullSolution();
 
@@ -95,7 +95,7 @@ public class SolutionCommand extends LevelCommand {
         E
     }
 
-    public class SolutionView extends TerminalEngine<Key> {
+    /*public class SolutionView extends TerminalEngine<Key> {
 
         private final SolutionAnimator animator;
 
@@ -113,7 +113,7 @@ public class SolutionCommand extends LevelCommand {
         }
 
         @Override
-        protected void init() {
+        protected void start() {
             keyMap.bind(Key.LEFT, KeyMap.key(terminal, InfoCmp.Capability.key_left));
             keyMap.bind(Key.RIGHT, KeyMap.key(terminal, InfoCmp.Capability.key_right));
             keyMap.bind(Key.DOWN, KeyMap.key(terminal, InfoCmp.Capability.key_down));
@@ -193,34 +193,34 @@ public class SolutionCommand extends LevelCommand {
                 animate();
             }
 
-            if (pressed(Key.ESCAPE)) {
+            if (keyPressed(Key.ESCAPE)) {
                 running = false;
-            } else if (pressed(Key.ENTER) && !animator.hasNext()) {
+            } else if (keyPressed(Key.ENTER) && !animator.hasNext()) {
                 running = false;
-            } else if (pressed(Key.SPACE)) {
+            } else if (keyPressed(Key.SPACE)) {
                 paused = !paused;
                 lastTime = System.currentTimeMillis();
-            } else if (pressed(Key.LEFT) && paused) {
+            } else if (keyPressed(Key.LEFT) && paused) {
 
                 if (animator.hasPrevious()) {
                     animator.moveBackward();
                 }
 
-            } else if (pressed(Key.RIGHT) && paused) {
+            } else if (keyPressed(Key.RIGHT) && paused) {
 
                 if (animator.hasNext()) {
                     animator.move();
                 }
-            } else if (pressed(Key.UP)) {
+            } else if (keyPressed(Key.UP)) {
                 if (speed < 60) {
                     speed++;
                 }
 
-            } else if (pressed(Key.DOWN)) {
+            } else if (keyPressed(Key.DOWN)) {
                 if (speed > 1) {
                     speed--;
                 }
-            } else if (pressed(Key.R)) {
+            } else if (keyPressed(Key.R)) {
                 animator.reset();
             } else if (justPressed(Key.E)) {
                 SolverReport report = animator.getSolution();
@@ -418,5 +418,5 @@ public class SolutionCommand extends LevelCommand {
         public SolverReport getSolution() {
             return solution;
         }
-    }
+    }*/
 }

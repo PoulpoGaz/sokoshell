@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class Component {
 
-    TerminalEngine<?> engine;
+    TerminalEngine engine;
     Terminal terminal;
 
     private Component parent;
@@ -88,6 +88,8 @@ public class Component {
             doLayout();
         }
 
+        componentUpdate();
+
         for (int i = 0; i < components.size(); i++) {
             Component c = components.get(i);
 
@@ -95,6 +97,10 @@ public class Component {
                 c.update();
             }
         }
+    }
+
+    protected void componentUpdate() {
+
     }
 
     /**
@@ -281,7 +287,7 @@ public class Component {
         return null;
     }
 
-    public void setPrefSize(Dimension prefSize) {
+    public void setPreferredSize(Dimension prefSize) {
         this.prefSize = prefSize;
         prefSizeSet = prefSize != null;
     }
@@ -318,10 +324,6 @@ public class Component {
         return components.get(i);
     }
 
-    public Terminal getTerminal() {
-        return terminal;
-    }
-
     public Border getBorder() {
         return border;
     }
@@ -346,6 +348,23 @@ public class Component {
         }
     }
 
+
+    // =========
+    // * Input *
+    // =========
+
+    protected boolean keyPressed(Key k) {
+        return engine.keyPressed(k);
+    }
+
+    protected int keyPressedCount(Key k) {
+        return engine.keyPressedCount(k);
+    }
+
+    public boolean keyReleased(Key k) {
+        return engine.keyReleased(k);
+    }
+
     //
     // Listeners
     //
@@ -367,12 +386,20 @@ public class Component {
 
 
 
-    void setTerminal(Terminal terminal, TerminalEngine<?> engine) {
+    void setTerminal(Terminal terminal, TerminalEngine engine) {
         this.terminal = terminal;
         this.engine = engine;
 
         for (int i = 0; i < components.size(); i++) {
             components.get(i).setTerminal(terminal, engine);
         }
+    }
+
+    public Terminal getTerminal() {
+        return terminal;
+    }
+
+    public TerminalEngine getEngine() {
+        return engine;
     }
 }

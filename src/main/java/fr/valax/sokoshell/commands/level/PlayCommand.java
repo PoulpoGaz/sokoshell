@@ -21,11 +21,11 @@ public class PlayCommand extends LevelCommand {
     protected int executeImpl(InputStream in, PrintStream out, PrintStream err) throws InvalidArgument {
         Level l = getLevel(pack, level);
 
-        PlayCommand.GameController controller = new PlayCommand.GameController(l);
+        //PlayCommand.GameController controller = new PlayCommand.GameController(l);
 
-        try (PlayCommand.PlayView view = new PlayCommand.PlayView(helper.getTerminal(), l, controller)) {
-            view.loop();
-        }
+        /*try (PlayCommand.PlayView view = new PlayCommand.PlayView(helper.getTerminal(), l, controller)) {
+            view.show();
+        }*/
 
         return SUCCESS;
     }
@@ -52,7 +52,7 @@ public class PlayCommand extends LevelCommand {
         E
     }
 
-    public class PlayView extends TerminalEngine<Key> {
+    /*public class PlayView extends TerminalEngine<Key> {
 
         private final Level level;
         private final GameController controller;
@@ -64,7 +64,7 @@ public class PlayCommand extends LevelCommand {
         }
 
         @Override
-        protected void init() {
+        protected void start() {
             keyMap.bind(PlayCommand.Key.LEFT, KeyMap.key(terminal, InfoCmp.Capability.key_left));
             keyMap.bind(PlayCommand.Key.RIGHT, KeyMap.key(terminal, InfoCmp.Capability.key_right));
             keyMap.bind(PlayCommand.Key.DOWN, KeyMap.key(terminal, InfoCmp.Capability.key_down));
@@ -116,15 +116,15 @@ public class PlayCommand extends LevelCommand {
         }
 
         protected void update() {
-            if (pressed(PlayCommand.Key.ESCAPE) || pressed(PlayCommand.Key.ENTER)) {
+            if (keyPressed(PlayCommand.Key.ESCAPE) || keyPressed(PlayCommand.Key.ENTER)) {
                 running = false;
-            } else if (pressed(PlayCommand.Key.LEFT)) {
+            } else if (keyPressed(PlayCommand.Key.LEFT)) {
                 controller.move(Direction.LEFT);
-            } else if (pressed(PlayCommand.Key.RIGHT)) {
+            } else if (keyPressed(PlayCommand.Key.RIGHT)) {
                 controller.move(Direction.RIGHT);
-            } else if (pressed(PlayCommand.Key.UP)) {
+            } else if (keyPressed(PlayCommand.Key.UP)) {
                 controller.move(Direction.UP);
-            } else if (pressed(PlayCommand.Key.DOWN)) {
+            } else if (keyPressed(PlayCommand.Key.DOWN)) {
                 controller.move(Direction.DOWN);
             } else if (justPressed(PlayCommand.Key.E)) {
                 Direction lastMove = controller.getLastDir();
@@ -187,11 +187,11 @@ public class PlayCommand extends LevelCommand {
          * @param x x-coordinate
          * @param y y-coordinate
          */
-        private void movePlayer(int x, int y) {
+        /*private void movePlayer(int x, int y) {
             playerX = x;
             playerY = y;
             moves++;
-        }
+        }*/
 
         /**
          * Moves a crate from (x,y) to (nextX, nextY). The move MUST be valid (no check preformed).
@@ -200,7 +200,7 @@ public class PlayCommand extends LevelCommand {
          * @param nextX new x-coordinate
          * @param nextY new y-coordinate
          */
-        private void moveCrate(int x, int y, int nextX, int nextY) {
+        /*private void moveCrate(int x, int y, int nextX, int nextY) {
 
             Tile curr = map.getAt(x, y).getTile();
             Tile next = map.getAt(nextX, nextY).getTile();
@@ -231,5 +231,5 @@ public class PlayCommand extends LevelCommand {
         public int getMoveCount() { return moves; }
 
         public boolean isMapCompleted() { return mapCompleted; }
-    }
+    }*/
 }

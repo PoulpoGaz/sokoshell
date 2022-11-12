@@ -325,10 +325,10 @@ public class Surface {
 
     public static void main(String[] args) {
 
-        try (Terminal terminal = TerminalBuilder.terminal()) {
+        /*try (Terminal terminal = TerminalBuilder.terminal()) {
 
             try (TestClass test = new TestClass(terminal)) {
-                test.loop();
+                test.show();
             } finally {
                 terminal.puts(InfoCmp.Capability.clear_screen);
                 terminal.writer().flush();
@@ -336,7 +336,7 @@ public class Surface {
 
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
     }
 
     private enum KeyEvent {
@@ -347,7 +347,7 @@ public class Surface {
     /**
      * A test class
      */
-    private static class TestClass extends TerminalEngine<KeyEvent> {
+    /*private static class TestClass extends TerminalEngine<KeyEvent> {
 
         private Surface surface;
         private Graphics g;
@@ -358,7 +358,7 @@ public class Surface {
         }
 
         @Override
-        protected void init() {
+        protected void start() {
             surface = new Surface();
             surface.resize(terminal.getWidth(), terminal.getHeight());
 
@@ -435,7 +435,7 @@ public class Surface {
         protected void update() {
             surface.resize(terminal.getWidth(), terminal.getHeight());
         }
-    }
+    }*/
 
     /**
      * From box center

@@ -1,26 +1,30 @@
 package fr.valax.sokoshell.graphics;
 
 import org.jline.keymap.KeyMap;
-import org.jline.terminal.Terminal;
 import org.jline.utils.InfoCmp;
 
 public interface Key {
 
-    void addTo(KeyMap<Key> keymap, Terminal terminal);
+    default void addTo(TerminalEngine engine) {
+        engine.getKeyMap().bind(this, toString(engine));
+    }
+
+    String toString(TerminalEngine engine);
+
 
     record SimpleKey(String key) implements Key {
 
         @Override
-        public void addTo(KeyMap<Key> keymap, Terminal terminal) {
-            keymap.bind(this, key);
+        public String toString(TerminalEngine engine) {
+            return key;
         }
     }
 
     record InfoCmpCapabilityKey(InfoCmp.Capability capability) implements Key {
 
         @Override
-        public void addTo(KeyMap<Key> keymap, Terminal terminal) {
-            keymap.bind(this, KeyMap.key(terminal, capability));
+        public String toString(TerminalEngine engine) {
+            return KeyMap.key(engine.getTerminal(), capability);
         }
     }
 
@@ -69,4 +73,17 @@ public interface Key {
         return new SimpleKey(KeyMap.ctrl(key));
     }
 
+    static Key concat(Key... keys) {
+        if (keys.length == 0) {
+            return null;
+        }
+
+        StringBuilder c = new StringBuilder();
+
+        for (int i = 0; i < keys.length; i++) {
+            c.append(keys[i]);
+        }
+
+        return new SimpleKey(c.toString());
+    }
 }
