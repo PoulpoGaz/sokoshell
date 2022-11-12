@@ -1,5 +1,6 @@
 package fr.valax.sokoshell.graphics;
 
+import fr.valax.sokoshell.graphics.layout.Layout;
 import org.jline.terminal.Terminal;
 
 import javax.swing.event.EventListenerList;
@@ -223,6 +224,10 @@ public class Component {
 
     public int getHeight() {
         return height;
+    }
+
+    public Dimension getSize() {
+        return new Dimension(width, height);
     }
 
 

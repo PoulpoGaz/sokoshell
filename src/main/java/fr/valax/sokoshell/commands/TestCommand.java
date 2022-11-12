@@ -1,10 +1,10 @@
 package fr.valax.sokoshell.commands;
 
 import fr.valax.sokoshell.graphics.*;
+import fr.valax.sokoshell.graphics.layout.*;
 import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
 
-import javax.swing.*;
 import java.io.InputStream;
 import java.io.PrintStream;
 
@@ -43,12 +43,27 @@ public class TestCommand extends AbstractCommand {
 
         @Override
         protected void init() {
+            Component east = new Component();
+            east.setLayout(new VerticalLayout());
+
+            VerticalConstraint c = new VerticalConstraint();
+            c.xAlignment = 0;
+            east.add(createLabel("top1"), c);
+            c.xAlignment = 0.5f;
+            east.add(createLabel("top2"), c);
+
+            c.xAlignment = 1;
+            c.orientation = VerticalLayout.Orientation.BOTTOM;
+            east.add(createLabel("bot"), c);
+            east.add(createLabel("long text to show alignment"), c);
+
+
+
             Component root = new Component();
             root.setLayout(new BorderLayout());
 
             root.add(createLabel("Hello world from south!"), BorderLayout.SOUTH);
             root.add(createLabel("Hello world from north!"), BorderLayout.NORTH);
-            root.add(createLabel("Hello world from east!"), BorderLayout.EAST);
             root.add(createLabel("Hello world from west!"), BorderLayout.WEST);
 
             Component center = new Component();
@@ -59,6 +74,7 @@ public class TestCommand extends AbstractCommand {
             center.add(createLabel("Center east"), BorderLayout.EAST);
 
             root.add(center, BorderLayout.CENTER);
+            root.add(east, BorderLayout.EAST);
 
             setRootComponent(root);
 
@@ -95,7 +111,7 @@ public class TestCommand extends AbstractCommand {
                 Component comp = component.getComponent(i);
 
                 if (comp instanceof Label label) {
-                    surface.draw(label.getText().toAnsi() + toString(label), 0, y);
+                    surface.draw(toString(label) + label.getText().toAnsi(), 0, y);
                     y++;
                 } else {
                     y = print(comp, y + 1, maxY);

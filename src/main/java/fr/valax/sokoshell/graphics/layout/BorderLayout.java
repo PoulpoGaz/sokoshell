@@ -1,6 +1,9 @@
-package fr.valax.sokoshell.graphics;
+package fr.valax.sokoshell.graphics.layout;
+
+import fr.valax.sokoshell.graphics.Component;
 
 import java.awt.*;
+
 
 /**
  * @see java.awt.BorderLayout
