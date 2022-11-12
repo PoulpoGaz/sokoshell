@@ -55,14 +55,12 @@ public class TestCommand extends AbstractCommand {
             c.xAlignment = 1;
             c.orientation = VerticalLayout.Orientation.BOTTOM;
             east.add(createLabel("bot"), c);
-            east.add(createLabel("long text to show alignment"), c);
-
-
+            east.add(new MemoryBar(), c);
 
             Component root = new Component();
             root.setLayout(new BorderLayout());
 
-            root.add(createLabel("Hello world from south!"), BorderLayout.SOUTH);
+            root.add(new MemoryBar(), BorderLayout.SOUTH);
             root.add(createLabel("Hello world from north!"), BorderLayout.NORTH);
             root.add(createLabel("Hello world from west!"), BorderLayout.WEST);
 

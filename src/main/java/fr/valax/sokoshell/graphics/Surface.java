@@ -149,6 +149,10 @@ public class Surface {
         draw(new AttributedString(str), x, y);
     }
 
+    public void draw(String str, AttributedStyle style, int x, int y) {
+        draw(new AttributedString(str, style), x, y);
+    }
+
     /**
      * Draw the string at (x; y).
      * @param str the string to draw
