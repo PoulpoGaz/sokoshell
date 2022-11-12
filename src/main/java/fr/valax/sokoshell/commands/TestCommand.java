@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.PrintStream;
 
 public class TestCommand extends AbstractCommand {
+
     @Override
     public String getName() {
         return "test";
@@ -33,9 +34,11 @@ public class TestCommand extends AbstractCommand {
     }
 
     private void initEngine(TerminalEngine engine) {
+        engine.getKeyMap().setAmbiguousTimeout(100L);
+
         Component root = new Component() {
             @Override
-            public void componentUpdate() {
+            public void updateComponent() {
                 if (keyReleased(Key.ESCAPE)) {
                     getEngine().stop();
                 }
@@ -58,25 +61,59 @@ public class TestCommand extends AbstractCommand {
         east.add(createLabel("bot"), c);
         east.add(new MemoryBar(), c);
 
+        Component centerCenter = new Component();
+        GridLayoutConstraints glc = new GridLayoutConstraints();
+        glc.x = 1;
+        glc.y = 0;
+        glc.fill = GridLayoutConstraints.HORIZONTAL;
+        centerCenter.setLayout(new GridLayout());
+        centerCenter.add(createLabel("ccc"), glc);
+        glc.x = 2;
+        glc.y = 1;
+        glc.fill = GridLayoutConstraints.BOTH;
+        centerCenter.add(createLabel("ccc2"), glc);
+
+        Component comp = new Component();
+        comp.setLayout(new BorderLayout());
+        comp.add(createLabel("north"), BorderLayout.NORTH);
+        comp.add(createLabel("centeerrrrr"), BorderLayout.CENTER);
+        comp.add(createLabel("south"), BorderLayout.SOUTH);
+
+        glc.fill = GridLayoutConstraints.NONE;
+        glc.x = 1;
+        centerCenter.add(comp, glc);
+
+        glc.y = 2;
+        glc.x = 0;
+        glc.weightX = 1;
+        glc.fill = GridLayoutConstraints.BOTH;
+        centerCenter.add(createLabel("I grow!"), glc);
+        glc.y = 2;
+        glc.x = 1;
+        glc.weightX = 0;
+        centerCenter.add(createLabel("I doesn't grow!"), glc);
+        glc.y = 2;
+        glc.x = 2;
+        glc.weightX = 0.5;
+        centerCenter.add(createLabel("I grow but less!"), glc);
+
+        Component center = new Component();
+        center.setLayout(new BorderLayout());
+        center.setBorder(new BasicBorder());
+        center.add(centerCenter, BorderLayout.CENTER);
+        center.add(createLabel("Center north"), BorderLayout.NORTH);
+        center.add(createLabel("Center east"), BorderLayout.EAST);
 
 
         root.add(new MemoryBar(), BorderLayout.SOUTH);
         root.add(createLabel("Hello world from north!"), BorderLayout.NORTH);
         root.add(createLabel("Hello world from west!"), BorderLayout.WEST);
-
-        Component center = new Component();
-        center.setLayout(new BorderLayout());
-        center.setBorder(new BasicBorder());
-        center.add(createLabel("Center center"), BorderLayout.CENTER);
-        center.add(createLabel("Center north"), BorderLayout.NORTH);
-        center.add(createLabel("Center east"), BorderLayout.EAST);
-
         root.add(center, BorderLayout.CENTER);
         root.add(east, BorderLayout.EAST);
 
 
         engine.setRootComponent(root);
-        Key.KEY_D.addTo(engine);
+        Key.D.addTo(engine);
         Key.ESCAPE.addTo(engine);
     }
 

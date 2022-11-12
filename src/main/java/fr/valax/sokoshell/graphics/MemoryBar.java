@@ -22,7 +22,7 @@ public class MemoryBar extends Component {
     }
 
     @Override
-    public void draw(Graphics g) {
+    public void drawComponent(Graphics g) {
         int len = (int) (getWidth() * percent);
 
         g.setChar(' ');
@@ -50,7 +50,7 @@ public class MemoryBar extends Component {
     }
 
     @Override
-    public void update() {
+    public void updateComponent() {
         if (lastTime + 1000 < System.currentTimeMillis()) {
             MemoryUsage usage = getMemoryUsage();
 

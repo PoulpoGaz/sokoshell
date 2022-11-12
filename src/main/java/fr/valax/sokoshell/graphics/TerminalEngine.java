@@ -266,23 +266,6 @@ public class TerminalEngine implements AutoCloseable {
     }
 
     /**
-     * @param k the key
-     * @return {@code true} if the key was just pressed
-     */
-    @Deprecated
-    protected boolean justPressed(Key k) {
-        return keyPressedCount(k) == 1;
-    }
-
-    /**
-     * @return frame per second
-     */
-    @Deprecated
-    public int getFPS() {
-        return 0;
-    }
-
-    /**
      * @return tick per seconds. It should be around 60
      */
     public int getTPS() {
@@ -331,7 +314,9 @@ public class TerminalEngine implements AutoCloseable {
             readerFuture.cancel(true);
         }
 
-        terminal.setAttributes(attr);
+        if (attr != null) {
+            terminal.setAttributes(attr);
+        }
         terminal.puts(InfoCmp.Capability.exit_ca_mode);
         terminal.puts(InfoCmp.Capability.keypad_local);
         terminal.writer().flush();

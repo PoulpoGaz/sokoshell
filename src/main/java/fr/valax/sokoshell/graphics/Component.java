@@ -88,7 +88,7 @@ public class Component {
             doLayout();
         }
 
-        componentUpdate();
+        updateComponent();
 
         for (int i = 0; i < components.size(); i++) {
             Component c = components.get(i);
@@ -99,7 +99,7 @@ public class Component {
         }
     }
 
-    protected void componentUpdate() {
+    protected void updateComponent() {
 
     }
 

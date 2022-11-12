@@ -2,6 +2,7 @@ package fr.valax.sokoshell.commands;
 
 import fr.valax.sokoshell.SokoShellHelper;
 import fr.valax.sokoshell.SolverTask;
+import fr.valax.sokoshell.graphics.Component;
 import fr.valax.sokoshell.graphics.MapRenderer;
 import fr.valax.sokoshell.graphics.TerminalEngine;
 import fr.valax.sokoshell.solver.*;
@@ -11,6 +12,7 @@ import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
 import org.jline.utils.InfoCmp;
 
+import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -30,23 +32,28 @@ public class MonitorCommand extends AbstractCommand {
         }
 
 
-        /*Exception ex = null;
+        Exception ex = null;
         State last = null;
-        try (Monitor monitor = new Monitor(helper.getTerminal(), helper, runningTask)) {
+        try (TerminalEngine engine = new TerminalEngine(helper.getTerminal())) {
+            initEngine(engine);
             try {
-                monitor.show();
+                engine.show();
             } catch (Exception e) { // due to the voluntary lack of synchronization, actually never happen
                 ex = e;
-                last = monitor.state;
+                //last = monitor.state;
             }
         }
 
         if (ex != null) {
             ex.printStackTrace(err);
             err.println(last);
-        }*/
+        }
 
         return 0;
+    }
+
+    private void initEngine(TerminalEngine engine) {
+
     }
 
     @Override
@@ -75,7 +82,7 @@ public class MonitorCommand extends AbstractCommand {
         E
     }
 
-    /*private static class Monitor extends TerminalEngine<Key> {
+    /*private static class Monitor extends Component {
 
         private final SokoShellHelper helper;
         private final SolverTask task;
@@ -91,8 +98,7 @@ public class MonitorCommand extends AbstractCommand {
         private BigInteger numberOfStates;
         private State state;
 
-        public Monitor(Terminal terminal, SokoShellHelper helper, SolverTask task) {
-            super(terminal);
+        public Monitor(SokoShellHelper helper, SolverTask task) {
             this.helper = helper;
             this.task = task;
             this.levels = task.getLevels();
