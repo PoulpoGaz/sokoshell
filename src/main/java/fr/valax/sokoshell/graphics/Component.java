@@ -3,6 +3,7 @@ package fr.valax.sokoshell.graphics;
 import org.jline.terminal.Terminal;
 
 import javax.swing.event.EventListenerList;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +22,7 @@ public class Component {
     private int height;
     private boolean visible = true;
 
+    private Border border = null;
 
     private final EventListenerList listeners = new EventListenerList();
     final List<Component> components = new ArrayList<>();
@@ -37,7 +39,28 @@ public class Component {
         componentListener = comp -> invalidate();
     }
 
-    public void draw(Surface s, Graphics g) {
+    public void draw(Graphics g) {
+        if (isVisible() && getHeight() > 0 && getWidth() > 0) {
+            drawBorder(g);
+            drawComponent(g);
+        }
+
+        drawChildren(g);
+    }
+
+    protected void drawBorder(Graphics g) {
+        if (border != null) {
+            border.drawBorder(this, g, 0, 0, width, height);
+        }
+    }
+
+    protected void drawComponent(Graphics g) {
+
+    }
+
+    protected void drawChildren(Graphics g) {
+        Surface s = g.getSurface();
+
         for (int i = 0; i < components.size(); i++) {
             Component c = components.get(i);
 
@@ -45,7 +68,7 @@ public class Component {
                 s.translate(c.getX(), c.getY());
                 Rectangle clip = s.getClip();
                 s.intersectClip(0, 0, c.getWidth(), c.getHeight());
-                c.draw(s, g);
+                c.draw(g);
                 s.setClip(clip);
                 s.translate(-c.getX(), -c.getY());
             }
@@ -269,6 +292,30 @@ public class Component {
 
     public Terminal getTerminal() {
         return terminal;
+    }
+
+    public Border getBorder() {
+        return border;
+    }
+
+    public void setBorder(Border border) {
+        if (border != this.border) {
+            Border old = this.border;
+            this.border = border;
+
+            if (border == null || old == null ||
+                    !border.getBorderInsets(this).equals(old.getBorderInsets(this))) {
+                invalidate();
+            }
+        }
+    }
+
+    public Insets getInsets() {
+        if (border == null) {
+            return new Insets(0, 0, 0, 0);
+        } else {
+            return border.getBorderInsets(this);
+        }
     }
 
     //

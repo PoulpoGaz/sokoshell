@@ -1,6 +1,5 @@
 package fr.valax.sokoshell.graphics;
 
-import fr.valax.graph.ScatterPlotPoint;
 import org.jline.keymap.KeyMap;
 import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
@@ -293,7 +292,8 @@ public class Surface {
      * intersect clips. clip are translated
      */
     public void intersectClip(int x, int y, int width, int height) {
-        clip.setBounds(clip.intersection(tx + x, ty + y, width, height));
+        Rectangle temp = new Rectangle(tx + x, ty + y, width, height);
+        clip.setBounds(clip.intersection(temp));
     }
 
     public void setClip(Rectangle clip) {

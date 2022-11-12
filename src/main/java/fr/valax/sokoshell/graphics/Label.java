@@ -2,7 +2,7 @@ package fr.valax.sokoshell.graphics;
 
 import org.jline.utils.AttributedString;
 
-import javax.swing.*;
+import java.awt.*;
 
 public class Label extends Component {
 
@@ -17,7 +17,7 @@ public class Label extends Component {
     private int vertAlign = CENTER;
 
     public Label() {
-        
+
     }
 
     public Label(AttributedString text) {
@@ -35,15 +35,18 @@ public class Label extends Component {
     }
 
     @Override
-    public void draw(Surface s, Graphics g) {
-        if (isVisible() && getHeight() <= 0) {
+    public void drawComponent(Graphics g) {
+        if (text == null) {
+            return;
+        }
+
+        int length = text.columnLength();
+        if (length == 0) {
             return;
         }
 
         int x;
         int y;
-
-        int length = text.columnLength();
         if (horizAlign == CENTER) {
             x = (getWidth() - length) / 2;
         } else if (horizAlign == WEST) {
@@ -60,12 +63,23 @@ public class Label extends Component {
             y = getHeight() - length;
         }
 
-        s.draw(text, x, y);
+        g.getSurface().draw(text, x, y);
     }
 
     @Override
     protected Dimension compPreferredSize() {
-        return new Dimension(text.columnLength(), 1);
+        Dimension dim = new Dimension();
+        Insets i = getInsets();
+        dim.width = i.right + i.left;
+        dim.height = i.top + i.bottom;
+
+        int len = text.columnLength();
+        if (text != null && len != 0) {
+            dim.width += len;
+            dim.height++;
+        }
+
+        return dim;
     }
 
     public void setText(AttributedString text) {

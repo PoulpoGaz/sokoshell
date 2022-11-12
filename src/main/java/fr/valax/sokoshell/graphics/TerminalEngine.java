@@ -205,7 +205,7 @@ public abstract class TerminalEngine<T> implements AutoCloseable {
             if (rootComponent != null) {
                 surface.clear();
                 rootComponent.setSize(size.getColumns(), size.getRows());
-                rootComponent.draw(surface, graphics);
+                rootComponent.draw(graphics);
             }
 
             int cursor = render(size);

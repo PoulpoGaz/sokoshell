@@ -410,7 +410,7 @@ public class Graphics {
 
         public void setChar(char c) {
             this.c = c;
-            getOrCreate();
+            str = null;
         }
 
         public AttributedStyle getStyle() {

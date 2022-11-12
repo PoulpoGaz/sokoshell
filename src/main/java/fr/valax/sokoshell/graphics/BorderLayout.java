@@ -1,5 +1,7 @@
 package fr.valax.sokoshell.graphics;
 
+import java.awt.*;
+
 /**
  * @see java.awt.BorderLayout
  */
@@ -78,15 +80,20 @@ public class BorderLayout implements Layout {
             dim.height += d.height + horizontalGap;
         }
 
+        Insets insets = parent.getInsets();
+        dim.width += insets.left + insets.right;
+        dim.height += insets.top + insets.bottom;
+
         return dim;
     }
 
     @Override
     public void layout(Component parent) {
-        int top = 0;
-        int bottom = parent.getHeight();
-        int left = 0;
-        int right = parent.getWidth();
+        Insets insets = parent.getInsets();
+        int top = insets.top;
+        int bottom = parent.getHeight() - insets.bottom;
+        int left = insets.left;
+        int right = parent.getWidth() - insets.right;
 
         Component c;
         if ((c = north) != null) {

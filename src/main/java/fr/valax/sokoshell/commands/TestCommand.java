@@ -4,6 +4,7 @@ import fr.valax.sokoshell.graphics.*;
 import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
 
+import javax.swing.*;
 import java.io.InputStream;
 import java.io.PrintStream;
 
@@ -34,6 +35,8 @@ public class TestCommand extends AbstractCommand {
 
     private static class Test extends TerminalEngine<Key> {
 
+        private boolean debugInfo = false;
+
         public Test(Terminal terminal) {
             super(terminal);
         }
@@ -43,34 +46,51 @@ public class TestCommand extends AbstractCommand {
             Component root = new Component();
             root.setLayout(new BorderLayout());
 
-            root.add(new Label("Hello world from south!"), BorderLayout.SOUTH);
-            root.add(new Label("Hello world from north!"), BorderLayout.NORTH);
-            root.add(new Label("Hello world from east!"), BorderLayout.EAST);
-            root.add(new Label("Hello world from west!"), BorderLayout.WEST);
+            root.add(createLabel("Hello world from south!"), BorderLayout.SOUTH);
+            root.add(createLabel("Hello world from north!"), BorderLayout.NORTH);
+            root.add(createLabel("Hello world from east!"), BorderLayout.EAST);
+            root.add(createLabel("Hello world from west!"), BorderLayout.WEST);
 
             Component center = new Component();
             center.setLayout(new BorderLayout());
-            center.add(new Label("Center center"), BorderLayout.CENTER);
-            center.add(new Label("Center north"), BorderLayout.NORTH);
-            center.add(new Label("Center east"), BorderLayout.EAST);
+            center.setBorder(new BasicBorder());
+            center.add(createLabel("Center center"), BorderLayout.CENTER);
+            center.add(createLabel("Center north"), BorderLayout.NORTH);
+            center.add(createLabel("Center east"), BorderLayout.EAST);
 
             root.add(center, BorderLayout.CENTER);
 
             setRootComponent(root);
+
+
+            Key.KEY_D.addTo(keyMap, terminal);
+            Key.ESCAPE.addTo(keyMap, terminal);
+        }
+
+        private Label createLabel(String text) {
+            Label label = new Label(text);
+            label.setBorder(new BasicBorder());
+
+            return label;
         }
 
         @Override
         protected int render(Size size) {
-            Component root = getRootComponent();
-            print(root, 0);
+            if (debugInfo) {
+                Component root = getRootComponent();
+                print(root, 0, size.getRows());
+            }
 
             return 0;
         }
 
-        private int print(Component component, int y) {
+        private int print(Component component, int y, int maxY) {
             surface.draw(toString(component), 0, y);
 
             y++;
+            if (y > maxY) {
+                return y;
+            }
             for (int i = 0; i < component.getComponentCount(); i++) {
                 Component comp = component.getComponent(i);
 
@@ -78,7 +98,11 @@ public class TestCommand extends AbstractCommand {
                     surface.draw(label.getText().toAnsi() + toString(label), 0, y);
                     y++;
                 } else {
-                    y = print(comp, y + 1);
+                    y = print(comp, y + 1, maxY);
+                }
+
+                if (y > maxY) {
+                    return y;
                 }
             }
 
@@ -91,7 +115,14 @@ public class TestCommand extends AbstractCommand {
 
         @Override
         protected void update() {
+            if (pressed(Key.ESCAPE)) {
+                running = false;
+                return;
+            }
 
+            if (justPressed(Key.KEY_D)) {
+                debugInfo = !debugInfo;
+            }
         }
     }
 }

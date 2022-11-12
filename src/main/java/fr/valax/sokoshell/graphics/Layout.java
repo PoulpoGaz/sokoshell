@@ -1,5 +1,7 @@
 package fr.valax.sokoshell.graphics;
 
+import java.awt.*;
+
 /**
  * @see java.awt.LayoutManager
  */
