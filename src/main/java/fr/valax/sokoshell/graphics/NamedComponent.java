@@ -58,7 +58,7 @@ public class NamedComponent {
             Dimension namePrefSize = name.getPreferredSize();
             Dimension compPrefSize = comp.getPreferredSize();
 
-            dim.width = i.left + i.right + namePrefSize.width + compPrefSize.width;
+            dim.width = i.left + i.right + namePrefSize.width + minGap + compPrefSize.width;
             dim.height = i.top + i.bottom + Math.max(namePrefSize.height, compPrefSize.height);
 
             return dim;

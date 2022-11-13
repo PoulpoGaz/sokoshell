@@ -82,6 +82,7 @@ public interface Key {
 
     Key ESCAPE = new SimpleKey(KeyMap.esc());
     Key DELETE = new SimpleKey(KeyMap.del());
+    Key SPACE = new SimpleKey(" ");
 
     static Key alt(String c) {
         return new SimpleKey(KeyMap.alt(c));

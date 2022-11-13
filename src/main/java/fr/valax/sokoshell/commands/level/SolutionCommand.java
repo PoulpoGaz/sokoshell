@@ -1,16 +1,12 @@
 package fr.valax.sokoshell.commands.level;
 
 import fr.valax.args.api.Option;
-import fr.valax.sokoshell.graphics.MapRenderer;
-import fr.valax.sokoshell.graphics.TerminalEngine;
+import fr.valax.sokoshell.graphics.*;
+import fr.valax.sokoshell.graphics.layout.BorderLayout;
+import fr.valax.sokoshell.graphics.layout.GridLayout;
+import fr.valax.sokoshell.graphics.layout.GridLayoutConstraints;
 import fr.valax.sokoshell.solver.*;
-import fr.valax.sokoshell.utils.Utils;
-import org.jline.keymap.KeyMap;
-import org.jline.terminal.Size;
-import org.jline.terminal.Terminal;
-import org.jline.utils.InfoCmp;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.List;
@@ -45,11 +41,7 @@ public class SolutionCommand extends LevelCommand {
         }
 
         if (!noAnimation) {
-            /*SolutionAnimator animator = new SolutionAnimator(s);
-
-            try (SolutionView view = new SolutionView(helper.getTerminal(), animator)) {
-                view.show();
-            }*/
+            showAnimator(s);
         } else {
             List<Move> moves = s.getFullSolution();
 
@@ -68,6 +60,26 @@ public class SolutionCommand extends LevelCommand {
         return SUCCESS;
     }
 
+    private void showAnimator(SolverReport report) {
+        SolutionAnimator animator = new SolutionAnimator(report);
+
+        try (TerminalEngine engine = new TerminalEngine(helper.getTerminal())) {
+            Key.LEFT.addTo(engine);
+            Key.RIGHT.addTo(engine);
+            Key.DOWN.addTo(engine);
+            Key.UP.addTo(engine);
+            Key.ENTER.addTo(engine);
+            Key.SPACE.addTo(engine);
+            Key.R.addTo(engine);
+            Key.E.addTo(engine);
+            Key.ESCAPE.addTo(engine);
+            engine.getKeyMap().setAmbiguousTimeout(100L);
+            engine.setRootComponent(new SolutionComponent(animator));
+
+            engine.show();
+        }
+    }
+
     @Override
     public String getName() {
         return "solution";
@@ -83,19 +95,7 @@ public class SolutionCommand extends LevelCommand {
         return new String[0];
     }
 
-    private enum Key {
-        ESCAPE,
-        LEFT,
-        RIGHT,
-        DOWN,
-        UP,
-        ENTER,
-        SPACE,
-        R,
-        E
-    }
-
-    /*public class SolutionView extends TerminalEngine<Key> {
+    public static class SolutionComponent extends Component {
 
         private final SolutionAnimator animator;
 
@@ -103,77 +103,57 @@ public class SolutionCommand extends LevelCommand {
 
         private long lastTime;
 
-        // a value between 1 and 40
+        // a value between 1 and 60
         private int speed = 20;
 
-        public SolutionView(Terminal terminal, SolutionAnimator animator) {
-            super(terminal);
+
+        private Label movesLabel;
+        private Label pushesLabel;
+        private Label speedLabel;
+
+        private MapComponent mapComponent;
+
+        public SolutionComponent(SolutionAnimator animator) {
             this.animator = animator;
             lastTime = System.currentTimeMillis();
+
+            initComponent();
         }
 
-        @Override
-        protected void start() {
-            keyMap.bind(Key.LEFT, KeyMap.key(terminal, InfoCmp.Capability.key_left));
-            keyMap.bind(Key.RIGHT, KeyMap.key(terminal, InfoCmp.Capability.key_right));
-            keyMap.bind(Key.DOWN, KeyMap.key(terminal, InfoCmp.Capability.key_down));
-            keyMap.bind(Key.UP, KeyMap.key(terminal, InfoCmp.Capability.key_up));
-            keyMap.bind(Key.ENTER, "\r");
-            keyMap.bind(Key.SPACE, " ");
-            keyMap.bind(Key.R, "r");
-            keyMap.bind(Key.E, "e");
-            keyMap.bind(Key.ESCAPE, KeyMap.esc());
-            keyMap.setAmbiguousTimeout(100L);
-        }
+        private void initComponent() {
+            movesLabel = new Label();
+            movesLabel.setHorizAlign(Label.WEST);
+            pushesLabel = new Label();
+            pushesLabel.setHorizAlign(Label.WEST);
+            speedLabel = new Label();
+            speedLabel.setHorizAlign(Label.WEST);
+            setLabels();
 
-        protected int render(Size size) {
-            surface.clear();
+            Component bot = new Component();
+            bot.setBorder(new BasicBorder(true, false, false, false));
+            bot.setLayout(new GridLayout());
 
-            int width = drawInfo(size.getColumns(), size.getRows());
+            GridLayoutConstraints c = new GridLayoutConstraints();
+            c.x = c.y = 0;
+            c.weightX = c.weightY = 1;
+            c.fill = GridLayoutConstraints.BOTH;
+            bot.add(NamedComponent.create("Moves:", movesLabel), c);
+            c.x++;
+            bot.add(NamedComponent.create("Pushes:", pushesLabel), c);
+            c.x++;
+            bot.add(NamedComponent.create("Speed:", speedLabel), c);
+            c.x++;
+            c.weightX = c.weightY = 0;
+            bot.add(new MemoryBar(), c);
 
-            MapRenderer renderer = helper.getRenderer();
-            Map map = animator.getMap();
+            mapComponent = new MapComponent();
+            mapComponent.setMap(animator.getMap());
+            mapComponent.setPlayerX(animator.getPlayerX());
+            mapComponent.setPlayerY(animator.getPlayerY());
 
-            Direction lastMove = animator.getLastMove();
-            if (lastMove == null) {
-                lastMove = Direction.DOWN;
-            }
-
-            renderer.draw(graphics, 0, 0, size.getColumns() - width, size.getRows(),
-                    map, animator.getPlayerX(), animator.getPlayerY(), lastMove);
-
-            return 0;
-        }
-
-        private int drawInfo(int width, int height) {
-            int totalMoveLength = Utils.nDigit(animator.numberOfMoves());
-            int totalPushLength = Utils.nDigit(animator.numberOfMoves());
-
-            int moveLength = Utils.nDigit(animator.getMoveCount());
-            int pushLength = Utils.nDigit(animator.getPushCount());
-
-            int speedLength = Utils.nDigit(speed);
-
-            int moveInfoLength = 8 + 2 * totalMoveLength;
-            int pushInfoLength = 9 + 2 * totalPushLength;
-            int speedInfoLength = 7 + speedLength;
-
-            surface.draw("Moves:", width - moveInfoLength, 0);
-            surface.draw("%d/%d".formatted(animator.getMoveCount(), animator.numberOfMoves()), width - totalMoveLength - moveLength - 1, 0);
-
-            surface.draw("Pushes:", width - pushInfoLength, 1);
-            surface.draw("%d/%d".formatted(animator.getPushCount(), animator.numberOfPushes()), width - totalPushLength - pushLength - 1, 1);
-
-            surface.draw("Speed:", width - 7 - speedLength, 2);
-            surface.draw(String.valueOf(speed), width - speedLength, 2);
-
-            String fps = "FPS: " + getFPS();
-            surface.draw(fps, width - fps.length(), 4);
-
-            String tps = "TPS: " + getTPS();
-            surface.draw(tps, width - tps.length(), 5);
-
-            return Math.max(moveInfoLength, Math.max(pushInfoLength, speedInfoLength));
+            setLayout(new BorderLayout());
+            add(bot, BorderLayout.SOUTH);
+            add(mapComponent, BorderLayout.CENTER);
         }
 
         private int speedToMillis() {
@@ -188,28 +168,30 @@ public class SolutionCommand extends LevelCommand {
             );
         }
 
-        protected void update() {
+        public void updateComponent() {
             if (!paused) {
                 animate();
             }
 
-            if (keyPressed(Key.ESCAPE)) {
-                running = false;
-            } else if (keyPressed(Key.ENTER) && !animator.hasNext()) {
-                running = false;
-            } else if (keyPressed(Key.SPACE)) {
+            if (keyReleased(Key.ESCAPE)) {
+                getEngine().stop();
+            } else if (keyReleased(Key.SPACE)) {
                 paused = !paused;
                 lastTime = System.currentTimeMillis();
             } else if (keyPressed(Key.LEFT) && paused) {
 
                 if (animator.hasPrevious()) {
                     animator.moveBackward();
+                    setLabels();
+                    updateMapComponent();
                 }
 
             } else if (keyPressed(Key.RIGHT) && paused) {
 
                 if (animator.hasNext()) {
                     animator.move();
+                    setLabels();
+                    updateMapComponent();
                 }
             } else if (keyPressed(Key.UP)) {
                 if (speed < 60) {
@@ -220,9 +202,11 @@ public class SolutionCommand extends LevelCommand {
                 if (speed > 1) {
                     speed--;
                 }
-            } else if (keyPressed(Key.R)) {
+            } else if (keyReleased(Key.R)) {
                 animator.reset();
-            } else if (justPressed(Key.E)) {
+                setLabels();
+                updateMapComponent();
+            } /*else if (keyReleased(Key.E)) {
                 SolverReport report = animator.getSolution();
                 Level level = report.getLevel();
 
@@ -232,11 +216,11 @@ public class SolutionCommand extends LevelCommand {
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-            }
+            }*/
         }
 
         private void animate() {
-            boolean loop = false;
+            boolean move = false;
 
             while (lastTime + speedToMillis() < System.currentTimeMillis()) {
                 if (animator.hasNext() && !paused) {
@@ -244,18 +228,33 @@ public class SolutionCommand extends LevelCommand {
 
                     lastTime += speedToMillis();
 
+                    move = true;
                     if (!animator.hasNext()) {
                         paused = true;
-                        return;
+                        break;
                     }
-
-                    loop = true;
                 }
             }
 
-            if (loop) {
+            if (move) {
+                updateMapComponent();
+                setLabels();
+
                 lastTime = System.currentTimeMillis();
             }
+        }
+
+        private void setLabels() {
+            movesLabel.setText("%d/%d".formatted(animator.getMoveCount(), animator.numberOfMoves()));
+            pushesLabel.setText("%d/%d".formatted(animator.getPushCount(), animator.numberOfPushes()));
+            speedLabel.setText(Integer.toString(speed));
+        }
+
+        private void updateMapComponent() {
+            mapComponent.setPlayerX(animator.getPlayerX());
+            mapComponent.setPlayerY(animator.getPlayerY());
+            mapComponent.setPlayerDir(animator.getLastMove());
+            mapComponent.repaint();
         }
     }
 
@@ -418,5 +417,5 @@ public class SolutionCommand extends LevelCommand {
         public SolverReport getSolution() {
             return solution;
         }
-    }*/
+    }
 }
