@@ -1,18 +1,17 @@
 package fr.valax.sokoshell.commands.level;
 
+import fr.valax.sokoshell.SokoShellHelper;
 import fr.valax.sokoshell.graphics.*;
-import fr.valax.sokoshell.graphics.layout.BorderLayout;
-import fr.valax.sokoshell.graphics.layout.GridLayout;
-import fr.valax.sokoshell.graphics.layout.GridLayoutConstraints;
-import fr.valax.sokoshell.solver.*;
-import org.jline.keymap.KeyMap;
-import org.jline.terminal.Size;
-import org.jline.terminal.Terminal;
-import org.jline.utils.InfoCmp;
+import fr.valax.sokoshell.graphics.layout.*;
+import fr.valax.sokoshell.solver.Direction;
+import fr.valax.sokoshell.solver.Level;
+import fr.valax.sokoshell.solver.Map;
+import fr.valax.sokoshell.solver.Tile;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.nio.file.Path;
 
 /**
  * @author darth-mole
@@ -31,7 +30,7 @@ public class PlayCommand extends LevelCommand {
             Key.DOWN.addTo(engine);
             Key.UP.addTo(engine);
             Key.ENTER.addTo(engine);
-            Key.E.addTo(engine);
+            Key.CTRL_E.addTo(engine);
             Key.ESCAPE.addTo(engine);
             engine.setRootComponent(new PlayComponent(l, controller));
             engine.show();
@@ -76,46 +75,72 @@ public class PlayCommand extends LevelCommand {
 
             mapComponent = new MapComponent();
             mapComponent.setMap(controller.getMap());
-            mapComponent.setPlayerX(controller.getPlayerX());
-            mapComponent.setPlayerY(controller.getPlayerY());
-
             updateComponents();
+
+
+            Component innerTop = new Component();
+            innerTop.setLayout(new GridLayout());
+            GridLayoutConstraints glc = new GridLayoutConstraints();
+            glc.weightX = glc.weightY = 1;
+            glc.fill = GridLayoutConstraints.BOTH;
+            glc.x = glc.y = 0;
+            innerTop.add(NamedComponent.create("Moves:", movesLabel), glc);
+            glc.x++;
+            innerTop.add(NamedComponent.create("Pushes:", pushesLabel), glc);
+
+            Component innerCenter = new Component();
+            innerCenter.setLayout(new HorizontalLayout());
+            HorizontalConstraint hc = new HorizontalConstraint();
+            hc.fillYAxis = true;
+            hc.endComponent = true;
+            innerCenter.add(new ExportComponent(this::export), hc);
+            hc.endComponent = false;
+            hc.orientation = HorizontalLayout.Orientation.RIGHT;
+            innerCenter.add(new MemoryBar(), hc);
 
 
             Component bot = new Component();
             bot.setBorder(new BasicBorder(true, false, false, false));
-            bot.setLayout(new GridLayout());
-
-            GridLayoutConstraints c = new GridLayoutConstraints();
-            c.x = c.y = 0;
-            c.weightX = c.weightY = 1;
-            c.fill = GridLayoutConstraints.BOTH;
-            bot.add(NamedComponent.create("Moves:", movesLabel), c);
-            c.x++;
-            bot.add(NamedComponent.create("Pushes:", pushesLabel), c);
-            c.x++;
-            c.weightX = c.weightY = 0;
-            bot.add(new MemoryBar(), c);
+            bot.setLayout(new BorderLayout());
+            bot.add(innerTop, BorderLayout.NORTH);
+            bot.add(innerCenter, BorderLayout.CENTER);
 
             setLayout(new BorderLayout());
             add(bot, BorderLayout.SOUTH);
             add(mapComponent, BorderLayout.CENTER);
         }
 
+        private String export() {
+            if (mapComponent.getMap() == null) {
+                return null;
+            }
+
+            try {
+                Path out = SokoShellHelper.INSTANCE
+                        .exportPNG(level.getPack(), level,
+                                controller.getMap(), controller.getPlayerX(), controller.getPlayerY(),
+                                controller.getLastDir(), 16);
+
+                return out.toString();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
         @Override
         protected void updateComponent() {
             if (keyReleased(Key.ESCAPE) || keyReleased(Key.ENTER)) {
                 getEngine().stop();
-            } else if (keyPressed(Key.LEFT)) {
+            } else if (keyReleased(Key.LEFT)) {
                 controller.move(Direction.LEFT);
                 updateComponents();
-            } else if (keyPressed(Key.RIGHT)) {
+            } else if (keyReleased(Key.RIGHT)) {
                 controller.move(Direction.RIGHT);
                 updateComponents();
-            } else if (keyPressed(Key.UP)) {
+            } else if (keyReleased(Key.UP)) {
                 controller.move(Direction.UP);
                 updateComponents();
-            } else if (keyPressed(Key.DOWN)) {
+            } else if (keyReleased(Key.DOWN)) {
                 controller.move(Direction.DOWN);
                 updateComponents();
             } /*else if (keyPressed(Key.E)) {

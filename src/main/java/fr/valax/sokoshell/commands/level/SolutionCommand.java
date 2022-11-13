@@ -1,14 +1,15 @@
 package fr.valax.sokoshell.commands.level;
 
 import fr.valax.args.api.Option;
+import fr.valax.sokoshell.SokoShellHelper;
 import fr.valax.sokoshell.graphics.*;
-import fr.valax.sokoshell.graphics.layout.BorderLayout;
-import fr.valax.sokoshell.graphics.layout.GridLayout;
-import fr.valax.sokoshell.graphics.layout.GridLayoutConstraints;
+import fr.valax.sokoshell.graphics.layout.*;
 import fr.valax.sokoshell.solver.*;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.nio.file.Path;
 import java.util.List;
 
 public class SolutionCommand extends LevelCommand {
@@ -71,7 +72,7 @@ public class SolutionCommand extends LevelCommand {
             Key.ENTER.addTo(engine);
             Key.SPACE.addTo(engine);
             Key.R.addTo(engine);
-            Key.E.addTo(engine);
+            Key.CTRL_E.addTo(engine);
             Key.ESCAPE.addTo(engine);
             engine.setRootComponent(new SolutionComponent(animator));
 
@@ -134,27 +135,58 @@ public class SolutionCommand extends LevelCommand {
 
             updateComponents();
 
+            Component innerTop = new Component();
+            innerTop.setLayout(new GridLayout());
+            GridLayoutConstraints glc = new GridLayoutConstraints();
+            glc.weightX = glc.weightY = 1;
+            glc.fill = GridLayoutConstraints.BOTH;
+            glc.x = glc.y = 0;
+            innerTop.add(NamedComponent.create("Moves:", movesLabel), glc);
+            glc.x++;
+            innerTop.add(NamedComponent.create("Pushes:", pushesLabel), glc);
+            glc.x++;
+            innerTop.add(NamedComponent.create("Speed:", speedLabel), glc);
+
+            Component innerCenter = new Component();
+            innerCenter.setLayout(new HorizontalLayout());
+            HorizontalConstraint hc = new HorizontalConstraint();
+            hc.fillYAxis = true;
+            hc.endComponent = true;
+            innerCenter.add(new ExportComponent(this::export), hc);
+            hc.endComponent = false;
+            hc.orientation = HorizontalLayout.Orientation.RIGHT;
+            innerCenter.add(new MemoryBar(), hc);
+
 
             Component bot = new Component();
             bot.setBorder(new BasicBorder(true, false, false, false));
-            bot.setLayout(new GridLayout());
+            bot.setLayout(new BorderLayout());
+            bot.add(innerTop, BorderLayout.NORTH);
+            bot.add(innerCenter, BorderLayout.CENTER);
 
-            GridLayoutConstraints c = new GridLayoutConstraints();
-            c.x = c.y = 0;
-            c.weightX = c.weightY = 1;
-            c.fill = GridLayoutConstraints.BOTH;
-            bot.add(NamedComponent.create("Moves:", movesLabel), c);
-            c.x++;
-            bot.add(NamedComponent.create("Pushes:", pushesLabel), c);
-            c.x++;
-            bot.add(NamedComponent.create("Speed:", speedLabel), c);
-            c.x++;
-            c.weightX = c.weightY = 0;
-            bot.add(new MemoryBar(), c);
 
             setLayout(new BorderLayout());
             add(bot, BorderLayout.SOUTH);
             add(mapComponent, BorderLayout.CENTER);
+        }
+
+        private String export() {
+            if (mapComponent.getMap() == null) {
+                return null;
+            }
+
+            try {
+                Level l = animator.getSolution().getLevel();
+
+                Path out = SokoShellHelper.INSTANCE
+                        .exportPNG(l.getPack(), l,
+                                animator.getMap(), animator.getPlayerX(), animator.getPlayerY(),
+                                animator.getLastMove(), 16);
+
+                return out.toString();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         private int speedToMillis() {

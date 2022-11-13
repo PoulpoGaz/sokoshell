@@ -4,20 +4,15 @@ import fr.valax.sokoshell.SokoShellHelper;
 import fr.valax.sokoshell.SolverTask;
 import fr.valax.sokoshell.TaskStatus;
 import fr.valax.sokoshell.graphics.*;
-import fr.valax.sokoshell.graphics.Component;
-import fr.valax.sokoshell.graphics.Graphics;
-import fr.valax.sokoshell.graphics.Label;
 import fr.valax.sokoshell.graphics.layout.*;
-import fr.valax.sokoshell.graphics.layout.BorderLayout;
-import fr.valax.sokoshell.graphics.layout.GridLayout;
 import fr.valax.sokoshell.solver.*;
 import fr.valax.sokoshell.utils.Utils;
-import org.jline.terminal.Size;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.math.BigInteger;
+import java.nio.file.Path;
 import java.util.List;
 
 public class MonitorCommand extends AbstractCommand {
@@ -33,20 +28,17 @@ public class MonitorCommand extends AbstractCommand {
 
 
         Exception ex = null;
-        State last = null;
         try (TerminalEngine engine = new TerminalEngine(helper.getTerminal())) {
             initEngine(engine, runningTask);
             try {
                 engine.show();
             } catch (Exception e) { // due to the voluntary lack of synchronization, actually never happen
                 ex = e;
-                //last = monitor.state;
             }
         }
 
         if (ex != null) {
             ex.printStackTrace(err);
-            err.println(last);
         }
 
         return 0;
@@ -54,7 +46,7 @@ public class MonitorCommand extends AbstractCommand {
 
     private void initEngine(TerminalEngine engine, SolverTask task) {
         Key.ENTER.addTo(engine);
-        Key.E.addTo(engine);
+        Key.CTRL_E.addTo(engine);
         Key.ESCAPE.addTo(engine);
 
         engine.setRootComponent(new Monitor(task));
@@ -85,6 +77,8 @@ public class MonitorCommand extends AbstractCommand {
         private int index;
 
         private State currentState;
+        private Level currentLevel;
+        private Pack currentPack;
 
 
         // top labels
@@ -189,7 +183,7 @@ public class MonitorCommand extends AbstractCommand {
             HorizontalConstraint hc = new HorizontalConstraint();
             hc.fillYAxis = true;
             hc.endComponent = true;
-            innerCenter.add(new Label("export"), hc);
+            innerCenter.add(new ExportComponent(this::export), hc);
             hc.endComponent = false;
             hc.orientation = HorizontalLayout.Orientation.RIGHT;
             innerCenter.add(new MemoryBar(), hc);
@@ -202,6 +196,23 @@ public class MonitorCommand extends AbstractCommand {
             component.add(innerCenter, BorderLayout.CENTER);
 
             return component;
+        }
+
+        private String export() {
+            if (mapComponent.getMap() == null) {
+                return null;
+            }
+
+            try {
+                Path out = SokoShellHelper.INSTANCE
+                        .exportPNG(currentPack, currentLevel,
+                                mapComponent.getMap(), mapComponent.getPlayerX(), mapComponent.getPlayerY(),
+                                Direction.DOWN, 16);
+
+                return out.toString();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         @Override
@@ -237,8 +248,8 @@ public class MonitorCommand extends AbstractCommand {
             index = task.getCurrentLevel();
 
             if (index >= 0 && index < levels.size()) {
-                Level currentLevel = levels.get(index);
-                Pack currentPack = currentLevel.getPack();
+                currentLevel = levels.get(index);
+                currentPack = currentLevel.getPack();
 
                 Map map = currentLevel.getMap();
 
@@ -257,6 +268,8 @@ public class MonitorCommand extends AbstractCommand {
             } else if (task.getTaskStatus() == TaskStatus.FINISHED) {
                 progressLabel.setText("Done!");
             } else {
+                currentLevel = null;
+                currentPack = null;
                 mapComponent.setMap(null);
 
                 progressLabel.setText("?/" + task.getLevels().size());

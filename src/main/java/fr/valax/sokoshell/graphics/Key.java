@@ -84,6 +84,8 @@ public interface Key {
     Key DELETE = new SimpleKey(KeyMap.del());
     Key SPACE = new SimpleKey(" ");
 
+    Key CTRL_E = ctrl('e');
+
     static Key alt(String c) {
         return new SimpleKey(KeyMap.alt(c));
     }
@@ -95,8 +97,10 @@ public interface Key {
     static Key concat(Key... keys) {
         if (keys == null || keys.length == 0) {
             return null;
+        } else if (keys.length == 1) {
+            return keys[0];
+        } else {
+            return new ConcatKey(keys);
         }
-
-        return new ConcatKey(keys);
     }
 }

@@ -1,16 +1,12 @@
 package fr.valax.sokoshell.graphics;
 
-import org.jline.keymap.KeyMap;
 import org.jline.terminal.Size;
-import org.jline.terminal.Terminal;
-import org.jline.terminal.TerminalBuilder;
-import org.jline.utils.*;
+import org.jline.utils.AttributedString;
+import org.jline.utils.AttributedStringBuilder;
+import org.jline.utils.AttributedStyle;
+import org.jline.utils.Display;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.io.PrintStream;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;

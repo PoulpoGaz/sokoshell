@@ -2,7 +2,6 @@ package fr.valax.sokoshell.commands;
 
 import fr.valax.args.api.Option;
 import fr.valax.args.utils.ArgsUtils;
-import fr.valax.interval.ParseException;
 import fr.valax.interval.Set;
 import fr.valax.sokoshell.graphics.Graphics;
 import fr.valax.sokoshell.graphics.Surface;

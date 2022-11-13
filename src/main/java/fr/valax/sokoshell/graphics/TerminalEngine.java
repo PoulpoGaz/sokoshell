@@ -11,7 +11,10 @@ import org.jline.utils.InfoCmp;
 
 import java.io.IOError;
 import java.io.InterruptedIOException;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.Future;
 
 /**
@@ -346,7 +349,6 @@ public class TerminalEngine implements AutoCloseable {
          * If the key is pressed
          */
         private boolean pressed = false;
-
         private boolean released = false;
 
         public KeyInfo(Key key) {

@@ -72,17 +72,17 @@ public class SokoShellHelper {
 
     // export
 
-    public void exportPNG(Level level, int size) throws IOException {
-        exportPNG(level.getPack(), level, level.getMap(), level.getPlayerX(), level.getPlayerY(), Direction.DOWN, size);
+    public Path exportPNG(Level level, int size) throws IOException {
+        return exportPNG(level.getPack(), level, level.getMap(), level.getPlayerX(), level.getPlayerY(), Direction.DOWN, size);
     }
 
-    public void exportPNG(Pack pack, Level level, fr.valax.sokoshell.solver.Map map,
+    public Path exportPNG(Pack pack, Level level, fr.valax.sokoshell.solver.Map map,
                           int playerX, int playerY, Direction playerDir)
             throws IOException {
-        exportPNG(pack, level, map, playerX, playerY, playerDir, 16);
+        return exportPNG(pack, level, map, playerX, playerY, playerDir, 16);
     }
 
-    public void exportPNG(Pack pack, Level level, fr.valax.sokoshell.solver.Map map,
+    public Path exportPNG(Pack pack, Level level, fr.valax.sokoshell.solver.Map map,
                           int playerX, int playerY, Direction playerDir, int size)
             throws IOException {
         BufferedImage image = exporter.asImage(map, playerX, playerY, playerDir, size);
@@ -93,9 +93,9 @@ public class SokoShellHelper {
         } else if (pack != null && level == null) {
             out = exportFolder.resolve(pack.name() + ".png");
         } else if (pack == null) {
-            out = exportFolder.resolve(level.getIndex() + ".png");
+            out = exportFolder.resolve((level.getIndex() + 1) + ".png");
         } else {
-            out = exportFolder.resolve(pack.name() + "_" + level.getIndex() + ".png");
+            out = exportFolder.resolve(pack.name() + "_" + (level.getIndex() + 1) + ".png");
         }
 
         out = Utils.checkExists(out);
@@ -106,6 +106,8 @@ public class SokoShellHelper {
         }
 
         ImageIO.write(image, "png", out.toFile());
+
+        return out;
     }
 
     // packs

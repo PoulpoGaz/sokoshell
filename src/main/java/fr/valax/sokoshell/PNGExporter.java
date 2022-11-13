@@ -27,6 +27,7 @@ public class PNGExporter {
     }
 
     public BufferedImage asImage(Map map, int playerX, int playerY, Direction playerDir, int size) {
+        playerDir = playerDir == null ? Direction.DOWN : playerDir;
         size = mapStyle.findBestSize(size);
 
         int imgWidth = size * map.getWidth();
