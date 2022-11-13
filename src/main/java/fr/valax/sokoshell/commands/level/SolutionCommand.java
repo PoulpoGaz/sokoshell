@@ -73,7 +73,6 @@ public class SolutionCommand extends LevelCommand {
             Key.R.addTo(engine);
             Key.E.addTo(engine);
             Key.ESCAPE.addTo(engine);
-            engine.getKeyMap().setAmbiguousTimeout(100L);
             engine.setRootComponent(new SolutionComponent(animator));
 
             engine.show();
@@ -127,7 +126,14 @@ public class SolutionCommand extends LevelCommand {
             pushesLabel.setHorizAlign(Label.WEST);
             speedLabel = new Label();
             speedLabel.setHorizAlign(Label.WEST);
-            setLabels();
+
+            mapComponent = new MapComponent();
+            mapComponent.setMap(animator.getMap());
+            mapComponent.setPlayerX(animator.getPlayerX());
+            mapComponent.setPlayerY(animator.getPlayerY());
+
+            updateComponents();
+
 
             Component bot = new Component();
             bot.setBorder(new BasicBorder(true, false, false, false));
@@ -145,11 +151,6 @@ public class SolutionCommand extends LevelCommand {
             c.x++;
             c.weightX = c.weightY = 0;
             bot.add(new MemoryBar(), c);
-
-            mapComponent = new MapComponent();
-            mapComponent.setMap(animator.getMap());
-            mapComponent.setPlayerX(animator.getPlayerX());
-            mapComponent.setPlayerY(animator.getPlayerY());
 
             setLayout(new BorderLayout());
             add(bot, BorderLayout.SOUTH);
@@ -182,16 +183,14 @@ public class SolutionCommand extends LevelCommand {
 
                 if (animator.hasPrevious()) {
                     animator.moveBackward();
-                    setLabels();
-                    updateMapComponent();
+                    updateComponents();
                 }
 
             } else if (keyPressed(Key.RIGHT) && paused) {
 
                 if (animator.hasNext()) {
                     animator.move();
-                    setLabels();
-                    updateMapComponent();
+                    updateComponents();
                 }
             } else if (keyPressed(Key.UP)) {
                 if (speed < 60) {
@@ -204,8 +203,7 @@ public class SolutionCommand extends LevelCommand {
                 }
             } else if (keyReleased(Key.R)) {
                 animator.reset();
-                setLabels();
-                updateMapComponent();
+                updateComponents();
             } /*else if (keyReleased(Key.E)) {
                 SolverReport report = animator.getSolution();
                 Level level = report.getLevel();
@@ -237,20 +235,17 @@ public class SolutionCommand extends LevelCommand {
             }
 
             if (move) {
-                updateMapComponent();
-                setLabels();
+                updateComponents();
 
                 lastTime = System.currentTimeMillis();
             }
         }
 
-        private void setLabels() {
+        private void updateComponents() {
             movesLabel.setText("%d/%d".formatted(animator.getMoveCount(), animator.numberOfMoves()));
             pushesLabel.setText("%d/%d".formatted(animator.getPushCount(), animator.numberOfPushes()));
             speedLabel.setText(Integer.toString(speed));
-        }
 
-        private void updateMapComponent() {
             mapComponent.setPlayerX(animator.getPlayerX());
             mapComponent.setPlayerY(animator.getPlayerY());
             mapComponent.setPlayerDir(animator.getLastMove());

@@ -56,7 +56,6 @@ public class MonitorCommand extends AbstractCommand {
         Key.ENTER.addTo(engine);
         Key.E.addTo(engine);
         Key.ESCAPE.addTo(engine);
-        engine.getKeyMap().setAmbiguousTimeout(100L);
 
         engine.setRootComponent(new Monitor(task));
     }

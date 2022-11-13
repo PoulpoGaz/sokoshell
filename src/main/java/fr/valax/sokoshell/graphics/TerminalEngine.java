@@ -71,6 +71,7 @@ public class TerminalEngine implements AutoCloseable {
 
     public TerminalEngine(Terminal terminal) {
         this.terminal = Objects.requireNonNull(terminal);
+        keyMap.setAmbiguousTimeout(100L);
     }
 
     /**

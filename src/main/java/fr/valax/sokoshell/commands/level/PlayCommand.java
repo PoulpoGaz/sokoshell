@@ -1,7 +1,9 @@
 package fr.valax.sokoshell.commands.level;
 
-import fr.valax.sokoshell.graphics.MapRenderer;
-import fr.valax.sokoshell.graphics.TerminalEngine;
+import fr.valax.sokoshell.graphics.*;
+import fr.valax.sokoshell.graphics.layout.BorderLayout;
+import fr.valax.sokoshell.graphics.layout.GridLayout;
+import fr.valax.sokoshell.graphics.layout.GridLayoutConstraints;
 import fr.valax.sokoshell.solver.*;
 import org.jline.keymap.KeyMap;
 import org.jline.terminal.Size;
@@ -21,11 +23,19 @@ public class PlayCommand extends LevelCommand {
     protected int executeImpl(InputStream in, PrintStream out, PrintStream err) throws InvalidArgument {
         Level l = getLevel(pack, level);
 
-        //PlayCommand.GameController controller = new PlayCommand.GameController(l);
+        PlayCommand.GameController controller = new PlayCommand.GameController(l);
 
-        /*try (PlayCommand.PlayView view = new PlayCommand.PlayView(helper.getTerminal(), l, controller)) {
-            view.show();
-        }*/
+        try (TerminalEngine engine = new TerminalEngine(helper.getTerminal())) {
+            Key.LEFT.addTo(engine);
+            Key.RIGHT.addTo(engine);
+            Key.DOWN.addTo(engine);
+            Key.UP.addTo(engine);
+            Key.ENTER.addTo(engine);
+            Key.E.addTo(engine);
+            Key.ESCAPE.addTo(engine);
+            engine.setRootComponent(new PlayComponent(l, controller));
+            engine.show();
+        }
 
         return SUCCESS;
     }
@@ -41,92 +51,74 @@ public class PlayCommand extends LevelCommand {
         return new String[0];
     }
 
-    private enum Key {
-
-        ESCAPE,
-        LEFT,
-        RIGHT,
-        DOWN,
-        UP,
-        ENTER,
-        E
-    }
-
-    /*public class PlayView extends TerminalEngine<Key> {
+    public class PlayComponent extends Component {
 
         private final Level level;
         private final GameController controller;
 
-        public PlayView(Terminal terminal, Level level, GameController controller) {
-            super(terminal);
+        private Label movesLabel;
+        private Label pushesLabel;
+
+        private MapComponent mapComponent;
+
+        public PlayComponent(Level level, GameController controller) {
             this.level = level;
             this.controller = controller;
+
+            initComponent();
+        }
+
+        private void initComponent() {
+            movesLabel = new Label();
+            movesLabel.setHorizAlign(Label.WEST);
+            pushesLabel = new Label();
+            pushesLabel.setHorizAlign(Label.WEST);
+
+            mapComponent = new MapComponent();
+            mapComponent.setMap(controller.getMap());
+            mapComponent.setPlayerX(controller.getPlayerX());
+            mapComponent.setPlayerY(controller.getPlayerY());
+
+            updateComponents();
+
+
+            Component bot = new Component();
+            bot.setBorder(new BasicBorder(true, false, false, false));
+            bot.setLayout(new GridLayout());
+
+            GridLayoutConstraints c = new GridLayoutConstraints();
+            c.x = c.y = 0;
+            c.weightX = c.weightY = 1;
+            c.fill = GridLayoutConstraints.BOTH;
+            bot.add(NamedComponent.create("Moves:", movesLabel), c);
+            c.x++;
+            bot.add(NamedComponent.create("Pushes:", pushesLabel), c);
+            c.x++;
+            c.weightX = c.weightY = 0;
+            bot.add(new MemoryBar(), c);
+
+            setLayout(new BorderLayout());
+            add(bot, BorderLayout.SOUTH);
+            add(mapComponent, BorderLayout.CENTER);
         }
 
         @Override
-        protected void start() {
-            keyMap.bind(PlayCommand.Key.LEFT, KeyMap.key(terminal, InfoCmp.Capability.key_left));
-            keyMap.bind(PlayCommand.Key.RIGHT, KeyMap.key(terminal, InfoCmp.Capability.key_right));
-            keyMap.bind(PlayCommand.Key.DOWN, KeyMap.key(terminal, InfoCmp.Capability.key_down));
-            keyMap.bind(PlayCommand.Key.UP, KeyMap.key(terminal, InfoCmp.Capability.key_up));
-            keyMap.bind(PlayCommand.Key.ENTER, "\r");
-            keyMap.bind(PlayCommand.Key.E, "e");
-            keyMap.bind(PlayCommand.Key.ESCAPE, KeyMap.esc());
-            keyMap.setAmbiguousTimeout(100L);
-        }
-
-        protected int render(Size size) {
-            surface.clear();
-
-            int width = drawInfo(size.getColumns(), size.getRows());
-
-            MapRenderer renderer = helper.getRenderer();
-            Map map = controller.getMap();
-
-            Direction lastMove = controller.getLastDir();
-            if (lastMove == null) {
-                lastMove = Direction.DOWN;
-            }
-
-            double yRatio = (double) size.getRows() / map.getHeight();
-            double xRatio = (double) (size.getColumns() - width) / map.getWidth();
-
-            int s = (int) Math.min(xRatio, yRatio);
-
-            renderer.draw(graphics, 0, 0, s,
-                    controller.getMap(), controller.getPlayerX(), controller.getPlayerY(), lastMove);
-
-            return 0;
-        }
-
-        private int drawInfo(int width, int height) {
-            String moves = "Moves: " + controller.getMoveCount();
-            surface.draw(moves, width - moves.length(), 0);
-
-            String pushes = "Pushes: " + controller.getPushCount();
-            surface.draw(pushes, width - pushes.length(), 1);
-
-            String fps = "FPS: " + getFPS();
-            surface.draw(fps, width - fps.length(), 4);
-
-            String tps = "TPS: " + getTPS();
-            surface.draw(tps, width - tps.length(), 5);
-
-            return Math.max(moves.length(), pushes.length());
-        }
-
-        protected void update() {
-            if (keyPressed(PlayCommand.Key.ESCAPE) || keyPressed(PlayCommand.Key.ENTER)) {
-                running = false;
-            } else if (keyPressed(PlayCommand.Key.LEFT)) {
+        protected void updateComponent() {
+            if (keyReleased(Key.ESCAPE) || keyReleased(Key.ENTER)) {
+                getEngine().stop();
+            } else if (keyPressed(Key.LEFT)) {
                 controller.move(Direction.LEFT);
-            } else if (keyPressed(PlayCommand.Key.RIGHT)) {
+                updateComponents();
+            } else if (keyPressed(Key.RIGHT)) {
                 controller.move(Direction.RIGHT);
-            } else if (keyPressed(PlayCommand.Key.UP)) {
+                updateComponents();
+            } else if (keyPressed(Key.UP)) {
                 controller.move(Direction.UP);
-            } else if (keyPressed(PlayCommand.Key.DOWN)) {
+                updateComponents();
+            } else if (keyPressed(Key.DOWN)) {
                 controller.move(Direction.DOWN);
-            } else if (justPressed(PlayCommand.Key.E)) {
+                updateComponents();
+            } /*else if (keyPressed(Key.E)) {
                 Direction lastMove = controller.getLastDir();
                 if (lastMove == null) {
                     lastMove = Direction.DOWN;
@@ -138,12 +130,22 @@ public class PlayCommand extends LevelCommand {
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-            }
+            }*/
+        }
+
+        private void updateComponents() {
+            movesLabel.setText(Integer.toString(controller.getMoveCount()));
+            pushesLabel.setText(Integer.toString(controller.getPushCount()));
+
+            mapComponent.setPlayerX(controller.getPlayerX());
+            mapComponent.setPlayerY(controller.getPlayerY());
+            mapComponent.setPlayerDir(controller.getLastDir());
+            mapComponent.repaint();
         }
     }
 
-    public class GameController {
-        private Map map;
+    public static class GameController {
+        private final Map map;
         private int playerX;
         private int playerY;
         private int moves;
@@ -187,11 +189,11 @@ public class PlayCommand extends LevelCommand {
          * @param x x-coordinate
          * @param y y-coordinate
          */
-        /*private void movePlayer(int x, int y) {
+        private void movePlayer(int x, int y) {
             playerX = x;
             playerY = y;
             moves++;
-        }*/
+        }
 
         /**
          * Moves a crate from (x,y) to (nextX, nextY). The move MUST be valid (no check preformed).
@@ -200,7 +202,7 @@ public class PlayCommand extends LevelCommand {
          * @param nextX new x-coordinate
          * @param nextY new y-coordinate
          */
-        /*private void moveCrate(int x, int y, int nextX, int nextY) {
+        private void moveCrate(int x, int y, int nextX, int nextY) {
 
             Tile curr = map.getAt(x, y).getTile();
             Tile next = map.getAt(nextX, nextY).getTile();
@@ -231,5 +233,5 @@ public class PlayCommand extends LevelCommand {
         public int getMoveCount() { return moves; }
 
         public boolean isMapCompleted() { return mapCompleted; }
-    }*/
+    }
 }
