@@ -23,6 +23,8 @@ public enum Direction {
      */
     public static final Direction[] VERTICAL = new Direction[] {UP, DOWN};
 
+    public static final Direction[] VALUES = new Direction[] {LEFT, UP, RIGHT, DOWN};
+
     private final int dirX;
     private final int dirY;
 

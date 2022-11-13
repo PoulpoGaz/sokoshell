@@ -83,7 +83,7 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
         processed.clear();
         toProcess.add(initialState);
 
-        measurer.reset();
+        //measurer.reset();
 
         while (!toProcess.isEmpty() && !stopped) {
             if (hasTimedOut(timeout)) {
@@ -104,9 +104,9 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
                 break;
             }
 
-            measurer.start("freeze");
+            //measurer.start("freeze");
             boolean freeze = checkFreezeDeadlock(map, cur);
-            measurer.end("freeze");
+            //measurer.end("freeze");
 
             if (!freeze) {
                 addChildrenStates(cur, map);
@@ -117,7 +117,7 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
 
         // END OF RESEARCH
 
-        System.out.println(measurer);
+        //System.out.println(measurer);
 
         timeEnd = System.currentTimeMillis();
         nStateProcessed = processed.size();
@@ -141,11 +141,11 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
     }
 
     private void addChildrenStates(State cur, Map map) {
-        measurer.start("reachable");
+        //measurer.start("reachable");
         map.findReachableCases(cur.playerPos());
-        measurer.end("reachable");
+        //measurer.end("reachable");
 
-        measurer.start("child");
+        //measurer.start("child");
         int[] cratesIndices = cur.cratesIndices();
         for (int crateIndex = 0; crateIndex < cratesIndices.length; crateIndex++) {
 
@@ -153,7 +153,7 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
             int crateX = map.getX(crate);
             int crateY = map.getY(crate);
 
-            for (Direction d : Direction.values()) {
+            for (Direction d : Direction.VALUES) {
 
                 final int crateDestX = crateX + d.dirX();
                 final int crateDestY = crateY + d.dirY();
@@ -178,15 +178,15 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
                 // The new player position is the crate position
                 State s = State.child(cur, i, crateIndex, crateDestY * map.getWidth() + crateDestX);
 
-                measurer.start("add");
+                //measurer.start("add");
                 if (processed.add(s)) {
                     toProcess.add(s);
                 }
-                measurer.end("add");
+                //measurer.end("add");
             }
         }
 
-        measurer.end("child");
+        //measurer.end("child");
     }
 
     protected boolean hasTimedOut(long timeout) {

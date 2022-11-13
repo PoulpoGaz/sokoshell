@@ -38,6 +38,12 @@ public class Map {
     private final MarkSystem reachableMarkSystem = newMarkSystem((t) -> t.setReachable(false));
 
     /**
+     * Must be used only for {@link #topLeftReachablePosition(int, int, int, int)}
+     */
+    private final IntWrapper topX = new IntWrapper();
+    private final IntWrapper topY = new IntWrapper();
+
+    /**
      * Creates a Map with the specified width, height and tiles
      *
      * @param content a rectangular matrix of size width * height. The first index is for the rows
@@ -199,7 +205,7 @@ public class Map {
      */
     private void findNonDeadCases(TileInfo tile, Direction lastDir) {
         tile.setDeadTile(false);
-        for (Direction d : Direction.values()) {
+        for (Direction d : Direction.VALUES) {
             if (d == lastDir) { // do not go backwards
                 continue;
             }
@@ -230,7 +236,7 @@ public class Map {
 
     private void findReachableCases_aux(TileInfo tile) {
         tile.setReachable(true);
-        for (Direction d : Direction.values()) {
+        for (Direction d : Direction.VALUES) {
             TileInfo adjacent = tile.adjacent(d);
 
             // the second part of the condition avoids to check already processed cases
@@ -255,11 +261,11 @@ public class Map {
         getAt(crateToMoveX, crateToMoveY).removeCrate();
         getAt(destX, destY).addCrate();
 
-        IntWrapper topX = new IntWrapper(width);
-        IntWrapper topY = new IntWrapper(height);
+        topX.set(width);
+        topY.set(height);
 
         markSystem.unmarkAll();
-        topLeftReachablePosition_aux(getAt(crateToMoveX, crateToMoveY), topX, topY);
+        topLeftReachablePosition_aux(getAt(crateToMoveX, crateToMoveY));
 
         // undo
         getAt(crateToMoveX, crateToMoveY).addCrate();
@@ -268,18 +274,18 @@ public class Map {
         return topY.get() * width + topX.get();
     }
 
-    private void topLeftReachablePosition_aux(TileInfo tile, IntWrapper topX, IntWrapper topY) {
+    private void topLeftReachablePosition_aux(TileInfo tile) {
         if (tile.getY() < topY.get() || (tile.getY() == topY.get() && tile.getX() < topX.get())) {
             topX.set(tile.getX());
             topY.set(tile.getY());
         }
 
         tile.mark();
-        for (Direction d : Direction.values()) {
+        for (Direction d : Direction.VALUES) {
             TileInfo adjacent = tile.adjacent(d);
 
             if (!adjacent.isSolid() && !adjacent.isMarked()) {
-                topLeftReachablePosition_aux(adjacent, topX, topY);
+                topLeftReachablePosition_aux(adjacent);
             }
         }
     }

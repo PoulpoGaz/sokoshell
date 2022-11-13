@@ -160,7 +160,7 @@ public class SolverReport {
         while (!queue.isEmpty() && solution == null) {
             Node node = queue.poll();
 
-            for (Direction direction : Direction.values()) {
+            for (Direction direction : Direction.VALUES) {
                 int newX = node.playerX + direction.dirX();
                 int newY = node.playerY + direction.dirY();
 
