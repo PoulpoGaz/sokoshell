@@ -89,6 +89,22 @@ public class Map {
     }
 
     /**
+     * Puts the crates of the given state in the content array.
+     * If a crate is outside the map, it doesn't throw an {@link IndexOutOfBoundsException}
+     *
+     * @param state The state with the crates
+     */
+    public void safeAddStateCrates(State state) {
+        for (int i : state.cratesIndices()) {
+            TileInfo info = safeGetAt(i);
+
+            if (info != null) {
+                info.addCrate();
+            }
+        }
+    }
+
+    /**
      * Removes the crates of the given state from the content array.
      *
      * @param state The state with the crates
@@ -96,6 +112,22 @@ public class Map {
     public void removeStateCrates(State state) {
         for (int i : state.cratesIndices()) {
             getAt(i).removeCrate();
+        }
+    }
+
+    /**
+     * Removes the crates of the given state from the content array.
+     * If a crate is outside the map, it doesn't throw an {@link IndexOutOfBoundsException}
+     *
+     * @param state The state with the crates
+     */
+    public void safeRemoveStateCrates(State state) {
+        for (int i : state.cratesIndices()) {
+            TileInfo info = safeGetAt(i);
+
+            if (info != null) {
+                info.removeCrate();
+            }
         }
     }
 

@@ -22,7 +22,7 @@ public class BasicBorder implements Border {
     }
 
     public BasicBorder(boolean top, boolean left, boolean bottom, boolean right) {
-        this(true, left, bottom, right, LIGHT);
+        this(top, left, bottom, right, LIGHT);
     }
 
     public BasicBorder(boolean top, boolean left, boolean bottom, boolean right, Skin skin) {

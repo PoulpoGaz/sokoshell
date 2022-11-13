@@ -69,7 +69,7 @@ public class MemoryBar extends Component {
     @Override
     protected Dimension compPreferredSize() {
         MemoryUsage mem = getMemoryUsage();
-        String text = asMegaByte(mem.getCommitted()) + " of " + asMegaByte(mem.getCommitted()) + "M";
+        String text = asMegaByte(mem.getMax()) + " of " + asMegaByte(mem.getMax()) + "M";
 
         return new Dimension(text.length(), 1);
     }

@@ -2,23 +2,23 @@ package fr.valax.sokoshell.commands;
 
 import fr.valax.sokoshell.SokoShellHelper;
 import fr.valax.sokoshell.SolverTask;
+import fr.valax.sokoshell.TaskStatus;
+import fr.valax.sokoshell.graphics.*;
 import fr.valax.sokoshell.graphics.Component;
-import fr.valax.sokoshell.graphics.MapRenderer;
-import fr.valax.sokoshell.graphics.TerminalEngine;
+import fr.valax.sokoshell.graphics.Graphics;
+import fr.valax.sokoshell.graphics.Label;
+import fr.valax.sokoshell.graphics.layout.*;
+import fr.valax.sokoshell.graphics.layout.BorderLayout;
+import fr.valax.sokoshell.graphics.layout.GridLayout;
 import fr.valax.sokoshell.solver.*;
 import fr.valax.sokoshell.utils.Utils;
-import org.jline.keymap.KeyMap;
 import org.jline.terminal.Size;
-import org.jline.terminal.Terminal;
-import org.jline.utils.InfoCmp;
 
-import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.math.BigInteger;
 import java.util.List;
-import java.util.Objects;
 
 public class MonitorCommand extends AbstractCommand {
 
@@ -35,7 +35,7 @@ public class MonitorCommand extends AbstractCommand {
         Exception ex = null;
         State last = null;
         try (TerminalEngine engine = new TerminalEngine(helper.getTerminal())) {
-            initEngine(engine);
+            initEngine(engine, runningTask);
             try {
                 engine.show();
             } catch (Exception e) { // due to the voluntary lack of synchronization, actually never happen
@@ -52,8 +52,13 @@ public class MonitorCommand extends AbstractCommand {
         return 0;
     }
 
-    private void initEngine(TerminalEngine engine) {
+    private void initEngine(TerminalEngine engine, SolverTask task) {
+        Key.ENTER.addTo(engine);
+        Key.E.addTo(engine);
+        Key.ESCAPE.addTo(engine);
+        engine.getKeyMap().setAmbiguousTimeout(100L);
 
+        engine.setRootComponent(new Monitor(task));
     }
 
     @Override
@@ -71,35 +76,33 @@ public class MonitorCommand extends AbstractCommand {
         return new String[0];
     }
 
-    private enum Key {
+    private static class Monitor extends Component {
 
-        ESCAPE,
-        LEFT,
-        RIGHT,
-        DOWN,
-        UP,
-        ENTER,
-        E
-    }
-
-    /*private static class Monitor extends Component {
-
-        private final SokoShellHelper helper;
         private final SolverTask task;
         private final List<Level> levels;
         private final Solver solver;
         private final Trackable trackable;
 
-        private Pack currentPack;
-        private Level currentLevel;
         private int index;
 
-        private Map map;
-        private BigInteger numberOfStates;
-        private State state;
+        private State currentState;
 
-        public Monitor(SokoShellHelper helper, SolverTask task) {
-            this.helper = helper;
+
+        // top labels
+        private final Label progressLabel = new Label();
+
+        private final Label runningForLabel = new Label();
+        private final Label stateExploredLabel = new Label();
+        private final Label queueSizeLabel = new Label();
+
+        // bot labels
+        private final Label packLabel = new Label();
+        private final Label levelLabel = new Label();
+        private final Label maxNumberOfStateLabel = new Label();
+
+        private MapComponent mapComponent;
+
+        public Monitor(SolverTask task) {
             this.task = task;
             this.levels = task.getLevels();
             this.solver = task.getSolver();
@@ -110,154 +113,102 @@ public class MonitorCommand extends AbstractCommand {
                 this.trackable = null;
             }
 
+            initComponent();
             changeLevel();
         }
 
+        private void initComponent() {
+            setLayout(new BorderLayout());
+
+            Component top = createTopComponent();
+            Component bottom = createBotComponent();
+            mapComponent = new MapComponent();
+
+            add(top, BorderLayout.NORTH);
+            add(bottom, BorderLayout.SOUTH);
+            add(mapComponent, BorderLayout.CENTER);
+        }
+
+        private Component createTopComponent() {
+            progressLabel.setHorizAlign(Label.WEST);
+            runningForLabel.setHorizAlign(Label.WEST);
+            stateExploredLabel.setHorizAlign(Label.WEST);
+            queueSizeLabel.setHorizAlign(Label.WEST);
+
+            Component top = new Component();
+            top.setLayout(new GridLayout());
+            top.setBorder(new BasicBorder(false, false, true, false));
+
+
+            GridLayoutConstraints c = new GridLayoutConstraints();
+            c.weightX = 1;
+            c.weightY = 1;
+            c.x = 0;
+            c.y = 0;
+            c.fill = GridLayoutConstraints.BOTH;
+
+            top.add(NamedComponent.create("Task id:", new Label("#" + task.getTaskIndex(), Label.WEST)), c);
+            c.x++;
+            top.add(NamedComponent.create("Request pack:", new Label(task.getPack(), Label.WEST)), c);
+            c.x++;
+            top.add(NamedComponent.create("Request level:", new Label(task.getLevel(), Label.WEST)), c);
+            c.x++;
+            top.add(NamedComponent.create("Progress:", progressLabel), c);
+
+            c.x = 0;
+            c.y++;
+            top.add(NamedComponent.create("Running for:", runningForLabel), c);
+            c.x++;
+            top.add(NamedComponent.create("State explored:", stateExploredLabel), c);
+            c.x++;
+            top.add(NamedComponent.create("Queue size:", queueSizeLabel), c);
+
+            return top;
+        }
+
+        private Component createBotComponent() {
+            packLabel.setHorizAlign(Label.WEST);
+            levelLabel.setHorizAlign(Label.WEST);
+            maxNumberOfStateLabel.setHorizAlign(Label.WEST);
+
+            Component innerTop = new Component();
+            innerTop.setLayout(new GridLayout());
+            GridLayoutConstraints glc = new GridLayoutConstraints();
+            glc.weightX = glc.weightY = 1;
+            glc.fill = GridLayoutConstraints.BOTH;
+            glc.x = glc.y = 0;
+            innerTop.add(NamedComponent.create("Pack:", packLabel), glc);
+            glc.x++;
+            innerTop.add(NamedComponent.create("Level:", levelLabel), glc);
+            glc.x++;
+            innerTop.add(NamedComponent.create("Max number of state:", maxNumberOfStateLabel), glc);
+            glc.x++;
+
+
+            Component innerCenter = new Component();
+            innerCenter.setLayout(new HorizontalLayout());
+            HorizontalConstraint hc = new HorizontalConstraint();
+            hc.fillYAxis = true;
+            hc.endComponent = true;
+            innerCenter.add(new Label("export"), hc);
+            hc.endComponent = false;
+            hc.orientation = HorizontalLayout.Orientation.RIGHT;
+            innerCenter.add(new MemoryBar(), hc);
+
+
+            Component component = new Component();
+            component.setLayout(new BorderLayout());
+            component.setBorder(new BasicBorder(true, false, false, false));
+            component.add(innerTop, BorderLayout.NORTH);
+            component.add(innerCenter, BorderLayout.CENTER);
+
+            return component;
+        }
+
         @Override
-        protected void start() {
-            keyMap.bind(Key.LEFT, KeyMap.key(terminal, InfoCmp.Capability.key_left));
-            keyMap.bind(Key.RIGHT, KeyMap.key(terminal, InfoCmp.Capability.key_right));
-            keyMap.bind(Key.DOWN, KeyMap.key(terminal, InfoCmp.Capability.key_down));
-            keyMap.bind(Key.UP, KeyMap.key(terminal, InfoCmp.Capability.key_up));
-            keyMap.bind(Key.ENTER, "\r");
-            keyMap.bind(Key.E, "e");
-            keyMap.bind(Key.ESCAPE, KeyMap.esc());
-            keyMap.setAmbiguousTimeout(100L);
-        }
-
-        protected int render(Size size) {
-            surface.clear();
-
-            drawHeaderAndFooter(size);
-            if (map != null) {
-                drawMap(size);
-            }
-
-            surface.drawBuffer(display, 0);
-
-            return 0;
-        }
-
-        private void drawMap(Size size) {
-            if (size.getRows() <= 3) {
-                return;
-            }
-
-            int width = size.getColumns();
-            int height = size.getRows() - 3 - 2;
-            int playerX = -1;
-            int playerY = -1;
-
-            MapRenderer renderer = helper.getRenderer();
-            if (state != null) {
-                map.addStateCrates(state);
-                playerX = map.getX(state.playerPos());
-                playerY = map.getY(state.playerPos());
-            }
-
-            renderer.draw(graphics, 0, 2, width, height, map, playerX, playerY, Direction.DOWN);
-            if (state != null) {
-                map.removeStateCrates(state);
-            }
-        }
-
-        private void drawHeaderAndFooter(Size size) {
-            // header
-            drawRegularlyKeyMap(0, size.getColumns(),
-                    "Task id", "#" + task.getTaskIndex(),
-                    "Request pack", task.getPack(),
-                    "Request level", task.getLevel(),
-                    "Progress", task.getCurrentLevel() + "/" + task.getLevels().size());
-
-            if (trackable != null) {
-                long end = trackable.timeEnded();
-                if (end < 0) {
-                    end = System.currentTimeMillis();
-                }
-
-                drawRegularlyKeyMap(1, size.getColumns(),
-                        "Running for", Utils.prettyDate(end - trackable.timeStarted()),
-                        "State explored", trackable.nStateExplored(),
-                        "Queue size", trackable.currentQueueSize(),
-                        "", "");
-            } else {
-                long end = task.getFinishedAt();
-                if (end < 0) {
-                    end = System.currentTimeMillis();
-                }
-
-                drawRegularlyKeyMap(1, size.getColumns(),
-                        "Running for (whole task)", Utils.prettyDate(end - task.getStartedAt()));
-            }
-
-
-            // footer
-            if (currentPack != null && currentLevel != null) {
-                drawRegularlyKeyMap(size.getRows() - 2, size.getColumns(),
-                        "Pack", currentPack.name(),
-                        "Level", currentLevel.getIndex() + 1);
-
-                drawRegularlyKeyMap(size.getRows() - 1, size.getColumns(),
-                        "Max number of states", numberOfStates);
-            }
-        }
-
-        private void drawRegularlyKeyMap(int y, int width, Object... objects) {
-            if (objects.length % 2 != 0) {
-                throw new IllegalArgumentException();
-            }
-
-            int subWidth = 2 * width / objects.length;
-
-            int x = 0;
-            for (int i = 0, objectsLength = objects.length; i < objectsLength; i += 2, x += subWidth) {
-                Object k = objects[i];
-                Object v = objects[i + 1];
-
-                if (k == null && v == null) {
-                    continue;
-                }
-
-                String key = Objects.toString(k);
-                String value = Objects.toString(v);
-
-                if (key.isEmpty() && value.isEmpty()) {
-                    continue;
-                }
-
-                int w = key.length() + value.length();
-
-                if (w >= subWidth) {
-                    if (value.length() >= subWidth) {
-                        surface.draw(value.substring(0, subWidth), x, y);
-                    } else {
-                        String key2 = key.substring(0, subWidth - value.length());
-                        surface.draw(key2, x, y);
-                        surface.draw(value, x + key2.length(), y);
-                    }
-
-                } else if (w + 1 >= subWidth) {
-                    surface.draw(key, x, y);
-                    surface.draw(value, x + 1 + key.length(), y);
-                } else if (w + 2 >= subWidth) {
-                    surface.draw(key, x, y);
-                    surface.draw(":", x + 1 + key.length(), y);
-                    surface.draw(value, x + 2 + key.length(), y);
-                } else {
-                    surface.draw(key, x, y);
-                    surface.draw(":", x + 1 + key.length(), y);
-                    surface.draw(value, x + 3 + key.length(), y);
-                }
-            }
-        }
-
-        private void drawCentered(String str, int y, int width) {
-            surface.draw(str, (width - str.length()) / 2, y);
-        }
-
-        protected void update() {
-            if (keyPressed(Key.ESCAPE)) {
-                running = false;
+        protected void updateComponent() {
+            if (keyReleased(Key.ESCAPE)) {
+                getEngine().stop();
             }
 
             if (task.getCurrentLevel() != index) {
@@ -265,26 +216,21 @@ public class MonitorCommand extends AbstractCommand {
             }
 
             if (trackable != null) {
-                state = trackable.currentState();
-            }
+                State state = trackable.currentState();
 
-            if (justPressed(Key.E)) {
-                int playerX = -1;
-                int playerY = -1;
-                if (state != null) {
-                    map.addStateCrates(state);
-                    playerX = map.getX(state.playerPos());
-                    playerY = map.getY(state.playerPos());
+                if (state != currentState) {
+                    changeState(state);
                 }
 
-                try {
-                    helper.exportPNG(currentPack, currentLevel, map, playerX, playerY, Direction.DOWN, 16);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
+                long end = trackable.timeEnded();
+
+                if (end < 0) {
+                    end = System.currentTimeMillis();
                 }
-                if (state != null) {
-                    map.removeStateCrates(state);
-                }
+
+                runningForLabel.setText(Utils.prettyDate(end - trackable.timeStarted()));
+                stateExploredLabel.setText(Integer.toString(trackable.nStateExplored()));
+                queueSizeLabel.setText(Integer.toString(trackable.currentQueueSize()));
             }
         }
 
@@ -292,19 +238,54 @@ public class MonitorCommand extends AbstractCommand {
             index = task.getCurrentLevel();
 
             if (index >= 0 && index < levels.size()) {
-                currentLevel = levels.get(index);
-                currentPack = currentLevel.getPack();
+                Level currentLevel = levels.get(index);
+                Pack currentPack = currentLevel.getPack();
 
-                map = currentLevel.getMap();
-                numberOfStates = estimateMaxNumberOfStates(map);
-                map.forEach((t) -> {
-                    if (t.isCrate()) {
-                        t.setTile(Tile.FLOOR);
-                    } else if (t.isCrateOnTarget()) {
-                        t.setTile(Tile.TARGET);
-                    }
-                });
+                Map map = currentLevel.getMap();
+
+                BigInteger n = estimateMaxNumberOfStates(map);
+                maxNumberOfStateLabel.setText(n.toString());
+
+                map.forEach(TileInfo::removeCrate);
+
+                progressLabel.setText(index + "/" + task.getLevels().size());
+                levelLabel.setText(Integer.toString(currentLevel.getIndex() + 1));
+                packLabel.setText(currentPack.name());
+
+                mapComponent.setMap(map);
+                mapComponent.setPlayerX(-1);
+                mapComponent.setPlayerY(-1);
+            } else if (task.getTaskStatus() == TaskStatus.FINISHED) {
+                progressLabel.setText("Done!");
+            } else {
+                mapComponent.setMap(null);
+
+                progressLabel.setText("?/" + task.getLevels().size());
+                levelLabel.setText("?");
+                packLabel.setText("?");
+                maxNumberOfStateLabel.setText("?");
             }
+        }
+
+        private void changeState(State newState) {
+            Map map = mapComponent.getMap();
+            if (map == null || newState == null) {
+                return;
+            }
+
+            if (currentState != null) {
+                map.removeStateCrates(currentState);
+            }
+
+            this.currentState = newState;
+            map.safeAddStateCrates(newState);
+
+            int playerX = map.getX(currentState.playerPos());
+            int playerY = map.getY(currentState.playerPos());
+
+            mapComponent.setPlayerX(playerX);
+            mapComponent.setPlayerY(playerY);
+            mapComponent.repaint();
         }
 
         /**
@@ -316,7 +297,7 @@ public class MonitorCommand extends AbstractCommand {
          * <br>
          * (f c) counts the number of way to organize the crate (c) and the player ( + 1)<br>
          */
-        /*private BigInteger estimateMaxNumberOfStates(Map map) {
+        private BigInteger estimateMaxNumberOfStates(Map map) {
             int nCrate = 0;
             int nFloor = 0;
 
@@ -367,5 +348,5 @@ public class MonitorCommand extends AbstractCommand {
     }
 
 
-    private record Tuple(BigInteger a, BigInteger b, BigInteger c) {}*/
+    private record Tuple(BigInteger a, BigInteger b, BigInteger c) {}
 }

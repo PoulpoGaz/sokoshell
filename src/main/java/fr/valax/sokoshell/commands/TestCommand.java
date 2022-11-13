@@ -66,10 +66,13 @@ public class TestCommand extends AbstractCommand {
         glc.x = 1;
         glc.y = 0;
         glc.fill = GridLayoutConstraints.HORIZONTAL;
+        glc.weightY = 0.2;
         centerCenter.setLayout(new GridLayout());
+        centerCenter.setBorder(new BasicBorder());
         centerCenter.add(createLabel("ccc"), glc);
         glc.x = 2;
         glc.y = 1;
+        glc.weightY = 0;
         glc.fill = GridLayoutConstraints.BOTH;
         centerCenter.add(createLabel("ccc2"), glc);
 
@@ -83,6 +86,7 @@ public class TestCommand extends AbstractCommand {
         glc.x = 1;
         centerCenter.add(comp, glc);
 
+        glc.weightY = 1;
         glc.y = 2;
         glc.x = 0;
         glc.weightX = 1;
@@ -91,7 +95,7 @@ public class TestCommand extends AbstractCommand {
         glc.y = 2;
         glc.x = 1;
         glc.weightX = 0;
-        centerCenter.add(createLabel("I doesn't grow!"), glc);
+        centerCenter.add(createLabel("I don't grow!"), glc);
         glc.y = 2;
         glc.x = 2;
         glc.weightX = 0.5;

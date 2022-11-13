@@ -29,6 +29,16 @@ public class Label extends Component {
         setText(text);
     }
 
+    public Label(AttributedString text, int horizAlign) {
+        setText(text);
+        setHorizAlign(horizAlign);
+    }
+
+    public Label(String text, int horizAlign) {
+        setText(text);
+        setHorizAlign(horizAlign);
+    }
+
     public Label(AttributedString text, int horizAlign, int vertAlign) {
         setText(text);
         setHorizAlign(horizAlign);
@@ -56,9 +66,9 @@ public class Label extends Component {
             x = getWidth() - length;
         }
 
-        if (horizAlign == CENTER) {
+        if (vertAlign == CENTER) {
             y = (getHeight() - 1) / 2;
-        } else if (horizAlign == NORTH) {
+        } else if (vertAlign == NORTH) {
             y = 0;
         } else { // south
             y = getHeight() - length;
@@ -74,10 +84,13 @@ public class Label extends Component {
         dim.width = i.right + i.left;
         dim.height = i.top + i.bottom;
 
-        int len = text.columnLength();
-        if (text != null && len != 0) {
-            dim.width += len;
-            dim.height++;
+        if (text != null) {
+            int len = text.columnLength();
+
+            if (len != 0) {
+                dim.width += len;
+                dim.height++;
+            }
         }
 
         return dim;

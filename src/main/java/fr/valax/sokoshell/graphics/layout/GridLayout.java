@@ -1,10 +1,8 @@
 package fr.valax.sokoshell.graphics.layout;
 
 import fr.valax.sokoshell.graphics.Component;
-import fr.valax.sokoshell.utils.Utils;
 
 import java.awt.*;
-import java.nio.file.Path;
 import java.util.LinkedHashMap;
 
 public class GridLayout implements Layout {
@@ -82,6 +80,10 @@ public class GridLayout implements Layout {
     public void layout(Component parent) {
         prepareArray(parent);
 
+        Insets insets = parent.getInsets();
+        int width = parent.getWidth() - insets.left - insets.right;
+        int height = parent.getHeight() - insets.top - insets.bottom;
+
         double[] weightX = new double[columnWidth.length];
         double[] weightY = new double[rowsHeight.length];
 
@@ -103,8 +105,8 @@ public class GridLayout implements Layout {
         int minWidth = sum(columnWidth);
         int minHeight = sum(rowsHeight);
 
-        int availableWidth = Math.max(parent.getWidth() - minWidth, 0);
-        int availableHeight = Math.max(parent.getHeight() - minHeight, 0);
+        int availableWidth = Math.max(width - minWidth, 0);
+        int availableHeight = Math.max(height - minHeight, 0);
 
         // distribute extra space on horizontal axis
         if (availableWidth > 0) {
@@ -119,7 +121,7 @@ public class GridLayout implements Layout {
         if (availableHeight > 0) {
             for (int y = 0; y < weightY.length; y++) {
                 if (weightY[y] > 0) {
-                    rowsHeight[y] += availableWidth * weightY[y] / weightYSum;
+                    rowsHeight[y] += availableHeight * weightY[y] / weightYSum;
                 }
             }
         }
@@ -128,9 +130,8 @@ public class GridLayout implements Layout {
         int w = sum(columnWidth);
         int h = sum(rowsHeight);
 
-        Insets insets = parent.getInsets();
-        int minX = insets.left + (Math.max(parent.getWidth() - insets.left - insets.right - w, 0) / 2);
-        int minY = insets.top + (Math.max(parent.getHeight() - insets.top - insets.bottom - h, 0) / 2);
+        int minX = insets.left + (Math.max(width - w, 0) / 2);
+        int minY = insets.top + (Math.max(height - h, 0) / 2);
 
         for (int i = 0; i < parent.getComponentCount(); i++) {
             Component comp = parent.getComponent(i);
@@ -162,7 +163,7 @@ public class GridLayout implements Layout {
                 xOffset = 0;
             } else {
                 compWidth = Math.min(maxW, dim.width);
-                xOffset = (int) ((maxW - compWidth) * c.xAlignment);
+                xOffset = (int) Math.round((maxW - compWidth) * c.xAlignment);
             }
 
             if (c.fill == GridLayoutConstraints.VERTICAL) {
@@ -170,7 +171,7 @@ public class GridLayout implements Layout {
                 yOffset = 0;
             } else {
                 compHeight = Math.min(maxH, dim.height);
-                yOffset = (int) ((maxH - compHeight) * c.yAlignment);
+                yOffset = (int) Math.round((maxH - compHeight) * c.yAlignment);
             }
 
             comp.setBounds(x + xOffset, y + yOffset, compWidth, compHeight);
@@ -183,9 +184,13 @@ public class GridLayout implements Layout {
 
 
     private double sum(double[] array) {
+        return sum(array, 0, array.length);
+    }
+
+    private double sum(double[] array, int start, int end) {
         double sum = 0;
 
-        for (int i = 0; i < array.length; i++) {
+        for (int i = start; i < end; i++) {
             sum += array[i];
         }
 

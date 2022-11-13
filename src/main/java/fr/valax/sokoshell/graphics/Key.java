@@ -28,6 +28,24 @@ public interface Key {
         }
     }
 
+    record ConcatKey(Key[] keys) implements Key {
+
+        @Override
+        public String toString(TerminalEngine engine) {
+            if (keys.length == 1) {
+                return keys[0].toString(engine);
+            } else {
+                StringBuilder sb = new StringBuilder();
+
+                for (Key key : keys) {
+                    sb.append(key.toString(engine));
+                }
+
+                return sb.toString();
+            }
+        }
+    }
+
     Key A = new SimpleKey("a");
     Key B = new SimpleKey("b");
     Key C = new SimpleKey("c");
@@ -74,16 +92,10 @@ public interface Key {
     }
 
     static Key concat(Key... keys) {
-        if (keys.length == 0) {
+        if (keys == null || keys.length == 0) {
             return null;
         }
 
-        StringBuilder c = new StringBuilder();
-
-        for (int i = 0; i < keys.length; i++) {
-            c.append(keys[i]);
-        }
-
-        return new SimpleKey(c.toString());
+        return new ConcatKey(keys);
     }
 }
