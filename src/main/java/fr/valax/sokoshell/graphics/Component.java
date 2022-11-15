@@ -39,9 +39,18 @@ public class Component {
     private boolean prefSizeSet;
 
     public Component() {
-        componentListener = comp -> {
-            invalidate();
-            repaint();
+        componentListener = new ComponentListener() {
+            @Override
+            public void componentResized(Component comp) {
+                invalidate();
+                repaint();
+            }
+
+            @Override
+            public void componentMoved(Component comp) {
+                invalidate();
+                repaint();
+            }
         };
     }
 
@@ -83,6 +92,17 @@ public class Component {
         }
     }
 
+    /**
+     * When called, the next pass will repaint all components
+     */
+    public void repaint() {
+        repaint = true;
+
+        if (parent != null && !parent.repaint) {
+            parent.repaint();
+        }
+    }
+
     public void update() {
         if (!valid) {
             doLayout();
@@ -101,17 +121,6 @@ public class Component {
 
     protected void updateComponent() {
 
-    }
-
-    /**
-     * When called, the next pass will repaint all components
-     */
-    public void repaint() {
-        repaint = true;
-
-        if (parent != null && !parent.repaint) {
-            parent.repaint();
-        }
     }
 
     //
@@ -145,7 +154,7 @@ public class Component {
     public void add(Component component, Object constraints) {
         if (component != null) {
             if (isAncestor(component)) {
-                throw new IllegalStateException();
+                throw new IllegalArgumentException("Adding component's parent to itself");
             }
 
             components.add(component);
@@ -203,7 +212,7 @@ public class Component {
 
     public void setLayout(Layout layout) {
         this.layout = layout;
-        valid = true;
+        valid = false;
     }
 
     public void setSize(int width, int height) {
@@ -215,7 +224,10 @@ public class Component {
     }
 
     public void setBounds(int x, int y, int width, int height) {
-        if (width == this.width && height == this.height && this.x == x && this.y == y) {
+        boolean resized = this.width != width || this.height != height;
+        boolean moved = this.x != x || this.y != y;
+
+        if (!resized && !moved) {
             return;
         }
 
@@ -226,8 +238,16 @@ public class Component {
 
         invalidate();
 
-        for (ComponentListener l : getComponentListeners()) {
-            l.componentResized(this);
+        if (resized) {
+            for (ComponentListener l : getComponentListeners()) {
+                l.componentResized(this);
+            }
+        }
+
+        if (moved) {
+            for (ComponentListener l : getComponentListeners()) {
+                l.componentMoved(this);
+            }
         }
     }
 

@@ -5,4 +5,6 @@ import java.util.EventListener;
 public interface ComponentListener extends EventListener {
 
     void componentResized(Component comp);
+
+    void componentMoved(Component comp);
 }
