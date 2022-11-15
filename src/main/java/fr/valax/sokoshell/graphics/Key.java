@@ -5,8 +5,12 @@ import org.jline.utils.InfoCmp;
 
 public interface Key {
 
-    default void addTo(TerminalEngine engine) {
+    default void bind(TerminalEngine engine) {
         engine.getKeyMap().bind(this, toString(engine));
+    }
+
+    default void unbind(TerminalEngine engine) {
+        engine.getKeyMap().unbind(toString(engine));
     }
 
     String toString(TerminalEngine engine);
@@ -85,6 +89,8 @@ public interface Key {
     Key SPACE = new SimpleKey(" ");
 
     Key CTRL_E = ctrl('e');
+
+    Key MOUSE = new InfoCmpCapabilityKey(InfoCmp.Capability.key_mouse);
 
     static Key alt(String c) {
         return new SimpleKey(KeyMap.alt(c));

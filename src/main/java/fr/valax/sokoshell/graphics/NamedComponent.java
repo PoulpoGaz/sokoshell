@@ -51,42 +51,76 @@ public class NamedComponent {
         }
 
         @Override
+        public void removeComponent(Component component) {
+            if (name == component) {
+                name = null;
+            } else if (comp == component) {
+                comp = null;
+            }
+        }
+
+        @Override
         public Dimension preferredSize(Component parent) {
             Insets i = parent.getInsets();
             Dimension dim = new Dimension();
 
-            Dimension namePrefSize = name.getPreferredSize();
-            Dimension compPrefSize = comp.getPreferredSize();
+            dim.width = i.left + i.right;
+            dim.height = i.top + i.bottom;
 
-            dim.width = i.left + i.right + namePrefSize.width + minGap + compPrefSize.width;
-            dim.height = i.top + i.bottom + Math.max(namePrefSize.height, compPrefSize.height);
+            if (name != null) {
+                Dimension namePrefSize = name.getPreferredSize();
+
+                dim.width = namePrefSize.width;
+                dim.height = namePrefSize.height;
+            }
+
+            if (comp != null) {
+                Dimension compPrefSize = comp.getPreferredSize();
+
+                dim.width += compPrefSize.width;
+                dim.height = Math.max(compPrefSize.height, dim.height);
+            }
+            if (comp != null && name != null) {
+                dim.width += minGap;
+            }
+
+            dim.width += i.left + i.right;
+            dim.height += i.top + i.bottom;
 
             return dim;
         }
 
         @Override
         public void layout(Component parent) {
-            Insets i = parent.getInsets();
+            if (name != null || comp != null) {
+                Insets i = parent.getInsets();
 
-            int w = parent.getWidth() - i.left - i.right;
-            int h = parent.getHeight() - i.top - i.bottom;
-            int x = i.left;
-            int y = i.top;
+                int w = parent.getWidth() - i.left - i.right;
+                int h = parent.getHeight() - i.top - i.bottom;
+                int x = i.left;
+                int y = i.top;
 
-            Dimension namePrefSize = name.getPreferredSize();
-            Dimension compPrefSize = comp.getPreferredSize();
+                if (name == null) {
+                    comp.setBounds(x, y, w, h);
+                } else if (comp == null) {
+                    name.setBounds(x, y, w, h);
+                } else {
+                    Dimension namePrefSize = name.getPreferredSize();
+                    Dimension compPrefSize = comp.getPreferredSize();
 
-            if (compPrefSize.width >= w || compPrefSize.width + minGap >= w) {
-                name.setBounds(0, 0, 0, 0);
-                comp.setBounds(x, y, w, h);
-            } else if (namePrefSize.width + minGap + compPrefSize.width >= w) {
-                int nameW = w - compPrefSize.width;
+                    if (compPrefSize.width >= w || compPrefSize.width + minGap >= w) {
+                        name.setBounds(0, 0, 0, 0);
+                        comp.setBounds(x, y, w, h);
+                    } else if (namePrefSize.width + minGap + compPrefSize.width >= w) {
+                        int nameW = w - compPrefSize.width;
 
-                name.setBounds(x, y, nameW, h);
-                comp.setBounds(x + nameW + minGap, y, w - nameW - minGap, h);
-            } else {
-                name.setBounds(x, y, namePrefSize.width, h);
-                comp.setBounds(x + namePrefSize.width + minGap, y, w - namePrefSize.width - minGap, h);
+                        name.setBounds(x, y, nameW, h);
+                        comp.setBounds(x + nameW + minGap, y, w - nameW - minGap, h);
+                    } else {
+                        name.setBounds(x, y, namePrefSize.width, h);
+                        comp.setBounds(x + namePrefSize.width + minGap, y, w - namePrefSize.width - minGap, h);
+                    }
+                }
             }
         }
     }

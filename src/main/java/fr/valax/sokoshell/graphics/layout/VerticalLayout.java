@@ -12,9 +12,6 @@ public class VerticalLayout implements Layout {
         BOTTOM
     }
 
-    private static final int PREFERRED = 0;
-    private static final int MINIMUM = 1;
-
     private final LinkedHashMap<Component, VerticalConstraint> constraints;
 
     private int defaultTopGap;
@@ -72,6 +69,11 @@ public class VerticalLayout implements Layout {
         }
 
         constraints.put(comp, constraint);
+    }
+
+    @Override
+    public void removeComponent(Component component) {
+        constraints.remove(component);
     }
 
 

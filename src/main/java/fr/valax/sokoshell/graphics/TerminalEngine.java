@@ -4,6 +4,7 @@ import fr.valax.sokoshell.utils.Utils;
 import org.jline.keymap.BindingReader;
 import org.jline.keymap.KeyMap;
 import org.jline.terminal.Attributes;
+import org.jline.terminal.MouseEvent;
 import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
 import org.jline.utils.Display;
@@ -17,40 +18,16 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Future;
 
-/**
- * TerminalEngine is an object used to facilitate drawing
- * and input reading in fullscreen mode.
- *
- * It's divided in three methods: {@link TerminalEngine#start()},
- * {@link TerminalEngine#render(Size)} and {@link TerminalEngine#update()}
- *
- * In the init method, you define shortcuts.
- * In render, you draw things with {@link Surface} and {@link Graphics} objects.
- * After drawing, you should call {@link Surface#drawBuffer(Display, int)}
- * In update method, you can read key events.
- *
- * Input:
- * Implementations declare in the init method the binding.
- * They associate to an object (which type is defined by the generic)
- * a string that represents a shortcut. For complex shortcut like ctrl+A,
- * you can use functions in {@link KeyMap}
- *
- * Usage of implementations:
- * <pre>
- *     try (MyEngine engine = new MyEngine(terminal)) {
- *         engine.loop();
- *     }
- * </pre>
- */
 public class TerminalEngine implements AutoCloseable {
 
-    public static final int TPS = 60;
+    // the terminal
+    protected final Terminal terminal;
+    protected final int TPS;
 
     // old state
     private Attributes attr;
 
     // drawing
-    protected final Terminal terminal;
     protected Display display;
     protected Surface surface;
     protected Graphics graphics;
@@ -61,9 +38,15 @@ public class TerminalEngine implements AutoCloseable {
     private final Object LOCK = new Object();
 
     private BindingReader reader;
-    private final ArrayDeque<Key> keyEvents = new ArrayDeque<>();
-    protected final KeyMap<Key> keyMap = new KeyMap<>();
-    protected final Map<Key, KeyInfo> keyInfos = new HashMap<>();
+
+    // can be Key or MouseEvent
+    private final ArrayDeque<Object> keyEvents = new ArrayDeque<>();
+    private final KeyMap<Key> keyMap = new KeyMap<>();
+    private final Map<Key, KeyInfo> keyInfos = new HashMap<>();
+
+    private final boolean hasMouseSupport;
+    private MouseEvent lastMouseEvent;
+    private boolean isMouseActivated = false;
 
     private Future<?> readerFuture;
 
@@ -73,7 +56,14 @@ public class TerminalEngine implements AutoCloseable {
     protected int tps;
 
     public TerminalEngine(Terminal terminal) {
+        this(terminal, 30);
+    }
+
+    public TerminalEngine(Terminal terminal, int TPS) {
         this.terminal = Objects.requireNonNull(terminal);
+        this.TPS = TPS;
+        this.hasMouseSupport = terminal.hasMouseSupport();
+
         keyMap.setAmbiguousTimeout(100L);
     }
 
@@ -132,7 +122,7 @@ public class TerminalEngine implements AutoCloseable {
                     rootComponent.setSize(size.getColumns(), size.getRows());
 
                     if (rootComponent.repaint) {
-                        drawComponents();
+                        rootComponent.draw(graphics);
                         surface.drawBuffer(display, 0);
                     }
                 }
@@ -154,7 +144,6 @@ public class TerminalEngine implements AutoCloseable {
             throw new IllegalStateException("Already running");
         }
 
-        Objects.requireNonNull(terminal);
         running = true;
         tps = 0;
 
@@ -191,7 +180,11 @@ public class TerminalEngine implements AutoCloseable {
                 Key object = reader.readBinding(keyMap);
 
                 synchronized (LOCK) {
-                    keyEvents.add(object);
+                    if (object == Key.MOUSE) {
+                        keyEvents.add(terminal.readMouseEvent());
+                    } else {
+                        keyEvents.add(object);
+                    }
                 }
             }
         } catch (IOError e) {
@@ -203,26 +196,31 @@ public class TerminalEngine implements AutoCloseable {
         }
     }
 
-    /**
-     * Count occurrences of all key events and clear all key events
-     */
     private void pollEvents() {
         synchronized (LOCK) {
 
+            lastMouseEvent = null;
             for (KeyInfo i : keyInfos.values()) {
                 i.pressed = false;
             }
 
             while (!keyEvents.isEmpty()) {
-                Key k = keyEvents.poll();
-                KeyInfo key = keyInfos.get(k);
+                Object o = keyEvents.poll();
 
-                if (key == null) {
-                    key = new KeyInfo(k);
-                    keyInfos.put(k, key);
+                if (o instanceof MouseEvent event) {
+                    lastMouseEvent = event;
+                } else if (o instanceof Key k) {
+                    KeyInfo key = keyInfos.get(k);
+
+                    if (key == null) {
+                        key = new KeyInfo(k);
+                        keyInfos.put(k, key);
+                    }
+
+                    key.press();
+                } else {
+                    throw new IllegalStateException("Unknown event: " + o);
                 }
-
-                key.press();
             }
 
             for (KeyInfo i : keyInfos.values()) {
@@ -237,15 +235,16 @@ public class TerminalEngine implements AutoCloseable {
     }
 
 
-    protected void drawComponents() {
-        rootComponent.draw(graphics);
+    public KeyMap<Key> getKeyMap() {
+        return keyMap;
     }
 
     /**
      * @param k the key
      * @return true if t is pressed
      */
-    protected boolean keyPressed(Key k) {
+    @Deprecated
+    public boolean keyPressed(Key k) {
         KeyInfo key = keyInfos.get(k);
 
         return key != null && key.isPressed();
@@ -257,24 +256,52 @@ public class TerminalEngine implements AutoCloseable {
      * between now and the last time the update function
      * was called
      */
-    protected int keyPressedCount(Key k) {
+    @Deprecated
+    public int keyPressedCount(Key k) {
         KeyInfo key = keyInfos.get(k);
 
         return key == null ? 0 : key.pressedFor();
     }
 
+    @Deprecated
     public boolean keyReleased(Key k) {
         KeyInfo key = keyInfos.get(k);
 
         return key != null && key.isReleased();
     }
 
-    /**
-     * @return tick per seconds. It should be around 60
-     */
-    public int getTPS() {
-        return tps;
+
+    public boolean hasMouseSupport() {
+        return hasMouseSupport;
     }
+
+    public boolean trackMouse(Terminal.MouseTracking tracking) {
+        if (hasMouseSupport && terminal.trackMouse(tracking)) {
+
+            if (tracking != Terminal.MouseTracking.Off) {
+                Key.MOUSE.bind(this);
+                isMouseActivated = true;
+            } else {
+                Key.MOUSE.unbind(this);
+                isMouseActivated = false;
+            }
+
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    // TODO: maybe give a queue of all events that occurs between two update
+    public MouseEvent getLastMouseEvent() {
+        return lastMouseEvent;
+    }
+
+    public boolean hasMouseEvent() {
+        return lastMouseEvent != null;
+    }
+
+
 
     public Component getRootComponent() {
         return rootComponent;
@@ -286,10 +313,15 @@ public class TerminalEngine implements AutoCloseable {
                 throw new IllegalArgumentException("Not root");
             }
 
+            if (this.rootComponent != null) {
+                this.rootComponent.setTerminal(null, null);
+            }
+
             this.rootComponent = rootComponent;
             rootComponent.setTerminal(terminal, this);
         }
     }
+
 
     public boolean isRunning() {
         return running;
@@ -297,10 +329,6 @@ public class TerminalEngine implements AutoCloseable {
 
     public Terminal getTerminal() {
         return terminal;
-    }
-
-    public KeyMap<Key> getKeyMap() {
-        return keyMap;
     }
 
     public void stop() {
@@ -320,6 +348,9 @@ public class TerminalEngine implements AutoCloseable {
 
         if (attr != null) {
             terminal.setAttributes(attr);
+        }
+        if (isMouseActivated) {
+            terminal.trackMouse(Terminal.MouseTracking.Off);
         }
         terminal.puts(InfoCmp.Capability.exit_ca_mode);
         terminal.puts(InfoCmp.Capability.keypad_local);

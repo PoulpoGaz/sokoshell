@@ -10,6 +10,8 @@ import java.util.List;
 
 /**
  * A class that is heavily inspired by {@link java.awt.Component}
+ *
+ * TODO: removing and adding while a component is shown doesn't work properly
  */
 public class Component {
 
@@ -25,7 +27,7 @@ public class Component {
 
     private Border border = null;
 
-    private final EventListenerList listeners = new EventListenerList();
+    protected final EventListenerList listeners = new EventListenerList();
     final List<Component> components = new ArrayList<>();
 
 
@@ -199,10 +201,31 @@ public class Component {
     public boolean remove(Component component) {
         if (component != null && components.remove(component)) {
             component.setTerminal(null, null);
+
+            if (layout != null) {
+                layout.removeComponent(component);
+            }
+
             invalidate();
             return true;
         } else {
             return false;
+        }
+    }
+
+    public void removeAll() {
+        if (!components.isEmpty()) {
+            while (!components.isEmpty()) {
+                Component c = components.get(0);
+                c.setTerminal(null, null);
+
+                if (layout != null) {
+                    layout.removeComponent(c);
+                }
+
+                components.remove(0);
+            }
+            invalidate();
         }
     }
 
@@ -366,6 +389,41 @@ public class Component {
         } else {
             return border.getBorderInsets(this);
         }
+    }
+
+
+    public Point relativePoint(int absX, int absY) {
+        Point p = new Point(absX, absY);
+
+        Component comp = this;
+        while (comp != null) {
+            p.x -= comp.x;
+            p.y -= comp.y;
+
+            comp = comp.parent;
+        }
+
+        return p;
+    }
+
+    public boolean isInside(int absX, int absY) {
+        int relX = absX;
+        int relY = absY;
+
+        Component comp = parent;
+
+        while (comp != null) {
+            relX -= comp.x;
+            relY -= comp.y;
+
+            comp = comp.parent;
+        }
+
+        return relX >= x && relX < x + width && relY >= y && relY < y + height;
+    }
+
+    public boolean isInsideNotAbs(Point p) {
+        return p.x >= 0 && p.x < width && p.y >= 0 && p.y < height;
     }
 
 

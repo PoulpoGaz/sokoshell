@@ -1,10 +1,22 @@
 package fr.valax.sokoshell.commands;
 
 import fr.valax.sokoshell.graphics.*;
+import fr.valax.sokoshell.graphics.Button;
+import fr.valax.sokoshell.graphics.Component;
+import fr.valax.sokoshell.graphics.Graphics;
+import fr.valax.sokoshell.graphics.Label;
 import fr.valax.sokoshell.graphics.layout.*;
+import fr.valax.sokoshell.graphics.layout.BorderLayout;
+import fr.valax.sokoshell.graphics.layout.GridLayout;
+import org.jline.terminal.MouseEvent;
+import org.jline.terminal.Terminal;
+import org.jline.utils.AttributedString;
+import org.jline.utils.AttributedStyle;
 
+import java.awt.*;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.Arrays;
 
 public class TestCommand extends AbstractCommand {
 
@@ -35,6 +47,7 @@ public class TestCommand extends AbstractCommand {
 
     private void initEngine(TerminalEngine engine) {
         engine.getKeyMap().setAmbiguousTimeout(100L);
+        engine.trackMouse(Terminal.MouseTracking.Any);
 
         Component root = new Component() {
             @Override
@@ -45,7 +58,16 @@ public class TestCommand extends AbstractCommand {
             }
         };
         root.setLayout(new BorderLayout());
+        createDefault(root);
 
+        engine.setRootComponent(root);
+        Key.D.bind(engine);
+        Key.E.bind(engine);
+        Key.ESCAPE.bind(engine);
+    }
+
+    private void createDefault(Component root) {
+        root.removeAll();
 
         Component east = new Component();
         east.setLayout(new VerticalLayout());
@@ -76,10 +98,15 @@ public class TestCommand extends AbstractCommand {
         glc.fill = GridLayoutConstraints.BOTH;
         centerCenter.add(createLabel("ccc2"), glc);
 
+        Button button = new Button();
+        button.setText(AttributedString.fromAnsi("click me to open painter"));
+        button.addActionListener((s, co) -> openPainter(s, co, root));
+        button.setBorder(new BasicBorder());
+
         Component comp = new Component();
         comp.setLayout(new BorderLayout());
         comp.add(createLabel("north"), BorderLayout.NORTH);
-        comp.add(createLabel("centeerrrrr"), BorderLayout.CENTER);
+        comp.add(button, BorderLayout.CENTER);
         comp.add(createLabel("south"), BorderLayout.SOUTH);
 
         glc.fill = GridLayoutConstraints.NONE;
@@ -114,11 +141,56 @@ public class TestCommand extends AbstractCommand {
         root.add(createLabel("Hello world from west!"), BorderLayout.WEST);
         root.add(center, BorderLayout.CENTER);
         root.add(east, BorderLayout.EAST);
+    }
+
+    private void openPainter(Object s_, String c_, Component root) {
+        root.removeAll();
+
+        Canvas c = new Canvas();
+
+        Component left = new Component();
+        left.setLayout(new VerticalLayout());
+        left.setBorder(new BasicBorder(false, false, false, true));
+
+        VerticalConstraint vc = new VerticalConstraint();
+        vc.topGap = vc.bottomGap = 1;
+
+        Button exit = new Button();
+        exit.setText(new AttributedString("Quit"));
+        exit.setBorder(new BasicBorder());
+        exit.addActionListener((source, command) -> createDefault(root));
+
+        Button erase = new Button();
+        erase.setBorder(new BasicBorder());
+        erase.setText(new AttributedString("Erase"));
+        erase.addActionListener((source, command) -> {
+            if (c.isPainting()) {
+                erase.setText(new AttributedString("Paint"));
+            } else {
+                erase.setText(new AttributedString("Erase"));
+            }
+
+            c.setPainting(!c.isPainting());
+        });
+
+        Button clear = new Button();
+        clear.setText(new AttributedString("Clear"));
+        clear.setBorder(new BasicBorder());
+        clear.addActionListener((source, command) -> c.clear());
+
+        left.add(exit, vc);
+        left.add(erase, vc);
+        left.add(clear, vc);
 
 
-        engine.setRootComponent(root);
-        Key.D.addTo(engine);
-        Key.ESCAPE.addTo(engine);
+        Component wrapper = new Component();
+        wrapper.setLayout(new BorderLayout());
+        wrapper.setBorder(new BasicBorder());
+        wrapper.add(c, BorderLayout.CENTER);
+
+        root.add(wrapper, BorderLayout.CENTER);
+        root.add(left, BorderLayout.WEST);
+        root.repaint();
     }
 
     private Label createLabel(String text) {
@@ -128,33 +200,143 @@ public class TestCommand extends AbstractCommand {
         return label;
     }
 
-    private int print(Component component, int y, int maxY) {
-        Surface surface = null;
-        surface.draw(toString(component), 0, y);
+    private static class Canvas extends Component implements ComponentListener {
 
-        y++;
-        if (y > maxY) {
-            return y;
+        private static final AttributedString FILLED =
+                new AttributedString(" ", AttributedStyle.DEFAULT.background(AttributedStyle.WHITE));
+        private static final AttributedString NOT_FILLED =
+                new AttributedString(" ");
+
+        private boolean[][] filled;
+
+        private int lastX = -1;
+        private int lastY = -1;
+
+        private boolean filling = true;
+
+        public Canvas() {
+            addComponentListener(this);
         }
-        for (int i = 0; i < component.getComponentCount(); i++) {
-            Component comp = component.getComponent(i);
 
-            if (comp instanceof Label label) {
-                surface.draw(toString(label) + label.getText().toAnsi(), 0, y);
-                y++;
+        @Override
+        protected void drawComponent(Graphics g) {
+            if (filled == null) {
+                return;
+            }
+
+            Surface s = g.getSurface();
+            for (int y = 0; y < getHeight(); y++) {
+                for (int x = 0; x < getWidth(); x++) {
+                    if (filled[y][x]) {
+                        s.set(FILLED, x, y);
+                    } else {
+                        s.set(NOT_FILLED, x, y);
+                    }
+                }
+            }
+        }
+
+        @Override
+        protected void updateComponent() {
+            if (getEngine().keyPressed(Key.E)) {
+                lastX = -1;
+                lastY = -1;
+            }
+
+            if (getEngine().hasMouseEvent()) {
+                MouseEvent evt = getEngine().getLastMouseEvent();
+
+                Point rel = relativePoint(evt.getX(), evt.getY());
+
+                if (isInsideNotAbs(rel)) {
+                    if (evt.getType() == MouseEvent.Type.Pressed) {
+                        filled[rel.y][rel.x] = filling;
+                        repaint();
+                    } else if (evt.getType() == MouseEvent.Type.Dragged && lastX >= 0 && lastY >= 0) {
+                        drawLine(lastX, lastY, rel.x, rel.y);
+                        repaint();
+                    }
+
+                    lastX = rel.x;
+                    lastY = rel.y;
+
+                    if (evt.getType() == MouseEvent.Type.Released) {
+                        lastX = -1;
+                        lastY = -1;
+                    }
+                } else {
+                    lastX = -1;
+                    lastY = -1;
+                }
+            }
+        }
+
+        private void drawLine(int x0, int y0, int x1, int y1) {
+            int dx = Math.abs(x1 - x0);
+            int sx = x0 < x1 ? 1 : -1;
+            int dy = -Math.abs(y1 - y0);
+            int sy = y0 < y1 ? 1 : -1;
+            int error = dx + dy;
+
+            while (true) {
+                filled[y0][x0] = filling;
+
+                if (x0 == x1 && y0 == y1) {
+                    break;
+                }
+                int e2 = 2 * error;
+
+                if (e2 >= dy) {
+                    if (x0 == x1) {
+                        break;
+                    }
+                    error = error + dy;
+                    x0 = x0 + sx;
+                }
+
+                if (e2 <= dx) {
+                    if (y0 == y1) {
+                        break;
+                    }
+                    error = error + dx;
+                    y0 = y0 + sy;
+                }
+            }
+        }
+
+        @Override
+        public void componentResized(Component comp) {
+            if (filled == null) {
+                filled = new boolean[getHeight()][getWidth()];
             } else {
-                y = print(comp, y + 1, maxY);
-            }
+                boolean[][] newFilled = new boolean[getHeight()][getWidth()];
 
-            if (y > maxY) {
-                return y;
+                for (int y = 0; y < getHeight(); y++) {
+                    newFilled[y] = new boolean[getWidth()];
+                    System.arraycopy(filled[y], 0, newFilled[y], 0, Math.min(filled[y].length, getWidth()));
+                }
             }
         }
 
-        return y;
-    }
+        @Override
+        public void componentMoved(Component comp) {
 
-    private String toString(Component c) {
-        return "(x=%d; y=%d; w=%d; h=%d)".formatted(c.getX(), c.getY(), c.getWidth(), c.getHeight());
+        }
+
+        public boolean isPainting() {
+            return filling;
+        }
+
+        public void setPainting(boolean filling) {
+            this.filling = filling;
+        }
+
+        public void clear() {
+            for (int y = 0; y < getHeight(); y++) {
+                Arrays.fill(filled[y], false);
+            }
+
+            repaint();
+        }
     }
 }

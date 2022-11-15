@@ -12,10 +12,6 @@ public class HorizontalLayout implements Layout {
         RIGHT
     }
 
-
-    private static final int PREFERRED = 0;
-    private static final int MINIMUM = 1;
-
     private final LinkedHashMap<Component, HorizontalConstraint> constraints;
 
     private int defaultLeftGap;
@@ -73,6 +69,11 @@ public class HorizontalLayout implements Layout {
         }
 
         constraints.put(comp, constraint);
+    }
+
+    @Override
+    public void removeComponent(Component component) {
+        constraints.remove(component);
     }
 
 

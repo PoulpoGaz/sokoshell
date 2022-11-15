@@ -53,6 +53,21 @@ public class BorderLayout implements Layout {
     }
 
     @Override
+    public void removeComponent(Component component) {
+        if (center == component) {
+            center = null;
+        } else if (north == component) {
+            north = null;
+        } else if (south == component) {
+            south = null;
+        } else if (east == component) {
+            east = null;
+        } else if (west == component) {
+            west = null;
+        }
+    }
+
+    @Override
     public Dimension preferredSize(Component parent) {
         Dimension dim = new Dimension(0, 0);
         Component c;

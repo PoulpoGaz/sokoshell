@@ -25,13 +25,13 @@ public class PlayCommand extends LevelCommand {
         PlayCommand.GameController controller = new PlayCommand.GameController(l);
 
         try (TerminalEngine engine = new TerminalEngine(helper.getTerminal())) {
-            Key.LEFT.addTo(engine);
-            Key.RIGHT.addTo(engine);
-            Key.DOWN.addTo(engine);
-            Key.UP.addTo(engine);
-            Key.ENTER.addTo(engine);
-            Key.CTRL_E.addTo(engine);
-            Key.ESCAPE.addTo(engine);
+            Key.LEFT.bind(engine);
+            Key.RIGHT.bind(engine);
+            Key.DOWN.bind(engine);
+            Key.UP.bind(engine);
+            Key.ENTER.bind(engine);
+            Key.CTRL_E.bind(engine);
+            Key.ESCAPE.bind(engine);
             engine.setRootComponent(new PlayComponent(l, controller));
             engine.show();
         }

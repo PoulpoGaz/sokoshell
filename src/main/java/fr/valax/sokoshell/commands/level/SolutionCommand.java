@@ -65,15 +65,15 @@ public class SolutionCommand extends LevelCommand {
         SolutionAnimator animator = new SolutionAnimator(report);
 
         try (TerminalEngine engine = new TerminalEngine(helper.getTerminal())) {
-            Key.LEFT.addTo(engine);
-            Key.RIGHT.addTo(engine);
-            Key.DOWN.addTo(engine);
-            Key.UP.addTo(engine);
-            Key.ENTER.addTo(engine);
-            Key.SPACE.addTo(engine);
-            Key.R.addTo(engine);
-            Key.CTRL_E.addTo(engine);
-            Key.ESCAPE.addTo(engine);
+            Key.LEFT.bind(engine);
+            Key.RIGHT.bind(engine);
+            Key.DOWN.bind(engine);
+            Key.UP.bind(engine);
+            Key.ENTER.bind(engine);
+            Key.SPACE.bind(engine);
+            Key.R.bind(engine);
+            Key.CTRL_E.bind(engine);
+            Key.ESCAPE.bind(engine);
             engine.setRootComponent(new SolutionComponent(animator));
 
             engine.show();

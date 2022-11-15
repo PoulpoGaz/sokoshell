@@ -45,9 +45,9 @@ public class MonitorCommand extends AbstractCommand {
     }
 
     private void initEngine(TerminalEngine engine, SolverTask task) {
-        Key.ENTER.addTo(engine);
-        Key.CTRL_E.addTo(engine);
-        Key.ESCAPE.addTo(engine);
+        Key.ENTER.bind(engine);
+        Key.CTRL_E.bind(engine);
+        Key.ESCAPE.bind(engine);
 
         engine.setRootComponent(new Monitor(task));
     }

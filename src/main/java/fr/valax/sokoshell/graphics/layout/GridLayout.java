@@ -29,6 +29,11 @@ public class GridLayout implements Layout {
         constraints.put(component, constraint);
     }
 
+    @Override
+    public void removeComponent(Component component) {
+        constraints.remove(component);
+    }
+
     private void prepareArray(Component parent) {
         int maxX = 0;
         int maxY = 0;

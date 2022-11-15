@@ -11,6 +11,8 @@ public interface Layout {
 
     void addComponent(Component component, Object constraints);
 
+    void removeComponent(Component component);
+
     Dimension preferredSize(Component parent);
 
     void layout(Component parent);
