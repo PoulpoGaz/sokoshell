@@ -79,7 +79,7 @@ public class PrintCommand extends AbstractCommand {
 
                 if (export) {
                     try {
-                        helper.exportPNG(l, 16);
+                        helper.exportPNG(l.getPack(), l, l.getMap(), l.getPlayerX(), l.getPlayerY(), playerDir, 16);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }

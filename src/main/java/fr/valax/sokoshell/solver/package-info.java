@@ -35,7 +35,7 @@
  *     </tr>
  *     <tr>
  *         <td>{@link fr.valax.sokoshell.solver.Direction}</td>
- *         <td>Partially - Help needed</td>
+ *         <td>Partially - It is the job of darth-mole</td>
  *     </tr>
  *     <tr>
  *         <td>{@link fr.valax.sokoshell.solver.Level}</td>
@@ -79,7 +79,7 @@
  *     </tr>
  *     <tr>
  *         <td>{@link fr.valax.sokoshell.solver.Tile}</td>
- *         <td>NO</td>
+ *         <td>NO. It is the job of darth-mole</td>
  *     </tr>
  *     <tr>
  *         <td>{@link fr.valax.sokoshell.solver.TileInfo}</td>
