@@ -14,11 +14,10 @@ version 1.0
     floor2 82 82 82
     floor3 74 74 74
 
-    wallbg 129 32 4
-    wallfg 13 14 13
+    wallbg 47 50 47
+    wallfg black
 
-    targetbg 90 90 90
-    targetfg 255 0 0
+    targetfg 50 168 3
 
 
 [size] 1
@@ -28,8 +27,8 @@ version 1.0
     [wall] ansi
         $(bg wallbg) $()
 
-    [target] ansi
-        $(bg targetbg fg targetfg)×
+    [target] ansi merge floor
+        $(fg targetfg)●
 
     [crate] ansi
         $(bg cratebg fg cratefg) $()
@@ -50,9 +49,9 @@ version 1.0
         $(bg wallbg fg wallfg)┴┬
         ┬┴
 
-    [target] ansi
-        $(bg targetbg fg targetfg)╲╱$()
-        ╱╲$()
+    [target] ansi merge floor
+        $(fg targetfg)▗▖$()
+        ▝▘$()
 
     [crate] ansi
         $(bg cratebg fg cratefg)▛▜
@@ -77,10 +76,10 @@ version 1.0
         ─┼─
         ┬┴┬
 
-    [target] ansi
-        $(bg targetbg fg targetfg)╲ ╱$()
-         ╳ $()
-        ╱ ╲$()
+    [target] ansi merge floor
+        $(fg targetfg) ▄ $()
+        ▐█▌$()
+         ▀ $()
 
     [crate] ansi
         $(bg cratebg fg cratefg)▛▀▜
@@ -126,11 +125,11 @@ version 1.0
         ┬┴┬┴
         │ │ $()
 
-    [target] ansi
-        $(bg targetbg fg targetfg)╲  ╱
-         ╲/ $()
-         ╱╲ $()
-        ╱  ╲
+    [target] ansi merge floor
+        $(fg targetfg)    $()
+         ▟▙ $()
+         ▜▛ $()
+            $()
 
     [crate] ansi
         $(bg cratebg fg cratefg)▛▀▀▜
@@ -181,7 +180,7 @@ version 1.0
     [crate_on_target] image
         tileset.png 48 52
 
-    [target] image
+    [target] image merge floor
         tileset.png 64 52
 
     [player_left] image merge floor-target
@@ -209,7 +208,7 @@ version 1.0
     [crate_on_target] image
         tileset.png 48 42
 
-    [target] image
+    [target] image merge floor
         tileset.png 64 42
 
     [player_left] image merge floor-target
@@ -237,7 +236,7 @@ version 1.0
     [crate_on_target] image
         tileset.png 48 30
 
-    [target] image
+    [target] image merge floor
         tileset.png 64 30
 
     [player_left] image merge floor-target
@@ -265,7 +264,7 @@ version 1.0
     [crate_on_target] image
         tileset.png 48 16
 
-    [target] image
+    [target] image merge floor
         tileset.png 64 16
 
     [player_left] image merge floor-target
@@ -293,7 +292,7 @@ version 1.0
     [crate_on_target] image
         tileset.png 48 0
 
-    [target] image
+    [target] image merge floor
         tileset.png 64 0
 
     [player_left] image merge floor-target
