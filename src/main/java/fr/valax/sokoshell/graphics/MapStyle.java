@@ -20,9 +20,9 @@ public class MapStyle {
     private static MapStyle createDefault() {
         Map<Element, TileStyle> style = new HashMap<>();
         style.put(Element.FLOOR, create(' ', DEFAULT.background(GREEN)));
-        style.put(Element.WALL, create(' ', DEFAULT.background(BLACK + BRIGHT)));
+        style.put(Element.WALL, create(' ', DEFAULT.background(WHITE)));
         style.put(Element.CRATE, create(' ', DEFAULT.background(YELLOW)));
-        style.put(Element.CRATE_ON_TARGET, create(' ', DEFAULT.background(YELLOW + BRIGHT)));
+        style.put(Element.CRATE_ON_TARGET, create(' ', DEFAULT.background(CYAN)));
         style.put(Element.TARGET, create(' ', DEFAULT.background(RED)));
 
         TileStyle playerFloor = create('o', DEFAULT.background(GREEN).foreground(BLACK));

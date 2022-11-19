@@ -134,6 +134,8 @@ public class MapRenderer {
             return;
         }
 
+        s = style.findBestSize(s);
+
         if (center) {
             int w = s * map.getWidth();
             int h = s * map.getHeight();
@@ -153,7 +155,7 @@ public class MapRenderer {
             throw new IllegalStateException("Please, set style before");
         }
 
-        int s = findBestSize(size);
+        int s = style.findBestSize(size);
 
         if (s < 0) {
             s = size;
