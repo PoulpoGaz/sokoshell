@@ -46,7 +46,7 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
         Objects.requireNonNull(params);
 
         // init statistics, timeout and stop
-        SolverStatus endStatus = null;
+        String endStatus = null;
 
         running = true;
         stopped = false;
@@ -87,12 +87,12 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
 
         while (!toProcess.isEmpty() && !stopped) {
             if (hasTimedOut(timeout)) {
-                endStatus = SolverStatus.TIMEOUT;
+                endStatus = SolverReport.TIMEOUT;
                 break;
             }
 
             if (hasRamExceeded(maxRam, stateSize, arraySize, nState)) {
-                endStatus = SolverStatus.RAM_EXCEED;
+                endStatus = SolverReport.RAM_EXCEED;
                 break;
             }
 
@@ -132,11 +132,11 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
         if (endStatus != null) {
             return SolverReport.withoutSolution(params, getStatistics(), endStatus);
         } else if (stopped) {
-            return SolverReport.withoutSolution(params, getStatistics(), SolverStatus.STOPPED);
+            return SolverReport.withoutSolution(params, getStatistics(), SolverReport.STOPPED);
         } else if (finalState != null) {
             return SolverReport.withSolution(finalState, params, getStatistics());
         } else {
-            return SolverReport.withoutSolution(params, getStatistics(), SolverStatus.NO_SOLUTION);
+            return SolverReport.withoutSolution(params, getStatistics(), SolverReport.NO_SOLUTION);
         }
     }
 

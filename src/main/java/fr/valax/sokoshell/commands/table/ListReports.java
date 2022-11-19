@@ -60,7 +60,7 @@ public class ListReports extends TableCommand {
 
         PrettyColumn<String> packName = new PrettyColumn<>("Pack");
         PrettyColumn<Integer> index = new PrettyColumn<>("Index");
-        PrettyColumn<SolverStatus> status = new PrettyColumn<>("Status");
+        PrettyColumn<String> status = new PrettyColumn<>("Status");
         PrettyColumn<SolverType> solverType = new PrettyColumn<>("Solver");
         PrettyColumn<Integer> pushes = new PrettyColumn<>("Pushes");
         PrettyColumn<Integer> moves = new PrettyColumn<>("Moves");

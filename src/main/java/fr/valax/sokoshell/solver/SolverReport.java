@@ -18,18 +18,23 @@ import java.util.stream.Collectors;
 
 /**
  * An object representing the output of a solver. It contains the parameters given to the solver,
- * some statistics, the solver status and if the status is {@link SolverStatus#SOLUTION_FOUND},
+ * some statistics, the solver status and if the status is {@link SolverReport#SOLUTION_FOUND},
  * it contains two representation of the solution: a sequence of {@link State} and a sequence of {@link Move}.
  *
  * @see SolverParameters
  * @see SolverStatistics
  * @see State
  * @see Move
- * @see SolverStatus
  * @author PoulpoGaz
  * @author darth-mole
  */
 public class SolverReport {
+
+    public static final String NO_SOLUTION = "No solution";
+    public static final String SOLUTION_FOUND = "Solution found";
+    public static final String STOPPED = "Stopped";
+    public static final String TIMEOUT = "Timeout";
+    public static final String RAM_EXCEED = "Ram exceed";
 
     /**
      * Creates and returns a report that doesn't contain a solution
@@ -38,13 +43,9 @@ public class SolverReport {
      * @param stats the statistics
      * @param status the solver status
      * @return a report without a solution
-     * @throws IllegalArgumentException if the state is {@link SolverStatus#SOLUTION_FOUND}
+     * @throws IllegalArgumentException if the state is {@link SolverReport#SOLUTION_FOUND}
      */
-    public static SolverReport withoutSolution(SolverParameters params, SolverStatistics stats, SolverStatus status) {
-        if (status == SolverStatus.SOLUTION_FOUND) {
-            throw new IllegalArgumentException("SolverStatus is SOLUTION_FOUND. You must give the solution");
-        }
-
+    public static SolverReport withoutSolution(SolverParameters params, SolverStatistics stats, String status) {
         return new SolverReport(params, stats, null, status);
     }
 
@@ -69,7 +70,7 @@ public class SolverReport {
         solution.add(s);
         Collections.reverse(solution);
 
-        return new SolverReport(params, stats, solution, SolverStatus.SOLUTION_FOUND);
+        return new SolverReport(params, stats, solution, SOLUTION_FOUND);
     }
 
     private final SolverParameters parameters;
@@ -77,20 +78,20 @@ public class SolverReport {
 
     private final List<State> states;
 
-    private final SolverStatus status;
+    private final String status;
 
     private final List<Move> fullSolution;
 
     public SolverReport(SolverParameters parameters,
                         SolverStatistics statistics,
                         List<State> states,
-                        SolverStatus status) {
+                        String status) {
         this.parameters = Objects.requireNonNull(parameters);
         this.statistics = Objects.requireNonNull(statistics);
         this.states = states;
         this.status = Objects.requireNonNull(status);
 
-        if (status == SolverStatus.SOLUTION_FOUND) {
+        if (status.equals(SOLUTION_FOUND)) {
             if (states == null) {
                 throw new IllegalArgumentException("SolverStatus is SOLUTION_FOUND. You must give the solution");
             }
@@ -249,7 +250,7 @@ public class SolverReport {
 
 
     public void writeSolution(JsonPrettyWriter jpw) throws JsonException, IOException {
-        jpw.field("status", status.status());
+        jpw.field("status", status);
         jpw.key("parameters");
         parameters.append(jpw);
 
@@ -283,7 +284,7 @@ public class SolverReport {
 
 
     public static SolverReport fromJson(JsonReader jr, Level level) throws JsonException, IOException {
-        SolverStatus status = SolverStatus.valueOf(jr.assertKeyEquals("status").nextString());
+        String status = jr.assertKeyEquals("status").nextString();
 
         jr.assertKeyEquals("parameters");
         SolverParameters parameters = SolverParameters.fromJson(jr, level);
@@ -443,7 +444,7 @@ public class SolverReport {
      * @return {@code true} if this report contains a solution
      */
     public boolean isSolved() {
-        return status == SolverStatus.SOLUTION_FOUND;
+        return status.equals(SOLUTION_FOUND);
     }
 
     /**
@@ -452,7 +453,7 @@ public class SolverReport {
      * @return {@code true} if this report doesn't contain a solution
      */
     public boolean hasNoSolution() {
-        return status != SolverStatus.SOLUTION_FOUND;
+        return !status.equals(SOLUTION_FOUND);
     }
 
     /**
@@ -461,13 +462,11 @@ public class SolverReport {
      * @return {@code true} if the solver was stopped by the user
      */
     public boolean isStopped() {
-        return status == SolverStatus.STOPPED;
+        return status.equals(STOPPED);
     }
 
-    /**
-     * TODO: documentation, cf SolverStatus
-     */
-    public SolverStatus getStatus() {
+
+    public String getStatus() {
         return status;
     }
 
