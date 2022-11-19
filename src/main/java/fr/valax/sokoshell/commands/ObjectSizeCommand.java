@@ -2,10 +2,13 @@ package fr.valax.sokoshell.commands;
 
 import fr.valax.args.api.Option;
 import fr.valax.sokoshell.solver.State;
+import fr.valax.sokoshell.utils.SizeOf;
 import org.openjdk.jol.info.ClassLayout;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.HashMap;
 
 public class ObjectSizeCommand extends AbstractCommand {
 
@@ -29,15 +32,18 @@ public class ObjectSizeCommand extends AbstractCommand {
 
             return FAILURE;
         } else {
-            ClassLayout state = ClassLayout.parseClass(State.class);
-            ClassLayout intArray = ClassLayout.parseClass(int[].class);
+            SizeOf.initialize();
 
             if (detailed) {
-                out.println(state.toPrintable());
-                out.println(intArray.toPrintable());
+                out.println(SizeOf.getHashMapLayout().toPrintable());
+                out.println(SizeOf.getHashMapNodeLayout().toPrintable());
+                out.println(SizeOf.getStateLayout().toPrintable());
+                out.println(SizeOf.getIntArrayLayout().toPrintable());
             } else {
-                out.println("State size: " + state.instanceSize());
-                out.println("Int array size: " + intArray.instanceSize());
+                out.printf("Hash map size: %s%n", SizeOf.getHashMapLayout().instanceSize());
+                out.printf("Hash map node size: %s%n", SizeOf.getHashMapNodeLayout().instanceSize());
+                out.printf("State size: %s%n", SizeOf.getStateLayout().instanceSize());
+                out.printf("Int array size: %s%n", SizeOf.getIntArrayLayout().instanceSize());
             }
 
             return SUCCESS;

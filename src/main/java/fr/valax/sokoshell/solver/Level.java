@@ -128,6 +128,19 @@ public class Level {
     }
 
     /**
+     * Returns the last report
+     *
+     * @return the last report
+     */
+    public SolverReport getLastReport() {
+        if (solverReports.isEmpty()) {
+            return null;
+        } else {
+            return solverReports.get(solverReports.size() - 1);
+        }
+    }
+
+    /**
      * Returns the solver report at the specified position
      *
      * @param index index of the report to return
@@ -148,6 +161,15 @@ public class Level {
      */
     public List<SolverReport> getSolverReports() {
         return solverReports;
+    }
+
+    /**
+     * Returns the number of solver report
+     *
+     * @return the number of solver report
+     */
+    public int numberOfSolverReport() {
+        return solverReports.size();
     }
 
     /**

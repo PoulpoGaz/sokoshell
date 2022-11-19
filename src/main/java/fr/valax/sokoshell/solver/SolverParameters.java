@@ -27,8 +27,6 @@ public class SolverParameters {
 
     public static final String TIMEOUT = "timeout";
     public static final String MAX_RAM = "max-ram";
-    public static final String STATE_SIZE = "state-size";
-    public static final String ARRAY_SIZE = "array-size";
 
     private final SolverType solver;
     private final Level level;
@@ -92,6 +90,27 @@ public class SolverParameters {
                 return n.longValue();
             } else if (o != null) {
                 return Long.parseLong(o.toString());
+            } else {
+                return default_;
+            }
+        } catch (NumberFormatException e) {
+            return default_;
+        }
+    }
+
+    /**
+     * @param param parameter name
+     * @param default_ default value
+     * @return the parameter named param as long or default_ if it doesn't exist
+     */
+    public boolean getBoolean(String param, boolean default_) {
+        try {
+            Object o = get(param);
+
+            if (o instanceof Boolean b) {
+                return b;
+            } else if (o != null) {
+                return Boolean.parseBoolean(o.toString());
             } else {
                 return default_;
             }

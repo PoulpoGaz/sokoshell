@@ -122,36 +122,6 @@ public record State(int playerPos, int[] cratesIndices, int hash, State parent) 
         return hash;
     }
 
-    /**
-     * Compute the approximate size of this object. It is deduced from the size
-     * of an integer (4 bytes. fixed for all jvm), the minimal size of an object in java (16 bytes on
-     * 64 bits architectures) and the maximal size of a pointer (8 bytes)
-     *
-     * @return the approximate size of this object
-     */
-    public static int approxSize(int nCrate) {
-        // object header: mark and class
-        // only valid for hotspot
-        return 8 + 8 +
-                // arrays are also object! +4 to count the array length
-                8 + 8 + 4 +
-                // playerPos   hash
-                  (1 +         1 +     nCrate) * Integer.BYTES
-                // the pointer to the next state
-                + Long.BYTES;
-    }
-
-    /**
-     * Compute the approximate size of this object but the user supplied the size of a state and an int array
-     *
-     * @param stateSize the size of a {@code State} in bytes
-     * @param arraySize the size of a {@code int[]} in bytes
-     * @return the approximate size of this object
-     */
-    public static int approxSize(int stateSize, int arraySize, int nCrate) {
-        return stateSize + arraySize + nCrate * Integer.BYTES;
-    }
-
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

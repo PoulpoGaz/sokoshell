@@ -1,6 +1,9 @@
 package fr.valax.sokoshell.solver;
 
 import fr.valax.sokoshell.utils.PerformanceMeasurer;
+import fr.valax.sokoshell.utils.SizeOf;
+import org.openjdk.jol.info.ClassLayout;
+import org.openjdk.jol.vm.VirtualMachine;
 
 import java.util.ArrayDeque;
 import java.util.HashSet;
@@ -53,8 +56,11 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
 
         long timeout = params.getLong(SolverParameters.TIMEOUT, -1);
         long maxRam = params.getLong(SolverParameters.MAX_RAM, -1);
-        int stateSize = params.getInt(SolverParameters.STATE_SIZE, -1);
-        int arraySize = params.getInt(SolverParameters.ARRAY_SIZE, -1);
+        boolean detailed = params.getBoolean("detailed", false);
+
+        if (detailed) {
+            SizeOf.initialize();
+        }
 
         timeStart = System.currentTimeMillis();
         timeEnd = -1;
@@ -91,7 +97,7 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
                 break;
             }
 
-            if (hasRamExceeded(maxRam, stateSize, arraySize, nState)) {
+            if (hasRamExceeded(maxRam, detailed, nState)) {
                 endStatus = SolverReport.RAM_EXCEED;
                 break;
             }
@@ -193,14 +199,14 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
         return timeout > 0 && timeout + timeStart < System.currentTimeMillis();
     }
 
-    protected boolean hasRamExceeded(long maxRam, int arraySize, int stateSize, int nCrate) {
+    protected boolean hasRamExceeded(long maxRam, boolean detailed, int nCrate) {
         if (maxRam > 0) {
             long totalState = toProcess.size() + processed.size();
 
-            if (arraySize > 0 && stateSize > 0) {
-                return State.approxSize(arraySize, stateSize, nCrate) * totalState >= maxRam;
+            if (detailed) {
+                return SizeOf.approxSizeOf(processed, nCrate) >= maxRam;
             } else {
-                return State.approxSize(nCrate) * totalState >= maxRam;
+                return SizeOf.approxSizeOf2(processed, nCrate) >= maxRam;
             }
         }
 

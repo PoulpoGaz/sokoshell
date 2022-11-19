@@ -94,11 +94,10 @@ public class SolveCommand extends AbstractCommand {
             String name = args[i];
             String value = args[i + 1];
 
-            switch (name) {
-                case SolverParameters.MAX_RAM -> params.put(SolverParameters.MAX_RAM, parseRAM(value));
-                case SolverParameters.STATE_SIZE -> params.put(SolverParameters.STATE_SIZE, Integer.parseInt(value));
-                case SolverParameters.ARRAY_SIZE -> params.put(SolverParameters.ARRAY_SIZE, Integer.parseInt(value));
-                default -> params.put(name, value);
+            if (SolverParameters.MAX_RAM.equals(name)) {
+                params.put(SolverParameters.MAX_RAM, parseRAM(value));
+            } else {
+                params.put(name, value);
             }
         }
     }
@@ -111,14 +110,13 @@ public class SolveCommand extends AbstractCommand {
             long r = Long.parseLong(matcher.group(1));
 
             if (matcher.groupCount() == 2) {
-                r = switch (matcher.group(2)) {
+                String unit = matcher.group(2).toLowerCase();
+
+                r = switch (unit) {
                     case "g" -> r * 1024 * 1024 * 1024;
                     case "m" -> r * 1024 * 1024;
                     case "k" -> r * 1024;
-                    default -> {
-                        System.out.printf(matcher.group(2));
-                        yield  r;
-                    }
+                    default -> r;
                 };
             }
 

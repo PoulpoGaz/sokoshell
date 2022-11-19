@@ -49,7 +49,7 @@ public class StatsCommand extends TableCommand {
                 return FAILURE;
             }
         } else {
-            s = l.getLastSolution();
+            s = l.getLastReport();
         }
 
         SolverStatistics stats = s.getStatistics();
