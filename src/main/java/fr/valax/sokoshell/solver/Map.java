@@ -291,7 +291,27 @@ public class Map {
     }
 
 
-
+    /**
+     * Find tunnels. A tunnel is something like this:
+     * <pre>
+     *     $$$$$$
+     *          $$$$$
+     *     $$$$
+     *        $$$$$$$
+     * </pre>
+     *
+     * It can be more complicated. In the following example, there two and not three tunnels.
+     * The first one is represented by '.' and the second one by '_'
+     * <pre>
+     *         $.$
+     *         $.$
+     *     $$$$$.$$$$$$
+     *     ____________
+     *     $$$$$$$$$$$$
+     * </pre>
+     * There isn't three tunnels because if we push a crate into the '_' tunnel, his only fate
+     * is to be pushed all the way to the right or the left.
+     */
     public void findTunnels() {
         tunnels.clear();
 
@@ -309,6 +329,12 @@ public class Map {
         });
     }
 
+    /**
+     * Try to create a tunnel that contains the specified tile.
+     *
+     * @param init a tile in the tunnel
+     * @return a tunnel that contains the tile or {@code null}
+     */
     private Tunnel buildTunnel(TileInfo init) {
         Direction pushDir1 = null;
         Direction pushDir2 = null;
@@ -350,6 +376,19 @@ public class Map {
         }
     }
 
+    /**
+     * Try to grow a tunnel. The tile adjacent to pos according to -dir is assumed to
+     * be a part of a tunnel. So we are in the following situations:
+     * <pre>
+     *             $$$     $$$    $ $
+     *     $ $       $     $      $
+     *     $@$     $@$     $@$    $@$
+     * </pre>
+     *
+     * @param pos position of the player
+     * @param dir the move the player did to go to pos
+     * @return end position of the tunnel
+     */
     private TileInfo growTunnel(TileInfo pos, Direction dir) {
         pos.mark();
 
@@ -358,6 +397,8 @@ public class Map {
         TileInfo left = pos.adjacent(leftDir);
         TileInfo right = pos.adjacent(rightDir);
         TileInfo front = pos.adjacent(dir);
+        TileInfo frontRight = front.adjacent(rightDir);
+        TileInfo frontLeft = front.adjacent(leftDir);
 
         if (left.isSolid() && right.isSolid()) {
             if (front.isSolid() || front.isMarked()) {
@@ -377,6 +418,10 @@ public class Map {
             } else {
                 return growTunnel(right, rightDir);
             }
+        } else if (left.isSolid() && frontRight.isSolid() && !right.isSolid() && !front.isSolid()) {
+            return growTunnel(front, dir);
+        } else if (right.isSolid() && frontLeft.isSolid() && !left.isSolid() && !front.isSolid()) {
+            return growTunnel(front, dir);
         } else {
             pos.unmark();
             return pos.adjacent(dir.negate());

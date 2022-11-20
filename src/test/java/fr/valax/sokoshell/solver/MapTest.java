@@ -37,11 +37,11 @@ public class MapTest {
         tunnelsSet.add(new TTunnel(5, 5, 5, 6));
         tunnelsSet.add(new TTunnel(8, 4, 8, 6));
         tunnelsSet.add(new TTunnel(4, 7, 4, 7));
-        tunnelsSet.add(new TTunnel(6, 7, 7, 7));
+        //tunnelsSet.add(new TTunnel(6, 7, 7, 7));
         tunnelsSet.add(new TTunnel(5, 8, 9, 8));
-        tunnelsSet.add(new TTunnel(10, 7, 10, 7));
+        //tunnelsSet.add(new TTunnel(10, 7, 10, 7));
         tunnelsSet.add(new TTunnel(11, 8, 11, 8));
-        tunnelsSet.add(new TTunnel(12, 7, 13, 7));
+        tunnelsSet.add(new TTunnel(6, 7, 13, 7));
 
         Pack pack = PackReaders.read(Path.of("levels8xv/Original.8xv"), false);
 
