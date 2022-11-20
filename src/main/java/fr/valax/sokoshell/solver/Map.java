@@ -4,6 +4,8 @@ import fr.valax.interval.IntWrapper;
 import fr.valax.sokoshell.solver.mark.AbstractMarkSystem;
 import fr.valax.sokoshell.solver.mark.MarkSystem;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -30,18 +32,21 @@ public class Map {
     public static final int MINIMUM_WIDTH = 5;
     public static final int MINIMUM_HEIGHT = 5;
 
+    private final MarkSystem markSystem = newMarkSystem(TileInfo::unmark);
+    private final MarkSystem reachableMarkSystem = newMarkSystem((t) -> t.setReachable(false));
+
+
+
     private final TileInfo[][] content;
     private final int width;
     private final int height;
 
-    private final MarkSystem markSystem = newMarkSystem(TileInfo::unmark);
-    private final MarkSystem reachableMarkSystem = newMarkSystem((t) -> t.setReachable(false));
-
     /**
-     * Must be used only for {@link #topLeftReachablePosition(int, int, int, int)}
+     * Tiles that can be 'target' or 'floor'
      */
-    private final IntWrapper topX = new IntWrapper();
-    private final IntWrapper topY = new IntWrapper();
+    private TileInfo[] floors;
+
+    private final List<Tunnel> tunnels = new ArrayList<>();
 
     /**
      * Creates a Map with the specified width, height and tiles
@@ -79,6 +84,17 @@ public class Map {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 this.content[y][x] = other.content[y][x].copyTo(this);
+            }
+        }
+
+        if (other.floors != null) {
+            floors = new TileInfo[other.floors.length];
+            for (int i = 0; i < floors.length; i++) {
+                TileInfo t = other.floors[i];
+
+                if (t != null) {
+                    floors[i] = getAt(t.getX(), t.getY());
+                }
             }
         }
     }
@@ -139,6 +155,46 @@ public class Map {
 
 
     /**
+     * Creates or recreates the floor array. It is an array containing all tile info
+     * that are not a wall
+     */
+    public void computeFloors() {
+        int nFloor = 0;
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                TileInfo t = getAt(x, y);
+
+                if (!t.isSolid() || t.isCrate()) {
+                    nFloor++;
+                }
+            }
+        }
+
+        this.floors = new TileInfo[nFloor];
+        int i = 0;
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                if (!this.content[y][x].isSolid() || this.content[y][x].isCrate()) {
+                    this.floors[i] = this.content[y][x];
+                    i++;
+                }
+            }
+        }
+    }
+
+    /**
+     * Apply the consumer on every tile info except walls. Assume that {@link #computeFloors()}
+     * was called
+     *
+     * @param consumer the consumer to apply
+     */
+    public void forEachNotWall(Consumer<TileInfo> consumer) {
+        for (TileInfo floor : floors) {
+            consumer.accept(floor);
+        }
+    }
+
+    /**
      * Apply the consumer on every tile info
      *
      * @param consumer the consumer to apply
@@ -149,18 +205,6 @@ public class Map {
                 consumer.accept(content[y][x]);
             }
         }
-    }
-
-    /**
-     * Copy the other map in this map. Mark systems are not copied
-     *
-     * @param map the map to copy
-     */
-    public void set(Map map) {
-        forEach((tile) -> {
-            TileInfo other = map.getAt(tile.getX(), tile.getY());
-            tile.set(other);
-        });
     }
 
 
@@ -179,10 +223,10 @@ public class Map {
      */
     public void computeDeadTiles() {
         // reset
-        forEach(tile -> tile.setDeadTile(true));
+        forEachNotWall(tile -> tile.setDeadTile(true));
 
         // loop
-        forEach((tile) -> {
+        forEachNotWall((tile) -> {
             if (!tile.isDeadTile()) {
                 return;
             }
@@ -245,6 +289,104 @@ public class Map {
             }
         }
     }
+
+
+
+    public void findTunnels() {
+        tunnels.clear();
+
+        markSystem.unmarkAll();
+        forEachNotWall((t) -> {
+            if (t.isInATunnel() || t.isMarked()) {
+                return;
+            }
+
+            Tunnel tunnel = buildTunnel(t);
+
+            if (tunnel != null) {
+                tunnels.add(tunnel);
+            }
+        });
+    }
+
+    private Tunnel buildTunnel(TileInfo init) {
+        Direction pushDir1 = null;
+        Direction pushDir2 = null;
+
+        for (Direction dir : Direction.VALUES) {
+            TileInfo adj = init.adjacent(dir);
+
+            if (!adj.isSolid()) {
+                if (pushDir1 == null) {
+                    pushDir1 = dir;
+                } else if (pushDir2 == null) {
+                    pushDir2 = dir;
+                } else {
+                    return null;
+                }
+            }
+        }
+
+        TileInfo start;
+        TileInfo end;
+        if (pushDir1 == null) {
+            return null;
+        } else if (pushDir2 == null) {
+            start = init;
+            end = growTunnel(init.adjacent(pushDir1), pushDir1);
+        } else {
+            if (pushDir1.negate() != pushDir2 && !init.adjacent(pushDir1).adjacent(pushDir2).isSolid()) {
+                return null;
+            }
+
+            start = growTunnel(init.adjacent(pushDir1), pushDir1);
+            end = growTunnel(init.adjacent(pushDir2), pushDir2);
+        }
+
+        if (start != null && end != null) {
+            return new Tunnel(start, end);
+        } else {
+            return null;
+        }
+    }
+
+    private TileInfo growTunnel(TileInfo pos, Direction dir) {
+        pos.mark();
+
+        Direction leftDir = dir.left();
+        Direction rightDir = dir.right();
+        TileInfo left = pos.adjacent(leftDir);
+        TileInfo right = pos.adjacent(rightDir);
+        TileInfo front = pos.adjacent(dir);
+
+        if (left.isSolid() && right.isSolid()) {
+            if (front.isSolid() || front.isMarked()) {
+                return pos;
+            } else {
+                return growTunnel(front, dir);
+            }
+        } else if (right.isSolid() && front.isSolid()) {
+            if (left.isSolid() || left.isMarked()) {
+                return pos;
+            } else {
+                return growTunnel(left, leftDir);
+            }
+        } else if (left.isSolid() && front.isSolid()) {
+            if (right.isSolid() || right.isMarked()) {
+                return pos;
+            } else {
+                return growTunnel(right, rightDir);
+            }
+        } else {
+            pos.unmark();
+            return pos.adjacent(dir.negate());
+        }
+    }
+
+
+
+    private final IntWrapper topX = new IntWrapper();
+    private final IntWrapper topY = new IntWrapper();
 
     /**
      * This method compute the top left reachable position of the player of pushing a crate
@@ -488,6 +630,15 @@ public class Map {
     }
 
     /**
+     * Returns all tunnels that are in this map
+     *
+     * @return all tunnels that are in this map
+     */
+    public List<Tunnel> getTunnels() {
+        return tunnels;
+    }
+
+    /**
      * Returns a {@link MarkSystem} that can be used to avoid checking twice  a tile
      *
      * @return a mark system
@@ -521,7 +672,7 @@ public class Map {
             @Override
             public void reset() {
                 mark = 0;
-                forEach(reset);
+                forEachNotWall(reset);
             }
         };
     }

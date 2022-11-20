@@ -288,7 +288,7 @@ public class SolutionCommand extends LevelCommand {
     public static class SolutionAnimator {
 
         private final SolverReport solution;
-        private final Map map;
+        private Map map;
 
         private final List<Move> path;
         private int pathIndex;
@@ -397,7 +397,7 @@ public class SolutionCommand extends LevelCommand {
                 playerX = level.getPlayerX();
                 playerY = level.getPlayerY();
 
-                map.set(level.getMap());
+                map = level.getMap();
             }
         }
 

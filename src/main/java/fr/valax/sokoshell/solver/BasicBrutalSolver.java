@@ -81,8 +81,8 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
         int nState = initialState.cratesIndices().length;
 
         Map map = level.getMap();
+        map.computeFloors();
         map.removeStateCrates(initialState);
-
         map.computeDeadTiles();
 
         toProcess.clear();
@@ -201,8 +201,6 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
 
     protected boolean hasRamExceeded(long maxRam, boolean detailed, int nCrate) {
         if (maxRam > 0) {
-            long totalState = toProcess.size() + processed.size();
-
             if (detailed) {
                 return SizeOf.approxSizeOf(processed, nCrate) >= maxRam;
             } else {

@@ -30,8 +30,8 @@ public class AbstractSolverTest {
 
         final int[] count = {0};
 
-        map.forEach((t) -> {
-            if (t.isDeadTile() && !t.isWall()) {
+        map.forEachNotWall((t) -> {
+            if (t.isDeadTile()) {
                 System.out.printf("Dead position at (%d;%d)%n", t.getX(), t.getY());
                 count[0] = count[0] + 1;
             }

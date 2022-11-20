@@ -35,6 +35,7 @@ public class TileInfo {
 
     // Static information
     private boolean deadTile;
+    private Tunnel tunnel;
 
     // Dynamic information
     private final Mark reachable;
@@ -237,6 +238,30 @@ public class TileInfo {
         this.reachable.setMarked(reachable);
     }
 
+    /**
+     * Returns the tunnel in which this tile is
+     *
+     * @return the tunnel in which this tile is
+     */
+    public Tunnel getTunnel() {
+        return tunnel;
+    }
+
+    /**
+     * Sets the tunnel in which this tile is
+     */
+    public void setTunnel(Tunnel tunnel) {
+        this.tunnel = tunnel;
+    }
+
+    /**
+     * Returns {@code true} if this tile info is in a tunnel
+     *
+     * @return {@code true} if this tile info is in a tunnel
+     */
+    public boolean isInATunnel() {
+        return tunnel != null;
+    }
 
     /**
      * Sets this tile as marked

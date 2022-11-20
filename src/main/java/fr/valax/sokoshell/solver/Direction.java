@@ -36,6 +36,34 @@ public enum Direction {
     public int dirX() { return dirX; }
     public int dirY() { return dirY; }
 
+    /**
+     * Rotate the rotation by 90°. For 'up' it returns 'left'
+     *
+     * @return the direction rotated by 90°
+     */
+    public Direction left() {
+        return switch (this) {
+            case DOWN -> RIGHT;
+            case LEFT -> DOWN;
+            case UP -> LEFT;
+            case RIGHT -> UP;
+        };
+    }
+
+    /**
+     * Rotate the rotation by -90°. For 'up' it returns 'right'
+     *
+     * @return the direction rotated by -90°
+     */
+    public Direction right() {
+        return switch (this) {
+            case DOWN -> LEFT;
+            case LEFT -> UP;
+            case UP -> RIGHT;
+            case RIGHT -> DOWN;
+        };
+    }
+
     public Direction negate() {
         return switch (this) {
             case DOWN -> UP;
