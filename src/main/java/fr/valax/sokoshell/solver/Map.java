@@ -299,18 +299,6 @@ public class Map {
      *     $$$$
      *        $$$$$$$
      * </pre>
-     *
-     * It can be more complicated. In the following example, there two and not three tunnels.
-     * The first one is represented by '.' and the second one by '_'
-     * <pre>
-     *         $.$
-     *         $.$
-     *     $$$$$.$$$$$$
-     *     ____________
-     *     $$$$$$$$$$$$
-     * </pre>
-     * There isn't three tunnels because if we push a crate into the '_' tunnel, his only fate
-     * is to be pushed all the way to the right or the left.
      */
     public void findTunnels() {
         tunnels.clear();
@@ -353,43 +341,49 @@ public class Map {
             }
         }
 
-        TileInfo start;
-        TileInfo end;
         if (pushDir1 == null) {
             return null;
         } else if (pushDir2 == null) {
-            start = init;
-            end = growTunnel(init.adjacent(pushDir1), pushDir1);
+            Tunnel tunnel = new Tunnel();
+            tunnel.setStart(init);
+            tunnel.setEnd(init);
+            tunnel.setEnd(init.adjacent(pushDir1));
+
+            growTunnel(tunnel, init.adjacent(pushDir1), pushDir1);
+            return tunnel;
         } else {
             if (pushDir1.negate() != pushDir2 && !init.adjacent(pushDir1).adjacent(pushDir2).isSolid()) {
                 return null;
             }
 
-            start = growTunnel(init.adjacent(pushDir1), pushDir1);
-            end = growTunnel(init.adjacent(pushDir2), pushDir2);
-        }
+            Tunnel tunnel = new Tunnel();
+            tunnel.setEnd(init);
+            tunnel.setEnd(init.adjacent(pushDir1));
 
-        if (start != null && end != null) {
-            return new Tunnel(start, end);
-        } else {
-            return null;
+            growTunnel(tunnel, init.adjacent(pushDir1), pushDir1);
+            tunnel.setStart(tunnel.getEnd());
+            tunnel.setStartOut(tunnel.getEndOut());
+            growTunnel(tunnel, init.adjacent(pushDir2), pushDir2);
+
+            return tunnel;
         }
     }
 
     /**
-     * Try to grow a tunnel. The tile adjacent to pos according to -dir is assumed to
+     * Try to grow a tunnel by the end ie {@link Tunnel#end} and {@link Tunnel#endOut} are modified.
+     * The tile adjacent to pos according to -dir is assumed to
      * be a part of a tunnel. So we are in the following situations:
      * <pre>
-     *             $$$     $$$    $ $
-     *     $ $       $     $      $
-     *     $@$     $@$     $@$    $@$
+     *             $$$     $$$
+     *     $ $       $     $
+     *     $@$     $@$     $@$
      * </pre>
      *
      * @param pos position of the player
      * @param dir the move the player did to go to pos
      * @return end position of the tunnel
      */
-    private TileInfo growTunnel(TileInfo pos, Direction dir) {
+    private void growTunnel(Tunnel t, TileInfo pos, Direction dir) {
         pos.mark();
 
         Direction leftDir = dir.left();
@@ -397,34 +391,34 @@ public class Map {
         TileInfo left = pos.adjacent(leftDir);
         TileInfo right = pos.adjacent(rightDir);
         TileInfo front = pos.adjacent(dir);
-        TileInfo frontRight = front.adjacent(rightDir);
-        TileInfo frontLeft = front.adjacent(leftDir);
 
+        pos.setTunnel(t);
         if (left.isSolid() && right.isSolid()) {
             if (front.isSolid() || front.isMarked()) {
-                return pos;
+                t.setEnd(pos);
+                t.setEndOut(front);
             } else {
-                return growTunnel(front, dir);
+                growTunnel(t, front, dir);
             }
         } else if (right.isSolid() && front.isSolid()) {
             if (left.isSolid() || left.isMarked()) {
-                return pos;
+                t.setEnd(pos);
+                t.setEndOut(left);
             } else {
-                return growTunnel(left, leftDir);
+                growTunnel(t, left, leftDir);
             }
         } else if (left.isSolid() && front.isSolid()) {
             if (right.isSolid() || right.isMarked()) {
-                return pos;
+                t.setEnd(pos);
+                t.setEndOut(right);
             } else {
-                return growTunnel(right, rightDir);
+                growTunnel(t, right, rightDir);
             }
-        } else if (left.isSolid() && frontRight.isSolid() && !right.isSolid() && !front.isSolid()) {
-            return growTunnel(front, dir);
-        } else if (right.isSolid() && frontLeft.isSolid() && !left.isSolid() && !front.isSolid()) {
-            return growTunnel(front, dir);
         } else {
+            pos.setTunnel(null);
             pos.unmark();
-            return pos.adjacent(dir.negate());
+            t.setEndOut(pos);
+            t.setEnd(pos.adjacent(dir.negate()));
         }
     }
 
