@@ -11,11 +11,10 @@ public abstract class AbstractSolver implements Solver {
     protected boolean checkFreezeDeadlock(Map map, State state) {
         int[] crates = state.cratesIndices();
 
-        map.getMarkSystem().unmarkAll();
         for (int crate : crates) {
             TileInfo info = map.getAt(crate);
 
-            if (!info.isMarked() && checkFreezeDeadlock(info)) {
+            if (checkFreezeDeadlock(info)) {
                 return true;
             }
         }
@@ -47,12 +46,10 @@ public abstract class AbstractSolver implements Solver {
             current.setTile(Tile.WALL);
 
             if (left != null && left.isCrate()) {
-                left.mark();
                 deadlock = checkFreezeDeadlock(left);
             }
 
             if (!deadlock && right != null && right.isCrate()) {
-                right.mark();
                 deadlock = checkFreezeDeadlock(right);
             }
 
