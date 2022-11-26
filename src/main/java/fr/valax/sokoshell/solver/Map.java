@@ -1,11 +1,11 @@
 package fr.valax.sokoshell.solver;
 
+import fr.poulpogaz.json.utils.Pair;
 import fr.valax.interval.IntWrapper;
 import fr.valax.sokoshell.solver.mark.AbstractMarkSystem;
 import fr.valax.sokoshell.solver.mark.MarkSystem;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
@@ -47,6 +47,7 @@ public class Map {
     private TileInfo[] floors;
 
     private final List<Tunnel> tunnels = new ArrayList<>();
+    private final List<Room> rooms = new ArrayList<>();
 
     /**
      * Creates a Map with the specified width, height and tiles
@@ -299,13 +300,15 @@ public class Map {
      *     $$$$
      *        $$$$$$$
      * </pre>
+     *
+     * A tunnel doesn't contain a target
      */
     public void findTunnels() {
         tunnels.clear();
 
         markSystem.unmarkAll();
         forEachNotWall((t) -> {
-            if (t.isInATunnel() || t.isMarked()) {
+            if (t.isInATunnel() || t.isMarked() || t.isTarget()) {
                 return;
             }
 
@@ -370,7 +373,7 @@ public class Map {
     }
 
     /**
-     * Try to grow a tunnel by the end ie {@link Tunnel#end} and {@link Tunnel#endOut} are modified.
+     * Try to grow a tunnel by the end ie Tunnel#end and Tunnel#endOut are modified.
      * The tile adjacent to pos according to -dir is assumed to
      * be a part of a tunnel. So we are in the following situations:
      * <pre>
@@ -381,7 +384,6 @@ public class Map {
      *
      * @param pos position of the player
      * @param dir the move the player did to go to pos
-     * @return end position of the tunnel
      */
     private void growTunnel(Tunnel t, TileInfo pos, Direction dir) {
         pos.mark();
@@ -392,36 +394,206 @@ public class Map {
         TileInfo right = pos.adjacent(rightDir);
         TileInfo front = pos.adjacent(dir);
 
-        pos.setTunnel(t);
-        if (left.isSolid() && right.isSolid()) {
-            if (front.isSolid() || front.isMarked()) {
-                t.setEnd(pos);
-                t.setEndOut(front);
-            } else {
-                growTunnel(t, front, dir);
+        if (!pos.isTarget()) {
+            pos.setTunnel(t);
+            if (left.isSolid() && right.isSolid()) {
+                if (front.isSolid() || front.isMarked()) {
+                    t.setEnd(pos);
+                    t.setEndOut(front);
+                } else {
+                    growTunnel(t, front, dir);
+                }
+                return;
+            } else if (right.isSolid() && front.isSolid()) {
+                if (left.isSolid() || left.isMarked()) {
+                    t.setEnd(pos);
+                    t.setEndOut(left);
+                } else {
+                    growTunnel(t, left, leftDir);
+                }
+                return;
+            } else if (left.isSolid() && front.isSolid()) {
+                if (right.isSolid() || right.isMarked()) {
+                    t.setEnd(pos);
+                    t.setEndOut(right);
+                } else {
+                    growTunnel(t, right, rightDir);
+                }
+                return;
             }
-        } else if (right.isSolid() && front.isSolid()) {
-            if (left.isSolid() || left.isMarked()) {
-                t.setEnd(pos);
-                t.setEndOut(left);
-            } else {
-                growTunnel(t, left, leftDir);
+        }
+
+        pos.setTunnel(null);
+        pos.unmark();
+        t.setEndOut(pos);
+        t.setEnd(pos.adjacent(dir.negate()));
+    }
+
+
+    /**
+     * Finds room based on tunnel. Basically all tile that aren't in a tunnel are in room.
+     * This means that you need to call {@link #findTunnels()} before!
+     * A room that contains a target is a packing room.
+     */
+    public void findRooms() {
+        forEachNotWall((t) -> {
+            if (t.isInATunnel()) {
+                return;
             }
-        } else if (left.isSolid() && front.isSolid()) {
-            if (right.isSolid() || right.isMarked()) {
-                t.setEnd(pos);
-                t.setEndOut(right);
-            } else {
-                growTunnel(t, right, rightDir);
+
+            Room room = new Room();
+            expandRoom(room, t);
+            rooms.add(room);
+        });
+    }
+
+    private void expandRoom(Room room, TileInfo tile) {
+        room.addTile(tile);
+        tile.setRoom(room);
+
+        if (tile.isTarget()) {
+            room.setPackingRoom(true);
+        }
+
+        for (Direction dir : Direction.VALUES) {
+            TileInfo adj = tile.safeAdjacent(dir);
+
+            if (adj != null && !adj.isSolid()) {
+                if (!adj.isInATunnel() && !adj.isInARoom()) {
+                    expandRoom(room, adj);
+                } else if (adj.isInATunnel()) {
+                    room.addTunnel(adj.getTunnel());
+                    adj.getTunnel().addRoom(room);
+                }
             }
-        } else {
-            pos.setTunnel(null);
-            pos.unmark();
-            t.setEndOut(pos);
-            t.setEnd(pos.adjacent(dir.negate()));
         }
     }
 
+
+    /**
+     * Compute packing order. No crate should be on the map
+     */
+    public void tryComputePackingOrder() {
+        for (Room r : rooms) {
+            if (r.getTunnels().size() == 1 && r.isPackingRoom()) {
+                computePackingOrder(r);
+            }
+        }
+    }
+
+    /**
+     * The rooms must have only one entrance and a packing room
+     * @param room a room
+     */
+    private void computePackingOrder(Room room) {
+        Tunnel tunnel = room.getTunnels().get(0);
+        TileInfo entrance;
+        TileInfo inRoom;
+        if (tunnel.getStartOut() != null && tunnel.getStartOut().getRoom() == room) {
+            entrance = tunnel.getStart();
+            inRoom = tunnel.getStartOut();
+        } else {
+            entrance = tunnel.getEnd();
+            inRoom = tunnel.getEndOut();
+        }
+
+
+        List<TileInfo> targets = room.getTargets();
+        for (TileInfo t : targets) {
+            t.addCrate();
+        }
+
+        PriorityQueue<Pair<TileInfo, Integer>> distances = new PriorityQueue<>(Comparator.comparingInt(Pair::getRight));
+        computeDistToCrate(entrance, 0, distances);
+
+
+        while (!distances.isEmpty()) {
+            Pair<TileInfo, Integer> tile = distances.poll();
+
+            TileInfo crate = tile.getLeft();
+            crate.removeCrate();
+            if (canPush(entrance, inRoom, crate)) {
+                crate.unmark();
+                crate.removeCrate();
+                computeDistToCrate(crate, tile.getRight(), distances);
+            } else {
+                crate.addCrate();
+            }
+        }
+
+
+        for (TileInfo t : targets) {
+            t.removeCrate();
+        }
+    }
+
+    private void computeDistToCrate(TileInfo tile, int dist, Queue<Pair<TileInfo, Integer>> out) {
+        tile.mark();
+        if (tile.isCrate()) {
+            out.offer(new Pair<>(tile, dist + 1));
+        } else {
+            for (Direction dir : Direction.VALUES) {
+                TileInfo adj = tile.safeAdjacent(dir);
+
+                if (adj != null && !adj.isMarked() && !adj.isWall()) {
+                    computeDistToCrate(adj, dist + 1, out);
+                }
+            }
+        }
+    }
+
+    /**
+     *
+     * @param from initial player position
+     * @param cratePos position of the crate
+     * @param to crate destination
+     */
+    private boolean canPush(TileInfo from, TileInfo cratePos, TileInfo to) {
+        Set<MiniState> visited = new HashSet<>();
+        Queue<MiniState> toVisit = new ArrayDeque<>();
+
+        toVisit.add(new MiniState(from, cratePos));
+        visited.add(toVisit.peek());
+
+        while (!toVisit.isEmpty()) {
+            MiniState state = toVisit.poll();
+            TileInfo p = state.player();
+            TileInfo crate = state.cratePos();
+
+            crate.addCrate();
+
+            for (Direction dir : Direction.VALUES) {
+                TileInfo next = p.safeAdjacent(dir);
+                if (next == null || next.isSolid() && next != crate) { // only allowed to push one crate
+                    continue;
+                }
+
+                TileInfo nextNext = next.safeAdjacent(dir);
+                if (nextNext != null && nextNext.isSolid()) {
+                    continue;
+                }
+
+                if (nextNext == to) {
+                    crate.removeCrate();
+                    cratePos.addCrate();
+                    return true;
+                }
+
+                MiniState child = new MiniState(next, nextNext);
+
+                if (visited.add(child)) {
+                    toVisit.offer(child);
+                }
+            }
+
+            crate.removeCrate();
+        }
+
+        cratePos.addCrate();
+        return false;
+    }
+
+    private record MiniState(TileInfo player, TileInfo cratePos) {}
 
 
     private final IntWrapper topX = new IntWrapper();

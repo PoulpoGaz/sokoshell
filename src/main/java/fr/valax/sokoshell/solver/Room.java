@@ -1,0 +1,54 @@
+package fr.valax.sokoshell.solver;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class Room {
+
+    private boolean packingRoom;
+
+    private final List<TileInfo> tiles = new ArrayList<>();
+    private final List<TileInfo> targets = new ArrayList<>();
+
+    private final List<Tunnel> tunnels = new ArrayList<>();
+
+    private List<TileInfo> packingOrder = new ArrayList<>();
+
+    public Room() {
+    }
+
+    public void addTile(TileInfo tile) {
+        tiles.add(tile);
+
+        if (tile.isTarget()) {
+            targets.add(tile);
+        }
+    }
+
+
+    public List<TileInfo> getTiles() {
+        return tiles;
+    }
+
+    public List<TileInfo> getTargets() {
+        return targets;
+    }
+
+
+    public void addTunnel(Tunnel tunnel) {
+        tunnels.add(tunnel);
+    }
+
+    public List<Tunnel> getTunnels() {
+        return tunnels;
+    }
+
+
+    public boolean isPackingRoom() {
+        return packingRoom;
+    }
+
+    public void setPackingRoom(boolean packingRoom) {
+        this.packingRoom = packingRoom;
+    }
+}

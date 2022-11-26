@@ -35,7 +35,12 @@ public class TileInfo {
 
     // Static information
     private boolean deadTile;
+
+    /**
+     * The tunnel in which this tile is. A Tile is either in a room or in a tunnel
+     */
     private Tunnel tunnel;
+    private Room room;
 
     // Dynamic information
     private final Mark reachable;
@@ -123,6 +128,10 @@ public class TileInfo {
      */
     public TileInfo safeAdjacent(Direction dir) {
         return map.safeGetAt(x + dir.dirX(), y + dir.dirY());
+    }
+
+    public Direction direction(TileInfo other) {
+        return Direction.of(other.x - x, other.y - y);
     }
 
     /**
@@ -261,6 +270,31 @@ public class TileInfo {
      */
     public boolean isInATunnel() {
         return tunnel != null;
+    }
+
+    /**
+     * Returns the room in which this tile is
+     *
+     * @return the room in which this tile is
+     */
+    public Room getRoom() {
+        return room;
+    }
+
+    /**
+     * Sets the room in which this tile is
+     */
+    public void setRoom(Room room) {
+        this.room = room;
+    }
+
+    /**
+     * Returns {@code true} if this tile info is in a room
+     *
+     * @return {@code true} if this tile info is in a room
+     */
+    public boolean isInARoom() {
+        return room != null;
     }
 
     /**

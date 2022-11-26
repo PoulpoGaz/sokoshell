@@ -1,5 +1,8 @@
 package fr.valax.sokoshell.solver;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Tunnel {
 
     private TileInfo start;
@@ -11,6 +14,15 @@ public class Tunnel {
     // the tile outside the tunnel adjacent to end
     private TileInfo endOut;
 
+    private final List<Room> rooms = new ArrayList<>();
+
+    public void addRoom(Room room) {
+        rooms.add(room);
+    }
+
+    public List<Room> getRooms() {
+        return rooms;
+    }
 
     public TileInfo getStart() {
         return start;
