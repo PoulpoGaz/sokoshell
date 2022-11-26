@@ -112,7 +112,8 @@ public class SolverReport {
         Level level = parameters.getLevel();
         Map map = level.getMap();
 
-        List<Move> path = new ArrayList<>();
+        ArrayList<Move> path = new ArrayList<>();
+        List<Move> temp = new ArrayList<>();
 
         int playerX = level.getPlayerX();
         int playerY = level.getPlayerY();
@@ -125,78 +126,35 @@ public class SolverReport {
             }
 
             State next = states.get(i + 1);
-            DirectionWithPosition dir = getDirection(map, current, next);
+            StateDiff diff = getStateDiff(map, current, next);
 
-            int destX = dir.fromX - dir.dir().dirX();
-            int destY = dir.fromY - dir.dir().dirY();
+            Node node = findPath(map, diff, playerX, playerY);
+            boolean newPlayerPosSet = false;
+            while (node.parent != null) {
+                if (!newPlayerPosSet) {
+                    if (node.move.moveCrate()) {
+                        playerX = node.playerX;
+                        playerY = node.playerY;
+                        temp.add(node.move);
+                        newPlayerPosSet = true;
+                    }
+                } else {
+                    temp.add(node.move);
+                }
 
-            if (playerX != destX || playerY != destY) {
-                path.addAll(findPath(map, playerX, playerY, destX, destY));
+                node = node.parent;
             }
 
-            path.add(new Move(dir.dir(), true));
+            path.ensureCapacity(path.size() + temp.size());
+            for (int j = temp.size() - 1; j >= 0; j--) {
+                path.add(temp.get(j));
+            }
+            temp.clear();
 
             map.removeStateCrates(current);
-
-            playerX = destX + dir.dir().dirX();
-            playerY = destY + dir.dir().dirY();
         }
 
         return path;
-    }
-
-    /**
-     * Find a path in the map between (fromX, fromY) and (destX, destY). This method doesn't
-     * move any crates. It performs a simple graph traversal to find the path
-     *
-     * @return the path between the two points
-     */
-    private List<Move> findPath(Map map, int fromX, int fromY, int destX, int destY) {
-        Set<Node> visited = new HashSet<>();
-        Queue<Node> queue = new ArrayDeque<>();
-        queue.offer(new Node(null, fromX, fromY, null));
-        visited.add(queue.peek());
-
-        Node solution = null;
-        while (!queue.isEmpty() && solution == null) {
-            Node node = queue.poll();
-
-            for (Direction direction : Direction.VALUES) {
-                int newX = node.playerX + direction.dirX();
-                int newY = node.playerY + direction.dirY();
-
-                if (map.getAt(newX, newY).isSolid()) {
-                    continue;
-                }
-
-                Node child = new Node(node, newX, newY, direction);
-                if (newX == destX && newY == destY) {
-                    solution = child;
-                    break;
-                }
-
-                if (visited.add(child)) {
-                    queue.offer(child);
-                }
-            }
-        }
-
-        if (solution == null) {
-            throw new IllegalStateException("Can't find path between two states");
-        } else {
-            List<Move> directions = new ArrayList<>();
-
-            Node n = solution;
-            while (n.parent != null) {
-                directions.add(new Move(n.dir, false));
-
-                n = n.parent;
-            }
-
-            Collections.reverse(directions);
-
-            return directions;
-        }
     }
 
     /**
@@ -224,7 +182,7 @@ public class SolverReport {
      * @param to the second state
      * @return the movement made by the player between two states
      */
-    private DirectionWithPosition getDirection(Map map, State from, State to) {
+    private StateDiff getStateDiff(Map map, State from, State to) {
         List<Integer> state1Crates = Arrays.stream(from.cratesIndices()).boxed().collect(Collectors.toList());
         List<Integer> state2Crates = Arrays.stream(to.cratesIndices()).boxed().collect(Collectors.toList());
 
@@ -232,18 +190,71 @@ public class SolverReport {
         state1Crates.removeAll(state2Crates);
         state2Crates.removeAll(state1Copy);
 
-        // crate position
-        int mvt1X = (state1Crates.get(0) % map.getWidth());
-        int mvt1Y = (state1Crates.get(0) / map.getWidth());
+        return new StateDiff(
+                map.getX(to.playerPos()), map.getY(to.playerPos()),
+                map.getX(state1Crates.get(0)), map.getY(state1Crates.get(0)),  // original crate pos
+                map.getX(state2Crates.get(0)), map.getY(state2Crates.get(0))); // where it goes
+    }
 
-        // where it goes
-        int mvt2X = (state2Crates.get(0) % map.getWidth());
-        int mvt2Y = (state2Crates.get(0) / map.getWidth());
+    /**
+     * Find a path in the map between (fromX, fromY) and (destX, destY). This method doesn't
+     * move any crates. It performs a simple graph traversal to find the path
+     *
+     * @return the path between the two points
+     */
+    private Node findPath(Map map, StateDiff diff, int playerX, int playerY) {
+        Set<Node> visited = new HashSet<>();
+        Queue<Node> queue = new ArrayDeque<>();
+        queue.offer(new Node(null, playerX, playerY, diff.crateX(), diff.crateY(), null));
+        visited.add(queue.peek());
 
-        int dirX = mvt2X - mvt1X;
-        int dirY = mvt2Y - mvt1Y;
+        Node solution = null;
+        while (!queue.isEmpty() && solution == null) {
+            Node node = queue.poll();
 
-        return new DirectionWithPosition(Direction.of(dirX, dirY), mvt1X, mvt1Y);
+            TileInfo player = map.getAt(node.playerX(), node.playerY());
+            TileInfo crate = map.getAt(node.crateX(), node.crateY());
+            crate.addCrate();
+
+            for (Direction direction : Direction.VALUES) {
+                TileInfo adj = player.adjacent(direction);
+
+                Node child;
+                if (adj.isSolid()) {
+                    if (!crate.isAt(adj)) {
+                        continue;
+                    }
+
+                    TileInfo adjAdj = adj.adjacent(direction);
+                    if (adjAdj.isSolid()) {
+                        continue;
+                    }
+
+                    child = new Node(node, adj.getX(), adj.getY(), adjAdj.getX(), adjAdj.getY(), new Move(direction, true));
+                } else {
+                    child = new Node(node, adj.getX(), adj.getY(), crate.getX(), crate.getY(), new Move(direction, false));
+                }
+
+                if (child.isEndNode(diff)) {
+                    solution = child;
+                    break;
+                }
+
+                if (visited.add(child)) {
+                    queue.offer(child);
+                }
+            }
+
+            crate.removeCrate();
+        }
+
+        map.getAt(diff.crateX, diff.crateY).addCrate();
+
+        if (solution == null) {
+            throw new IllegalStateException("Can't find path between two states");
+        } else {
+            return solution;
+        }
     }
 
 
@@ -498,23 +509,30 @@ public class SolverReport {
      * @param playerY player y
      * @param dir the direction made by the player to move from the parent node to this node
      */
-    private record Node(Node parent, int playerX, int playerY, Direction dir) {
+    private record Node(Node parent, int playerX, int playerY, int crateX, int crateY, Move move) {
+
+        public boolean isEndNode(StateDiff diff) {
+            return playerX == diff.destX() && playerY == diff.destY() &&
+                    crateX == diff.crateDestX() && crateY == diff.crateDestY();
+        }
 
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            Node node = (Node) o;
+            if (!(o instanceof Node node)) return false;
 
             if (playerX != node.playerX) return false;
-            return playerY == node.playerY;
+            if (playerY != node.playerY) return false;
+            if (crateX != node.crateX) return false;
+            return crateY == node.crateY;
         }
 
         @Override
         public int hashCode() {
             int result = playerX;
             result = 31 * result + playerY;
+            result = 31 * result + crateX;
+            result = 31 * result + crateY;
             return result;
         }
     }
@@ -526,5 +544,5 @@ public class SolverReport {
      * @param fromX player x original position
      * @param fromY player y original position
      */
-    private record DirectionWithPosition(Direction dir, int fromX, int fromY) {}
+    private record StateDiff(int destX, int destY, int crateX, int crateY, int crateDestX, int crateDestY) {}
 }

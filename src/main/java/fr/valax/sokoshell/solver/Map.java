@@ -27,6 +27,7 @@ import java.util.function.Consumer;
  * @author darth-mole
  * @author PoulpoGaz
  */
+@SuppressWarnings("ForLoopReplaceableByForEach")
 public class Map {
 
     public static final int MINIMUM_WIDTH = 5;
@@ -73,10 +74,11 @@ public class Map {
     }
 
     /**
-     * Creates a copy of other
+     * Creates a copy of 'other'. It doesn't copy solver information
      *
      * @param other the map to copy
      */
+    @SuppressWarnings("CopyConstructorMissesField")
     public Map(Map other) {
         this.width = other.width;
         this.height = other.height;
@@ -87,18 +89,11 @@ public class Map {
                 this.content[y][x] = other.content[y][x].copyTo(this);
             }
         }
-
-        if (other.floors != null) {
-            floors = new TileInfo[other.floors.length];
-            for (int i = 0; i < floors.length; i++) {
-                TileInfo t = other.floors[i];
-
-                if (t != null) {
-                    floors[i] = getAt(t.getX(), t.getY());
-                }
-            }
-        }
     }
+
+    // =======================================================
+    // * Methods below doesn't need a call to #initForSolver *
+    // =======================================================
 
     /**
      * Puts the crates of the given state in the content array.
@@ -108,6 +103,17 @@ public class Map {
     public void addStateCrates(State state) {
         for (int i : state.cratesIndices()) {
             getAt(i).addCrate();
+        }
+    }
+
+    /**
+     * Removes the crates of the given state from the content array.
+     *
+     * @param state The state with the crates
+     */
+    public void removeStateCrates(State state) {
+        for (int i : state.cratesIndices()) {
+            getAt(i).removeCrate();
         }
     }
 
@@ -129,17 +135,6 @@ public class Map {
 
     /**
      * Removes the crates of the given state from the content array.
-     *
-     * @param state The state with the crates
-     */
-    public void removeStateCrates(State state) {
-        for (int i : state.cratesIndices()) {
-            getAt(i).removeCrate();
-        }
-    }
-
-    /**
-     * Removes the crates of the given state from the content array.
      * If a crate is outside the map, it doesn't throw an {@link IndexOutOfBoundsException}
      *
      * @param state The state with the crates
@@ -153,6 +148,35 @@ public class Map {
             }
         }
     }
+
+
+    /**
+     * Apply the consumer on every tile info
+     *
+     * @param consumer the consumer to apply
+     */
+    public void forEach(Consumer<TileInfo> consumer) {
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                consumer.accept(content[y][x]);
+            }
+        }
+    }
+
+
+
+
+    // ===========================================
+    // *         Methods used by solvers         *
+    // * You need to call #initForSolver() first *
+    // ===========================================
+
+    public void initForSolver() {
+        computeFloors();
+        computeDeadTiles();
+        findTunnels();
+    }
+
 
 
     /**
@@ -184,8 +208,7 @@ public class Map {
     }
 
     /**
-     * Apply the consumer on every tile info except walls. Assume that {@link #computeFloors()}
-     * was called
+     * Apply the consumer on every tile info except walls
      *
      * @param consumer the consumer to apply
      */
@@ -195,19 +218,31 @@ public class Map {
         }
     }
 
-    /**
-     * Apply the consumer on every tile info
-     *
-     * @param consumer the consumer to apply
-     */
-    public void forEach(Consumer<TileInfo> consumer) {
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                consumer.accept(content[y][x]);
+    public void addStateCratesAndAnalyse(State state) {
+        for (int i : state.cratesIndices()) {
+            TileInfo tile = getAt(i);
+            tile.addCrate();
+
+            Tunnel t = tile.getTunnel();
+            if (t != null) {
+                if (t.crateInside()) { // THIS IS VERY IMPORTANT -> see tunnels
+                    throw new IllegalStateException();
+                }
+
+                t.setCrateInside(true);
             }
         }
     }
 
+    public void removeStateCratesAndReset(State state) {
+        for (int i : state.cratesIndices()) {
+            getAt(i).removeCrate();
+        }
+
+        for (int i = 0; i < tunnels.size(); i++) {
+            tunnels.get(i).setCrateInside(false);
+        }
+    }
 
     // ************
     // * ANALYSIS *
@@ -267,30 +302,6 @@ public class Map {
             }
         }
     }
-
-    // * DYNAMIC *
-
-    /**
-     * Find reachable tiles
-     * @param playerPos
-     */
-    protected void findReachableCases(int playerPos) {
-        reachableMarkSystem.unmarkAll();
-        findReachableCases_aux(getAt(playerPos));
-    }
-
-    private void findReachableCases_aux(TileInfo tile) {
-        tile.setReachable(true);
-        for (Direction d : Direction.VALUES) {
-            TileInfo adjacent = tile.adjacent(d);
-
-            // the second part of the condition avoids to check already processed cases
-            if (!adjacent.isSolid() && !adjacent.isReachable()) {
-                findReachableCases_aux(adjacent);
-            }
-        }
-    }
-
 
     /**
      * Find tunnels. A tunnel is something like this:
@@ -355,13 +366,20 @@ public class Map {
             growTunnel(tunnel, init.adjacent(pushDir1), pushDir1);
             return tunnel;
         } else {
-            if (pushDir1.negate() != pushDir2 && !init.adjacent(pushDir1).adjacent(pushDir2).isSolid()) {
-                return null;
+            boolean onlyPlayer = false;
+            if (pushDir1.negate() != pushDir2) {
+                if (init.adjacent(pushDir1).adjacent(pushDir2).isSolid()) {
+                    onlyPlayer = true;
+                } else {
+                    return null;
+                }
             }
 
             Tunnel tunnel = new Tunnel();
             tunnel.setEnd(init);
             tunnel.setEnd(init.adjacent(pushDir1));
+            tunnel.setPlayerOnlyTunnel(onlyPlayer);
+            init.setTunnel(tunnel);
 
             growTunnel(tunnel, init.adjacent(pushDir1), pushDir1);
             tunnel.setStart(tunnel.getEnd());
@@ -405,6 +423,7 @@ public class Map {
                 }
                 return;
             } else if (right.isSolid() && front.isSolid()) {
+                t.setPlayerOnlyTunnel(true);
                 if (left.isSolid() || left.isMarked()) {
                     t.setEnd(pos);
                     t.setEndOut(left);
@@ -413,6 +432,7 @@ public class Map {
                 }
                 return;
             } else if (left.isSolid() && front.isSolid()) {
+                t.setPlayerOnlyTunnel(true);
                 if (right.isSolid() || right.isMarked()) {
                     t.setEnd(pos);
                     t.setEndOut(right);
@@ -452,7 +472,7 @@ public class Map {
         tile.setRoom(room);
 
         if (tile.isTarget()) {
-            room.setPackingRoom(true);
+            room.setGoalRoom(true);
         }
 
         for (Direction dir : Direction.VALUES) {
@@ -475,7 +495,7 @@ public class Map {
      */
     public void tryComputePackingOrder() {
         for (Room r : rooms) {
-            if (r.getTunnels().size() == 1 && r.isPackingRoom()) {
+            if (r.getTunnels().size() == 1 && r.isGoalRoom()) {
                 computePackingOrder(r);
             }
         }
@@ -594,6 +614,34 @@ public class Map {
     }
 
     private record MiniState(TileInfo player, TileInfo cratePos) {}
+
+
+
+
+
+    // * DYNAMIC *
+
+    /**
+     * Find reachable tiles
+     * @param playerPos
+     */
+    protected void findReachableCases(int playerPos) {
+        reachableMarkSystem.unmarkAll();
+        findReachableCases_aux(getAt(playerPos));
+    }
+
+    private void findReachableCases_aux(TileInfo tile) {
+        tile.setReachable(true);
+        for (Direction d : Direction.VALUES) {
+            TileInfo adjacent = tile.adjacent(d);
+
+            // the second part of the condition avoids to check already processed cases
+            if (!adjacent.isSolid() && !adjacent.isReachable()) {
+                findReachableCases_aux(adjacent);
+            }
+        }
+    }
+
 
 
     private final IntWrapper topX = new IntWrapper();

@@ -5,6 +5,8 @@ import java.util.List;
 
 public class Tunnel {
 
+    // STATIC
+
     private TileInfo start;
     private TileInfo end;
 
@@ -13,8 +15,16 @@ public class Tunnel {
 
     // the tile outside the tunnel adjacent to end
     private TileInfo endOut;
-
     private final List<Room> rooms = new ArrayList<>();
+
+    // true if the tunnel can only be taken by the player
+    private boolean playerOnlyTunnel;
+
+
+    // DYNAMIC
+    private boolean crateInside = false;
+
+
 
     public void addRoom(Room room) {
         rooms.add(room);
@@ -54,5 +64,21 @@ public class Tunnel {
 
     public void setEndOut(TileInfo endOut) {
         this.endOut = endOut;
+    }
+
+    public boolean isPlayerOnlyTunnel() {
+        return playerOnlyTunnel;
+    }
+
+    public void setPlayerOnlyTunnel(boolean playerOnlyTunnel) {
+        this.playerOnlyTunnel = playerOnlyTunnel;
+    }
+
+    public boolean crateInside() {
+        return crateInside;
+    }
+
+    public void setCrateInside(boolean crateInside) {
+        this.crateInside = crateInside;
     }
 }

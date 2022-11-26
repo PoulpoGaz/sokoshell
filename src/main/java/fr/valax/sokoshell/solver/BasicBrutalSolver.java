@@ -1,9 +1,6 @@
 package fr.valax.sokoshell.solver;
 
-import fr.valax.sokoshell.utils.PerformanceMeasurer;
 import fr.valax.sokoshell.utils.SizeOf;
-import org.openjdk.jol.info.ClassLayout;
-import org.openjdk.jol.vm.VirtualMachine;
 
 import java.util.ArrayDeque;
 import java.util.HashSet;
@@ -28,6 +25,7 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
 
     protected final ArrayDeque<State> toProcess = new ArrayDeque<>();
     protected final Set<State> processed = new HashSet<>();
+    private Map map;
 
     private boolean running = false;
     private boolean stopped = false;
@@ -38,9 +36,6 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
     private int nStateProcessed = -1;
     private int queueSize = -1;
     private Tracker tracker;
-
-    // debug
-    private final PerformanceMeasurer measurer = new PerformanceMeasurer();
 
     protected abstract State getNext();
 
@@ -80,16 +75,13 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
 
         int nState = initialState.cratesIndices().length;
 
-        Map map = level.getMap();
-        map.computeFloors();
+        map = level.getMap();
         map.removeStateCrates(initialState);
-        map.computeDeadTiles();
+        map.initForSolver();
 
         toProcess.clear();
         processed.clear();
         toProcess.add(initialState);
-
-        //measurer.reset();
 
         while (!toProcess.isEmpty() && !stopped) {
             if (hasTimedOut(timeout)) {
@@ -103,27 +95,21 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
             }
 
             State cur = getNext();
-            map.addStateCrates(cur);
+            map.addStateCratesAndAnalyse(cur);
 
             if (map.isCompletedWith(cur)) {
                 finalState = cur;
                 break;
             }
 
-            //measurer.start("freeze");
-            boolean freeze = checkFreezeDeadlock(map, cur);
-            //measurer.end("freeze");
-
-            if (!freeze) {
-                addChildrenStates(cur, map);
+            if (!checkFreezeDeadlock(map, cur)) {
+                addChildrenStates(cur);
             }
 
-            map.removeStateCrates(cur);
+            map.removeStateCratesAndReset(cur);
         }
 
         // END OF RESEARCH
-
-        //System.out.println(measurer);
 
         timeEnd = System.currentTimeMillis();
         nStateProcessed = processed.size();
@@ -132,8 +118,11 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
         // 'free' ram
         processed.clear();
         toProcess.clear();
+        map = null;
 
         running = false;
+
+        System.out.println("END: " + finalState);
 
         if (endStatus != null) {
             return SolverReport.withoutSolution(params, getStatistics(), endStatus);
@@ -146,12 +135,9 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
         }
     }
 
-    private void addChildrenStates(State cur, Map map) {
-        //measurer.start("reachable");
+    private void addChildrenStates(State cur) {
         map.findReachableCases(cur.playerPos());
-        //measurer.end("reachable");
 
-        //measurer.start("child");
         int[] cratesIndices = cur.cratesIndices();
         for (int crateIndex = 0; crateIndex < cratesIndices.length; crateIndex++) {
 
@@ -159,40 +145,133 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
             int crateX = map.getX(crate);
             int crateY = map.getY(crate);
 
+            Tunnel tunnel = map.getAt(crateX, crateY).getTunnel();
+            if (tunnel != null) {
+                addChildrenStatesInTunnel(cur, crateIndex, map.getAt(crateX, crateY));
+            } else {
+                addChildrenStatesDefault(cur, crateIndex, crateX, crateY);
+            }
+        }
+    }
+
+
+    private void addChildrenStatesInTunnel(State ancestor, int crateIndex, TileInfo crate) {
+        // the crate is in a tunnel. two possibilities: move to tunnel.startOut or tunnel.endOut
+        // this part of the code assume that there is no other crate in the tunnel.
+        // normally, this is impossible...
+
+        Tunnel t = crate.getTunnel();
+        for (Direction pushDir : Direction.VALUES) {
+            TileInfo player = crate.adjacent(pushDir.negate());
+
+            if (player.isReachable()) {
+                TileInfo dest = findEnd(t, crate, pushDir);
+
+                if (dest != null && !dest.isSolid()) {
+                    addState(ancestor, crateIndex, crate.getX(), crate.getY(), dest.getX(), dest.getY());
+                }
+            }
+        }
+    }
+
+    private TileInfo findEnd(Tunnel tunnel, TileInfo start, Direction dir) {
+        map.getMarkSystem().unmarkAll();
+        start.adjacent(dir.negate()).mark();
+
+        TileInfo end = start;
+        while (end.getTunnel() == tunnel) {
+            end.mark();
+
+            boolean newEnd = false;
             for (Direction d : Direction.VALUES) {
-
-                final int crateDestX = crateX + d.dirX();
-                final int crateDestY = crateY + d.dirY();
-                if (!map.caseExists(crateDestX, crateDestY)
-                 || !map.isTileEmpty(crateDestX, crateDestY)) {
-                    continue; // The destination case is not empty
+                TileInfo t = end.adjacent(d);
+                if (!t.isMarked() && !t.isSolid()) {
+                    end = t;
+                    newEnd = true;
+                    break;
                 }
+            }
 
-                if (map.getAt(crateX, crateY).isDeadTile()) {
-                    continue; // Useless to push a crate on a dead position
-                }
-
-                final int playerX = crateX - d.dirX();
-                final int playerY = crateY - d.dirY();
-                if (!map.caseExists(playerX, playerY)
-                 || !map.getAt(playerX, playerY).isReachable()
-                 || !map.isTileEmpty(playerX, playerY)) {
-                    continue; // The player cannot reach the case to push the crate
-                }
-
-                final int i = map.topLeftReachablePosition(crateX, crateY, crateDestX, crateDestY);
-                // The new player position is the crate position
-                State s = State.child(cur, i, crateIndex, crateDestY * map.getWidth() + crateDestX);
-
-                //measurer.start("add");
-                if (processed.add(s)) {
-                    toProcess.add(s);
-                }
-                //measurer.end("add");
+            if (!newEnd) {
+                return null;
             }
         }
 
-        //measurer.end("child");
+        return end;
+    }
+
+    private void addChildrenStatesDefault(State ancestor, int crateIndex, int crateX, int crateY) {
+        for (Direction d : Direction.VALUES) {
+
+            final int crateDestX = crateX + d.dirX();
+            final int crateDestY = crateY + d.dirY();
+            if (!map.caseExists(crateDestX, crateDestY)
+                    || !map.isTileEmpty(crateDestX, crateDestY)) {
+                continue; // The destination case is not empty
+            }
+
+            if (map.getAt(crateX, crateY).isDeadTile()) {
+                continue; // Useless to push a crate on a dead position
+            }
+
+            final int playerX = crateX - d.dirX();
+            final int playerY = crateY - d.dirY();
+            if (!map.caseExists(playerX, playerY)
+                    || !map.getAt(playerX, playerY).isReachable()
+                    || !map.isTileEmpty(playerX, playerY)) {
+                continue; // The player cannot reach the case to push the crate
+            }
+
+
+            // check for tunnel
+            TileInfo dest = map.getAt(crateDestX, crateDestY);
+            Tunnel tunnel = dest.getTunnel();
+
+            // the crate will be pushed inside the tunnel
+            if (tunnel != null) {
+                if (tunnel.isPlayerOnlyTunnel() || tunnel.crateInside()) {
+                    continue;
+                }
+
+                TileInfo newDest = null;
+                if (dest == tunnel.getStart()) {
+                    if (tunnel.getEndOut() != null && !tunnel.getEndOut().anyCrate()) {
+                        newDest = tunnel.getEndOut();
+                    }
+                } else {
+                    if (tunnel.getStartOut() != null && !tunnel.getStartOut().anyCrate()) {
+                        newDest = tunnel.getStartOut();
+                    }
+                }
+
+                if (newDest != null) {
+                    addState(ancestor, crateIndex, crateX, crateY, newDest.getX(), newDest.getY());
+                }
+            }
+
+            addState(ancestor, crateIndex, crateX, crateY, crateDestX, crateDestY);
+        }
+    }
+
+    /**
+     * Add a state to the processed set. If it wasn't already added, it is added to
+     * the toProcess queue. The move is unchecked
+     *
+     * @param ancestor the ancestor of the new state
+     * @param crateIndex the crate's index that moves
+     * @param crateX old crate x
+     * @param crateY old crate y
+     * @param crateDestX new crate x
+     * @param crateDestY new crate y
+     */
+    private void addState(State ancestor, int crateIndex, int crateX, int crateY, int crateDestX, int crateDestY) {
+        final int i = map.topLeftReachablePosition(crateX, crateY, crateDestX, crateDestY);
+        // The new player position is the crate position
+        State s = State.child(ancestor, i, crateIndex, crateDestY * map.getWidth() + crateDestX);
+
+        if (processed.add(s)) {
+            toProcess.add(s);
+        }
     }
 
     protected boolean hasTimedOut(long timeout) {

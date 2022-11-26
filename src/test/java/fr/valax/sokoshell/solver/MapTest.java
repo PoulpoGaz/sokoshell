@@ -34,15 +34,15 @@ public class MapTest {
     @Test
     void findTunnelTest() throws JsonException, IOException {
         Set<TTunnel> tunnelsSet = new HashSet<>();
-        tunnelsSet.add(new TTunnel(4, 4, 3, 5,    5, 4, 3, 6));
-        tunnelsSet.add(new TTunnel(5, 5, 5, 6,    5, 4, 5, 7));
-        tunnelsSet.add(new TTunnel(8, 4, 8, 6,    7, 4, 8, 7));
-        tunnelsSet.add(new TTunnel(4, 7, 4, 7,    3, 7, 5, 7));
-        tunnelsSet.add(new TTunnel(6, 7, 7, 7,    5, 7, 8, 7));
-        tunnelsSet.add(new TTunnel(5, 8, 9, 8,    5, 7, 9, 7));
-        tunnelsSet.add(new TTunnel(10, 7, 10, 7,  9, 7, 11, 7));
-        tunnelsSet.add(new TTunnel(11, 8, 11, 8,  11, 7, -1, -1));
-        tunnelsSet.add(new TTunnel(12, 7, 13, 7,  11, 7, 14, 7));
+        tunnelsSet.add(new TTunnel(4, 4, 3, 5,    5, 4, 3, 6,    true));
+        tunnelsSet.add(new TTunnel(5, 5, 5, 6,    5, 4, 5, 7,    false));
+        tunnelsSet.add(new TTunnel(8, 4, 8, 6,    7, 4, 8, 7,    true));
+        tunnelsSet.add(new TTunnel(4, 7, 4, 7,    3, 7, 5, 7,    false));
+        tunnelsSet.add(new TTunnel(6, 7, 7, 7,    5, 7, 8, 7,    false));
+        tunnelsSet.add(new TTunnel(5, 8, 9, 8,    5, 7, 9, 7,    true));
+        tunnelsSet.add(new TTunnel(10, 7, 10, 7,  9, 7, 11, 7,   false));
+        tunnelsSet.add(new TTunnel(11, 8, 11, 8,  11, 7, -1, -1, false));
+        tunnelsSet.add(new TTunnel(12, 7, 13, 7,  11, 7, 14, 7,  false));
 
         Pack pack = PackReaders.read(Path.of("levels8xv/Original.8xv"), false);
 
@@ -61,7 +61,9 @@ public class MapTest {
             TileInfo eo = t.getEndOut();
 
             TTunnel arr1 = new TTunnel(s.getX(), s.getY(), e.getX(), e.getY());
+            arr1.setOnlyPlayer(t.isPlayerOnlyTunnel());
             TTunnel arr2 = new TTunnel(e.getX(), e.getY(), s.getX(), s.getY());
+            arr2.setOnlyPlayer(t.isPlayerOnlyTunnel());
 
             if (so != null) {
                 arr1.setStartOutX(so.getX());
@@ -111,6 +113,7 @@ public class MapTest {
         private int startOutY;
         private int endOutX;
         private int endOutY;
+        private boolean onlyPlayer;
 
         public TTunnel(int startX, int startY, int endX, int endY) {
             this.startX = startX;
@@ -119,7 +122,7 @@ public class MapTest {
             this.endY = endY;
         }
 
-        private TTunnel(int startX, int startY, int endX, int endY, int startOutX, int startOutY, int endOutX, int endOutY) {
+        private TTunnel(int startX, int startY, int endX, int endY, int startOutX, int startOutY, int endOutX, int endOutY, boolean onlyPlayer) {
             this.startX = startX;
             this.startY = startY;
             this.endX = endX;
@@ -128,6 +131,7 @@ public class MapTest {
             this.startOutY = startOutY;
             this.endOutX = endOutX;
             this.endOutY = endOutY;
+            this.onlyPlayer = onlyPlayer;
         }
 
         public int startX() {
@@ -194,6 +198,14 @@ public class MapTest {
             this.endOutY = endOutY;
         }
 
+        public boolean onlyPlayer() {
+            return onlyPlayer;
+        }
+
+        public void setOnlyPlayer(boolean onlyPlayer) {
+            this.onlyPlayer = onlyPlayer;
+        }
+
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
@@ -206,7 +218,8 @@ public class MapTest {
             if (startOutX != tTunnel.startOutX) return false;
             if (startOutY != tTunnel.startOutY) return false;
             if (endOutX != tTunnel.endOutX) return false;
-            return endOutY == tTunnel.endOutY;
+            if (endOutY != tTunnel.endOutY) return false;
+            return onlyPlayer == tTunnel.onlyPlayer;
         }
 
         @Override
@@ -219,13 +232,14 @@ public class MapTest {
             result = 31 * result + startOutY;
             result = 31 * result + endOutX;
             result = 31 * result + endOutY;
+            result = 31 * result + (onlyPlayer ? 1 : 0);
             return result;
         }
 
         @Override
         public String toString() {
-            return "(%d; %d) - (%d; %d) --> (%d; %d) - (%d; %d)"
-                    .formatted(startOutX, startOutY, startX, startY, endX, endY, endOutX, endOutY);
+            return "(%d; %d) - (%d; %d) --> (%d; %d) - (%d; %d). only player? %s"
+                    .formatted(startOutX, startOutY, startX, startY, endX, endY, endOutX, endOutY, onlyPlayer);
         }
     }
 }

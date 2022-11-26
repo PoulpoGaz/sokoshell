@@ -5,7 +5,7 @@ import java.util.List;
 
 public class Room {
 
-    private boolean packingRoom;
+    private boolean goalRoom;
 
     private final List<TileInfo> tiles = new ArrayList<>();
     private final List<TileInfo> targets = new ArrayList<>();
@@ -44,11 +44,11 @@ public class Room {
     }
 
 
-    public boolean isPackingRoom() {
-        return packingRoom;
+    public boolean isGoalRoom() {
+        return goalRoom;
     }
 
-    public void setPackingRoom(boolean packingRoom) {
-        this.packingRoom = packingRoom;
+    public void setGoalRoom(boolean goalRoom) {
+        this.goalRoom = goalRoom;
     }
 }

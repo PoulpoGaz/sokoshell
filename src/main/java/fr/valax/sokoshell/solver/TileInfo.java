@@ -334,6 +334,25 @@ public class TileInfo {
     }
 
 
+    /**
+     * Returns {@code true} if this tile is at the same position as 'other'
+     * @param other other tile
+     * @return {@code true} if this tile is at the same position as 'other'
+     */
+    public boolean isAt(TileInfo other) {
+        return isAt(other.x, other.y);
+    }
+
+    /**
+     * Returns {@code true} if this tile is at the position (x; y)
+     * @param x x location
+     * @param y y location
+     * @return {@code true} if this tile is at the position (x; y)}
+     */
+    public boolean isAt(int x, int y) {
+        return x == this.x && y == this.y;
+    }
+
     @Override
     public String toString() {
         return tile.toString();
