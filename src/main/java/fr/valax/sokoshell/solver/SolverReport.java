@@ -7,6 +7,8 @@ import fr.poulpogaz.json.JsonReader;
 import fr.valax.graph.Label;
 import fr.valax.graph.ScatterPlot;
 import fr.valax.graph.Series;
+import fr.valax.sokoshell.SokoShellHelper;
+import fr.valax.sokoshell.graphics.MapRenderer;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -129,6 +131,10 @@ public class SolverReport {
             StateDiff diff = getStateDiff(map, current, next);
 
             Node node = findPath(map, diff, playerX, playerY);
+            if (node == null) {
+                throw canFindPathException(map, current, next);
+            }
+
             boolean newPlayerPosSet = false;
             while (node.parent != null) {
                 if (!newPlayerPosSet) {
@@ -250,11 +256,23 @@ public class SolverReport {
 
         map.getAt(diff.crateX, diff.crateY).addCrate();
 
-        if (solution == null) {
-            throw new IllegalStateException("Can't find path between two states");
-        } else {
-            return solution;
-        }
+        return solution;
+    }
+
+    private IllegalStateException canFindPathException(Map map, State current, State next) {
+        MapRenderer mr = SokoShellHelper.INSTANCE.getRenderer();
+
+        String map1 = mr.toString(map, map.getX(current.playerPos()), map.getY(current.playerPos()));
+        map.removeStateCrates(current);
+        map.addStateCrates(next);
+        String map2 = mr.toString(map, map.getX(next.playerPos()), map.getY(next.playerPos()));
+
+        return new IllegalStateException("""
+                Can't find path between two states:
+                %s
+                and
+                %s
+                """.formatted(map1, map2));
     }
 
 

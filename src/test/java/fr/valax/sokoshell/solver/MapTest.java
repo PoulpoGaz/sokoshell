@@ -211,15 +211,15 @@ public class MapTest {
         assertNotNull(endOut);
         assertTrue(endOut.isAt(3, 4));
 
-        assertTrue(equals(new Tunnel.Exit(null, endOut, null, startOut), map.getAt(4, 2).getTunnelExit()));
-        assertTrue(equals(new Tunnel.Exit(endOut, null, null, startOut), map.getAt(4, 1).getTunnelExit()));
-        assertTrue(equals(new Tunnel.Exit(endOut, null, startOut, null), map.getAt(3, 1).getTunnelExit()));
-        assertTrue(equals(new Tunnel.Exit(endOut, null, startOut, null), map.getAt(2, 1).getTunnelExit()));
-        assertTrue(equals(new Tunnel.Exit(null, null, startOut, endOut), map.getAt(1, 1).getTunnelExit()));
-        assertTrue(equals(new Tunnel.Exit(null, startOut, null, endOut), map.getAt(1, 2).getTunnelExit()));
-        assertTrue(equals(new Tunnel.Exit(null, startOut, null, endOut), map.getAt(1, 3).getTunnelExit()));
-        assertTrue(equals(new Tunnel.Exit(null, startOut, endOut, null), map.getAt(1, 4).getTunnelExit()));
-        assertTrue(equals(new Tunnel.Exit(startOut, null, endOut, null), map.getAt(2, 4).getTunnelExit()));
+        assertTrue(equals(new Tunnel.Exit(null, null, null, startOut), map.getAt(4, 2).getTunnelExit()));
+        assertNull(map.getAt(4, 1).getTunnelExit());
+        assertNull(map.getAt(3, 1).getTunnelExit());
+        assertNull(map.getAt(2, 1).getTunnelExit());
+        assertNull(map.getAt(1, 1).getTunnelExit());
+        assertNull(map.getAt(1, 2).getTunnelExit());
+        assertNull(map.getAt(1, 3).getTunnelExit());
+        assertNull(map.getAt(1, 4).getTunnelExit());
+        assertTrue(equals(new Tunnel.Exit(null, null, endOut, null), map.getAt(2, 4).getTunnelExit()));
 
     }
 

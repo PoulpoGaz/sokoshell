@@ -122,7 +122,7 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
 
         running = false;
 
-        System.out.println("END: " + finalState);
+        System.out.println("END: " + finalState + " - " + endStatus);
 
         if (endStatus != null) {
             return SolverReport.withoutSolution(params, getStatistics(), endStatus);
@@ -146,11 +146,11 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
             int crateY = map.getY(crate);
 
             Tunnel tunnel = map.getAt(crateX, crateY).getTunnel();
-            /*if (tunnel != null) {
+            if (tunnel != null) {
                 addChildrenStatesInTunnel(cur, crateIndex, map.getAt(crateX, crateY));
-            } else {*/
+            } else {
                 addChildrenStatesDefault(cur, crateIndex, crateX, crateY);
-            //}
+            }
         }
     }
 

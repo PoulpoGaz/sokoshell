@@ -30,28 +30,29 @@ public class Tunnel {
     public void createTunnelExits() {
         if (this.startOut != null) {
             Direction initDir = start.direction(startOut);
-            start.getMap().getMarkSystem().unmarkAll();
             create(start, initDir, startOut);
         }
 
         if (endOut != null) {
             Direction endDir = end.direction(endOut);
-            end.getMap().getMarkSystem().unmarkAll();
             create(end, endDir, endOut);
         }
     }
 
     private void create(TileInfo tile, Direction startDir, TileInfo startOut) {
-        tile.mark();
-        setExit(tile, startDir, startOut);
+        TileInfo t = tile;
 
-        for (Direction d : Direction.VALUES) {
-            TileInfo adj = tile.adjacent(d);
+        Direction nextDir = startDir.negate();
+        while (true) {
+            TileInfo next = t.adjacent(nextDir);
 
-            if (adj.getTunnel() == this && !adj.isMarked()) {
-                create(adj, d.negate(), startOut);
+            if (next.isWall() || t.getTunnel() != this) {
                 break;
             }
+
+            setExit(t, startDir, startOut);
+
+            t = next;
         }
     }
 

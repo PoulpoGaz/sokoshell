@@ -225,6 +225,7 @@ public class Map {
 
             Tunnel t = tile.getTunnel();
             if (t != null) {
+                // TODO: do the check but need to check if player is between two crates in a tunnel: see boxxle 53
                 /*if (t.crateInside()) { // THIS IS VERY IMPORTANT -> see tunnels
                     throw new IllegalStateException();
                 }*/
