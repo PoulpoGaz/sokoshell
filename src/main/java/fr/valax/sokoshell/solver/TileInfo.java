@@ -40,6 +40,8 @@ public class TileInfo {
      * The tunnel in which this tile is. A Tile is either in a room or in a tunnel
      */
     private Tunnel tunnel;
+    // contains for each direction, where is the outside of the tunnel from this tile
+    private Tunnel.Exit tunnelExit;
     private Room room;
 
     // Dynamic information
@@ -130,6 +132,12 @@ public class TileInfo {
         return map.safeGetAt(x + dir.dirX(), y + dir.dirY());
     }
 
+    /**
+     * Returns the direction between this tile and other.
+     *
+     * @param other 'other' tile
+     * @return the direction between this tile and other
+     */
     public Direction direction(TileInfo other) {
         return Direction.of(other.x - x, other.y - y);
     }
@@ -248,6 +256,15 @@ public class TileInfo {
     }
 
     /**
+     * Returns the map in which this tile is
+     *
+     * @return the map in which this tile is
+     */
+    public Map getMap() {
+        return map;
+    }
+
+    /**
      * Returns the tunnel in which this tile is
      *
      * @return the tunnel in which this tile is
@@ -261,6 +278,25 @@ public class TileInfo {
      */
     public void setTunnel(Tunnel tunnel) {
         this.tunnel = tunnel;
+    }
+
+    /**
+     * Returns the {@link Tunnel.Exit} object associated with this tile info.
+     * If the tile isn't in a tunnel, it returns null
+     *
+     * @return the {@link Tunnel.Exit} object associated with this tile info or {@code null
+     * @see Tunnel.Exit
+     */
+    public Tunnel.Exit getTunnelExit() {
+        return tunnelExit;
+    }
+
+    /**
+     * Sets the {@link Tunnel.Exit} object associated with this tile info
+     * @see Tunnel.Exit
+     */
+    public void setTunnelExit(Tunnel.Exit tunnelExit) {
+        this.tunnelExit = tunnelExit;
     }
 
     /**

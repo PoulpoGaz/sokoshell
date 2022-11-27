@@ -78,7 +78,7 @@ public class SOKReader implements Reader {
 
         height = lines.size();
 
-        if (width < Map.MINIMUM_WIDTH || height < Map.MINIMUM_HEIGHT) {
+        if (width < Map.MINIMUM_WIDTH && height < Map.MINIMUM_HEIGHT) {
             return null;
         }
 

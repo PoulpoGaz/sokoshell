@@ -165,7 +165,7 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
             TileInfo player = crate.adjacent(pushDir.negate());
 
             if (player.isReachable()) {
-                TileInfo dest = findEnd(t, crate, pushDir);
+                TileInfo dest = crate.getTunnelExit().getExit(pushDir);
 
                 if (dest != null && !dest.isSolid()) {
                     addState(ancestor, crateIndex, crate.getX(), crate.getY(), dest.getX(), dest.getY());

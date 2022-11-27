@@ -3,18 +3,22 @@ package fr.valax.sokoshell.solver;
 import fr.poulpogaz.json.JsonException;
 import fr.poulpogaz.json.utils.Pair;
 import fr.valax.sokoshell.readers.PackReaders;
+import fr.valax.sokoshell.readers.SOKReader;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.opentest4j.AssertionFailedError;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MapTest {
 
@@ -102,6 +106,142 @@ public class MapTest {
 
         assertEquals(0, tunnelsSet.size());
     }
+
+
+    @Test
+    void tunnelExitTest1() {
+        String mapStr = """
+                #############
+                #@ #######  #
+                #           #
+                #############
+                """;
+
+        Level level = getLevel(mapStr);
+        Map map = level.getMap();
+        map.initForSolver();
+
+        List<Tunnel> tunnels = map.getTunnels();
+        assertEquals(1, tunnels.size());
+
+        Tunnel t = tunnels.get(0);
+        assertFalse(t.isPlayerOnlyTunnel());
+
+        TileInfo start;
+        TileInfo startOut;
+        TileInfo end;
+        TileInfo endOut;
+
+        if (t.getStart().isAt(3, 2)) {
+            start = t.getStart();
+            startOut = t.getStartOut();
+            end = t.getEnd();
+            endOut = t.getEndOut();
+        } else {
+            start = t.getEnd();
+            startOut = t.getEndOut();
+            end = t.getStart();
+            endOut = t.getStartOut();
+        }
+
+        assertTrue(start.isAt(3, 2));
+        assertNotNull(startOut);
+        assertTrue(startOut.isAt(2, 2));
+
+        assertTrue(end.isAt(9, 2));
+        assertNotNull(endOut);
+        assertTrue(endOut.isAt(10, 2));
+
+        for (int x = 3; x < 10; x++) {
+            TileInfo tile = map.getAt(x, 2);
+            assertEquals(t, tile.getTunnel());
+            assertNotNull(tile.getTunnelExit());
+
+            Tunnel.Exit exit = tile.getTunnelExit();
+            assertEquals(startOut, exit.getLeftExit());
+            assertEquals(endOut, exit.getRightExit());
+            assertNull(exit.getUpExit());
+            assertNull(exit.getDownExit());
+        }
+    }
+
+    @Test
+    void tunnelExitTest2() {
+        String mapStr = """
+                ######
+                #    #
+                # ## #
+                # #  #
+                #   @#
+                ######
+                """;
+
+        Level level = getLevel(mapStr);
+        Map map = level.getMap();
+        map.initForSolver();
+
+        List<Tunnel> tunnels = map.getTunnels();
+        assertEquals(1, tunnels.size());
+
+        Tunnel t = tunnels.get(0);
+        assertTrue(t.isPlayerOnlyTunnel());
+
+        TileInfo start;
+        TileInfo startOut;
+        TileInfo end;
+        TileInfo endOut;
+
+        if (t.getStart().isAt(4, 2)) {
+            start = t.getStart();
+            startOut = t.getStartOut();
+            end = t.getEnd();
+            endOut = t.getEndOut();
+        } else {
+            start = t.getEnd();
+            startOut = t.getEndOut();
+            end = t.getStart();
+            endOut = t.getStartOut();
+        }
+
+        assertTrue(start.isAt(4, 2));
+        assertNotNull(startOut);
+        assertTrue(startOut.isAt(4, 3));
+
+        assertTrue(end.isAt(2, 4));
+        assertNotNull(endOut);
+        assertTrue(endOut.isAt(3, 4));
+
+        assertTrue(equals(new Tunnel.Exit(null, endOut, null, startOut), map.getAt(4, 2).getTunnelExit()));
+        assertTrue(equals(new Tunnel.Exit(endOut, null, null, startOut), map.getAt(4, 1).getTunnelExit()));
+        assertTrue(equals(new Tunnel.Exit(endOut, null, startOut, null), map.getAt(3, 1).getTunnelExit()));
+        assertTrue(equals(new Tunnel.Exit(endOut, null, startOut, null), map.getAt(2, 1).getTunnelExit()));
+        assertTrue(equals(new Tunnel.Exit(null, null, startOut, endOut), map.getAt(1, 1).getTunnelExit()));
+        assertTrue(equals(new Tunnel.Exit(null, startOut, null, endOut), map.getAt(1, 2).getTunnelExit()));
+        assertTrue(equals(new Tunnel.Exit(null, startOut, null, endOut), map.getAt(1, 3).getTunnelExit()));
+        assertTrue(equals(new Tunnel.Exit(null, startOut, endOut, null), map.getAt(1, 4).getTunnelExit()));
+        assertTrue(equals(new Tunnel.Exit(startOut, null, endOut, null), map.getAt(2, 4).getTunnelExit()));
+
+    }
+
+
+    private boolean equals(Tunnel.Exit a, Tunnel.Exit b) {
+        if (!Objects.equals(a.getLeftExit(), b.getLeftExit())) return false;
+        if (!Objects.equals(a.getUpExit(), b.getUpExit())) return false;
+        if (!Objects.equals(a.getRightExit(), b.getRightExit())) return false;
+        return Objects.equals(a.getDownExit(), b.getDownExit());
+    }
+
+    private Level getLevel(String str) {
+        SOKReader reader = new SOKReader();
+        try {
+            Pack p = reader.read(new ByteArrayInputStream(str.getBytes(StandardCharsets.UTF_8)));
+
+            return p.getLevel(0);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     private static class TTunnel {
 

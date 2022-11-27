@@ -326,6 +326,7 @@ public class Map {
             Tunnel tunnel = buildTunnel(t);
 
             if (tunnel != null) {
+                tunnel.createTunnelExits();
                 tunnels.add(tunnel);
             }
         });
