@@ -225,9 +225,9 @@ public class Map {
 
             Tunnel t = tile.getTunnel();
             if (t != null) {
-                if (t.crateInside()) { // THIS IS VERY IMPORTANT -> see tunnels
+                /*if (t.crateInside()) { // THIS IS VERY IMPORTANT -> see tunnels
                     throw new IllegalStateException();
-                }
+                }*/
 
                 t.setCrateInside(true);
             }

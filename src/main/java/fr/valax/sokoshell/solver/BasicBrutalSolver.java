@@ -146,11 +146,11 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
             int crateY = map.getY(crate);
 
             Tunnel tunnel = map.getAt(crateX, crateY).getTunnel();
-            if (tunnel != null) {
+            /*if (tunnel != null) {
                 addChildrenStatesInTunnel(cur, crateIndex, map.getAt(crateX, crateY));
-            } else {
+            } else {*/
                 addChildrenStatesDefault(cur, crateIndex, crateX, crateY);
-            }
+            //}
         }
     }
 
@@ -202,23 +202,28 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
 
             // the crate will be pushed inside the tunnel
             if (tunnel != null) {
-                if (tunnel.isPlayerOnlyTunnel() || tunnel.crateInside()) {
+                if (tunnel.crateInside()) { // pushing inside will lead to a pi corral deadlock
                     continue;
                 }
 
-                TileInfo newDest = null;
-                if (dest == tunnel.getStart()) {
-                    if (tunnel.getEndOut() != null && !tunnel.getEndOut().anyCrate()) {
-                        newDest = tunnel.getEndOut();
+                // ie the crate can't be pushed to the other extremities of the tunnel
+                // however, sometimes (boxxle 24) it is useful to push the crate inside
+                // the tunnel. That's why the second addState is done (after this if)
+                if (!tunnel.isPlayerOnlyTunnel()) {
+                    TileInfo newDest = null;
+                    if (dest == tunnel.getStart()) {
+                        if (tunnel.getEndOut() != null && !tunnel.getEndOut().anyCrate()) {
+                            newDest = tunnel.getEndOut();
+                        }
+                    } else {
+                        if (tunnel.getStartOut() != null && !tunnel.getStartOut().anyCrate()) {
+                            newDest = tunnel.getStartOut();
+                        }
                     }
-                } else {
-                    if (tunnel.getStartOut() != null && !tunnel.getStartOut().anyCrate()) {
-                        newDest = tunnel.getStartOut();
-                    }
-                }
 
-                if (newDest != null && !newDest.isDeadTile()) {
-                    addState(ancestor, crateIndex, crateX, crateY, newDest.getX(), newDest.getY());
+                    if (newDest != null && !newDest.isDeadTile()) {
+                        addState(ancestor, crateIndex, crateX, crateY, newDest.getX(), newDest.getY());
+                    }
                 }
             }
 
