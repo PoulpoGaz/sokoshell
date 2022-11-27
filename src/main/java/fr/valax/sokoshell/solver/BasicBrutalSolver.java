@@ -160,7 +160,6 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
         // this part of the code assume that there is no other crate in the tunnel.
         // normally, this is impossible...
 
-        Tunnel t = crate.getTunnel();
         for (Direction pushDir : Direction.VALUES) {
             TileInfo player = crate.adjacent(pushDir.negate());
 
@@ -174,32 +173,6 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
         }
     }
 
-    private TileInfo findEnd(Tunnel tunnel, TileInfo start, Direction dir) {
-        map.getMarkSystem().unmarkAll();
-        start.adjacent(dir.negate()).mark();
-
-        TileInfo end = start;
-        while (end.getTunnel() == tunnel) {
-            end.mark();
-
-            boolean newEnd = false;
-            for (Direction d : Direction.VALUES) {
-                TileInfo t = end.adjacent(d);
-                if (!t.isMarked() && !t.isSolid()) {
-                    end = t;
-                    newEnd = true;
-                    break;
-                }
-            }
-
-            if (!newEnd) {
-                return null;
-            }
-        }
-
-        return end;
-    }
-
     private void addChildrenStatesDefault(State ancestor, int crateIndex, int crateX, int crateY) {
         for (Direction d : Direction.VALUES) {
 
@@ -210,7 +183,7 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
                 continue; // The destination case is not empty
             }
 
-            if (map.getAt(crateX, crateY).isDeadTile()) {
+            if (map.getAt(crateDestX, crateDestY).isDeadTile()) {
                 continue; // Useless to push a crate on a dead position
             }
 
@@ -244,7 +217,7 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
                     }
                 }
 
-                if (newDest != null) {
+                if (newDest != null && !newDest.isDeadTile()) {
                     addState(ancestor, crateIndex, crateX, crateY, newDest.getX(), newDest.getY());
                 }
             }

@@ -363,6 +363,7 @@ public class Map {
             tunnel.setStart(init);
             tunnel.setEnd(init);
             tunnel.setEnd(init.adjacent(pushDir1));
+            init.setTunnel(tunnel);
 
             growTunnel(tunnel, init.adjacent(pushDir1), pushDir1);
             return tunnel;
