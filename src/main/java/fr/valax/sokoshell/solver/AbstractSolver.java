@@ -14,7 +14,7 @@ public abstract class AbstractSolver implements Solver {
         for (int crate : crates) {
             TileInfo info = map.getAt(crate);
 
-            if (checkFreezeDeadlock(info)) {
+            if (info.isCrate() && checkFreezeDeadlock(info)) {
                 return true;
             }
         }
@@ -45,11 +45,11 @@ public abstract class AbstractSolver implements Solver {
             Tile oldCurr = current.getTile();
             current.setTile(Tile.WALL);
 
-            if (left != null && left.isCrate()) {
+            if (left != null && left.anyCrate()) {
                 deadlock = checkFreezeDeadlock(left);
             }
 
-            if (!deadlock && right != null && right.isCrate()) {
+            if (!deadlock && right != null && right.anyCrate()) {
                 deadlock = checkFreezeDeadlock(right);
             }
 
@@ -57,6 +57,6 @@ public abstract class AbstractSolver implements Solver {
         }
 
         // ultimate check, the crate is frozen if it is only a crate and not a crate on target
-        return deadlock && current.isCrate();
+        return deadlock;
     }
 }

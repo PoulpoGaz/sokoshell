@@ -171,6 +171,15 @@ public class Map {
     // * You need to call #initForSolver() first *
     // ===========================================
 
+    /**
+     * Initialize the map for solving:
+     * <ul>
+     *     <li>compute floor tiles: an array containing all non-wall tile</li>
+     *     <li>compute {@linkplain #computeDeadTiles() dead tiles}</li>
+     *     <li>find {@linkplain #findTunnels() tunnels}</li>
+     * </ul>
+     * @see Tunnel
+     */
     public void initForSolver() {
         computeFloors();
         computeDeadTiles();
@@ -218,6 +227,13 @@ public class Map {
         }
     }
 
+    /**
+     * Removes the crates of the given state from the content array.
+     * It also does a small analyse of the state: set {@link Tunnel#crateInside()}
+     * to true if there is effectively a crate inside
+     *
+     * @param state The state with the crates
+     */
     public void addStateCratesAndAnalyse(State state) {
         for (int i : state.cratesIndices()) {
             TileInfo tile = getAt(i);
@@ -235,6 +251,12 @@ public class Map {
         }
     }
 
+    /**
+     * Removes the crates of the given state from the content array.
+     * Also reset analyse did by {@link #addStateCratesAndAnalyse(State)}
+     *
+     * @param state The state with the crates
+     */
     public void removeStateCratesAndReset(State state) {
         for (int i : state.cratesIndices()) {
             getAt(i).removeCrate();
@@ -901,7 +923,7 @@ public class Map {
     }
 
     /**
-     * Returns a {@link MarkSystem} that can be used to avoid checking twice  a tile
+     * Returns a {@linkplain MarkSystem mark system} that can be used to avoid checking twice  a tile
      *
      * @return a mark system
      * @see MarkSystem
@@ -911,7 +933,7 @@ public class Map {
     }
 
     /**
-     * Returns the {@link MarkSystem} used by the {@link #findReachableCases(int)} algorithm
+     * Returns the {@linkplain MarkSystem mark system} used by the {@link #findReachableCases(int)} algorithm
      *
      * @return the reachable mark system
      * @see MarkSystem
@@ -921,8 +943,9 @@ public class Map {
     }
 
     /**
-     * Creates a {@link MarkSystem} that apply the specified reset consumer to every
-     * {@link TileInfo} that are in this {@link Map}.
+     * Creates a {@linkplain MarkSystem mark system} that apply the specified reset
+     * consumer to every <strong>non-wall</strong> {@linkplain TileInfo tile info}
+     * that are in this {@linkplain  Map map}.
      *
      * @param reset the reset function
      * @return a new MarkSystem

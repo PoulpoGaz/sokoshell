@@ -164,29 +164,17 @@ public class SolverReport {
     }
 
     /**
-     * This method compute the push made by the player between two states.
-     * If the first state is:
-     * <pre>
-     *     #####
-     *     #@  #
-     *     ###$#
-     *       # #
-     *       ###
-     * </pre>
-     * and the second state:
-     * <pre>
-     *     #####
-     *     #   #
-     *     ###@#
-     *       #$#
-     *       ###
-     * </pre>
-     * This method will deduce that the player pushed the crate to the down
+     * Find the differences between two states:
+     * <ul>
+     *     <li>new player position</li>
+     *     <li>old crate pos</li>
+     *     <li>new crate pos</li>
+     * </ul>
      *
      * @param map the map
      * @param from the first state
      * @param to the second state
-     * @return the movement made by the player between two states
+     * @return a {@link StateDiff}
      */
     private StateDiff getStateDiff(Map map, State from, State to) {
         List<Integer> state1Crates = Arrays.stream(from.cratesIndices()).boxed().collect(Collectors.toList());
@@ -203,9 +191,15 @@ public class SolverReport {
     }
 
     /**
-     * Find a path in the map between (fromX, fromY) and (destX, destY). This method doesn't
-     * move any crates. It performs a simple graph traversal to find the path
+     * Find a path in the map from (playerX, playerY) so the state representing the map
+     * is that same as the next state in {@link #createFullSolution()} ie move the player
+     * to the new position stored in {@link StateDiff} and move at most one crate (original
+     * and destination stored in {@link StateDiff})
      *
+     * @param map the map
+     * @param diff difference between two states: store player destination and old and new crate position
+     * @param playerX current player x position
+     * @param playerY current player y position
      * @return the path between the two points
      */
     private Node findPath(Map map, StateDiff diff, int playerX, int playerY) {
@@ -259,6 +253,14 @@ public class SolverReport {
         return solution;
     }
 
+    /**
+     * Create an exception indicating a path can't be found between two states.
+     *
+     * @param map the map which must be in the same state as current
+     * @param current the current state
+     * @param next the next state
+     * @return an exception
+     */
     private IllegalStateException canFindPathException(Map map, State current, State next) {
         MapRenderer mr = SokoShellHelper.INSTANCE.getRenderer();
 
@@ -519,13 +521,15 @@ public class SolverReport {
     }
 
     /**
-     * Used by {@link #findPath(Map, int, int, int, int)} to find a path. It represents
+     * Used by {@link #findPath(Map, StateDiff, int, int)} to find a path. It represents
      * a node in a graph.
      *
      * @param parent the parent node
      * @param playerX player x
      * @param playerY player y
-     * @param dir the direction made by the player to move from the parent node to this node
+     * @param crateX crate x
+     * @param crateY crate y
+     * @param move the move made by the player to move from the parent node to this node
      */
     private record Node(Node parent, int playerX, int playerY, int crateX, int crateY, Move move) {
 
@@ -556,11 +560,14 @@ public class SolverReport {
     }
 
     /**
-     * Represents a movement of a player from (fromX, fromY).
+     * Contains all differences between two states except the old player position.
      *
-     * @param dir the direction taken by the player
-     * @param fromX player x original position
-     * @param fromY player y original position
+     * @param destX player destination x
+     * @param destY player destination y
+     * @param crateX old crate x
+     * @param crateY old crate y
+     * @param crateDestX new crate y
+     * @param crateDestY new crate y
      */
     private record StateDiff(int destX, int destY, int crateX, int crateY, int crateDestX, int crateDestY) {}
 }

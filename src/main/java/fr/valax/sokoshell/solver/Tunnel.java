@@ -2,8 +2,17 @@ package fr.valax.sokoshell.solver;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
+/**
+ * A tunnel is a zone of the map like this:
+ *
+ * <pre>
+ *     $$$$$$
+ *          $$$$$
+ *     $$$$
+ *        $$$$$$$
+ * </pre>
+ */
 public class Tunnel {
 
     // STATIC
