@@ -6,5 +6,7 @@ package fr.valax.sokoshell.solver;
 public enum SolverType {
 
     BFS,
-    DFS
+    DFS,
+
+    ASTAR
 }

@@ -23,7 +23,7 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
         return new BFSSolver();
     }
 
-    protected final ArrayDeque<State> toProcess = new ArrayDeque<>();
+    protected SolverCollection toProcess;
     protected final Set<State> processed = new HashSet<>();
     private Map map;
 
@@ -37,7 +37,20 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
     private int queueSize = -1;
     private Tracker tracker;
 
-    protected abstract State getNext();
+    /**
+     * Instantiates the {@link BasicBrutalSolver#toProcess} attribute, depending on the solver type:
+     * <ul>
+     *     <li>DFS: stack</li>
+     *     <li>BFS: queue</li>
+     *     <li>A*: priority queue</li>
+     * </ul>
+     */
+    protected abstract void createCollection();
+
+    @Override
+    public State currentState() {
+        return toProcess.topState();
+    }
 
     @Override
     public SolverReport solve(SolverParameters params) {
@@ -79,9 +92,9 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
         map.removeStateCrates(initialState);
         map.initForSolver();
 
-        toProcess.clear();
+        createCollection();
         processed.clear();
-        toProcess.add(initialState);
+        toProcess.addState(initialState);
 
         while (!toProcess.isEmpty() && !stopped) {
             if (hasTimedOut(timeout)) {
@@ -94,7 +107,7 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
                 break;
             }
 
-            State cur = getNext();
+            State cur = toProcess.popState();
             map.addStateCratesAndAnalyse(cur);
 
             if (map.isCompletedWith(cur)) {
@@ -248,7 +261,7 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
         State s = State.child(ancestor, i, crateIndex, crateDestY * map.getWidth() + crateDestX);
 
         if (processed.add(s)) {
-            toProcess.add(s);
+            toProcess.addState(s);
         }
     }
 
@@ -335,11 +348,40 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
         return tracker;
     }
 
+    /**
+     * Base class for DFS and BFS solvers collection (both of them use {@link ArrayDeque}), the only difference being in
+     * which side of the queue is used (end => FIFO => DFS, start => LIFO => BFS)
+     */
+    private static abstract class BasicBrutalSolverCollection implements SolverCollection {
+
+        protected final ArrayDeque<State> collection = new ArrayDeque<>();
+
+        @Override
+        public void clear() {
+            collection.clear();
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return collection.isEmpty();
+        }
+
+        @Override
+        public int size() {
+            return collection.size();
+        }
+
+        @Override
+        public void addState(State state) {
+            collection.add(state);
+        }
+    }
+
     private static class DFSSolver extends BasicBrutalSolver {
 
         @Override
-        protected State getNext() {
-            return toProcess.removeLast(); // LIFO
+        protected void createCollection() {
+            toProcess = new DFSSolverCollection();
         }
 
         @Override
@@ -347,16 +389,26 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
             return SolverType.DFS;
         }
 
-        @Override
-        public State currentState() {
-            return toProcess.peekLast();
+
+
+        private static class DFSSolverCollection extends BasicBrutalSolverCollection {
+
+            @Override
+            public State popState() {
+                return collection.removeFirst();
+            }
+
+            @Override
+            public State topState() {
+                return collection.peekFirst();
+            }
         }
     }
 
     private static class BFSSolver extends BasicBrutalSolver {
         @Override
-        protected State getNext() {
-            return toProcess.removeFirst(); // FIFO
+        protected void createCollection() {
+            toProcess = new BFSSolverCollection();
         }
 
         @Override
@@ -364,9 +416,17 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
             return SolverType.BFS;
         }
 
-        @Override
-        public State currentState() {
-            return toProcess.peekFirst();
+        private static class BFSSolverCollection extends BasicBrutalSolverCollection {
+
+            @Override
+            public State popState() {
+                return collection.removeLast();
+            }
+
+            @Override
+            public State topState() {
+                return collection.peekLast();
+            }
         }
     }
 }
