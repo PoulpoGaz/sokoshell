@@ -14,12 +14,11 @@ public class SolverPriorityQueueTest {
 
         State.initZobristValues(10);
 
-        q.addState(new State(0, new int[1], null), 0);
-        q.addState(new State(3, new int[1], null), 3);
-        q.addState(new State(9, new int[1], null), 9);
-        q.addState(new State(2, new int[1], null), 2);
-        q.addState(new State(1, new int[1], null), 1);
-
+        q.addState(new WeightedState(0, new int[1], 0, null, 0, 0));
+        q.addState(new WeightedState(3, new int[1], 0, null, 0, 3));
+        q.addState(new WeightedState(9, new int[1], 0, null, 0, 9));
+        q.addState(new WeightedState(2, new int[1], 0, null, 0, 2));
+        q.addState(new WeightedState(1, new int[1], 0, null, 0, 1));
 
         assert(q.size() == 5);
         assert(!q.isEmpty());
@@ -48,7 +47,7 @@ public class SolverPriorityQueueTest {
         assert(q.size() == 2);
         assert(!q.isEmpty());
 
-        q.addState(new State(2, new int[1], null), 2);
+        q.addState(new WeightedState(2, new int[1], 0,null, 0, 2));
 
         assert(q.size() == 3);
         assert(!q.isEmpty());

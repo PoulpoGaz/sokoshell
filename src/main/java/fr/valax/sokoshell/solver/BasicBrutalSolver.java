@@ -352,7 +352,7 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
      * Base class for DFS and BFS solvers collection (both of them use {@link ArrayDeque}), the only difference being in
      * which side of the queue is used (end => FIFO => DFS, start => LIFO => BFS)
      */
-    private static abstract class BasicBrutalSolverCollection implements SolverCollection {
+    private static abstract class BasicBrutalSolverCollection implements SolverCollection<State> {
 
         protected final ArrayDeque<State> collection = new ArrayDeque<>();
 
@@ -388,8 +388,6 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
         public SolverType getSolverType() {
             return SolverType.DFS;
         }
-
-
 
         private static class DFSSolverCollection extends BasicBrutalSolverCollection {
 

@@ -6,7 +6,7 @@ import java.util.*;
  * Priority queue of dynamic capacity. The priority are in <strong>ASCENDANT</strong> order, i.e. the element returned
  * by {@link SolverPriorityQueue#popState()} with the <strong>LOWEST</strong> priority.
  */
-public class SolverPriorityQueue implements SolverCollection {
+public class SolverPriorityQueue implements SolverCollection<WeightedState> {
 
     /**
      * Array of nodes.
@@ -69,12 +69,8 @@ public class SolverPriorityQueue implements SolverCollection {
     }
 
     @Override
-    public void addState(State state) {
-
-    }
-
-    public void addState(State state, int priority) {
-        nodes.add(new Node(state, priority));
+    public void addState(WeightedState state) {
+        nodes.add(new Node(state, state.weight()));
         moveNodeUp(nodes.size() - 1);
     }
 

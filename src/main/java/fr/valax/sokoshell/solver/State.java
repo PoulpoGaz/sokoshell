@@ -10,11 +10,24 @@ import java.util.Random;
  * @author darth-mole
  * @author PoulpoGaz
  */
-public record State(int playerPos, int[] cratesIndices, int hash, State parent) {
+public class State {
 
     // http://sokobano.de/wiki/index.php?title=Solver#Hash_Function
     // https://en.wikipedia.org/wiki/Zobrist_hashing
     private static int[][] zobristValues;
+    private final int playerPos;
+    private final int[] cratesIndices;
+    private final int hash;
+    private final State parent;
+
+    /**
+     */
+    public State(int playerPos, int[] cratesIndices, int hash, State parent) {
+        this.playerPos = playerPos;
+        this.cratesIndices = cratesIndices;
+        this.hash = hash;
+        this.parent = parent;
+    }
 
     /**
      * @param minSize minSize is the number of tile in the map
@@ -140,4 +153,21 @@ public record State(int playerPos, int[] cratesIndices, int hash, State parent) 
 
         return sb.toString();
     }
+
+    public int playerPos() {
+        return playerPos;
+    }
+
+    public int[] cratesIndices() {
+        return cratesIndices;
+    }
+
+    public int hash() {
+        return hash;
+    }
+
+    public State parent() {
+        return parent;
+    }
+
 }

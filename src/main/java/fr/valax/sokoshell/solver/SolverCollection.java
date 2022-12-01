@@ -1,6 +1,6 @@
 package fr.valax.sokoshell.solver;
 
-public interface SolverCollection {
+public interface SolverCollection<T extends State> {
 
     void clear();
 
@@ -8,9 +8,9 @@ public interface SolverCollection {
 
     int size();
 
-    void addState(State state);
+    void addState(T state);
 
     State popState();
 
-    public State topState();
+    State topState();
 }
