@@ -72,7 +72,7 @@ public class PrintCommand extends AbstractCommand {
                     surface.resize(s.getColumns(), s.getRows());
                     Graphics g = new Graphics(surface);
                     helper.getRenderer().draw(g, 0, 0, s.getColumns(), s.getRows(), l.getMap(), l.getPlayerX(), l.getPlayerY(), playerDir);
-                    surface.drawBuffer();
+                    surface.drawBuffer(out);
                 } else {
                     helper.getRenderer().print(out, l);
                 }

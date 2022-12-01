@@ -1,17 +1,11 @@
 package fr.valax.sokoshell.solver;
 
 import fr.poulpogaz.json.JsonException;
-import fr.poulpogaz.json.utils.Pair;
 import fr.valax.sokoshell.readers.PackReaders;
-import fr.valax.sokoshell.readers.SOKReader;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.opentest4j.AssertionFailedError;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.StringReader;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.List;
@@ -23,10 +17,8 @@ import static org.junit.jupiter.api.Assertions.*;
 public class MapTest {
 
     @Test
-    void topLeftReachablePositionTest() throws JsonException, IOException {
-        Pack pack = PackReaders.read(Path.of("levels8xv/Original.8xv"), false);
-
-        Level level = pack.getLevel(0);
+    void topLeftReachablePositionTest() {
+        Level level = TestUtils.getLevel(Path.of("levels8xv/Original.8xv"));
         Map map = level.getMap();
 
         int i = map.topLeftReachablePosition(5, 7, 5, 6);
@@ -35,8 +27,12 @@ public class MapTest {
         assertEquals(4, i / map.getWidth());
     }
 
+    // ***************
+    // * TUNNEL TEST *
+    // ***************
+
     @Test
-    void findTunnelTest() throws JsonException, IOException {
+    void findTunnelTest() {
         Set<TTunnel> tunnelsSet = new HashSet<>();
         tunnelsSet.add(new TTunnel(4, 4, 3, 5,    5, 4, 3, 6,    true));
         tunnelsSet.add(new TTunnel(5, 5, 5, 6,    5, 4, 5, 7,    false));
@@ -48,9 +44,7 @@ public class MapTest {
         tunnelsSet.add(new TTunnel(11, 8, 11, 8,  11, 7, -1, -1, false));
         tunnelsSet.add(new TTunnel(12, 7, 13, 7,  11, 7, 14, 7,  false));
 
-        Pack pack = PackReaders.read(Path.of("levels8xv/Original.8xv"), false);
-
-        Level level = pack.getLevel(0);
+        Level level = TestUtils.getLevel(Path.of("levels8xv/Original.8xv"));
         Map map = level.getMap();
         map.removeStateCrates(level.getInitialState());
         map.computeFloors();
@@ -117,7 +111,7 @@ public class MapTest {
                 #############
                 """;
 
-        Level level = getLevel(mapStr);
+        Level level = TestUtils.getSOKLevel(mapStr);
         Map map = level.getMap();
         map.initForSolver();
 
@@ -176,7 +170,7 @@ public class MapTest {
                 ######
                 """;
 
-        Level level = getLevel(mapStr);
+        Level level = TestUtils.getSOKLevel(mapStr);
         Map map = level.getMap();
         map.initForSolver();
 
@@ -229,17 +223,6 @@ public class MapTest {
         if (!Objects.equals(a.getUpExit(), b.getUpExit())) return false;
         if (!Objects.equals(a.getRightExit(), b.getRightExit())) return false;
         return Objects.equals(a.getDownExit(), b.getDownExit());
-    }
-
-    private Level getLevel(String str) {
-        SOKReader reader = new SOKReader();
-        try {
-            Pack p = reader.read(new ByteArrayInputStream(str.getBytes(StandardCharsets.UTF_8)));
-
-            return p.getLevel(0);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
 
@@ -380,6 +363,55 @@ public class MapTest {
         public String toString() {
             return "(%d; %d) - (%d; %d) --> (%d; %d) - (%d; %d). only player? %s"
                     .formatted(startOutX, startOutY, startX, startY, endX, endY, endOutX, endOutY, onlyPlayer);
+        }
+    }
+
+
+
+
+
+
+
+    // **********************
+    // * PACKING ORDER TEST *
+    // **********************
+
+    @Test
+    void packingOrderTest1() {
+        Level level = TestUtils.getLevel(Path.of("levels8xv/Original.8xv"));
+        Map map = level.getMap();
+        map.removeStateCrates(level.getInitialState());
+        map.initForSolver();
+
+        Room room = null;
+        for (Room r : map.getRooms()) {
+            if (r.isGoalRoom()) {
+                assertNull(room);
+                room = r;
+            }
+        }
+
+        assertNotNull(room);
+        assertNotNull(room.getPackingOrder());
+        for (TileInfo t : room.getPackingOrder()) {
+            System.out.println(t.getX() + " - " + t.getY());
+        }
+    }
+
+    @Test
+    void packingOrderTest2() {
+        Level level = TestUtils.getLevel(Path.of("levels8xv/Original.8xv"), 10);
+        Map map = level.getMap();
+        map.removeStateCrates(level.getInitialState());
+        map.initForSolver();
+
+        for (Room r : map.getRooms()) {
+            if (r.isGoalRoom()) {
+                System.out.println("-");
+                for (TileInfo t : r.getPackingOrder()) {
+                    System.out.println(t.getX() + " - " + t.getY());
+                }
+            }
         }
     }
 }

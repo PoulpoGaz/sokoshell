@@ -178,12 +178,15 @@ public class Map {
      *     <li>compute {@linkplain #computeDeadTiles() dead tiles}</li>
      *     <li>find {@linkplain #findTunnels() tunnels}</li>
      * </ul>
+     * <strong>The map must have no crate inside</strong>
      * @see Tunnel
      */
     public void initForSolver() {
         computeFloors();
         computeDeadTiles();
         findTunnels();
+        findRooms();
+        tryComputePackingOrder();
     }
 
 
@@ -482,7 +485,7 @@ public class Map {
      */
     public void findRooms() {
         forEachNotWall((t) -> {
-            if (t.isInATunnel()) {
+            if (t.isInATunnel() || t.isInARoom()) {
                 return;
             }
 
@@ -527,10 +530,12 @@ public class Map {
     }
 
     /**
-     * The rooms must have only one entrance and a packing room
+     * The room must have only one entrance and a packing room
      * @param room a room
      */
     private void computePackingOrder(Room room) {
+        markSystem.unmarkAll();
+
         Tunnel tunnel = room.getTunnels().get(0);
         TileInfo entrance;
         TileInfo inRoom;
@@ -557,88 +562,45 @@ public class Map {
 
             TileInfo crate = tile.getLeft();
             crate.removeCrate();
-            if (canPush(entrance, inRoom, crate)) {
+
+            inRoom.addCrate();
+
+            if (Pathfinder.hasPath(entrance, null, inRoom, crate)) {
                 crate.unmark();
                 crate.removeCrate();
                 computeDistToCrate(crate, tile.getRight(), distances);
+                room.getPackingOrder().add(crate);
             } else {
                 crate.addCrate();
             }
+
+            inRoom.removeCrate();
         }
 
 
         for (TileInfo t : targets) {
             t.removeCrate();
         }
+
+        Collections.reverse(room.getPackingOrder());
     }
 
     private void computeDistToCrate(TileInfo tile, int dist, Queue<Pair<TileInfo, Integer>> out) {
         tile.mark();
-        if (tile.isCrate()) {
+        if (tile.anyCrate()) {
             out.offer(new Pair<>(tile, dist + 1));
         } else {
-            for (Direction dir : Direction.VALUES) {
-                TileInfo adj = tile.safeAdjacent(dir);
 
-                if (adj != null && !adj.isMarked() && !adj.isWall()) {
+
+            for (Direction dir : Direction.VALUES) {
+                TileInfo adj = tile.adjacent(dir);
+
+                if (!adj.isMarked() && !adj.isWall()) {
                     computeDistToCrate(adj, dist + 1, out);
                 }
             }
         }
     }
-
-    /**
-     *
-     * @param from initial player position
-     * @param cratePos position of the crate
-     * @param to crate destination
-     */
-    private boolean canPush(TileInfo from, TileInfo cratePos, TileInfo to) {
-        Set<MiniState> visited = new HashSet<>();
-        Queue<MiniState> toVisit = new ArrayDeque<>();
-
-        toVisit.add(new MiniState(from, cratePos));
-        visited.add(toVisit.peek());
-
-        while (!toVisit.isEmpty()) {
-            MiniState state = toVisit.poll();
-            TileInfo p = state.player();
-            TileInfo crate = state.cratePos();
-
-            crate.addCrate();
-
-            for (Direction dir : Direction.VALUES) {
-                TileInfo next = p.safeAdjacent(dir);
-                if (next == null || next.isSolid() && next != crate) { // only allowed to push one crate
-                    continue;
-                }
-
-                TileInfo nextNext = next.safeAdjacent(dir);
-                if (nextNext != null && nextNext.isSolid()) {
-                    continue;
-                }
-
-                if (nextNext == to) {
-                    crate.removeCrate();
-                    cratePos.addCrate();
-                    return true;
-                }
-
-                MiniState child = new MiniState(next, nextNext);
-
-                if (visited.add(child)) {
-                    toVisit.offer(child);
-                }
-            }
-
-            crate.removeCrate();
-        }
-
-        cratePos.addCrate();
-        return false;
-    }
-
-    private record MiniState(TileInfo player, TileInfo cratePos) {}
 
 
 
@@ -920,6 +882,15 @@ public class Map {
      */
     public List<Tunnel> getTunnels() {
         return tunnels;
+    }
+
+    /**
+     * Returns all rooms that are in this map
+     *
+     * @return all rooms that are in this map
+     */
+    public List<Room> getRooms() {
+        return rooms;
     }
 
     /**

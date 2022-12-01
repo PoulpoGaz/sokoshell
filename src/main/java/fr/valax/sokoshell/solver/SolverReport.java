@@ -117,8 +117,7 @@ public class SolverReport {
         ArrayList<Move> path = new ArrayList<>();
         List<Move> temp = new ArrayList<>();
 
-        int playerX = level.getPlayerX();
-        int playerY = level.getPlayerY();
+        TileInfo player = map.getAt(level.getPlayerX(), level.getPlayerY());
 
         for (int i = 0; i < states.size() - 1; i++) {
             State current = states.get(i);
@@ -130,25 +129,27 @@ public class SolverReport {
             State next = states.get(i + 1);
             StateDiff diff = getStateDiff(map, current, next);
 
-            Node node = findPath(map, diff, playerX, playerY);
+            Pathfinder.Node node = Pathfinder.findPath(
+                    player, diff.playerDest(),
+                    diff.crate(), diff.crateDest());
+
             if (node == null) {
                 throw canFindPathException(map, current, next);
             }
 
             boolean newPlayerPosSet = false;
-            while (node.parent != null) {
+            while (node.parent() != null) {
                 if (!newPlayerPosSet) {
-                    if (node.move.moveCrate()) {
-                        playerX = node.playerX;
-                        playerY = node.playerY;
-                        temp.add(node.move);
+                    if (node.move().moveCrate()) {
+                        player = node.player();
+                        temp.add(node.move());
                         newPlayerPosSet = true;
                     }
                 } else {
-                    temp.add(node.move);
+                    temp.add(node.move());
                 }
 
-                node = node.parent;
+                node = node.parent();
             }
 
             path.ensureCapacity(path.size() + temp.size());
@@ -185,72 +186,9 @@ public class SolverReport {
         state2Crates.removeAll(state1Copy);
 
         return new StateDiff(
-                map.getX(to.playerPos()), map.getY(to.playerPos()),
-                map.getX(state1Crates.get(0)), map.getY(state1Crates.get(0)),  // original crate pos
-                map.getX(state2Crates.get(0)), map.getY(state2Crates.get(0))); // where it goes
-    }
-
-    /**
-     * Find a path in the map from (playerX, playerY) so the state representing the map
-     * is that same as the next state in {@link #createFullSolution()} ie move the player
-     * to the new position stored in {@link StateDiff} and move at most one crate (original
-     * and destination stored in {@link StateDiff})
-     *
-     * @param map the map
-     * @param diff difference between two states: store player destination and old and new crate position
-     * @param playerX current player x position
-     * @param playerY current player y position
-     * @return the path between the two points
-     */
-    private Node findPath(Map map, StateDiff diff, int playerX, int playerY) {
-        Set<Node> visited = new HashSet<>();
-        Queue<Node> queue = new ArrayDeque<>();
-        queue.offer(new Node(null, playerX, playerY, diff.crateX(), diff.crateY(), null));
-        visited.add(queue.peek());
-
-        Node solution = null;
-        while (!queue.isEmpty() && solution == null) {
-            Node node = queue.poll();
-
-            TileInfo player = map.getAt(node.playerX(), node.playerY());
-            TileInfo crate = map.getAt(node.crateX(), node.crateY());
-            crate.addCrate();
-
-            for (Direction direction : Direction.VALUES) {
-                TileInfo adj = player.adjacent(direction);
-
-                Node child;
-                if (adj.isSolid()) {
-                    if (!crate.isAt(adj)) {
-                        continue;
-                    }
-
-                    TileInfo adjAdj = adj.adjacent(direction);
-                    if (adjAdj.isSolid()) {
-                        continue;
-                    }
-
-                    child = new Node(node, adj.getX(), adj.getY(), adjAdj.getX(), adjAdj.getY(), new Move(direction, true));
-                } else {
-                    child = new Node(node, adj.getX(), adj.getY(), crate.getX(), crate.getY(), new Move(direction, false));
-                }
-
-                if (child.isEndNode(diff)) {
-                    solution = child;
-                    break;
-                }
-
-                if (visited.add(child)) {
-                    queue.offer(child);
-                }
-            }
-
-            crate.removeCrate();
-        }
-
-        map.getAt(diff.crateX, diff.crateY).addCrate();
-
-        return solution;
+                map.getAt(to.playerPos()),
+                map.getAt(state1Crates.get(0)),  // original crate pos
+                map.getAt(state2Crates.get(0))); // where it goes
     }
 
     /**
@@ -521,53 +459,11 @@ public class SolverReport {
     }
 
     /**
-     * Used by {@link #findPath(Map, StateDiff, int, int)} to find a path. It represents
-     * a node in a graph.
-     *
-     * @param parent the parent node
-     * @param playerX player x
-     * @param playerY player y
-     * @param crateX crate x
-     * @param crateY crate y
-     * @param move the move made by the player to move from the parent node to this node
-     */
-    private record Node(Node parent, int playerX, int playerY, int crateX, int crateY, Move move) {
-
-        public boolean isEndNode(StateDiff diff) {
-            return playerX == diff.destX() && playerY == diff.destY() &&
-                    crateX == diff.crateDestX() && crateY == diff.crateDestY();
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof Node node)) return false;
-
-            if (playerX != node.playerX) return false;
-            if (playerY != node.playerY) return false;
-            if (crateX != node.crateX) return false;
-            return crateY == node.crateY;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = playerX;
-            result = 31 * result + playerY;
-            result = 31 * result + crateX;
-            result = 31 * result + crateY;
-            return result;
-        }
-    }
-
-    /**
      * Contains all differences between two states except the old player position.
      *
-     * @param destX player destination x
-     * @param destY player destination y
-     * @param crateX old crate x
-     * @param crateY old crate y
-     * @param crateDestX new crate y
-     * @param crateDestY new crate y
+     * @param playerDest player destination
+     * @param crate old crate position
+     * @param crateDest crate destination
      */
-    private record StateDiff(int destX, int destY, int crateX, int crateY, int crateDestX, int crateDestY) {}
+    private record StateDiff(TileInfo playerDest, TileInfo crate, TileInfo crateDest) {}
 }

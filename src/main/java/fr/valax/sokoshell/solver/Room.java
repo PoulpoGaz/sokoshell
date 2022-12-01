@@ -51,4 +51,8 @@ public class Room {
     public void setGoalRoom(boolean goalRoom) {
         this.goalRoom = goalRoom;
     }
+
+    public List<TileInfo> getPackingOrder() {
+        return packingOrder;
+    }
 }
