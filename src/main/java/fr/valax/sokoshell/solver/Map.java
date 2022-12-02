@@ -1,6 +1,5 @@
 package fr.valax.sokoshell.solver;
 
-import fr.poulpogaz.json.utils.Pair;
 import fr.valax.interval.IntWrapper;
 import fr.valax.sokoshell.solver.mark.AbstractMarkSystem;
 import fr.valax.sokoshell.solver.mark.MarkSystem;
@@ -547,34 +546,44 @@ public class Map {
             inRoom = tunnel.getEndOut();
         }
 
-
         List<TileInfo> targets = room.getTargets();
         for (TileInfo t : targets) {
             t.addCrate();
         }
 
-        PriorityQueue<Pair<TileInfo, Integer>> distances = new PriorityQueue<>(Comparator.comparingInt(Pair::getRight));
-        computeDistToCrate(entrance, 0, distances);
+        List<TileInfo> packingOrder = new ArrayList<>();
 
 
-        while (!distances.isEmpty()) {
-            Pair<TileInfo, Integer> tile = distances.poll();
+        List<TileInfo> frontier = new ArrayList<>();
+        List<TileInfo> newFrontier = new ArrayList<>();
+        frontier.add(entrance);
 
-            TileInfo crate = tile.getLeft();
-            crate.removeCrate();
+        List<TileInfo> accessibleCrates = new ArrayList<>();
+        findAccessibleCrates(frontier, newFrontier, accessibleCrates);
 
-            inRoom.addCrate();
-
-            if (Pathfinder.hasPath(entrance, null, inRoom, crate)) {
-                crate.unmark();
+        while (!accessibleCrates.isEmpty()) {
+            for (int i = 0; i < accessibleCrates.size(); i++) {
+                TileInfo crate = accessibleCrates.get(i);
                 crate.removeCrate();
-                computeDistToCrate(crate, tile.getRight(), distances);
-                room.getPackingOrder().add(crate);
-            } else {
-                crate.addCrate();
-            }
+                inRoom.addCrate();
 
-            inRoom.removeCrate();
+                if (Pathfinder.hasPath(entrance, null, inRoom, crate)) {
+                    accessibleCrates.remove(i);
+                    i--;
+                    crate.unmark();
+                    crate.removeCrate();
+
+                    // discover new accessible crates
+                    frontier.add(crate);
+                    findAccessibleCrates(frontier, newFrontier, accessibleCrates);
+
+                    packingOrder.add(crate);
+                } else {
+                    crate.addCrate();
+                }
+
+                inRoom.removeCrate();
+            }
         }
 
 
@@ -582,23 +591,41 @@ public class Map {
             t.removeCrate();
         }
 
-        Collections.reverse(room.getPackingOrder());
+        Collections.reverse(packingOrder);
+        room.setPackingOrder(packingOrder);
     }
 
-    private void computeDistToCrate(TileInfo tile, int dist, Queue<Pair<TileInfo, Integer>> out) {
-        tile.mark();
-        if (tile.anyCrate()) {
-            out.offer(new Pair<>(tile, dist + 1));
-        } else {
+    /**
+     * Find accessible crates using bfs from lastFrontier.
+     *
+     * @param lastFrontier starting point of the bfs
+     * @param newFrontier a non-null list that will contain the next tile info to visit
+     * @param out a list that will contain accessible crates
+     */
+    private void findAccessibleCrates(List<TileInfo> lastFrontier, List<TileInfo> newFrontier, List<TileInfo> out) {
+        newFrontier.clear();
 
+        for (int i = 0; i < lastFrontier.size(); i++) {
+            TileInfo tile = lastFrontier.get(i);
 
-            for (Direction dir : Direction.VALUES) {
-                TileInfo adj = tile.adjacent(dir);
+            if (!tile.isMarked()) {
+                tile.mark();
+                if (tile.anyCrate()) {
+                    out.add(tile);
+                } else {
+                    for (Direction dir : Direction.VALUES) {
+                        TileInfo adj = tile.adjacent(dir);
 
-                if (!adj.isMarked() && !adj.isWall()) {
-                    computeDistToCrate(adj, dist + 1, out);
+                        if (!adj.isMarked() && !adj.isWall()) {
+                            newFrontier.add(adj);
+                        }
+                    }
                 }
             }
+        }
+
+        if (!newFrontier.isEmpty()) {
+            findAccessibleCrates(newFrontier, lastFrontier, out);
         }
     }
 

@@ -55,4 +55,8 @@ public class Room {
     public List<TileInfo> getPackingOrder() {
         return packingOrder;
     }
+
+    public void setPackingOrder(List<TileInfo> packingOrder) {
+        this.packingOrder = packingOrder;
+    }
 }
