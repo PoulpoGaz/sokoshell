@@ -12,7 +12,16 @@ public class Room {
 
     private final List<Tunnel> tunnels = new ArrayList<>();
 
-    private List<TileInfo> packingOrder = new ArrayList<>();
+    /**
+     * Only computed is the level is a goal room level as defined by {@link Map#isGoalRoomLevel()}
+     */
+    private List<TileInfo> packingOrder;
+
+    // dynamic
+    // the index in packingOrder of the position of the next crate that will be pushed inside the room
+    // negative if it is not possible because a crate isn't at the correct position
+    // or if the room isn't a goal room
+    private int packingOrderIndex;
 
     public Room() {
     }
@@ -58,5 +67,17 @@ public class Room {
 
     public void setPackingOrder(List<TileInfo> packingOrder) {
         this.packingOrder = packingOrder;
+    }
+
+    public boolean isInPackingOrder(TileInfo tile) {
+        return packingOrder != null && packingOrder.contains(tile);
+    }
+
+    public int getPackingOrderIndex() {
+        return packingOrderIndex;
+    }
+
+    public void setPackingOrderIndex(int packingOrderIndex) {
+        this.packingOrderIndex = packingOrderIndex;
     }
 }

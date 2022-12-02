@@ -50,6 +50,11 @@ public class Map {
     private final List<Room> rooms = new ArrayList<>();
 
     /**
+     * True if all rooms are goal room with only one entrance
+     */
+    private boolean isGoalRoomLevel;
+
+    /**
      * Creates a Map with the specified width, height and tiles
      *
      * @param content a rectangular matrix of size width * height. The first index is for the rows
@@ -250,6 +255,49 @@ public class Map {
 
                 t.setCrateInside(true);
             }
+
+            if (isGoalRoomLevel) {
+                Room r = tile.getRoom();
+                if (r != null && r.isGoalRoom() && tile.isCrate()) { // crate whereas a goal room must contain crate on target
+                    r.setPackingOrderIndex(-1);
+                }
+            }
+        }
+
+        if (isGoalRoomLevel) {
+            for (int i = 0; i < rooms.size(); i++) {
+                Room r = rooms.get(i);
+
+                if (r.isGoalRoom() && r.getPackingOrderIndex() >= 0) {
+                    List<TileInfo> order = r.getPackingOrder();
+
+                    // find the first non crate on target tile
+                    // if the room is completed, then index is equals to -1
+                    int index = -1;
+                    for (int j = 0; j < order.size(); j++) {
+                        TileInfo tile = order.get(j);
+
+                        if (!tile.isCrateOnTarget()) {
+                            index = j;
+                            break;
+                        }
+                    }
+
+                    // checks that remaining aren't crate on target
+                    for (int j = index + 1; j < order.size(); j++) {
+                        TileInfo tile = order.get(j);
+
+                        if (tile.isCrateOnTarget()) {
+                            index = -1;
+                            break;
+                        }
+                    }
+
+                    r.setPackingOrderIndex(index);
+                } else {
+                    r.setPackingOrderIndex(-1);
+                }
+            }
         }
     }
 
@@ -266,6 +314,12 @@ public class Map {
 
         for (int i = 0; i < tunnels.size(); i++) {
             tunnels.get(i).setCrateInside(false);
+        }
+
+        if (isGoalRoomLevel) {
+            for (int i = 0; i < rooms.size(); i++) {
+                rooms.get(i).setPackingOrderIndex(0);
+            }
         }
     }
 
@@ -521,8 +575,17 @@ public class Map {
      * Compute packing order. No crate should be on the map
      */
     public void tryComputePackingOrder() {
-        for (Room r : rooms) {
-            if (r.getTunnels().size() == 1 && r.isGoalRoom()) {
+        isGoalRoomLevel = true;
+        for (int i = 0; i < rooms.size(); i++) {
+            Room r = rooms.get(i);
+            if (r.isGoalRoom() && r.getTunnels().size() != 1) {
+                isGoalRoomLevel = false;
+                break;
+            }
+        }
+
+        if (isGoalRoomLevel) {
+            for (Room r : rooms) {
                 computePackingOrder(r);
             }
         }
@@ -918,6 +981,10 @@ public class Map {
      */
     public List<Room> getRooms() {
         return rooms;
+    }
+
+    public boolean isGoalRoomLevel() {
+        return isGoalRoomLevel;
     }
 
     /**

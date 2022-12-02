@@ -286,7 +286,7 @@ public class MonitorCommand extends AbstractCommand {
             }
 
             if (currentState != null) {
-                map.removeStateCrates(currentState);
+                map.safeRemoveStateCrates(currentState);
             }
 
             this.currentState = newState;

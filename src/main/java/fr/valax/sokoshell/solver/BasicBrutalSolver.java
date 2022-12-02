@@ -2,6 +2,7 @@ package fr.valax.sokoshell.solver;
 
 import fr.valax.sokoshell.utils.SizeOf;
 
+import java.awt.*;
 import java.util.ArrayDeque;
 import java.util.HashSet;
 import java.util.Objects;
@@ -167,7 +168,7 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
                 TileInfo dest = crate.getTunnelExit().getExit(pushDir);
 
                 if (dest != null && !dest.isSolid()) {
-                    addState(ancestor, crateIndex, crate.getX(), crate.getY(), dest.getX(), dest.getY());
+                    addStateCheckForGoalMacro(ancestor, crateIndex, crate.getX(), crate.getY(), dest);
                 }
             }
         }
@@ -196,8 +197,9 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
             }
 
 
-            // check for tunnel
             TileInfo dest = map.getAt(crateDestX, crateDestY);
+
+            // check for tunnel
             Tunnel tunnel = dest.getTunnel();
 
             // the crate will be pushed inside the tunnel
@@ -222,12 +224,24 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
                     }
 
                     if (newDest != null && !newDest.isDeadTile()) {
-                        addState(ancestor, crateIndex, crateX, crateY, newDest.getX(), newDest.getY());
+                        addStateCheckForGoalMacro(ancestor, crateIndex, crateX, crateY, newDest);
                     }
                 }
             }
 
-            addState(ancestor, crateIndex, crateX, crateY, crateDestX, crateDestY);
+            addStateCheckForGoalMacro(ancestor, crateIndex, crateX, crateY, dest);
+        }
+    }
+
+    private void addStateCheckForGoalMacro(State ancestor, int crateIndex, int crateX, int crateY, TileInfo dest) {
+        Room room = dest.getRoom();
+        if (room != null && map.isGoalRoomLevel() && room.getPackingOrderIndex() >= 0) {
+            // goal macro!
+            TileInfo newDest = room.getPackingOrder().get(room.getPackingOrderIndex());
+
+            addState(ancestor, crateIndex, crateX, crateY, newDest.getX(), newDest.getY());
+        } else {
+            addState(ancestor, crateIndex, crateX, crateY, dest.getX(), dest.getY());
         }
     }
 
