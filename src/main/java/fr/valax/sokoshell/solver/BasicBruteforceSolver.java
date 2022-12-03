@@ -8,12 +8,12 @@ import java.util.ArrayDeque;
  */
 public abstract class BasicBruteforceSolver extends BruteforceSolver<State> {
 
-    public static BasicBruteforceSolver.DFSSolver newDFSSolver() {
-        return new BasicBruteforceSolver.DFSSolver();
+    public static DFSSolver newDFSSolver() {
+        return new DFSSolver();
     }
 
-    public static BasicBruteforceSolver.BFSSolver newBFSSolver() {
-        return new BasicBruteforceSolver.BFSSolver();
+    public static BFSSolver newBFSSolver() {
+        return new BFSSolver();
     }
 
     @Override
@@ -59,12 +59,13 @@ public abstract class BasicBruteforceSolver extends BruteforceSolver<State> {
 
         @Override
         public void addState(State state) {
-            collection.add(state);
+            collection.offer(state);
         }
 
         @Override
-        public void popAndCacheState() {
+        public State popAndCacheState() {
             cur = popState();
+            return cur;
         }
 
         @Override
@@ -89,17 +90,18 @@ public abstract class BasicBruteforceSolver extends BruteforceSolver<State> {
 
             @Override
             public State popState() {
-                return collection.removeFirst();
+                return collection.removeLast();
             }
 
             @Override
             public State topState() {
-                return collection.peekFirst();
+                return collection.peekLast();
             }
         }
     }
 
     private static class BFSSolver extends BasicBruteforceSolver {
+
         @Override
         protected void createCollection() {
             toProcess = new BFSSolverCollection();
@@ -114,12 +116,12 @@ public abstract class BasicBruteforceSolver extends BruteforceSolver<State> {
 
             @Override
             public State popState() {
-                return collection.removeLast();
+                return collection.removeFirst();
             }
 
             @Override
             public State topState() {
-                return collection.peekLast();
+                return collection.peekFirst();
             }
 
         }

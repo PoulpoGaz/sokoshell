@@ -14,7 +14,7 @@ public interface SolverCollection<T extends State> {
 
     T topState();
 
-    void popAndCacheState();
+    T popAndCacheState();
 
     T curCachedState();
 }

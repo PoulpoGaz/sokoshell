@@ -15,19 +15,6 @@ public class State {
     // http://sokobano.de/wiki/index.php?title=Solver#Hash_Function
     // https://en.wikipedia.org/wiki/Zobrist_hashing
     protected static int[][] zobristValues;
-    protected final int playerPos;
-    protected final int[] cratesIndices;
-    protected final int hash;
-    protected final State parent;
-
-    /**
-     */
-    public State(int playerPos, int[] cratesIndices, int hash, State parent) {
-        this.playerPos = playerPos;
-        this.cratesIndices = cratesIndices;
-        this.hash = hash;
-        this.parent = parent;
-    }
 
     /**
      * @param minSize minSize is the number of tile in the map
@@ -55,6 +42,20 @@ public class State {
         }
     }
 
+
+
+    protected final int playerPos;
+    protected final int[] cratesIndices;
+    protected final int hash;
+    protected final State parent;
+
+    public State(int playerPos, int[] cratesIndices, int hash, State parent) {
+        this.playerPos = playerPos;
+        this.cratesIndices = cratesIndices;
+        this.hash = hash;
+        this.parent = parent;
+    }
+
     /**
      * Creates a child of the state.
      * It uses property of XOR to compute efficiently the hash of the child state
@@ -65,8 +66,8 @@ public class State {
      */
     public State child(int newPlayerPos, int crateToMove, int crateDestination) {
         int[] newCrates = this.cratesIndices().clone();
-        final int hash = this.hash ^ zobristValues[this.playerPos][0] ^ zobristValues[newPlayerPos][0] // 'moves' the player in the hash
-                       ^ zobristValues[newCrates[crateToMove]][1] ^ zobristValues[crateDestination][1]; // 'moves' the crate in the hash
+        int hash = this.hash ^ zobristValues[this.playerPos][0] ^ zobristValues[newPlayerPos][0] // 'moves' the player in the hash
+                ^ zobristValues[newCrates[crateToMove]][1] ^ zobristValues[crateDestination][1]; // 'moves' the crate in the hash
         newCrates[crateToMove] = crateDestination;
 
         return new State(newPlayerPos, newCrates, hash, this);

@@ -95,8 +95,6 @@ public class CommandLineBuilder {
 
         converters.put(Path.class, TypeConverters.PATH);
 
-        converters.put(SolverType.class, TypeConverters.SOLVER_MODE);
-
         return this;
     }
 

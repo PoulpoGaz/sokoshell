@@ -8,10 +8,7 @@ import fr.valax.args.utils.TypeException;
 
 import java.io.*;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Array;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -1122,7 +1119,10 @@ public class CommandLine {
 
         try {
             if (customConverter != null) {
-                return customConverter.getDeclaredConstructor().newInstance();
+                Constructor<? extends TypeConverter<?>> constructor = customConverter.getDeclaredConstructor();
+                constructor.setAccessible(true);
+
+                return constructor.newInstance();
             } else {
                 Class<?> type = field.getType();
 

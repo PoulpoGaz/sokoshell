@@ -44,19 +44,6 @@ public class TypeConverters {
         }
     };
 
-    public static final TypeConverter<SolverType> SOLVER_MODE = (s) -> {
-        if (s == null) {
-            return null;
-        } else {
-            return switch (s.toLowerCase()) {
-                case "dfs" -> SolverType.DFS;
-                case "bfs" -> SolverType.BFS;
-                case "a*", "astar" -> SolverType.ASTAR;
-                default -> throw new TypeException(String.format("Invalid solver type '%s'", s));
-            };
-        }
-    };
-
     private record NumberTypeConverter<T extends Number>(
             Function<String, T> converter, T whenNull) implements TypeConverter<T> {
 

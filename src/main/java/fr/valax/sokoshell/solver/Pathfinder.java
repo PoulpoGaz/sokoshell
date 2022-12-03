@@ -51,7 +51,7 @@ public class Pathfinder {
                     throw new IllegalArgumentException("Crate destination is solid");
                 }
 
-                return crateAStar.findPath(playerStart, playerDest, crateStart, crateDest);
+                return cratePlayerAStar.findPath(playerStart, playerDest, crateStart, crateDest);
             } else {
                 if (playerDest.isSolid()) {
                     throw new IllegalArgumentException("Player destination can't be solid");

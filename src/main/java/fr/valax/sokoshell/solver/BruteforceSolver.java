@@ -11,9 +11,9 @@ import java.util.Set;
  * solution.
  * @author darth-mole
  */
-public abstract class BruteforceSolver<T extends State> extends AbstractSolver implements Trackable {
+public abstract class BruteforceSolver<S extends State> extends AbstractSolver implements Trackable {
 
-    protected SolverCollection<T> toProcess;
+    protected SolverCollection<S> toProcess;
     protected final Set<State> processed = new HashSet<>();
 
     protected Map map;
@@ -37,11 +37,6 @@ public abstract class BruteforceSolver<T extends State> extends AbstractSolver i
      * </ul>
      */
     protected abstract void createCollection();
-
-    @Override
-    public State currentState() {
-        return toProcess.topState();
-    }
 
     @Override
     public SolverReport solve(SolverParameters params) {
@@ -99,20 +94,19 @@ public abstract class BruteforceSolver<T extends State> extends AbstractSolver i
                 break;
             }
 
-            //State cur = toProcess.popState();
-            toProcess.popAndCacheState();
-            map.addStateCratesAndAnalyse(toProcess.curCachedState());
+            S state = toProcess.popAndCacheState();
+            map.addStateCratesAndAnalyse(state);
 
-            if (map.isCompletedWith(toProcess.curCachedState())) {
-                finalState = toProcess.curCachedState();
+            if (map.isCompletedWith(state)) {
+                finalState = state;
                 break;
             }
 
-            if (!checkFreezeDeadlock(map, toProcess.curCachedState())) {
+            if (!checkFreezeDeadlock(map, state)) {
                 addChildrenStates();
             }
 
-            map.removeStateCratesAndReset(toProcess.curCachedState());
+            map.removeStateCratesAndReset(state);
         }
 
         // END OF RESEARCH
@@ -144,9 +138,10 @@ public abstract class BruteforceSolver<T extends State> extends AbstractSolver i
     protected abstract void addInitialState(Level level);
 
     private void addChildrenStates() {
-        map.findReachableCases(toProcess.curCachedState().playerPos());
+        S state = toProcess.curCachedState();
+        map.findReachableCases(state.playerPos());
 
-        int[] cratesIndices = toProcess.curCachedState().cratesIndices();
+        int[] cratesIndices = state.cratesIndices();
         for (int crateIndex = 0; crateIndex < cratesIndices.length; crateIndex++) {
 
             int crate = cratesIndices[crateIndex];
@@ -302,6 +297,11 @@ public abstract class BruteforceSolver<T extends State> extends AbstractSolver i
         }
 
         return stats;
+    }
+
+    @Override
+    public State currentState() {
+        return toProcess.curCachedState();
     }
 
     @Override

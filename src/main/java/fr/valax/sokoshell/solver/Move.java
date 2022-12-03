@@ -36,8 +36,8 @@ public enum Move {
         return switch (dir) {
             case LEFT -> moveCrate ? LEFT_PUSH : LEFT;
             case UP -> moveCrate ? UP_PUSH : UP;
-            case DOWN -> moveCrate ? RIGHT_PUSH : DOWN;
-            case RIGHT -> moveCrate ? DOWN_PUSH : RIGHT;
+            case DOWN -> moveCrate ? DOWN_PUSH : DOWN;
+            case RIGHT -> moveCrate ? RIGHT_PUSH : RIGHT;
         };
     }
 }

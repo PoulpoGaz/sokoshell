@@ -91,8 +91,9 @@ public class SolverPriorityQueue implements SolverCollection<WeightedState> {
     }
 
     @Override
-    public void popAndCacheState() {
+    public WeightedState popAndCacheState() {
         cur = popState();
+        return cur;
     }
 
     @Override

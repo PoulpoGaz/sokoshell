@@ -126,4 +126,19 @@ public class PathFinderTest {
             Pathfinder.hasPath(map.getAt(2, 1), map.getAt(0, 0), map.getAt(1, 1), map.getAt(2, 1));
         });
     }
+
+    @Test
+    void test() {
+        Level level = TestUtils.getLevel(Path.of("levels8xv/Original.8xv"), 0);
+
+        Map map = level.getMap();
+
+        map.getAt(6, 4).addCrate();
+        map.getAt(7, 4).removeCrate();
+
+        Pathfinder.Node node = Pathfinder.getCratePlayerAStar()
+                .findPath(map.getAt(7, 4), map.getAt(5, 1), map.getAt(7, 3), map.getAt(7, 2));
+        assertTrue(node.player().isAt(5, 1));
+        assertTrue(node.crate().isAt(7, 2));
+    }
 }
