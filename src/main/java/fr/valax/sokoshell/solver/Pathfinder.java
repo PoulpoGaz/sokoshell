@@ -2,7 +2,16 @@ package fr.valax.sokoshell.solver;
 
 import java.util.*;
 
+/**
+ * This class uses A* algorithm to find a path in a map.
+ */
 public class Pathfinder {
+
+    private static final AStar cratePlayerAStar = new AStarFull();
+    private static final AStar crateAStar = new AStarCrateOnly();
+    private static final AStar playerAStar = new AStarPlayerOnly();
+
+
 
     public static boolean hasPath(TileInfo player, TileInfo playerDest, TileInfo crate, TileInfo crateDest) {
         return findPath(player, playerDest, crate, crateDest) != null;
@@ -19,116 +28,271 @@ public class Pathfinder {
      * @return the path between the two points
      */
     public static Node findPath(TileInfo playerStart, TileInfo playerDest, TileInfo crateStart, TileInfo crateDest) {
-        checkInput(playerStart, playerDest, crateStart, crateDest);
+        Objects.requireNonNull(playerStart, "Player start can't be null");
 
-        Node n = new Node(null, playerStart, crateStart, null);
-
-        if (n.isEndNode(playerDest, crateDest)) {
-            return n;
-        }
-
-        Set<Node> visited = new HashSet<>();
-        Queue<Node> queue = new ArrayDeque<>();
-        queue.offer(n);
-        visited.add(n);
-
-        Node solution = null;
-        while (!queue.isEmpty() && solution == null) {
-            Node node = queue.poll();
-
-            TileInfo player = node.player();
-            TileInfo crate = node.crate();
-
-            if (crate != null) {
-                crate.addCrate();
-            }
-
-            for (Direction direction : Direction.VALUES) {
-                TileInfo adj = player.adjacent(direction);
-
-                Node child;
-                if (adj.isSolid()) {
-                    if (crate == null || !crate.isAt(adj)) {
-                        continue;
-                    }
-
-                    TileInfo adjAdj = adj.adjacent(direction);
-                    if (adjAdj.isSolid()) {
-                        continue;
-                    }
-
-                    child = new Node(node, adj, adjAdj, new Move(direction, true));
-                } else {
-                    child = new Node(node, adj, crate, new Move(direction, false));
-                }
-
-                if (child.isEndNode(playerDest, crateDest)) {
-                    solution = child;
-                    break;
-                }
-
-                if (visited.add(child)) {
-                    queue.offer(child);
-                }
-            }
-
-            if (crate != null) {
-                crate.removeCrate();
-            }
-        }
-
-        if (crateStart != null) {
-            crateStart.addCrate();
-        }
-
-        return solution;
-    }
-
-    private static void checkInput(TileInfo playerStart, TileInfo playerDest, TileInfo crateStart, TileInfo crateDest) {
-        Objects.requireNonNull(playerStart, "No start pos");
-        if (playerStart.anyCrate()) {
-            throw new IllegalArgumentException("Player on a wall/crate");
+        if (playerStart.isSolid()) {
+            throw new IllegalArgumentException("Player start is solid");
         }
 
         if (playerDest != null) {
-            if (playerDest.isWall()) {
-                throw new IllegalArgumentException("Player destination is a wall");
+            if (crateStart != null || crateDest != null) {
+                if (playerDest.isWall()) {
+                    throw new IllegalArgumentException("Player destination can't be a wall");
+                }
+
+                Objects.requireNonNull(crateStart, "Crate start can't be null when crateDest is not null");
+                Objects.requireNonNull(crateDest, "Crate destination can't be null when crateStart is not null");
+
+                if (!crateStart.anyCrate()) {
+                    throw new IllegalArgumentException("Crate start isn't a crate");
+                }
+
+                if (!crateDest.isAt(crateStart) && crateDest.isSolid()) {
+                    throw new IllegalArgumentException("Crate destination is solid");
+                }
+
+                return crateAStar.findPath(playerStart, playerDest, crateStart, crateDest);
+            } else {
+                if (playerDest.isSolid()) {
+                    throw new IllegalArgumentException("Player destination can't be solid");
+                }
+
+                return playerAStar.findPath(playerStart, playerDest, null, null);
             }
-            if (playerDest.anyCrate() && !playerDest.isAt(crateStart)) {
-                throw new IllegalArgumentException("Player destination is a crate that is not allowed to move");
+
+        } else {
+            Objects.requireNonNull(crateStart, "Crate start can't be null when no player destination is set");
+            Objects.requireNonNull(crateDest, "Crate destination can't be null when no player destination is set");
+
+            if (!crateStart.anyCrate()) {
+                throw new IllegalArgumentException("Crate start isn't a crate");
             }
+
+            if (!crateDest.isAt(crateStart) && crateDest.isSolid()) {
+                throw new IllegalArgumentException("Crate destination is solid");
+            }
+
+            return crateAStar.findPath(playerStart, null, crateStart, crateDest);
+        }
+    }
+
+    public static AStar getCratePlayerAStar() {
+        return cratePlayerAStar;
+    }
+
+    public static AStar getPlayerAStar() {
+        return playerAStar;
+    }
+
+    public static AStar getCrateAStar() {
+        return crateAStar;
+    }
+
+    protected static class AStarPlayerOnly extends AStar {
+
+        @Override
+        protected Node initialNode(TileInfo playerStart, TileInfo playerDest, TileInfo crateStart, TileInfo crateDest) {
+            return Node.playerStartNode(playerStart);
         }
 
-        if (crateStart != null) {
-            if (!crateStart.anyCrate()) {
-                throw new IllegalArgumentException("Start crate not a crate");
+        @Override
+        protected Node processMove(Node parent, Direction dir) {
+            TileInfo player = parent.player();
+            TileInfo adj = player.adjacent(dir);
+
+            if (!adj.isSolid()) {
+                return parent.childPlayer(adj, Move.of(dir, false));
             }
-            Objects.requireNonNull(crateDest, "Crate destination is null");
-            if (!crateDest.isAt(crateStart) && crateDest.isSolid()) {
-                throw new IllegalArgumentException("Crate destination is a wall/crate");
+
+            return null;
+        }
+
+        @Override
+        protected boolean isEndNode(Node node, TileInfo playerDest, TileInfo crateDest) {
+            return node.isEndNodePlayer(playerDest);
+        }
+    }
+
+    protected static class AStarCrateOnly extends AStar {
+
+        @Override
+        protected void preInit(TileInfo playerStart, TileInfo playerDest, TileInfo crateStart, TileInfo crateDest) {
+            crateStart.removeCrate();
+        }
+
+        @Override
+        protected void postInit(TileInfo playerStart, TileInfo playerDest, TileInfo crateStart, TileInfo crateDest) {
+            crateStart.addCrate();
+        }
+
+        @Override
+        protected Node initialNode(TileInfo playerStart, TileInfo playerDest, TileInfo crateStart, TileInfo crateDest) {
+            return Node.startNode(playerStart, crateStart);
+        }
+
+        @Override
+        protected Node processMove(Node parent, Direction dir) {
+            TileInfo player = parent.player();
+            TileInfo crate = parent.crate();
+            TileInfo adj = player.adjacent(dir);
+
+            if (adj.isAt(crate)) {
+                TileInfo adjAdj = adj.adjacent(dir);
+
+                if (adjAdj.isSolid()) {
+                    return null;
+                }
+
+                return parent.childCrate(adj, adjAdj, Move.of(dir, true));
+            } else if (!adj.isSolid()) {
+                return parent.childCrate(adj, crate, Move.of(dir, false));
             }
-        } else {
-            Objects.requireNonNull(playerDest, "No player destination set whereas no crate will be moved");
+
+            return null;
+        }
+
+        @Override
+        protected boolean isEndNode(Node node, TileInfo playerDest, TileInfo crateDest) {
+            return node.isEndNodeCrate(crateDest);
+        }
+    }
+
+    protected static class AStarFull extends AStarCrateOnly {
+
+        @Override
+        protected Node processMove(Node parent, Direction dir) {
+            TileInfo player = parent.player();
+            TileInfo crate = parent.crate();
+            TileInfo adj = player.adjacent(dir);
+
+            if (adj.isAt(crate)) {
+                TileInfo adjAdj = adj.adjacent(dir);
+
+                if (adjAdj.isSolid()) {
+                    return null;
+                }
+
+                return parent.child(adj, adjAdj, Move.of(dir, true));
+            } else if (!adj.isSolid()) {
+                return parent.child(adj, crate, Move.of(dir, false));
+            }
+
+            return null;
+        }
+
+        @Override
+        protected boolean isEndNode(Node node, TileInfo playerDest, TileInfo crateDest) {
+            return node.isEndNode(playerDest, crateDest);
         }
     }
 
 
-    /**
-     * Used by {@link #findPath(TileInfo, TileInfo, TileInfo, TileInfo)} to find a path. It represents
-     * a node in a graph.
-     *
-     * @param parent the parent node
-     * @param player player position
-     * @param crate crate position
-     * @param move the move made by the player to move from the parent node to this node
-     */
-    public record Node(Node parent, TileInfo player, TileInfo crate, Move move) {
+    protected abstract static class AStar {
+
+        public boolean hasPath(TileInfo playerStart, TileInfo playerDest, TileInfo crateStart, TileInfo crateDest) {
+            return findPath(playerStart, playerDest, crateStart, crateDest) != null;
+        }
+
+        public Node findPath(TileInfo playerStart, TileInfo playerDest, TileInfo crateStart, TileInfo crateDest) {
+            Node n = initialNode(playerStart, playerDest, crateStart, crateDest);
+
+            if (isEndNode(n, playerDest, crateDest)) {
+                return n;
+            }
+
+            preInit(playerStart, playerDest, crateStart, crateDest);
+
+            Set<Node> visited = new HashSet<>();
+            PriorityQueue<Node> queue = new PriorityQueue<>();
+            queue.offer(n);
+            visited.add(n);
+
+            while (!queue.isEmpty()) {
+                Node node = queue.poll();
+
+                for (Direction direction : Direction.VALUES) {
+                    Node child = processMove(node, direction);
+
+                    if (child != null) {
+                        if (isEndNode(child, playerDest, crateDest)) {
+                            postInit(playerStart, playerDest, crateStart, crateDest);
+                            return child;
+                        }
+
+                        if (visited.add(child)) {
+                            queue.offer(child);
+                        }
+                    }
+                }
+            }
+
+            postInit(playerStart, playerDest, crateStart, crateDest);
+            return null;
+        }
+
+        protected void preInit(TileInfo playerStart, TileInfo playerDest, TileInfo crateStart, TileInfo crateDest) {
+
+        }
+
+        protected void postInit(TileInfo playerStart, TileInfo playerDest, TileInfo crateStart, TileInfo crateDest) {
+
+        }
+
+        protected abstract Node initialNode(TileInfo playerStart, TileInfo playerDest, TileInfo crateStart, TileInfo crateDest);
+
+        protected abstract Node processMove(Node parent, Direction dir);
+
+        protected abstract boolean isEndNode(Node node, TileInfo playerDest, TileInfo crateDest);
+    }
+
+    public record Node(Node parent,
+                       int cost, int heuristic,
+                       TileInfo player, TileInfo crate, Move move) implements Comparable<Node> {
+
+        public static Node playerStartNode(TileInfo player) {
+            return new Node(null, 0, 0, player, null, null);
+        }
+
+        public static Node startNode(TileInfo player, TileInfo crate) {
+            return new Node(null, 0, 0, player, crate, null);
+        }
+
+        public boolean isEndNodePlayer(TileInfo playerDest) {
+            return playerDest.isAt(player);
+        }
+
+        public Node childPlayer(TileInfo newPlayer, Move move) {
+            int h = cost + 1 +
+                    newPlayer.manhattanDistance(player);
+
+            return new Node(this, cost + 1, h, newPlayer, null, move);
+        }
+
+
+        public boolean isEndNodeCrate(TileInfo crateDest) {
+            return crateDest.isAt(crate);
+        }
+
+        public Node childCrate(TileInfo newPlayer, TileInfo newCrate, Move move) {
+            int h = cost + 1 +
+                    newCrate.manhattanDistance(crate);
+
+            return new Node(this, cost + 1, h, newPlayer, newCrate, move);
+        }
+
 
         public boolean isEndNode(TileInfo playerDest, TileInfo crateDest) {
-            return (playerDest == null || playerDest.isAt(player))
-                    && (crateDest == null || crateDest.isAt(crate));
+            return isEndNodePlayer(playerDest) && isEndNodeCrate(crateDest);
         }
-        
+
+        public Node child(TileInfo newPlayer, TileInfo newCrate, Move move) {
+            int h = cost + 1 +
+                    newCrate.manhattanDistance(crate) +
+                    newPlayer.manhattanDistance(player);
+
+            return new Node(this, cost + 1, h, newPlayer, newCrate, move);
+        }
+
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
@@ -140,9 +304,14 @@ public class Pathfinder {
 
         @Override
         public int hashCode() {
-            int result = player != null ? player.hashCode() : 0;
-            result = 31 * result + (crate != null ? crate.hashCode() : 0);
+            int result = player != null ? player.positionHashCode() : 0;
+            result = 31 * result + (crate != null ? crate.positionHashCode() : 0);
             return result;
+        }
+
+        @Override
+        public int compareTo(Node o) {
+            return Integer.compare(heuristic, o.heuristic);
         }
     }
 }

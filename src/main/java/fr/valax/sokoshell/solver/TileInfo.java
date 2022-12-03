@@ -143,6 +143,16 @@ public class TileInfo {
     }
 
     /**
+     * Returns the distance of manhattan between this tile and other
+     *
+     * @param other 'other' tile
+     * @return the distance of manhattan between this tile and other
+     */
+    public int manhattanDistance(TileInfo other) {
+        return Math.abs(x - other.x) + Math.abs(y - other.y);
+    }
+
+    /**
      * @return true if there is a crate at this position
      */
     public boolean anyCrate() {
@@ -392,5 +402,9 @@ public class TileInfo {
     @Override
     public String toString() {
         return tile.toString();
+    }
+
+    public int positionHashCode() {
+        return y * map.getWidth() + x;
     }
 }

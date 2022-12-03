@@ -635,7 +635,7 @@ public class Map {
                 crate.removeCrate();
                 inRoom.addCrate();
 
-                if (Pathfinder.hasPath(entrance, null, inRoom, crate)) {
+                if (Pathfinder.getCrateAStar().hasPath(entrance, null, inRoom, crate)) {
                     accessibleCrates.remove(i);
                     i--;
                     crate.unmark();

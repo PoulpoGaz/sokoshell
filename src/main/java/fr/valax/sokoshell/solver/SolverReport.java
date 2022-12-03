@@ -83,6 +83,7 @@ public class SolverReport {
     private final String status;
 
     private final List<Move> fullSolution;
+    private final int numberOfPushes;
 
     public SolverReport(SolverParameters parameters,
                         SolverStatistics statistics,
@@ -99,7 +100,16 @@ public class SolverReport {
             }
 
             fullSolution = createFullSolution();
+
+            int n = 0;
+            for (Move m : fullSolution) {
+                if (m.moveCrate()) {
+                    n++;
+                }
+            }
+            numberOfPushes = n;
         } else {
+            numberOfPushes = -1;
             fullSolution = null;
         }
     }
@@ -394,7 +404,7 @@ public class SolverReport {
      * @return {@code -1} if the sokoban wasn't solved or the number of pushes the player made to solve the sokoban
      */
     public int numberOfPushes() {
-        return states == null ? -1 : states.size() - 1;
+        return numberOfPushes;
     }
 
     /**
