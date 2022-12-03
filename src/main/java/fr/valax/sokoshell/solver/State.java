@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.Random;
 
 /**
- * A state represent an arrangement of the crates in the map and the location of the player.
+ * A state represents an arrangement of the crates in the map and the location of the player.
  *
  * @implNote <strong>DO NOT MODIFY THE ARRAY AFTER THE INITIALIZATION. THE HASH WON'T BE RECALCULATED</strong>
  * @author darth-mole
@@ -65,18 +65,12 @@ public class State {
      */
     public State child(int newPlayerPos, int crateToMove, int crateDestination) {
         int[] newCrates = this.cratesIndices().clone();
-        final int hash = computeChildHash(newPlayerPos, newCrates, crateToMove, crateDestination);
+        final int hash = this.hash ^ zobristValues[this.playerPos][0] ^ zobristValues[newPlayerPos][0] // 'moves' the player in the hash
+                       ^ zobristValues[newCrates[crateToMove]][1] ^ zobristValues[crateDestination][1]; // 'moves' the crate in the hash
         newCrates[crateToMove] = crateDestination;
 
         return new State(newPlayerPos, newCrates, hash, this);
     }
-
-    protected int computeChildHash(int newPlayerPos, int[] newCrates, int crateToMove, int crateDestination) {
-        final int hash = this.hash ^ zobristValues[this.playerPos][0] ^ zobristValues[newPlayerPos][0] // 'moves' the player in the hash
-                       ^ zobristValues[newCrates[crateToMove]][1] ^ zobristValues[crateDestination][1]; // 'moves' the crate in the hash
-        return hash;
-    }
-
 
     public State(int playerPos, int[] cratesIndices, State parent) {
         this(playerPos, cratesIndices, hashCode(playerPos, cratesIndices), parent);
@@ -156,10 +150,16 @@ public class State {
         return sb.toString();
     }
 
+    /**
+     * The index of the case of the map on which the player is.
+     */
     public int playerPos() {
         return playerPos;
     }
 
+    /**
+     * The index of the cases of the map on which the crates are.
+     */
     public int[] cratesIndices() {
         return cratesIndices;
     }
@@ -168,6 +168,9 @@ public class State {
         return hash;
     }
 
+    /**
+     * The state in which the map was before coming to this state.
+     */
     public State parent() {
         return parent;
     }

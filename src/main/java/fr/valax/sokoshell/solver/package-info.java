@@ -35,7 +35,7 @@
  *     </tr>
  *     <tr>
  *         <td>{@link fr.valax.sokoshell.solver.Direction}</td>
- *         <td>Partially - It is the job of darth-mole</td>
+ *         <td>OK - I did it, my master</td>
  *     </tr>
  *     <tr>
  *         <td>{@link fr.valax.sokoshell.solver.Level}</td>
@@ -75,11 +75,11 @@
  *     </tr>
  *     <tr>
  *         <td>{@link fr.valax.sokoshell.solver.State}</td>
- *         <td>Partially</td>
+ *         <td>Almost done</td>
  *     </tr>
  *     <tr>
  *         <td>{@link fr.valax.sokoshell.solver.Tile}</td>
- *         <td>NO. It is the job of darth-mole</td>
+ *         <td>OK - I did it, my master</td>
  *     </tr>
  *     <tr>
  *         <td>{@link fr.valax.sokoshell.solver.TileInfo}</td>
