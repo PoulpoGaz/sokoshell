@@ -575,7 +575,7 @@ public class Map {
      * Compute packing order. No crate should be on the map
      */
     public void tryComputePackingOrder() {
-        isGoalRoomLevel = true;
+        isGoalRoomLevel = rooms.size() > 1;
         for (int i = 0; i < rooms.size(); i++) {
             Room r = rooms.get(i);
             if (r.isGoalRoom() && r.getTunnels().size() != 1) {
@@ -586,7 +586,10 @@ public class Map {
 
         if (isGoalRoomLevel) {
             for (Room r : rooms) {
-                computePackingOrder(r);
+                if (!computePackingOrder(r)) {
+                    isGoalRoomLevel = false; // failed to compute packing order for a room...
+                    break;
+                }
             }
         }
     }
@@ -595,7 +598,7 @@ public class Map {
      * The room must have only one entrance and a packing room
      * @param room a room
      */
-    private void computePackingOrder(Room room) {
+    private boolean computePackingOrder(Room room) {
         markSystem.unmarkAll();
 
         Tunnel tunnel = room.getTunnels().get(0);
@@ -625,6 +628,8 @@ public class Map {
         findAccessibleCrates(frontier, newFrontier, accessibleCrates);
 
         while (!accessibleCrates.isEmpty()) {
+            boolean hasChanged = false;
+
             for (int i = 0; i < accessibleCrates.size(); i++) {
                 TileInfo crate = accessibleCrates.get(i);
                 crate.removeCrate();
@@ -641,11 +646,16 @@ public class Map {
                     findAccessibleCrates(frontier, newFrontier, accessibleCrates);
 
                     packingOrder.add(crate);
+                    hasChanged = true;
                 } else {
                     crate.addCrate();
                 }
 
                 inRoom.removeCrate();
+            }
+
+            if (!hasChanged) {
+                return false;
             }
         }
 
@@ -656,6 +666,8 @@ public class Map {
 
         Collections.reverse(packingOrder);
         room.setPackingOrder(packingOrder);
+
+        return true;
     }
 
     /**
