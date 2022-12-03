@@ -2,6 +2,7 @@ package fr.valax.args;
 
 import fr.valax.args.api.TypeConverter;
 import fr.valax.args.utils.TypeException;
+import fr.valax.sokoshell.solver.SolverType;
 
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
@@ -40,6 +41,19 @@ public class TypeConverters {
             } catch (InvalidPathException e) {
                 throw new TypeException(s);
             }
+        }
+    };
+
+    public static final TypeConverter<SolverType> SOLVER_MODE = (s) -> {
+        if (s == null) {
+            return null;
+        } else {
+            return switch (s.toLowerCase()) {
+                case "dfs" -> SolverType.DFS;
+                case "bfs" -> SolverType.BFS;
+                case "a*", "astar" -> SolverType.ASTAR;
+                default -> throw new TypeException(String.format("Invalid solver type '%s'", s));
+            };
         }
     };
 

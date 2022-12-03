@@ -10,7 +10,11 @@ public interface SolverCollection<T extends State> {
 
     void addState(T state);
 
-    State popState();
+    T popState();
 
-    State topState();
+    T topState();
+
+    void popAndCacheState();
+
+    T curCachedState();
 }

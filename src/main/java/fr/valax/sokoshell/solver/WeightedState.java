@@ -6,26 +6,52 @@ package fr.valax.sokoshell.solver;
  */
 public class WeightedState extends State {
 
-    /**
-     * The cost the come to this state.
-     */
-    public int cost = 0;
+    private int cost = 0;
 
-    /**
-     * The heuristic between this state and a solution.
-     */
-    public int heuristic = 0;
+    private int heuristic = 0;
 
     public WeightedState(int playerPos, int[] cratesIndices, int hash, State parent, int cost, int heuristic) {
         super(playerPos, cratesIndices, hash, parent);
-        this.cost = cost;
-        this.heuristic = heuristic;
+        this.setCost(cost);
+        this.setHeuristic(heuristic);
+    }
+
+    public WeightedState(State state, int cost, int heuristic) {
+        this(state.playerPos(), state.cratesIndices(), state.hash(), state.parent(), cost, heuristic);
     }
 
     /**
      * The state weight, which is the sum of its cost and its heuristic.
      */
     public int weight() {
-        return cost + heuristic;
+        return cost() + heuristic();
+    }
+
+    public WeightedState child(int newPlayerPos, int crateToMove, int crateDestination) {
+        // TODO compute heuristic
+        return new WeightedState(super.child(newPlayerPos, crateToMove, crateDestination),
+                                 cost(), 0);
+    }
+
+    /**
+     * The cost the come to this state.
+     */
+    public int cost() {
+        return cost;
+    }
+
+    public void setCost(int cost) {
+        this.cost = cost;
+    }
+
+    /**
+     * The heuristic between this state and a solution.
+     */
+    public int heuristic() {
+        return heuristic;
+    }
+
+    public void setHeuristic(int heuristic) {
+        this.heuristic = heuristic;
     }
 }

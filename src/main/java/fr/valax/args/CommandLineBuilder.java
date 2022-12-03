@@ -6,6 +6,7 @@ import fr.valax.args.api.TypeConverter;
 import fr.valax.args.utils.CommandLineException;
 import fr.valax.args.utils.INode;
 import fr.valax.args.utils.Node;
+import fr.valax.sokoshell.solver.SolverType;
 
 import java.nio.file.Path;
 import java.util.Collections;
@@ -93,6 +94,8 @@ public class CommandLineBuilder {
         converters.put(double.class, TypeConverters.DOUBLE_PRIMITIVE);
 
         converters.put(Path.class, TypeConverters.PATH);
+
+        converters.put(SolverType.class, TypeConverters.SOLVER_MODE);
 
         return this;
     }

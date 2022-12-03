@@ -31,6 +31,10 @@ public class SolveCommand extends AbstractCommand {
     @Option(names = {"l", "levels"}, hasArgument = true, argName = "Levels")
     protected String levels;
 
+    @Option(names = {"m", "solver-mode"}, hasArgument = true, argName = "Solver mode",
+            description = "solving strategy: DFS (default) BFS, ASTAR")
+    protected SolverType solverType;
+
     @Option(names = {"t", "timeout"}, hasArgument = true, argName = "Timeout", defaultValue = "-1", description = "in ms")
     private long timeout;
 
@@ -63,7 +67,13 @@ public class SolveCommand extends AbstractCommand {
         }
         addParameters(params);
 
-        Solver solver = BasicBrutalSolver.newDFSSolver();
+        System.out.println(solverType);
+
+        final Solver solver = switch (solverType) {
+            case BFS -> BasicBruteforceSolver.newBFSSolver();
+            case ASTAR -> new AStarSolver();
+            default -> BasicBruteforceSolver.newDFSSolver();
+        };
 
         String packRequest = formatPackRequest();
         SolverTask lastTask = null;
