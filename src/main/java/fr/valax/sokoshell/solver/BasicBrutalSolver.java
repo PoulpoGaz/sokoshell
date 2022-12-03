@@ -13,7 +13,7 @@ import java.util.Set;
  * difference being in the order in which they treat the states (LIFO for DFS and FIFO for BFS).
  * @author darth-mole
  */
-public abstract class BasicBrutalSolver extends AbstractSolver implements Trackable {
+public abstract class BasicBrutalSolver<T extends State> extends AbstractSolver implements Trackable {
 
     public static DFSSolver newDFSSolver() {
         return new DFSSolver();
@@ -23,9 +23,9 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
         return new BFSSolver();
     }
 
-    protected SolverCollection toProcess;
+    protected SolverCollection<T> toProcess;
     protected final Set<State> processed = new HashSet<>();
-    private Map map;
+    protected Map map;
 
     private boolean running = false;
     private boolean stopped = false;
@@ -83,7 +83,7 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
 
         Level level = params.getLevel();
 
-        State initialState = level.getInitialState();
+        final State initialState = level.getInitialState();
         State finalState = null;
 
         int nState = initialState.cratesIndices().length;
@@ -94,7 +94,10 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
 
         createCollection();
         processed.clear();
-        toProcess.addState(initialState);
+
+
+        //toProcess.addState(initialState);
+        addInitialState(level);
 
         while (!toProcess.isEmpty() && !stopped) {
             if (hasTimedOut(timeout)) {
@@ -148,6 +151,8 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
             return SolverReport.withoutSolution(params, getStatistics(), SolverReport.NO_SOLUTION);
         }
     }
+
+    protected abstract void addInitialState(Level level);
 
     private void addChildrenStates() {
         map.findReachableCases(toProcess.curCachedState().playerPos());
@@ -255,16 +260,7 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
      * @param crateDestX new crate x
      * @param crateDestY new crate y
      */
-    private void addState(int crateIndex, int crateX, int crateY, int crateDestX, int crateDestY) {
-        final int i = map.topLeftReachablePosition(crateX, crateY, crateDestX, crateDestY);
-        // The new player position is the crate position
-        State s = State.child(toProcess.curCachedState(), i, crateIndex,
-                crateDestY * map.getWidth() + crateDestX);
-
-        if (processed.add(s)) {
-            toProcess.addState(s);
-        }
-    }
+    protected abstract void addState(int crateIndex, int crateX, int crateY, int crateDestX, int crateDestY);
 
     protected boolean hasTimedOut(long timeout) {
         return timeout > 0 && timeout + timeStart < System.currentTimeMillis();
@@ -385,7 +381,7 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
         }
     }
 
-    private static class DFSSolver extends BasicBrutalSolver {
+    private static class DFSSolver extends BasicBrutalSolver<State> {
 
         @Override
         protected void createCollection() {
@@ -395,6 +391,22 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
         @Override
         public SolverType getSolverType() {
             return SolverType.DFS;
+        }
+
+        @Override
+        protected void addInitialState(Level level) {
+            toProcess.addState(level.getInitialState());
+        }
+
+        @Override
+        protected void addState(int crateIndex, int crateX, int crateY, int crateDestX, int crateDestY) {
+            final int i = map.topLeftReachablePosition(crateX, crateY, crateDestX, crateDestY);
+            // The new player position is the crate position
+            State s = toProcess.curCachedState().child(i, crateIndex,  crateDestY * map.getWidth() + crateDestX);
+
+            if (processed.add(s)) {
+                toProcess.addState(s);
+            }
         }
 
         private static class DFSSolverCollection extends BasicBrutalSolverCollection {
@@ -415,7 +427,7 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
         }
     }
 
-    private static class BFSSolver extends BasicBrutalSolver {
+    private static class BFSSolver extends BasicBrutalSolver<State> {
         @Override
         protected void createCollection() {
             toProcess = new BFSSolverCollection();
@@ -424,6 +436,22 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
         @Override
         public SolverType getSolverType() {
             return SolverType.BFS;
+        }
+
+        @Override
+        protected void addInitialState(Level level) {
+            toProcess.addState(level.getInitialState());
+        }
+
+        @Override
+        protected void addState(int crateIndex, int crateX, int crateY, int crateDestX, int crateDestY) {
+            final int i = map.topLeftReachablePosition(crateX, crateY, crateDestX, crateDestY);
+            // The new player position is the crate position
+            State s = toProcess.curCachedState().child(i, crateIndex,  crateDestY * map.getWidth() + crateDestX);
+
+            if (processed.add(s)) {
+                toProcess.addState(s);
+            }
         }
 
         private static class BFSSolverCollection extends BasicBrutalSolverCollection {

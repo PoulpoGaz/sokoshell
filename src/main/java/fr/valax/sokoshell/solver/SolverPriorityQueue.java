@@ -100,7 +100,6 @@ public class SolverPriorityQueue implements SolverCollection<WeightedState> {
         return cur;
     }
 
-
     /**
      * Priority queue (state, priority) couple.
      */

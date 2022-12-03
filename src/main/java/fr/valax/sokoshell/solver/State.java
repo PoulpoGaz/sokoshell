@@ -14,11 +14,11 @@ public class State {
 
     // http://sokobano.de/wiki/index.php?title=Solver#Hash_Function
     // https://en.wikipedia.org/wiki/Zobrist_hashing
-    private static int[][] zobristValues;
-    private final int playerPos;
-    private final int[] cratesIndices;
-    private final int hash;
-    private final State parent;
+    protected static int[][] zobristValues;
+    protected final int playerPos;
+    protected final int[] cratesIndices;
+    protected final int hash;
+    protected final State parent;
 
     /**
      */
@@ -56,23 +56,25 @@ public class State {
     }
 
     /**
-     * This function creates a child of a state.
+     * Creates a child of the state.
      * It uses property of XOR to compute efficiently the hash of the child state
-     * @param parent the parent state
      * @param newPlayerPos the new player position
      * @param crateToMove the index of the crate to move
      * @param crateDestination the new position of the crate to move
      * @return the child state
      */
-    public static State child(State parent, int newPlayerPos, int crateToMove, int crateDestination) {
-        int[] newCrates = parent.cratesIndices().clone();
-
-        int hash = parent.hash ^ zobristValues[parent.playerPos][0] ^ zobristValues[newPlayerPos][0] // 'moves' the player in the hash
-                ^ zobristValues[newCrates[crateToMove]][1] ^ zobristValues[crateDestination][1]; // 'moves' the crate in the hash
-
+    public State child(int newPlayerPos, int crateToMove, int crateDestination) {
+        int[] newCrates = this.cratesIndices().clone();
+        final int hash = computeChildHash(newPlayerPos, newCrates, crateToMove, crateDestination);
         newCrates[crateToMove] = crateDestination;
 
-        return new State(newPlayerPos, newCrates, hash, parent);
+        return new State(newPlayerPos, newCrates, hash, this);
+    }
+
+    protected int computeChildHash(int newPlayerPos, int[] newCrates, int crateToMove, int crateDestination) {
+        final int hash = this.hash ^ zobristValues[this.playerPos][0] ^ zobristValues[newPlayerPos][0] // 'moves' the player in the hash
+                       ^ zobristValues[newCrates[crateToMove]][1] ^ zobristValues[crateDestination][1]; // 'moves' the crate in the hash
+        return hash;
     }
 
 
