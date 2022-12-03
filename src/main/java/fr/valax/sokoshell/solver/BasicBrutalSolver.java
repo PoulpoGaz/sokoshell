@@ -107,19 +107,20 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
                 break;
             }
 
-            State cur = toProcess.popState();
-            map.addStateCratesAndAnalyse(cur);
+            //State cur = toProcess.popState();
+            toProcess.popAndCacheState();
+            map.addStateCratesAndAnalyse(toProcess.curCachedState());
 
-            if (map.isCompletedWith(cur)) {
-                finalState = cur;
+            if (map.isCompletedWith(toProcess.curCachedState())) {
+                finalState = toProcess.curCachedState();
                 break;
             }
 
-            if (!checkFreezeDeadlock(map, cur)) {
-                addChildrenStates(cur);
+            if (!checkFreezeDeadlock(map, toProcess.curCachedState())) {
+                addChildrenStates();
             }
 
-            map.removeStateCratesAndReset(cur);
+            map.removeStateCratesAndReset(toProcess.curCachedState());
         }
 
         // END OF RESEARCH
@@ -148,10 +149,10 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
         }
     }
 
-    private void addChildrenStates(State cur) {
-        map.findReachableCases(cur.playerPos());
+    private void addChildrenStates() {
+        map.findReachableCases(toProcess.curCachedState().playerPos());
 
-        int[] cratesIndices = cur.cratesIndices();
+        int[] cratesIndices = toProcess.curCachedState().cratesIndices();
         for (int crateIndex = 0; crateIndex < cratesIndices.length; crateIndex++) {
 
             int crate = cratesIndices[crateIndex];
@@ -160,15 +161,15 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
 
             Tunnel tunnel = map.getAt(crateX, crateY).getTunnel();
             if (tunnel != null) {
-                addChildrenStatesInTunnel(cur, crateIndex, map.getAt(crateX, crateY));
+                addChildrenStatesInTunnel(crateIndex, map.getAt(crateX, crateY));
             } else {
-                addChildrenStatesDefault(cur, crateIndex, crateX, crateY);
+                addChildrenStatesDefault(crateIndex, crateX, crateY);
             }
         }
     }
 
 
-    private void addChildrenStatesInTunnel(State ancestor, int crateIndex, TileInfo crate) {
+    private void addChildrenStatesInTunnel(int crateIndex, TileInfo crate) {
         // the crate is in a tunnel. two possibilities: move to tunnel.startOut or tunnel.endOut
         // this part of the code assume that there is no other crate in the tunnel.
         // normally, this is impossible...
@@ -180,13 +181,13 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
                 TileInfo dest = crate.getTunnelExit().getExit(pushDir);
 
                 if (dest != null && !dest.isSolid()) {
-                    addState(ancestor, crateIndex, crate.getX(), crate.getY(), dest.getX(), dest.getY());
+                    addState(crateIndex, crate.getX(), crate.getY(), dest.getX(), dest.getY());
                 }
             }
         }
     }
 
-    private void addChildrenStatesDefault(State ancestor, int crateIndex, int crateX, int crateY) {
+    private void addChildrenStatesDefault(int crateIndex, int crateX, int crateY) {
         for (Direction d : Direction.VALUES) {
 
             final int crateDestX = crateX + d.dirX();
@@ -235,12 +236,12 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
                     }
 
                     if (newDest != null && !newDest.isDeadTile()) {
-                        addState(ancestor, crateIndex, crateX, crateY, newDest.getX(), newDest.getY());
+                        addState(crateIndex, crateX, crateY, newDest.getX(), newDest.getY());
                     }
                 }
             }
 
-            addState(ancestor, crateIndex, crateX, crateY, crateDestX, crateDestY);
+            addState(crateIndex, crateX, crateY, crateDestX, crateDestY);
         }
     }
 
@@ -248,17 +249,17 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
      * Add a state to the processed set. If it wasn't already added, it is added to
      * the toProcess queue. The move is unchecked
      *
-     * @param ancestor the ancestor of the new state
      * @param crateIndex the crate's index that moves
      * @param crateX old crate x
      * @param crateY old crate y
      * @param crateDestX new crate x
      * @param crateDestY new crate y
      */
-    private void addState(State ancestor, int crateIndex, int crateX, int crateY, int crateDestX, int crateDestY) {
+    private void addState(int crateIndex, int crateX, int crateY, int crateDestX, int crateDestY) {
         final int i = map.topLeftReachablePosition(crateX, crateY, crateDestX, crateDestY);
         // The new player position is the crate position
-        State s = State.child(ancestor, i, crateIndex, crateDestY * map.getWidth() + crateDestX);
+        State s = State.child(toProcess.curCachedState(), i, crateIndex,
+                crateDestY * map.getWidth() + crateDestX);
 
         if (processed.add(s)) {
             toProcess.addState(s);
@@ -356,6 +357,8 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
 
         protected final ArrayDeque<State> collection = new ArrayDeque<>();
 
+        protected State cur;
+
         @Override
         public void clear() {
             collection.clear();
@@ -374,6 +377,11 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
         @Override
         public void addState(State state) {
             collection.add(state);
+        }
+
+        @Override
+        public State curCachedState() {
+            return cur;
         }
     }
 
@@ -400,6 +408,10 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
             public State topState() {
                 return collection.peekFirst();
             }
+            @Override
+            public void popAndCacheState() {
+                cur = popState();
+            }
         }
     }
 
@@ -424,6 +436,11 @@ public abstract class BasicBrutalSolver extends AbstractSolver implements Tracka
             @Override
             public State topState() {
                 return collection.peekLast();
+            }
+
+            @Override
+            public void popAndCacheState() {
+                cur = popState();
             }
         }
     }
