@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.Random;
 
 /**
- * A state represent an arrangement of the crates in the map and the location of the player.
+ * A state represents an arrangement of the crates in the map and the location of the player.
  *
  * @implNote <strong>DO NOT MODIFY THE ARRAY AFTER THE INITIALIZATION. THE HASH WON'T BE RECALCULATED</strong>
  * @author darth-mole
@@ -14,11 +14,11 @@ public class State {
 
     // http://sokobano.de/wiki/index.php?title=Solver#Hash_Function
     // https://en.wikipedia.org/wiki/Zobrist_hashing
-    private static int[][] zobristValues;
-    private final int playerPos;
-    private final int[] cratesIndices;
-    private final int hash;
-    private final State parent;
+    protected static int[][] zobristValues;
+    protected final int playerPos;
+    protected final int[] cratesIndices;
+    protected final int hash;
+    protected final State parent;
 
     /**
      */
@@ -56,25 +56,21 @@ public class State {
     }
 
     /**
-     * This function creates a child of a state.
+     * Creates a child of the state.
      * It uses property of XOR to compute efficiently the hash of the child state
-     * @param parent the parent state
      * @param newPlayerPos the new player position
      * @param crateToMove the index of the crate to move
      * @param crateDestination the new position of the crate to move
      * @return the child state
      */
-    public static State child(State parent, int newPlayerPos, int crateToMove, int crateDestination) {
-        int[] newCrates = parent.cratesIndices().clone();
-
-        int hash = parent.hash ^ zobristValues[parent.playerPos][0] ^ zobristValues[newPlayerPos][0] // 'moves' the player in the hash
-                ^ zobristValues[newCrates[crateToMove]][1] ^ zobristValues[crateDestination][1]; // 'moves' the crate in the hash
-
+    public State child(int newPlayerPos, int crateToMove, int crateDestination) {
+        int[] newCrates = this.cratesIndices().clone();
+        final int hash = this.hash ^ zobristValues[this.playerPos][0] ^ zobristValues[newPlayerPos][0] // 'moves' the player in the hash
+                       ^ zobristValues[newCrates[crateToMove]][1] ^ zobristValues[crateDestination][1]; // 'moves' the crate in the hash
         newCrates[crateToMove] = crateDestination;
 
-        return new State(newPlayerPos, newCrates, hash, parent);
+        return new State(newPlayerPos, newCrates, hash, this);
     }
-
 
     public State(int playerPos, int[] cratesIndices, State parent) {
         this(playerPos, cratesIndices, hashCode(playerPos, cratesIndices), parent);
@@ -154,10 +150,16 @@ public class State {
         return sb.toString();
     }
 
+    /**
+     * The index of the case of the map on which the player is.
+     */
     public int playerPos() {
         return playerPos;
     }
 
+    /**
+     * The index of the cases of the map on which the crates are.
+     */
     public int[] cratesIndices() {
         return cratesIndices;
     }
@@ -166,6 +168,9 @@ public class State {
         return hash;
     }
 
+    /**
+     * The state in which the map was before coming to this state.
+     */
     public State parent() {
         return parent;
     }

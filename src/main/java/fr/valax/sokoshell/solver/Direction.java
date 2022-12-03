@@ -1,7 +1,8 @@
 package fr.valax.sokoshell.solver;
 
 /**
- * A small but super useful enumeration. Contains all direction: left, up, right and down.
+ * A small but super useful enumeration. Contains all direction: {@link Direction#LEFT}, {@link Direction#UP},
+ * {@link Direction#RIGHT} and {@link Direction#DOWN}.
  *
  * @author PoulpogGaz
  * @author darth-mole
@@ -37,7 +38,7 @@ public enum Direction {
     public int dirY() { return dirY; }
 
     /**
-     * Rotate the rotation by 90°. For 'up' it returns 'left'
+     * Rotate the rotation by 90°. For {@link Direction#UP} it returns {@link Direction#LEFT}
      *
      * @return the direction rotated by 90°
      */
@@ -51,7 +52,7 @@ public enum Direction {
     }
 
     /**
-     * Rotate the rotation by -90°. For 'up' it returns 'right'
+     * Rotate the rotation by -90°. For {@link Direction#UP} it returns {@link Direction#RIGHT}
      *
      * @return the direction rotated by -90°
      */
@@ -64,6 +65,9 @@ public enum Direction {
         };
     }
 
+    /**
+     * @return The opposite direction (e.g for {@link Direction#LEFT} it returns {@link Direction#LEFT} etc.)
+     */
     public Direction negate() {
         return switch (this) {
             case DOWN -> UP;
@@ -73,6 +77,12 @@ public enum Direction {
         };
     }
 
+    /**
+     * Creates a direction from two coordinates.
+     * @param dirX If negative, returns {@link Direction#LEFT}, otherwise returns {@link Direction#RIGHT}
+     * @param dirY If negative, return {@link Direction#UP}, otherwise returns {@link Direction#DOWN}
+     * @return the direction
+     */
     public static Direction of(int dirX, int dirY) {
         if (dirX == 0 && dirY == 0) {
             throw new IllegalArgumentException("(0,0) is not a direction");

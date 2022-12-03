@@ -51,7 +51,7 @@ public class AbstractSolverTest {
         Assertions.assertNotEquals(0, pack.nLevel());
 
 
-        BasicBrutalSolver solver = BasicBrutalSolver.newBFSSolver();
+        BruteforceSolver solver = BasicBruteforceSolver.newBFSSolver();
 
         for (Level level : pack.levels()) {
             Map map = level.getMap();
@@ -79,7 +79,7 @@ public class AbstractSolverTest {
         mr.setStyle(new MapStyleReader().read(Path.of("styles/isekai/isekai.style")));
         mr.setShowDeadTiles(true);
 
-        BasicBrutalSolver solver = BasicBrutalSolver.newBFSSolver();
+        BruteforceSolver solver = BasicBruteforceSolver.newBFSSolver();
 
         Level level = pack.getLevel(46 - 1);
         Map map = level.getMap();
@@ -109,7 +109,7 @@ public class AbstractSolverTest {
         mr.setStyle(new MapStyleReader().read(Path.of("styles/isekai/isekai.style")));
         mr.setShowDeadTiles(true);
 
-        BasicBrutalSolver solver = BasicBrutalSolver.newBFSSolver();
+        BruteforceSolver solver = BasicBruteforceSolver.newBFSSolver();
 
         Level level = pack.getLevel(48 - 1);
         Map map = level.getMap();
