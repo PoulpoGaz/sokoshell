@@ -63,7 +63,8 @@ public class SolveCommand extends AbstractCommand {
         }
         addParameters(params);
 
-        Solver solver = BasicBrutalSolver.newDFSSolver();
+        //Solver solver = BasicBruteforceSolver.newDFSSolver();
+        Solver solver = BasicBruteforceSolver.newBFSSolver();
 
         String packRequest = formatPackRequest();
         SolverTask lastTask = null;

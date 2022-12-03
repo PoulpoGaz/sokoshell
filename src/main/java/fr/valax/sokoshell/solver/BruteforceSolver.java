@@ -9,22 +9,14 @@ import java.util.Set;
 
 /**
  * This class is the base for bruteforce-based solvers, i.e. solvers that use an exhaustive search to try and find a
- * solution. It serves as a base class for DFS and BFS solvers, as these class are nearly the same -- the only
- * difference being in the order in which they treat the states (LIFO for DFS and FIFO for BFS).
+ * solution.
  * @author darth-mole
  */
-public abstract class BasicBrutalSolver<T extends State> extends AbstractSolver implements Trackable {
-
-    public static DFSSolver newDFSSolver() {
-        return new DFSSolver();
-    }
-
-    public static BFSSolver newBFSSolver() {
-        return new BFSSolver();
-    }
+public abstract class BruteforceSolver<T extends State> extends AbstractSolver implements Trackable {
 
     protected SolverCollection<T> toProcess;
     protected final Set<State> processed = new HashSet<>();
+
     protected Map map;
 
     private boolean running = false;
@@ -38,7 +30,7 @@ public abstract class BasicBrutalSolver<T extends State> extends AbstractSolver 
     private Tracker tracker;
 
     /**
-     * Instantiates the {@link BasicBrutalSolver#toProcess} attribute, depending on the solver type:
+     * Instantiates the {@link BruteforceSolver#toProcess} attribute, depending on the solver type:
      * <ul>
      *     <li>DFS: stack</li>
      *     <li>BFS: queue</li>
@@ -95,8 +87,6 @@ public abstract class BasicBrutalSolver<T extends State> extends AbstractSolver 
         createCollection();
         processed.clear();
 
-
-        //toProcess.addState(initialState);
         addInitialState(level);
 
         while (!toProcess.isEmpty() && !stopped) {
@@ -172,7 +162,6 @@ public abstract class BasicBrutalSolver<T extends State> extends AbstractSolver 
             }
         }
     }
-
 
     private void addChildrenStatesInTunnel(int crateIndex, TileInfo crate) {
         // the crate is in a tunnel. two possibilities: move to tunnel.startOut or tunnel.endOut
@@ -345,131 +334,4 @@ public abstract class BasicBrutalSolver<T extends State> extends AbstractSolver 
         return tracker;
     }
 
-    /**
-     * Base class for DFS and BFS solvers collection (both of them use {@link ArrayDeque}), the only difference being in
-     * which side of the queue is used (end => FIFO => DFS, start => LIFO => BFS)
-     */
-    private static abstract class BasicBrutalSolverCollection implements SolverCollection<State> {
-
-        protected final ArrayDeque<State> collection = new ArrayDeque<>();
-
-        protected State cur;
-
-        @Override
-        public void clear() {
-            collection.clear();
-        }
-
-        @Override
-        public boolean isEmpty() {
-            return collection.isEmpty();
-        }
-
-        @Override
-        public int size() {
-            return collection.size();
-        }
-
-        @Override
-        public void addState(State state) {
-            collection.add(state);
-        }
-
-        @Override
-        public State curCachedState() {
-            return cur;
-        }
-    }
-
-    private static class DFSSolver extends BasicBrutalSolver<State> {
-
-        @Override
-        protected void createCollection() {
-            toProcess = new DFSSolverCollection();
-        }
-
-        @Override
-        public SolverType getSolverType() {
-            return SolverType.DFS;
-        }
-
-        @Override
-        protected void addInitialState(Level level) {
-            toProcess.addState(level.getInitialState());
-        }
-
-        @Override
-        protected void addState(int crateIndex, int crateX, int crateY, int crateDestX, int crateDestY) {
-            final int i = map.topLeftReachablePosition(crateX, crateY, crateDestX, crateDestY);
-            // The new player position is the crate position
-            State s = toProcess.curCachedState().child(i, crateIndex,  crateDestY * map.getWidth() + crateDestX);
-
-            if (processed.add(s)) {
-                toProcess.addState(s);
-            }
-        }
-
-        private static class DFSSolverCollection extends BasicBrutalSolverCollection {
-
-            @Override
-            public State popState() {
-                return collection.removeFirst();
-            }
-
-            @Override
-            public State topState() {
-                return collection.peekFirst();
-            }
-            @Override
-            public void popAndCacheState() {
-                cur = popState();
-            }
-        }
-    }
-
-    private static class BFSSolver extends BasicBrutalSolver<State> {
-        @Override
-        protected void createCollection() {
-            toProcess = new BFSSolverCollection();
-        }
-
-        @Override
-        public SolverType getSolverType() {
-            return SolverType.BFS;
-        }
-
-        @Override
-        protected void addInitialState(Level level) {
-            toProcess.addState(level.getInitialState());
-        }
-
-        @Override
-        protected void addState(int crateIndex, int crateX, int crateY, int crateDestX, int crateDestY) {
-            final int i = map.topLeftReachablePosition(crateX, crateY, crateDestX, crateDestY);
-            // The new player position is the crate position
-            State s = toProcess.curCachedState().child(i, crateIndex,  crateDestY * map.getWidth() + crateDestX);
-
-            if (processed.add(s)) {
-                toProcess.addState(s);
-            }
-        }
-
-        private static class BFSSolverCollection extends BasicBrutalSolverCollection {
-
-            @Override
-            public State popState() {
-                return collection.removeLast();
-            }
-
-            @Override
-            public State topState() {
-                return collection.peekLast();
-            }
-
-            @Override
-            public void popAndCacheState() {
-                cur = popState();
-            }
-        }
-    }
 }

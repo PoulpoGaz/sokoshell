@@ -30,7 +30,7 @@
  *         <td>1/4 - NO - may be removed</td>
  *     </tr>
  *     <tr>
- *         <td>{@link fr.valax.sokoshell.solver.BasicBrutalSolver}</td>
+ *         <td>{@link fr.valax.sokoshell.solver.BruteforceSolver}</td>
  *         <td>NO - will change</td>
  *     </tr>
  *     <tr>

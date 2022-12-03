@@ -1,6 +1,6 @@
 package fr.valax.sokoshell.solver;
 
-public class AStarSolver extends BasicBrutalSolver<WeightedState> {
+public class AStarSolver extends BruteforceSolver<WeightedState> {
 
     @Override
     public SolverType getSolverType() {
