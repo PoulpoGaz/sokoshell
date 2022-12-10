@@ -29,7 +29,9 @@ mvn compile
 
 PATH_TO_PROJECT=$('pwd')
 
-CLASSPATH="$PATH_TO_PROJECT"/target/classes:\
+CLASSPATH="$PATH_TO_PROJECT"/args/target/classes:\
+"$PATH_TO_PROJECT"/interval/target/classes:\
+"$PATH_TO_PROJECT"/sokoshell/target/classes:\
 "$HOME"/.m2/repository/org/jline/jline/3.21.0/jline-3.21.0.jar:\
 "$HOME"/.m2/repository/io/github/poulpogaz/json/1.2.2/json-1.2.2.jar:\
 "$HOME"/.m2/repository/org/dom4j/dom4j/2.1.3/dom4j-2.1.3.jar:\
