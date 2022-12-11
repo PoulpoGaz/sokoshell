@@ -8,6 +8,10 @@ import java.util.ArrayDeque;
  */
 public abstract class BasicBruteforceSolver extends BruteforceSolver<State> {
 
+    public BasicBruteforceSolver(SolverType type) {
+        super(type);
+    }
+
     public static DFSSolver newDFSSolver() {
         return new DFSSolver();
     }
@@ -76,14 +80,13 @@ public abstract class BasicBruteforceSolver extends BruteforceSolver<State> {
 
     private static class DFSSolver extends BasicBruteforceSolver  {
 
-        @Override
-        protected void createCollection() {
-            toProcess = new DFSSolverCollection();
+        public DFSSolver() {
+            super(SolverType.DFS);
         }
 
         @Override
-        public SolverType getSolverType() {
-            return SolverType.DFS;
+        protected void createCollection() {
+            toProcess = new DFSSolverCollection();
         }
 
         private static class DFSSolverCollection extends BasicBruteforceSolverCollection {
@@ -102,14 +105,13 @@ public abstract class BasicBruteforceSolver extends BruteforceSolver<State> {
 
     private static class BFSSolver extends BasicBruteforceSolver {
 
-        @Override
-        protected void createCollection() {
-            toProcess = new BFSSolverCollection();
+        public BFSSolver() {
+            super(SolverType.BFS);
         }
 
         @Override
-        public SolverType getSolverType() {
-            return SolverType.BFS;
+        protected void createCollection() {
+            toProcess = new BFSSolverCollection();
         }
 
         private static class BFSSolverCollection extends BasicBruteforceSolverCollection {

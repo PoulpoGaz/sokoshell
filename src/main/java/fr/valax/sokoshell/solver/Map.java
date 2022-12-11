@@ -817,6 +817,14 @@ public class Map {
     public int getY(int index) { return index / width; }
 
     /**
+     * Convert a (x;y) position to an index
+     * @param x Coordinate on x-axis
+     * @param y Coordinate on y-axis
+     * @return the converted index
+     */
+    public int getIndex(int x, int y) { return y * width + x; }
+
+    /**
      * Returns the {@link TileInfo} at the specific index
      *
      * @param index the index of the {@link TileInfo}

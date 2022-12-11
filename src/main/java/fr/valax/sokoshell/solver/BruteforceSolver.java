@@ -27,6 +27,10 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
     private int nStateProcessed = -1;
     private int queueSize = -1;
     private Tracker tracker;
+    
+    public BruteforceSolver(SolverType type) {
+        super(type);
+    }
 
     /**
      * Instantiates the {@link BruteforceSolver#toProcess} attribute, depending on the solver type:
