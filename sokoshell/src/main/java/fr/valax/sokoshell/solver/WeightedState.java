@@ -27,8 +27,11 @@ public class WeightedState extends State {
         return cost() + heuristic();
     }
 
+    /**
+     * <strong>This function does NOT compute the heuristic of the child state.</strong>
+     * Use {@link WeightedState#setHeuristic(int)} to set it after calling this method.
+     */
     public WeightedState child(int newPlayerPos, int crateToMove, int crateDestination) {
-        // TODO compute heuristic
         return new WeightedState(super.child(newPlayerPos, crateToMove, crateDestination),
                                  cost(), 0);
     }

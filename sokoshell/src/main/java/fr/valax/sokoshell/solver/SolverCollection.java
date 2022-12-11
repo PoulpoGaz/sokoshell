@@ -12,9 +12,9 @@ public interface SolverCollection<T extends State> {
 
     T popState();
 
-    T topState();
+    T peekState();
 
-    T popAndCacheState();
+    T peekAndCacheState();
 
-    T curCachedState();
+    T cachedState();
 }

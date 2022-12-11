@@ -22,7 +22,7 @@ public class SolverPriorityQueueTest {
         assert(q.size() == 5);
         assert(!q.isEmpty());
 
-        State s = q.topState();
+        State s = q.peekState();
         assert(s.playerPos() == 0);
 
         assert(q.size() == 5);

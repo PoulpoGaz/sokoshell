@@ -7,6 +7,17 @@ package fr.valax.sokoshell.solver;
  */
 public abstract class AbstractSolver implements Solver {
 
+    protected SolverType type;
+
+    @Override
+    public SolverType getSolverType() {
+        return type;
+    }
+
+    AbstractSolver(SolverType type) {
+        this.type = type;
+    }
+
     // http://www.sokobano.de/wiki/index.php?title=How_to_detect_deadlocks
     protected boolean checkFreezeDeadlock(Map map, State state) {
         int[] crates = state.cratesIndices();

@@ -7,6 +7,5 @@ public enum SolverType {
 
     BFS,
     DFS,
-
     ASTAR
 }
