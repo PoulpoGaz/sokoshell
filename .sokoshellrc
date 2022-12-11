@@ -1,0 +1,8 @@
+# sokoshell startup script!
+
+@echo on
+load style ./styles/**
+load ./levels/levels8xv/*.8xv
+load ./levels/TIPEex.8xv
+
+select style --style Warehouse

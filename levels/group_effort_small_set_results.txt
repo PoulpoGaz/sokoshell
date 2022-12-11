@@ -1,0 +1,205 @@
+          Pack          │ Index │     Status     │ Solver │ Pushes │ Moves  │       Date       │  Time
+────────────────────────┼───────┼────────────────┼────────┼────────┼────────┼──────────────────┼─────────
+ group_effort_small_set │     1 │ Solution found │  DFS   │   8880 │  34573 │ 11/12/2022 16:19 │  7.01 s
+ group_effort_small_set │     2 │ Solution found │  DFS   │   6679 │  34552 │ 11/12/2022 16:19 │ 15.62 s
+ group_effort_small_set │     3 │ Solution found │  DFS   │  13120 │  75692 │ 11/12/2022 16:19 │  6.38 s
+ group_effort_small_set │     4 │ Solution found │  DFS   │    649 │   2629 │ 11/12/2022 16:19 │  4.82 s
+ group_effort_small_set │     5 │ Solution found │  DFS   │  13272 │  58132 │ 11/12/2022 16:20 │ 11.62 s
+ group_effort_small_set │     6 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:20 │    30 s
+ group_effort_small_set │     7 │ Solution found │  DFS   │     94 │    400 │ 11/12/2022 16:20 │  2.96 s
+ group_effort_small_set │     8 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:20 │    30 s
+ group_effort_small_set │     9 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:21 │    30 s
+ group_effort_small_set │    10 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:21 │    30 s
+ group_effort_small_set │    11 │ Solution found │  DFS   │   2852 │  11890 │ 11/12/2022 16:22 │  3.29 s
+ group_effort_small_set │    12 │ Solution found │  DFS   │   3738 │  19735 │ 11/12/2022 16:22 │ 14.14 s
+ group_effort_small_set │    13 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:22 │    30 s
+ group_effort_small_set │    14 │ Solution found │  DFS   │   5933 │  27949 │ 11/12/2022 16:23 │ 11.97 s
+ group_effort_small_set │    15 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:23 │    30 s
+ group_effort_small_set │    16 │ Solution found │  DFS   │    734 │   4594 │ 11/12/2022 16:23 │  8.85 s
+ group_effort_small_set │    17 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:23 │    30 s
+ group_effort_small_set │    18 │ Solution found │  DFS   │     60 │    352 │ 11/12/2022 16:24 │  6.19 s
+ group_effort_small_set │    19 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:24 │    30 s
+ group_effort_small_set │    20 │ Solution found │  DFS   │   1760 │  10984 │ 11/12/2022 16:25 │ 17.04 s
+ group_effort_small_set │    21 │ Solution found │  DFS   │   4333 │  21823 │ 11/12/2022 16:25 │ 10.17 s
+ group_effort_small_set │    22 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:25 │    30 s
+ group_effort_small_set │    23 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:25 │    30 s
+ group_effort_small_set │    24 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:26 │    30 s
+ group_effort_small_set │    25 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:26 │    30 s
+ group_effort_small_set │    26 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:27 │    30 s
+ group_effort_small_set │    27 │ Solution found │  DFS   │ 125580 │ 671143 │ 11/12/2022 16:27 │ 27.56 s
+ group_effort_small_set │    28 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:28 │    30 s
+ group_effort_small_set │    29 │ Solution found │  DFS   │  11865 │  52252 │ 11/12/2022 16:28 │  4.55 s
+ group_effort_small_set │    30 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:29 │    30 s
+ group_effort_small_set │    31 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:29 │    30 s
+ group_effort_small_set │    32 │ Solution found │  DFS   │     80 │    580 │ 11/12/2022 16:30 │   6.8 s
+ group_effort_small_set │    33 │ Solution found │  DFS   │  12818 │  73973 │ 11/12/2022 16:30 │ 25.91 s
+ group_effort_small_set │    34 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:30 │    30 s
+ group_effort_small_set │    35 │ Solution found │  DFS   │  44235 │ 267529 │ 11/12/2022 16:31 │ 12.09 s
+ group_effort_small_set │    36 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:31 │    30 s
+ group_effort_small_set │    37 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:31 │    30 s
+ group_effort_small_set │    38 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:32 │    30 s
+ group_effort_small_set │    39 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:32 │    30 s
+ group_effort_small_set │    40 │ Solution found │  DFS   │    454 │   5047 │ 11/12/2022 16:33 │  5.99 s
+ group_effort_small_set │    41 │ Solution found │  DFS   │   7492 │  45446 │ 11/12/2022 16:33 │ 18.57 s
+ group_effort_small_set │    42 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:33 │    30 s
+ group_effort_small_set │    43 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:34 │    30 s
+ group_effort_small_set │    44 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:34 │    30 s
+ group_effort_small_set │    45 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:35 │    30 s
+ group_effort_small_set │    46 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:35 │    30 s
+ group_effort_small_set │    47 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:36 │    30 s
+ group_effort_small_set │    48 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:36 │    30 s
+ group_effort_small_set │    49 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:37 │    30 s
+ group_effort_small_set │    50 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:37 │    30 s
+ group_effort_small_set │    51 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:38 │    30 s
+ group_effort_small_set │    52 │  No solution   │  DFS   │     -1 │     -1 │ 11/12/2022 16:38 │    0 ms
+ group_effort_small_set │    53 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:38 │ 30.11 s
+ group_effort_small_set │    54 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:39 │    30 s
+ group_effort_small_set │    55 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:39 │    30 s
+ group_effort_small_set │    56 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:40 │    30 s
+ group_effort_small_set │    57 │ Solution found │  DFS   │    755 │   5575 │ 11/12/2022 16:40 │  9.38 s
+ group_effort_small_set │    58 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:40 │    30 s
+ group_effort_small_set │    59 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:41 │    30 s
+ group_effort_small_set │    60 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:41 │    30 s
+ group_effort_small_set │    61 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:42 │    30 s
+ group_effort_small_set │    62 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:42 │    30 s
+ group_effort_small_set │    63 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:43 │    30 s
+ group_effort_small_set │    64 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:43 │    30 s
+ group_effort_small_set │    65 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:44 │    30 s
+ group_effort_small_set │    66 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:44 │    30 s
+ group_effort_small_set │    67 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:45 │ 30.11 s
+ group_effort_small_set │    68 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:45 │    30 s
+ group_effort_small_set │    69 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:46 │    30 s
+ group_effort_small_set │    70 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:46 │    30 s
+ group_effort_small_set │    71 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:47 │    30 s
+ group_effort_small_set │    72 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:47 │    30 s
+ group_effort_small_set │    73 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:48 │    30 s
+ group_effort_small_set │    74 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:48 │    30 s
+ group_effort_small_set │    75 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:49 │    30 s
+ group_effort_small_set │    76 │ Solution found │  DFS   │     74 │    250 │ 11/12/2022 16:49 │  3.34 s
+ group_effort_small_set │    77 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:49 │    30 s
+ group_effort_small_set │    78 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:50 │    30 s
+ group_effort_small_set │    79 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:50 │    30 s
+ group_effort_small_set │    80 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:51 │    30 s
+ group_effort_small_set │    81 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:51 │    30 s
+ group_effort_small_set │    82 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:52 │    30 s
+ group_effort_small_set │    83 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:52 │    30 s
+ group_effort_small_set │    84 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:53 │    30 s
+ group_effort_small_set │    85 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:53 │    30 s
+ group_effort_small_set │    86 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:54 │    30 s
+ group_effort_small_set │    87 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:54 │    30 s
+ group_effort_small_set │    88 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:55 │    30 s
+ group_effort_small_set │    89 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:55 │    30 s
+ group_effort_small_set │    90 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:56 │    30 s
+ group_effort_small_set │    91 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:56 │    30 s
+ group_effort_small_set │    92 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:57 │    30 s
+ group_effort_small_set │    93 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:57 │ 30.01 s
+ group_effort_small_set │    94 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:58 │    30 s
+ group_effort_small_set │    95 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:58 │ 30.02 s
+ group_effort_small_set │    96 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:59 │    30 s
+ group_effort_small_set │    97 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 16:59 │    30 s
+ group_effort_small_set │    98 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:00 │    30 s
+ group_effort_small_set │    99 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:00 │    30 s
+ group_effort_small_set │   100 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:01 │    30 s
+ group_effort_small_set │   101 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:01 │    30 s
+ group_effort_small_set │   102 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:02 │    30 s
+ group_effort_small_set │   103 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:02 │ 30.01 s
+ group_effort_small_set │   104 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:03 │    30 s
+ group_effort_small_set │   105 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:03 │    30 s
+ group_effort_small_set │   106 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:04 │    30 s
+ group_effort_small_set │   107 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:04 │    30 s
+ group_effort_small_set │   108 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:05 │    30 s
+ group_effort_small_set │   109 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:05 │    30 s
+ group_effort_small_set │   110 │ Solution found │  DFS   │   2710 │  23606 │ 11/12/2022 17:06 │  3.22 s
+ group_effort_small_set │   111 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:06 │    30 s
+ group_effort_small_set │   112 │ Solution found │  DFS   │   2127 │  18799 │ 11/12/2022 17:07 │  2.52 s
+ group_effort_small_set │   113 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:07 │    30 s
+ group_effort_small_set │   114 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:07 │    30 s
+ group_effort_small_set │   115 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:08 │    30 s
+ group_effort_small_set │   116 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:08 │    30 s
+ group_effort_small_set │   117 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:09 │    30 s
+ group_effort_small_set │   118 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:09 │    30 s
+ group_effort_small_set │   119 │ Solution found │  DFS   │   3045 │  29033 │ 11/12/2022 17:10 │  3.76 s
+ group_effort_small_set │   120 │ Solution found │  DFS   │     89 │    914 │ 11/12/2022 17:10 │  1.75 s
+ group_effort_small_set │   121 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:10 │    30 s
+ group_effort_small_set │   122 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:10 │    30 s
+ group_effort_small_set │   123 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:11 │    30 s
+ group_effort_small_set │   124 │ Solution found │  DFS   │     40 │    259 │ 11/12/2022 17:11 │ 15.02 s
+ group_effort_small_set │   125 │ Solution found │  DFS   │     40 │    258 │ 11/12/2022 17:11 │ 14.47 s
+ group_effort_small_set │   126 │ Solution found │  DFS   │     40 │    269 │ 11/12/2022 17:12 │ 15.04 s
+ group_effort_small_set │   127 │ Solution found │  DFS   │     40 │    268 │ 11/12/2022 17:12 │ 15.16 s
+ group_effort_small_set │   128 │ Solution found │  DFS   │     81 │    350 │ 11/12/2022 17:12 │   62 ms
+ group_effort_small_set │   129 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:12 │    30 s
+ group_effort_small_set │   130 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:13 │    30 s
+ group_effort_small_set │   131 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:13 │ 30.07 s
+ group_effort_small_set │   132 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:14 │    30 s
+ group_effort_small_set │   133 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:14 │    30 s
+ group_effort_small_set │   134 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:15 │    30 s
+ group_effort_small_set │   135 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:15 │    30 s
+ group_effort_small_set │   136 │ Solution found │  DFS   │    433 │   1745 │ 11/12/2022 17:16 │ 15.14 s
+ group_effort_small_set │   137 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:16 │    30 s
+ group_effort_small_set │   138 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:16 │    30 s
+ group_effort_small_set │   139 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:17 │    30 s
+ group_effort_small_set │   140 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:17 │    30 s
+ group_effort_small_set │   141 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:18 │    30 s
+ group_effort_small_set │   142 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:18 │    30 s
+ group_effort_small_set │   143 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:19 │    30 s
+ group_effort_small_set │   144 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:19 │    30 s
+ group_effort_small_set │   145 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:20 │    30 s
+ group_effort_small_set │   146 │ Solution found │  DFS   │   3336 │  21922 │ 11/12/2022 17:20 │  7.05 s
+ group_effort_small_set │   147 │ Solution found │  DFS   │    420 │   2461 │ 11/12/2022 17:21 │   4.8 s
+ group_effort_small_set │   148 │ Solution found │  DFS   │    129 │    694 │ 11/12/2022 17:21 │ 13.13 s
+ group_effort_small_set │   149 │ Solution found │  DFS   │  17864 │ 104444 │ 11/12/2022 17:21 │ 14.19 s
+ group_effort_small_set │   150 │ Solution found │  DFS   │   1914 │  12015 │ 11/12/2022 17:21 │ 10.16 s
+ group_effort_small_set │   151 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:21 │    30 s
+ group_effort_small_set │   152 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:22 │    30 s
+ group_effort_small_set │   153 │ Solution found │  DFS   │    530 │   2802 │ 11/12/2022 17:22 │ 11.79 s
+ group_effort_small_set │   154 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:22 │    30 s
+ group_effort_small_set │   155 │ Solution found │  DFS   │    659 │   3579 │ 11/12/2022 17:23 │ 29.28 s
+ group_effort_small_set │   156 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:23 │    30 s
+ group_effort_small_set │   157 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:24 │    30 s
+ group_effort_small_set │   158 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:24 │    30 s
+ group_effort_small_set │   159 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:25 │    30 s
+ group_effort_small_set │   160 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:25 │    30 s
+ group_effort_small_set │   161 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:26 │    30 s
+ group_effort_small_set │   162 │ Solution found │  DFS   │    146 │    827 │ 11/12/2022 17:26 │  1.91 s
+ group_effort_small_set │   163 │ Solution found │  DFS   │    907 │   6168 │ 11/12/2022 17:26 │  7.01 s
+ group_effort_small_set │   164 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:27 │    30 s
+ group_effort_small_set │   165 │ Solution found │  DFS   │   1606 │   8154 │ 11/12/2022 17:27 │  8.16 s
+ group_effort_small_set │   166 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:27 │    30 s
+ group_effort_small_set │   167 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:28 │    30 s
+ group_effort_small_set │   168 │ Solution found │  DFS   │    472 │   3428 │ 11/12/2022 17:28 │ 20.07 s
+ group_effort_small_set │   169 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:29 │    30 s
+ group_effort_small_set │   170 │ Solution found │  DFS   │  13046 │  70652 │ 11/12/2022 17:29 │ 18.97 s
+ group_effort_small_set │   171 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:29 │    30 s
+ group_effort_small_set │   172 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:30 │    30 s
+ group_effort_small_set │   173 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:30 │    30 s
+ group_effort_small_set │   174 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:31 │    30 s
+ group_effort_small_set │   175 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:31 │    30 s
+ group_effort_small_set │   176 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:32 │    30 s
+ group_effort_small_set │   177 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:32 │    30 s
+ group_effort_small_set │   178 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:33 │    30 s
+ group_effort_small_set │   179 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:33 │    30 s
+ group_effort_small_set │   180 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:34 │    30 s
+ group_effort_small_set │   181 │ Solution found │  DFS   │  11444 │  71667 │ 11/12/2022 17:34 │ 26.23 s
+ group_effort_small_set │   182 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:35 │    30 s
+ group_effort_small_set │   183 │ Solution found │  DFS   │    921 │   6154 │ 11/12/2022 17:35 │  6.41 s
+ group_effort_small_set │   184 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:35 │ 30.02 s
+ group_effort_small_set │   185 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:36 │    30 s
+ group_effort_small_set │   186 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:36 │    30 s
+ group_effort_small_set │   187 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:37 │    30 s
+ group_effort_small_set │   188 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:37 │    30 s
+ group_effort_small_set │   189 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:38 │    30 s
+ group_effort_small_set │   190 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:38 │    30 s
+ group_effort_small_set │   191 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:39 │    30 s
+ group_effort_small_set │   192 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:39 │    30 s
+ group_effort_small_set │   193 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:40 │    30 s
+ group_effort_small_set │   194 │ Solution found │  DFS   │    214 │    968 │ 11/12/2022 17:40 │ 13.37 s
+ group_effort_small_set │   195 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:41 │    30 s
+ group_effort_small_set │   196 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:41 │    30 s
+ group_effort_small_set │   197 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:42 │    30 s
+ group_effort_small_set │   198 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:42 │    30 s
+ group_effort_small_set │   199 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:43 │    30 s
+ group_effort_small_set │   200 │    Timeout     │  DFS   │     -1 │     -1 │ 11/12/2022 17:43 │    30 s
+
+
+Number of solutions: 200
