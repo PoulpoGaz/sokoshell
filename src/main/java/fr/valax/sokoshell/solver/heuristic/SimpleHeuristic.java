@@ -32,6 +32,10 @@ public class SimpleHeuristic extends AbstractHeuristic {
         }
     }
 
+    /**
+     * Computes the distance from the given tile to the nearest goal.
+     * To do this, we perform a simple BFS from each target tile, updating the distance only when we find a lower one.
+     */
     private void computeDistancesFrom(int index, int prevValue) {
 
         if (prevValue >= distances[index]) {
@@ -40,9 +44,10 @@ public class SimpleHeuristic extends AbstractHeuristic {
         distances[index] = prevValue;
 
         for (Direction d : Direction.VALUES) {
+
             final int nextX = map.getX(index) + d.dirX();
             final int nextY = map.getY(index) + d.dirY();
-            final int nextIndex = map.getIndex(nextX, nextY);
+            final int nextIndex = map.getIndex(nextX, nextY);  // A bit ugly, feel free to improve it
             if (nextIndex < 0 || nextIndex >= distances.length) {
                 continue;
             }
@@ -51,12 +56,19 @@ public class SimpleHeuristic extends AbstractHeuristic {
         }
     }
 
+    /**
+     * Sums the distances to the nearest goal of each of the crates of the state.
+     */
     public int compute(State s) {
-        return 0;
+        int h = 0;
+        for (int i = 0; i < s.cratesIndices().length; i++) {
+            h += distances[s.cratesIndices()[i]];
+        }
+        return h;
     }
 
     /**
-     * @return The distances a displayed as a grid (test purpose only).
+     * @return The distances displayed as a grid (test purpose only).
      */
     public String toString() {
         StringBuilder s = new StringBuilder();
