@@ -1,6 +1,5 @@
 package fr.valax.sokoshell.solver;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class SolverPriorityQueueTest {
@@ -23,7 +22,7 @@ public class SolverPriorityQueueTest {
         assert(q.size() == 5);
         assert(!q.isEmpty());
 
-        State s = q.topState();
+        State s = q.peekState();
         assert(s.playerPos() == 0);
 
         assert(q.size() == 5);

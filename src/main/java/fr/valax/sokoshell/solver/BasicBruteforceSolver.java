@@ -25,7 +25,7 @@ public abstract class BasicBruteforceSolver extends BruteforceSolver<State> {
     protected void addState(int crateIndex, int crateX, int crateY, int crateDestX, int crateDestY) {
         final int i = map.topLeftReachablePosition(crateX, crateY, crateDestX, crateDestY);
         // The new player position is the crate position
-        State s = toProcess.curCachedState().child(i, crateIndex,  crateDestY * map.getWidth() + crateDestX);
+        State s = toProcess.cachedState().child(i, crateIndex,  crateDestY * map.getWidth() + crateDestX);
 
         if (processed.add(s)) {
             toProcess.addState(s);
@@ -40,7 +40,7 @@ public abstract class BasicBruteforceSolver extends BruteforceSolver<State> {
 
         protected final ArrayDeque<State> collection = new ArrayDeque<>();
 
-        protected State cur;
+        protected State cachedState;
 
         @Override
         public void clear() {
@@ -63,14 +63,14 @@ public abstract class BasicBruteforceSolver extends BruteforceSolver<State> {
         }
 
         @Override
-        public State popAndCacheState() {
-            cur = popState();
-            return cur;
+        public State peekAndCacheState() {
+            cachedState = popState();
+            return cachedState;
         }
 
         @Override
-        public State curCachedState() {
-            return cur;
+        public State cachedState() {
+            return cachedState;
         }
     }
 
@@ -94,7 +94,7 @@ public abstract class BasicBruteforceSolver extends BruteforceSolver<State> {
             }
 
             @Override
-            public State topState() {
+            public State peekState() {
                 return collection.peekLast();
             }
         }
@@ -120,7 +120,7 @@ public abstract class BasicBruteforceSolver extends BruteforceSolver<State> {
             }
 
             @Override
-            public State topState() {
+            public State peekState() {
                 return collection.peekFirst();
             }
 

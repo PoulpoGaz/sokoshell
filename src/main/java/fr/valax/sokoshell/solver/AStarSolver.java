@@ -22,7 +22,7 @@ public class AStarSolver extends BruteforceSolver<WeightedState> {
     protected void addState(int crateIndex, int crateX, int crateY, int crateDestX, int crateDestY) {
         final int i = map.topLeftReachablePosition(crateX, crateY, crateDestX, crateDestY);
         // The new player position is the crate position
-        WeightedState s = toProcess.curCachedState().child(i, crateIndex,crateDestY * map.getWidth() + crateDestX);
+        WeightedState s = toProcess.cachedState().child(i, crateIndex,crateDestY * map.getWidth() + crateDestX);
 
         if (processed.add(s)) {
             toProcess.addState(s);

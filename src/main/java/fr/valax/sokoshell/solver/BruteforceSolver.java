@@ -94,7 +94,7 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
                 break;
             }
 
-            S state = toProcess.popAndCacheState();
+            S state = toProcess.peekAndCacheState();
             map.addStateCratesAndAnalyse(state);
 
             if (map.isCompletedWith(state)) {
@@ -138,7 +138,7 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
     protected abstract void addInitialState(Level level);
 
     private void addChildrenStates() {
-        S state = toProcess.curCachedState();
+        S state = toProcess.cachedState();
         map.findReachableCases(state.playerPos());
 
         int[] cratesIndices = state.cratesIndices();
@@ -301,7 +301,7 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
 
     @Override
     public State currentState() {
-        return toProcess.curCachedState();
+        return toProcess.cachedState();
     }
 
     @Override

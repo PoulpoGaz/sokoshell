@@ -13,7 +13,7 @@ public class SolverPriorityQueue implements SolverCollection<WeightedState> {
      */
     private final List<Node> nodes = new ArrayList<>();
 
-    private WeightedState cur;
+    private WeightedState cachedState;
 
     private int parent(int i) {
         assert i != 0;
@@ -86,19 +86,19 @@ public class SolverPriorityQueue implements SolverCollection<WeightedState> {
     }
 
     @Override
-    public WeightedState topState() {
+    public WeightedState peekState() {
         return nodes.get(0).state;
     }
 
     @Override
-    public WeightedState popAndCacheState() {
-        cur = popState();
-        return cur;
+    public WeightedState peekAndCacheState() {
+        cachedState = popState();
+        return cachedState;
     }
 
     @Override
-    public WeightedState curCachedState() {
-        return cur;
+    public WeightedState cachedState() {
+        return cachedState;
     }
 
     /**
