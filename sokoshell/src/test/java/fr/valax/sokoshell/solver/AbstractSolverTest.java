@@ -48,7 +48,7 @@ public class AbstractSolverTest {
 
         Assertions.assertNotNull(pack);
         Assertions.assertNotNull(pack.levels());
-        Assertions.assertNotEquals(0, pack.nLevel());
+        Assertions.assertNotEquals(0, pack.nLevels());
 
 
         BruteforceSolver solver = BasicBruteforceSolver.newBFSSolver();
@@ -73,7 +73,7 @@ public class AbstractSolverTest {
 
         Assertions.assertNotNull(pack);
         Assertions.assertNotNull(pack.levels());
-        Assertions.assertNotEquals(0, pack.nLevel());
+        Assertions.assertNotEquals(0, pack.nLevels());
 
         MapRenderer mr = new MapRenderer();
         mr.setStyle(new MapStyleReader().read(Path.of("styles/isekai/isekai.style")));
@@ -103,7 +103,7 @@ public class AbstractSolverTest {
 
         Assertions.assertNotNull(pack);
         Assertions.assertNotNull(pack.levels());
-        Assertions.assertNotEquals(0, pack.nLevel());
+        Assertions.assertNotEquals(0, pack.nLevels());
 
         MapRenderer mr = new MapRenderer();
         mr.setStyle(new MapStyleReader().read(Path.of("styles/isekai/isekai.style")));

@@ -6,6 +6,7 @@ import fr.poulpogaz.json.JsonPrettyWriter;
 import fr.poulpogaz.json.JsonReader;
 import fr.valax.sokoshell.SokoShellHelper;
 import fr.valax.sokoshell.graphics.MapRenderer;
+import org.dom4j.rule.Mode;
 
 import java.io.IOException;
 import java.util.*;
@@ -71,8 +72,6 @@ public class SolverReport {
     private final SolverParameters parameters;
     private final SolverStatistics statistics;
 
-    private final List<State> states;
-
     private final String status;
 
     private final List<Move> fullSolution;
@@ -84,7 +83,6 @@ public class SolverReport {
                         String status) {
         this.parameters = Objects.requireNonNull(parameters);
         this.statistics = Objects.requireNonNull(statistics);
-        this.states = states;
         this.status = Objects.requireNonNull(status);
 
         if (status.equals(SOLUTION_FOUND)) {
@@ -92,7 +90,31 @@ public class SolverReport {
                 throw new IllegalArgumentException("SolverStatus is SOLUTION_FOUND. You must give the solution");
             }
 
-            fullSolution = createFullSolution();
+            fullSolution = createFullSolution(states);
+
+            int n = 0;
+            for (Move m : fullSolution) {
+                if (m.moveCrate()) {
+                    n++;
+                }
+            }
+            numberOfPushes = n;
+        } else {
+            numberOfPushes = -1;
+            fullSolution = null;
+        }
+    }
+
+    private SolverReport(SolverParameters parameters,
+                        SolverStatistics statistics,
+                        String status,
+                        List<Move> moves) {
+        this.parameters = Objects.requireNonNull(parameters);
+        this.statistics = Objects.requireNonNull(statistics);
+        this.status = Objects.requireNonNull(status);
+
+        if (status.equals(SOLUTION_FOUND)) {
+            fullSolution = Objects.requireNonNull(moves);
 
             int n = 0;
             for (Move m : fullSolution) {
@@ -113,7 +135,7 @@ public class SolverReport {
      *
      * @return the full solution
      */
-    private List<Move> createFullSolution() {
+    private List<Move> createFullSolution(List<State> states) {
         Level level = parameters.getLevel();
         fr.valax.sokoshell.solver.Map map = level.getMap();
 
@@ -226,22 +248,15 @@ public class SolverReport {
         jpw.key("parameters");
         parameters.append(jpw);
 
-        if (states != null) {
+        if (fullSolution != null) {
             jpw.key("solution").beginArray();
 
-            for (State s : states) {
+            for (Move m : fullSolution) {
                 jpw.beginObject();
 
                 jpw.setInline(JsonPrettyWriter.Inline.ALL);
-                jpw.field("player", s.playerPos());
-
-                jpw.key("crates").beginArray();
-
-                for (int crate : s.cratesIndices()) {
-                    jpw.value(crate);
-                }
-
-                jpw.endArray();
+                jpw.field("move", m.direction().toString());
+                jpw.field("crate", m.moveCrate());
 
                 jpw.endObject();
                 jpw.setInline(JsonPrettyWriter.Inline.NONE);
@@ -263,22 +278,17 @@ public class SolverReport {
 
         String key = jr.nextKey();
 
-        List<State> states = null;
+        List<Move> moves = null;
         if (key.equals("solution")) {
             jr.beginArray();
 
-            states = new ArrayList<>();
-            State last = null;
+            moves = new ArrayList<>();
             while (!jr.isArrayEnd()) {
                 jr.beginObject();
 
-                int player = jr.assertKeyEquals("player").nextInt();
-                jr.assertKeyEquals("crates");
-                int[] crates = readIntArray(jr);
-
-                State state = new State(player, crates, last);
-                states.add(state);
-                last = state;
+                String move = jr.assertKeyEquals("move").nextString();
+                boolean crate = jr.assertKeyEquals("crate").nextBoolean();
+                moves.add(Move.of(Direction.valueOf(move), crate));
 
                 jr.endObject();
             }
@@ -291,7 +301,7 @@ public class SolverReport {
 
         SolverStatistics stats = SolverStatistics.fromJson(jr);
 
-        return new SolverReport(parameters, stats, states, status);
+        return new SolverReport(parameters, stats, status, moves);
     }
 
     private static int[] readIntArray(IJsonReader jr) throws JsonException, IOException {
@@ -340,16 +350,6 @@ public class SolverReport {
      */
     public SolverStatistics getStatistics() {
         return statistics;
-    }
-
-    /**
-     * If the sokoban was solved, this report contains the solution as a sequence
-     * of states. It describes all pushes made by the player
-     *
-     * @return the solution or {@code null} if the sokoban wasn't solved
-     */
-    public List<State> getStates() {
-        return states;
     }
 
     /**

@@ -189,7 +189,7 @@ public abstract class AbstractCommand implements JLineCommand {
             if (i < 0) {
                 throw new InvalidArgument("No level selected");
 
-            } else if (i > selectedPack.nLevel()) {
+            } else if (i > selectedPack.nLevels()) {
                 throw new InvalidArgument("Index out of bounds");
             } else {
                 return pack.getLevel(i);
@@ -197,7 +197,7 @@ public abstract class AbstractCommand implements JLineCommand {
         } else {
             int i = index - 1;
 
-            if (i < 0 || i >= pack.nLevel()) {
+            if (i < 0 || i >= pack.nLevels()) {
                 throw new InvalidArgument("Index out of bounds");
             }
 

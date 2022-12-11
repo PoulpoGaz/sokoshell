@@ -164,7 +164,7 @@ public class SokoShellHelper {
     }
 
     public Level getSelectedLevel() {
-        if (selectedPack == null || selectedLevel < 0 || selectedLevel >= selectedPack.nLevel()) {
+        if (selectedPack == null || selectedLevel < 0 || selectedLevel >= selectedPack.nLevels()) {
             return null;
         } else {
             return selectedPack.getLevel(selectedLevel);
@@ -175,7 +175,7 @@ public class SokoShellHelper {
      * @return -1 if there is no selected level otherwise the index of the selected level
      */
     public int getSelectedLevelIndex() {
-        if (selectedPack == null || selectedLevel < 0 || selectedLevel >= selectedPack.nLevel()) {
+        if (selectedPack == null || selectedLevel < 0 || selectedLevel >= selectedPack.nLevels()) {
             return -1;
         } else {
             return selectedLevel;

@@ -19,6 +19,8 @@ public class State {
     /**
      * @param minSize minSize is the number of tile in the map
      */
+    // TODO: zobrist values are static but it can be a problem
+    //       when the solver is running and the user load a new pack
     public static void initZobristValues(int minSize) {
         int i;
         if (zobristValues == null) {

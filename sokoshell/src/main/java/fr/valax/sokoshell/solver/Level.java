@@ -5,8 +5,7 @@ import fr.poulpogaz.json.JsonPrettyWriter;
 import fr.valax.sokoshell.utils.BuilderException;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author darth-mole
@@ -265,9 +264,124 @@ public class Level {
                 throw new BuilderException("Player is on a solid tile");
             }
 
+            formatLevel();
             Map m = new Map(map, width, height);
 
             return new Level(m, playerY * width + playerX, index);
+        }
+
+        /**
+         * Format the level for the solver. Some levels aren't surrounded by wall
+         * or have rooms that are inaccessible. This method removes these rooms
+         * and add wall if necessary.
+         */
+        private void formatLevel() {
+            Set<Integer> visited = new HashSet<>();
+
+            int i = 0;
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    if (map[y][x] != Tile.WALL && !visited.contains(i)) {
+                        addWallIfNecessary(x, y, visited);
+                    }
+
+                    i++;
+                }
+            }
+
+            surroundByWallIfNecessary();
+        }
+
+        private void addWallIfNecessary(int x, int y, Set<Integer> visited) {
+            boolean needWall = true;
+
+            Set<Integer> localVisited = new HashSet<>();
+            Stack<Integer> toVisit = new Stack<>();
+            toVisit.add(y * width + x);
+            localVisited.add(toVisit.peek());
+
+            while (!toVisit.isEmpty()) {
+                int i = toVisit.pop();
+
+                int x2 = i % width;
+                int y2 = i / width;
+
+                if (x2 == playerX && y2 == playerY) {
+                    needWall = false;
+                }
+
+                for (Direction d : Direction.VALUES) {
+                    int x3 = x2 + d.dirX();
+                    int y3 = y2 + d.dirY();
+
+                    if (x3 < 0 || x3 >= width || y3 < 0 || y3 >= height) {
+                        continue;
+                    }
+
+                    int i3 = y3 * width + x3;
+
+                    if (map[y3][x3] != Tile.WALL && localVisited.add(i3)) {
+                        visited.add(i3);
+                        toVisit.push(i3);
+                    }
+                }
+            }
+
+            if (needWall) {
+                for (Integer i : localVisited) {
+                    int x2 = i % width;
+                    int y2 = i / width;
+
+                    map[y2][x2] = Tile.WALL;
+                }
+            }
+        }
+
+        private void surroundByWallIfNecessary() {
+            int left = 0;
+            int right = 0;
+            int top = 0;
+            int bottom = 0;
+
+            for (int y = 0; y < height; y++) {
+                if (map[y][0] != Tile.WALL) {
+                    left = 1;
+                }
+                if (map[y][width - 1] != Tile.WALL) {
+                    right = 1;
+                }
+            }
+
+            for (int x = 0; x < width; x++) {
+                if (map[0][x] != Tile.WALL) {
+                    top = 1;
+                }
+                if (map[height - 1][x] != Tile.WALL) {
+                    bottom = 1;
+                }
+            }
+
+            if (left == 0 && right == 0 && top == 0 && bottom == 0) {
+                return;
+            }
+
+            Tile[][] newTiles = new Tile[height + top + bottom][width + right + left];
+
+            for (int y = 0; y < height + top + bottom; y++) {
+                for (int x = 0; x < width + right + left; x++) {
+                    if (x >= left && y >= top && x < width + left && y < height + top) {
+                        newTiles[y][x] = map[y - top][x - left];
+                    } else {
+                        newTiles[y][x] = Tile.WALL;
+                    }
+                }
+            }
+
+            map = newTiles;
+            width += right + left;
+            height += top + bottom;
+            playerX += left;
+            playerY += top;
         }
 
         /**

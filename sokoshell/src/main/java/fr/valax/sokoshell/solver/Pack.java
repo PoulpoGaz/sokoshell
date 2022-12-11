@@ -172,7 +172,7 @@ public final class Pack {
      *
      * @return the number of level in this pack
      */
-    public int nLevel() {
+    public int nLevels() {
         return levels.size();
     }
 

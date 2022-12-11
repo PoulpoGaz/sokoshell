@@ -45,5 +45,5 @@ if [ $DEBUG -ne 0 ]
 then
   java -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005 -Djol.magicFieldOffset=true $JVM_ARGS $*
 else
-  java -Djol.magicFieldOffset=true $JVM_ARGS $*
+  java -Xmx6G -Djol.magicFieldOffset=true $JVM_ARGS $*
 fi
