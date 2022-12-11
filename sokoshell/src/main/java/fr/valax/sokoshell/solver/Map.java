@@ -42,6 +42,11 @@ public class Map {
     private final int height;
 
     /**
+     * Number of targets on the map. Initialized to minus, first calculated in getter.
+     */
+    private int targetCount = -1;
+
+    /**
      * Tiles that can be 'target' or 'floor'
      */
     private TileInfo[] floors;
@@ -1047,5 +1052,22 @@ public class Map {
                 forEachNotWall(reset);
             }
         };
+    }
+
+    /**
+     * @return The number of targets on the map.
+     */
+    public int getTargetCount() {
+        if (targetCount == -1) {
+            targetCount = 0;
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    if (content[y][x].isTarget()) {
+                        targetCount++;
+                   }
+               }
+           }
+        }
+        return targetCount;
     }
 }

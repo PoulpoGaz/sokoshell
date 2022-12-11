@@ -17,13 +17,13 @@ public class SimpleHeuristicTest {
     @Test
     void distancesTest() throws java.io.IOException, JsonException {
 
-        Pack pack = PackReaders.read(Path.of("TIPEex.8xv"), false);
+        Pack pack = PackReaders.read(Path.of("../levels/TIPEex.8xv"), false);
 
         Level level = pack.getLevel(0);
         Map map = level.getMap();
         //map.removeStateCrates(level.getInitialState());
         MapRenderer mR = new MapRenderer();
-        mR.setStyle(new MapStyleReader().read(Path.of("styles/isekai/isekai.style")));
+        mR.setStyle(new MapStyleReader().read(Path.of("../styles/isekai/isekai.style")));
         //mR.setShowDeadTiles(true);
         //mR.sysPrint(level);
 
