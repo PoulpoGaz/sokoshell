@@ -148,7 +148,18 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
             int crateX = map.getX(crate);
             int crateY = map.getY(crate);
 
-            Tunnel tunnel = map.getAt(crateX, crateY).getTunnel();
+            TileInfo crateTile = map.getAt(crate);
+
+            // check if the crate is already at his destination
+            if (map.isGoalRoomLevel() && crateTile.isInARoom()) {
+                Room r = crateTile.getRoom();
+
+                if (r.isGoalRoom() && r.getPackingOrderIndex() >= 0) {
+                    continue;
+                }
+            }
+
+            Tunnel tunnel = crateTile.getTunnel();
             if (tunnel != null) {
                 addChildrenStatesInTunnel(crateIndex, map.getAt(crateX, crateY));
             } else {

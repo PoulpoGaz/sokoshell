@@ -586,7 +586,7 @@ public class Map {
 
         if (isGoalRoomLevel) {
             for (Room r : rooms) {
-                if (!computePackingOrder(r)) {
+                if (r.isGoalRoom() && !computePackingOrder(r)) {
                     isGoalRoomLevel = false; // failed to compute packing order for a room...
                     break;
                 }
@@ -701,6 +701,8 @@ public class Map {
 
         if (!newFrontier.isEmpty()) {
             findAccessibleCrates(newFrontier, lastFrontier, out);
+        } else {
+            lastFrontier.clear();
         }
     }
 

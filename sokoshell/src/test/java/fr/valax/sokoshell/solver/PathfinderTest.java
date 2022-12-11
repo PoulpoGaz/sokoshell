@@ -6,7 +6,7 @@ import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class PathFinderTest {
+public class PathfinderTest {
 
     @Test
     void playerTest() {
@@ -140,5 +140,20 @@ public class PathFinderTest {
                 .findPath(map.getAt(7, 4), map.getAt(5, 1), map.getAt(7, 3), map.getAt(7, 2));
         assertTrue(node.player().isAt(5, 1));
         assertTrue(node.crate().isAt(7, 2));
+    }
+
+    @Test
+    void test2() {
+        Level level = TestUtils.getLevel(Path.of("levels8xv/Original.8xv"), 0);
+
+        Map map = level.getMap();
+        map.removeStateCrates(level.getInitialState());
+
+        map.addStateCrates(new State(105, new int[] {177, 216, 240, 145, 126, 220, 196, 125}, 0, null));
+
+        int playerX = 105 % map.getWidth();
+        int playerY = 105 / map.getWidth();
+
+        Pathfinder.Node node = Pathfinder.findPath(map.getAt(playerX, playerY), null, map.getAt(7, 3), map.getAt(7, 2));
     }
 }

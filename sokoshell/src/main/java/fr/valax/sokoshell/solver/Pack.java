@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -71,8 +72,16 @@ public final class Pack {
             JsonPrettyWriter jpw = new JsonPrettyWriter(bw);
 
             jpw.beginObject();
-            jpw.field("pack", name);
-            jpw.field("author", author);
+            if (name != null) {
+                jpw.field("pack", name);
+            } else {
+                jpw.nullField("pack");
+            }
+            if (author != null) {
+                jpw.field("author", author);
+            } else {
+                jpw.nullField("author");
+            }
 
             for (Level level : levels) {
                 if (level.hasReport()) {
@@ -103,10 +112,26 @@ public final class Pack {
             JsonReader jr = new JsonReader(br);
 
             jr.beginObject();
-            String pack = jr.assertKeyEquals("pack").nextString();
-            String author = jr.assertKeyEquals("author").nextString();
+            jr.assertKeyEquals("pack");
 
-            if (pack.equals(name) && author.equals(this.author)) {
+            String pack;
+            if (jr.hasNextString()) {
+                pack = jr.nextString();
+            } else {
+                jr.nextNull();
+                pack = null;
+            }
+
+            jr.assertKeyEquals("author");
+            String author;
+            if (jr.hasNextString()) {
+                author = jr.nextString();
+            } else {
+                jr.nextNull();
+                author = null;
+            }
+
+            if (Objects.equals(pack, name) && Objects.equals(author, this.author)) {
 
                 while (!jr.isObjectEnd()) {
                     int level = Integer.parseInt(jr.nextKey());

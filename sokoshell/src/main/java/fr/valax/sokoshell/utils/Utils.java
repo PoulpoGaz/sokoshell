@@ -70,6 +70,18 @@ public class Utils {
         }
     }
 
+    public static String getFileName(Path path) {
+        String filename = path.getFileName().toString();
+
+        int dot = filename.lastIndexOf('.');
+
+        if (dot < 0) {
+            return filename;
+        } else {
+            return filename.substring(0, dot);
+        }
+    }
+
     public static OptionalInt parseInt(String str) {
         try {
             return OptionalInt.of(Integer.parseInt(str));

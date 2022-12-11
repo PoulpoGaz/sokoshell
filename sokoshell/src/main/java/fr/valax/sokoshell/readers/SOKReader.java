@@ -1,14 +1,18 @@
 package fr.valax.sokoshell.readers;
 
+import fr.poulpogaz.json.JsonException;
 import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.solver.Map;
 import fr.valax.sokoshell.solver.Pack;
 import fr.valax.sokoshell.solver.Tile;
+import fr.valax.sokoshell.utils.Utils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,9 +24,32 @@ public class SOKReader implements Reader {
     private static final String SYMBOLS = "#@+$*. -_";
 
     @Override
+    public Pack read(Path path, boolean loadSolution) throws IOException, JsonException {
+        try (BufferedReader br = Files.newBufferedReader(path)) {
+            List<Level> levels = readLevels(br);
+
+            Pack p = new Pack(Utils.getFileName(path), null, levels);
+            p.setSourcePath(path);
+
+            if (loadSolution) {
+                Path solutionPath = Path.of(path + ".solutions.json.gz");
+                p.readSolutions(solutionPath);
+            }
+
+            return p;
+        }
+    }
+
+    @Override
     public Pack read(InputStream is) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(is));
 
+        List<Level> levels = readLevels(br);
+
+        return new Pack(null, null, levels);
+    }
+
+    private List<Level> readLevels(BufferedReader br) throws IOException {
         List<Level> levels = new ArrayList<>();
 
         int i = 0;
@@ -39,9 +66,7 @@ public class SOKReader implements Reader {
             }
         }
 
-        br.close();
-
-        return new Pack(null, null, levels);
+        return levels;
     }
 
     private static boolean isSokobanLine(String line) {

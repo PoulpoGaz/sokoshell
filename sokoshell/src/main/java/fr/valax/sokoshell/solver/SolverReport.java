@@ -155,25 +155,16 @@ public class SolverReport {
             StateDiff diff = getStateDiff(map, current, next);
 
             Pathfinder.Node node = Pathfinder.findPath(
-                    player, diff.playerDest(),
+                    player, null,
                     diff.crate(), diff.crateDest());
 
             if (node == null) {
                 throw canFindPathException(map, current, next);
             }
 
-            boolean newPlayerPosSet = false;
+            player = node.player();
             while (node.parent() != null) {
-                if (!newPlayerPosSet) {
-                    if (node.move().moveCrate()) {
-                        player = node.player();
-                        temp.add(node.move());
-                        newPlayerPosSet = true;
-                    }
-                } else {
-                    temp.add(node.move());
-                }
-
+                temp.add(node.move());
                 node = node.parent();
             }
 
@@ -235,9 +226,11 @@ public class SolverReport {
         return new IllegalStateException("""
                 Can't find path between two states:
                 %s
+                (%s)
                 and
                 %s
-                """.formatted(map1, map2));
+                (%s)
+                """.formatted(map1, current, map2, next));
     }
 
 

@@ -508,7 +508,7 @@ Title: LOMA01-01
 ###    #
    #  #
    ####
-Author: François Marques
+Author: FranÃ§ois Marques
 Title: LOMA01-02
 
   #####
@@ -616,7 +616,7 @@ Title: LOMA01-10
 ## # $.##
  #   ###
  #####
-Author: François Marques
+Author: FranÃ§ois Marques
 Title: LOMA02-01
 
  #########
@@ -728,7 +728,7 @@ Title: LOMA02-10
 #  @ #
 #  ###
 ####
-Author: François Marques
+Author: FranÃ§ois Marques
 Title: LOMA03-01
 
  #######
@@ -863,7 +863,7 @@ Title: LOMA04-02
  # .  #
  ###  #
    ####
-Author: François Marques
+Author: FranÃ§ois Marques
 Title: LOMA04-03
 
   ###
@@ -964,7 +964,7 @@ Title: LOMA05-01
 ##  ..  #
   ###   #
     #####
-Author: François Marques
+Author: FranÃ§ois Marques
 Title: LOMA05-02
 
   #####
@@ -1074,7 +1074,7 @@ Title: LOMA05-10
   ##  #
    #  #
    ####
-Author: François Marques
+Author: FranÃ§ois Marques
 Title: LOMA06-01
 
     ####
@@ -1190,7 +1190,7 @@ Title: LOMA06-10
   # .###
   # @#
   ####
-Author: François Marques
+Author: FranÃ§ois Marques
 Title: LOMA07-01
 
 ########
@@ -1309,7 +1309,7 @@ Title: LOMA07-10
 ####* @ #
    #    #
    ######
-Author: François Marques
+Author: FranÃ§ois Marques
 Title: LOMA08-01
 
   ####
@@ -1420,7 +1420,7 @@ Title: LOMA08-10
 ###  #
   #  #
   ####
-Author: François Marques
+Author: FranÃ§ois Marques
 Title: LOMA09-01
 
  #####
@@ -1543,7 +1543,7 @@ Title: LOMA10-01
   ##  #
    #  #
    ####
-Author: François Marques
+Author: FranÃ§ois Marques
 Title: LOMA10-02
 
  ########
@@ -3976,7 +3976,7 @@ color green
 Collection: NaboKosmos
 AuthorMail: aymeric.du-peloux@gadz.org
 AuthorPage: http://www.multimania.com/nabokos/
-Author: François Marques
+Author: FranÃ§ois Marques
 AuthorMail: Francois.Marques@freesbee.fr
 AuthorPage: http://sokoban.online.fr/
 Difficulty: 7
@@ -4428,7 +4428,7 @@ Comment-End:
   #  #
   ####
 Author: Aymeric du Peloux
-Title: Bonzaï
+Title: BonzaÃ¯
 Comment:
 color blue
 Collection: PicoKosmos
@@ -4715,7 +4715,7 @@ Comment-End:
 ###  ##
   ####
 Author: Aymeric du Peloux
-Title: Big Hanoï
+Title: Big HanoÃ¯
 Comment:
 color red
 Collection: PicoKosmos
