@@ -634,7 +634,7 @@ public class CommandLine {
                 help = new OptionSpec(HELP_OPTION, null);
 
                 if (builder.addOption(help) != null) {
-                    thrExc("Two option have same name");
+                    thrExc("Two option have same name in %s", command.getName());
                 }
             } else {
                 help = null;
@@ -674,7 +674,7 @@ public class CommandLine {
                     OptionSpec old = builder.addOption(optGroup, spec);
 
                     if (old != null) {
-                        thrExc("Two option have same name");
+                        thrExc("Two option have same name in %s", getName());
                     }
 
                 } else if (field.isAnnotationPresent(VaArgs.class)) {

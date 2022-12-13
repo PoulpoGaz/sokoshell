@@ -24,7 +24,7 @@ public class PrettyTable {
     public static final Skin DEFAULT = new Skin("│", "─", "┼");
 
     private Skin skin = DEFAULT;
-    private List<PrettyColumn<?>> columns;
+    private final List<PrettyColumn<?>> columns;
 
     private boolean showHeader = true;
 

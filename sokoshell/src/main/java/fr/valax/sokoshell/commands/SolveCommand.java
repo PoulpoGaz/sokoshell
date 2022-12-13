@@ -62,6 +62,7 @@ public class SolveCommand extends AbstractCommand {
         List<Level> levels = getLevels(this.levels, packs);
 
         if (levels.isEmpty()) {
+            out.println("No task added to task list");
             return SUCCESS;
         }
 

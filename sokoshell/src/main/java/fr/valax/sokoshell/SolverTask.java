@@ -154,13 +154,22 @@ public class SolverTask {
      */
     public synchronized void stop() {
         if (taskStatus == TaskStatus.RUNNING) {
-            changeStatus(TaskStatus.STOPPED);
-
             solver.stop();
 
             if (trackerFuture != null) {
                 trackerFuture.cancel(false);
             }
+
+            // wait until solver properly finish his task.
+            while (solver.isRunning()) {
+                Thread.onSpinWait();
+
+                if (Thread.interrupted()) {
+                    throw new RuntimeException("It seems the solver couldn't be cancelled properly.");
+                }
+            }
+
+            changeStatus(TaskStatus.STOPPED);
         } else if (taskStatus == TaskStatus.PENDING) {
             changeStatus(TaskStatus.CANCELED);
         }

@@ -41,7 +41,7 @@ public class CancelCommand extends AbstractCommand {
             }
         }
 
-        return 0;
+        return SUCCESS;
     }
 
     private void stop(SolverTask task, PrintStream err) {

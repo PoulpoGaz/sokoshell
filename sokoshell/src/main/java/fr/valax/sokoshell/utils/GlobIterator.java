@@ -93,7 +93,7 @@ public class GlobIterator<T> implements Iterator<T> {
                     regex.append(next);
                 }
                 case '[' -> {
-                    regex.append('[');
+                    regex.append("\\[");
 
                     if (charAt(glob, i) == '!') {
                         regex.append("^");

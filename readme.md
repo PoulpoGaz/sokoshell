@@ -13,8 +13,8 @@ For IntelliJ IDEA:
 
 ### TODO
 
-* A*
-* pushes lower bound calculation
+* A*:
+  * pushes lower bound calculation
 * deadlocks:
   * corral
   * closed diagonals

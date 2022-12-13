@@ -21,7 +21,7 @@ public class ListReports extends TableCommand {
     @Option(names = {"p", "pack"}, hasArgument = true, argName = "Pack name", allowDuplicate = true)
     private String[] packName;
 
-    @Option(names = {"i", "index"}, hasArgument = true, argName = "Level index")
+    @Option(names = {"l", "level"}, hasArgument = true, argName = "Level index")
     private String levelIndex;
 
     @Option(names = {"t", "task-index"}, hasArgument = true, argName = "Task index")

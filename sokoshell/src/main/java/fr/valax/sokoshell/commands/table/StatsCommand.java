@@ -25,15 +25,15 @@ public class StatsCommand extends TableCommand {
     @Option(names = {"p", "pack"}, hasArgument = true, argName = "Pack name")
     protected String pack;
 
-    @Option(names = {"i", "index"}, hasArgument = true, argName = "Level index")
-    protected Integer index;
+    @Option(names = {"l", "level"}, hasArgument = true, argName = "Level index")
+    protected Integer level;
 
-    @Option(names = {"s", "solution"}, hasArgument = true, argName = "Solution index")
-    private Integer solution;
+    @Option(names = {"R", "report"}, hasArgument = true, argName = "Report index")
+    private Integer report;
 
     @Override
     protected int executeImpl(InputStream in, PrintStream out, PrintStream err) throws InvalidArgument {
-        Level l = getLevel(pack, index);
+        Level l = getLevel(pack, level);
 
         if (!l.hasReport()) {
             err.println("Not solved");
@@ -41,8 +41,8 @@ public class StatsCommand extends TableCommand {
         }
 
         SolverReport s;
-        if (solution != null) {
-            s = l.getSolverReport(solution);
+        if (report != null) {
+            s = l.getSolverReport(report);
 
             if (s == null) {
                 err.println("Index out of bounds");
