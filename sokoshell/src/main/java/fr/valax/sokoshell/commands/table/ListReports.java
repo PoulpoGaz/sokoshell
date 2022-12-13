@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ListReports extends TableCommand {
 
@@ -26,6 +27,9 @@ public class ListReports extends TableCommand {
 
     @Option(names = {"t", "task-index"}, hasArgument = true, argName = "Task index")
     private Integer taskIndex;
+
+    @Option(names = {"s", "stats"})
+    private boolean stats;
 
     @Override
     public int executeImpl(InputStream in, PrintStream out, PrintStream err) throws InvalidArgument {
@@ -39,7 +43,7 @@ public class ListReports extends TableCommand {
                 err.println("This task is running or has no solution");
                 return FAILURE;
             } else {
-                printTable(out, err, task.getSolutions());
+                list(out, err, task.getSolutions());
             }
         } else {
             List<Level> levels = getLevels(levelIndex, packName);
@@ -49,13 +53,18 @@ public class ListReports extends TableCommand {
                 solverReports.addAll(level.getSolverReports());
             }
 
-            printTable(out, err, solverReports);
+            list(out, err, solverReports);
         }
 
         return SUCCESS;
     }
 
-    private void printTable(PrintStream out, PrintStream err, List<SolverReport> solverReports) {
+    private void list(PrintStream out, PrintStream err, List<SolverReport> solverReports) {
+        if (solverReports.isEmpty()) {
+            out.println("No report found");
+            return;
+        }
+
         PrettyTable table = new PrettyTable();
 
         PrettyColumn<String> packName = new PrettyColumn<>("Pack");
@@ -95,6 +104,144 @@ public class ListReports extends TableCommand {
 
         printTable(out, err, table);
         out.printf("%nNumber of solutions: %d%n", solverReports.size());
+
+        if (stats) {
+            out.println();
+            // use stream api to simplify printStats
+            printStats(out, solverReports.stream().filter(SolverReport::isSolved).collect(Collectors.toList()));
+        }
+    }
+
+    /**
+     * Very repetitive method...
+     */
+    private void printStats(PrintStream out, List<SolverReport> solverReports) {
+        int minState = Integer.MAX_VALUE;
+        SolverReport minStateReport = null;
+        int maxState = 0;
+        SolverReport maxStateReport = null;
+        long stateSum = 0; // a long is probably is good idea here
+        // number of report that have precise statistics about the number of state explored
+        int numReportWithState = 0;
+
+        long minTime = Integer.MAX_VALUE;
+        SolverReport minTimeReport = null;
+        long maxTime = 0;
+        SolverReport maxTimeReport = null;
+        long timeSum = 0;
+
+        int minMoves = Integer.MAX_VALUE;
+        SolverReport minMovesReport = null;
+        int maxMoves = 0;
+        SolverReport maxMovesReport = null;
+        int movesSum = 0;
+
+        int minPushes = Integer.MAX_VALUE;
+        SolverReport minPushesReport = null;
+        int maxPushes = 0;
+        SolverReport maxPushesReport = null;
+        int pushesSum = 0;
+
+        for (SolverReport report : solverReports) {
+            SolverStatistics stats = report.getStatistics();
+
+            List<SolverStatistics.InstantStatistic> iStats = stats.getStatistics();
+            if (iStats != null && iStats.size() > 0) {
+                int state = iStats.get(iStats.size() - 1).nodeExplored();
+                if (state < minState) {
+                    minState = state;
+                    minStateReport = report;
+                }
+                if (state > maxState) {
+                    maxState = state;
+                    maxStateReport = report;
+                }
+                stateSum += state;
+
+                numReportWithState++;
+            }
+
+            long time = stats.getTimeEnded() - stats.getTimeStarted();
+            if (time < minMoves) {
+                minTime = time;
+                minTimeReport = report;
+            }
+            if (time > maxMoves) {
+                maxTime = time;
+                maxTimeReport = report;
+            }
+            timeSum += time;
+
+            if (report.numberOfMoves() < minMoves) {
+                minMoves = report.numberOfMoves();
+                minMovesReport = report;
+            }
+            if (report.numberOfMoves() > maxMoves) {
+                maxMoves = report.numberOfMoves();
+                maxMovesReport = report;
+            }
+            movesSum += report.numberOfMoves();
+
+            if (report.numberOfPushes() < minPushes) {
+                minPushes = report.numberOfPushes();
+                minPushesReport = report;
+            }
+            if (report.numberOfPushes() > maxPushes) {
+                maxPushes = report.numberOfPushes();
+                maxPushesReport = report;
+            }
+            pushesSum += report.numberOfPushes();
+        }
+
+
+        out.println("Statics below are valid for solved levels");
+
+        // finally print!
+        if (numReportWithState > 0) {
+            out.println("* State statistics *");
+            out.printf("Total number of state explored: %d%n", stateSum);
+            out.printf("Average state explored per report: %d%n", stateSum / numReportWithState);
+
+            Level l = minStateReport.getLevel();
+            out.printf("Level with the least explored state: %d - %s #%d%n", minState, l.getPack().name(), l.getIndex() + 1);
+
+            l = maxStateReport.getLevel();
+            out.printf("Level with the most explored state: %d - %s #%d%n", maxState, l.getPack().name(), l.getIndex() + 1);
+            out.println();
+        }
+
+
+        out.println("* Time statistics *");
+        out.printf("Total run time: %s%n", Utils.prettyDate(timeSum));
+        out.printf("Average run time per report: %s%n", Utils.prettyDate(timeSum / solverReports.size()));
+
+        Level l = minTimeReport.getLevel();
+        out.printf("Fastest solved level: in %s - %s #%d%n", Utils.prettyDate(minTime), l.getPack().name(), l.getIndex() + 1);
+
+        l = maxTimeReport.getLevel();
+        out.printf("Slowest solved level: in %s - %s #%d%n", Utils.prettyDate(maxTime), l.getPack().name(), l.getIndex() + 1);
+        out.println();
+
+
+        out.println("* Solution length (moves) *");
+        out.printf("Average solution length per report: %d%n", movesSum / solverReports.size());
+
+        l = minMovesReport.getLevel();
+        out.printf("Level with shortest solution: %s moves - %s #%d%n", minMoves, l.getPack().name(), l.getIndex() + 1);
+
+        l = maxMovesReport.getLevel();
+        out.printf("Level with longest solution: %s moves - %s #%d%n", maxMoves, l.getPack().name(), l.getIndex() + 1);
+        out.println();
+
+
+        out.println("* Solution length (pushes) *");
+        out.printf("Average solution length per report: %d%n", pushesSum / solverReports.size());
+
+        l = minPushesReport.getLevel();
+        out.printf("Level with shortest solution: %s pushes - %s #%d%n", minPushes, l.getPack().name(), l.getIndex() + 1);
+
+        l = maxPushesReport.getLevel();
+        out.printf("Level with longest solution: %s pushes - %s #%d%n", maxPushes, l.getPack().name(), l.getIndex() + 1);
     }
 
     @Override
