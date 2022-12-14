@@ -7,13 +7,19 @@ import java.util.*;
  */
 public class Pathfinder {
 
-    private static final AStar cratePlayerAStar = new AStarFull();
-    private static final AStar crateAStar = new AStarCrateOnly();
-    private static final AStar playerAStar = new AStarPlayerOnly();
+    private final AStar cratePlayerAStar = new AStarFull();
+    private final AStar crateAStar = new AStarCrateOnly();
+    private final AStar playerAStar = new AStarPlayerOnly();
 
+    private PriorityQueue<Node> queue;
+    private Set<Node> visited;
 
+    public Pathfinder() {
+        queue = new PriorityQueue<>();
+        visited = new HashSet<>();
+    }
 
-    public static boolean hasPath(TileInfo player, TileInfo playerDest, TileInfo crate, TileInfo crateDest) {
+    public boolean hasPath(TileInfo player, TileInfo playerDest, TileInfo crate, TileInfo crateDest) {
         return findPath(player, playerDest, crate, crateDest) != null;
     }
 
@@ -27,7 +33,7 @@ public class Pathfinder {
      * @param crateDest optional crate destination. If not {@code null} then crateDest is not {@code null}
      * @return the path between the two points
      */
-    public static Node findPath(TileInfo playerStart, TileInfo playerDest, TileInfo crateStart, TileInfo crateDest) {
+    public Node findPath(TileInfo playerStart, TileInfo playerDest, TileInfo crateStart, TileInfo crateDest) {
         Objects.requireNonNull(playerStart, "Player start can't be null");
 
         if (playerStart.isSolid()) {
@@ -76,19 +82,20 @@ public class Pathfinder {
         }
     }
 
-    public static AStar getCratePlayerAStar() {
+    public AStar getCratePlayerAStar() {
         return cratePlayerAStar;
     }
 
-    public static AStar getPlayerAStar() {
+    public AStar getPlayerAStar() {
         return playerAStar;
     }
 
-    public static AStar getCrateAStar() {
+    public AStar getCrateAStar() {
         return crateAStar;
     }
 
-    protected static class AStarPlayerOnly extends AStar {
+
+    protected class AStarPlayerOnly extends AStar {
 
         @Override
         protected Node initialNode(TileInfo playerStart, TileInfo playerDest, TileInfo crateStart, TileInfo crateDest) {
@@ -113,7 +120,8 @@ public class Pathfinder {
         }
     }
 
-    protected static class AStarCrateOnly extends AStar {
+
+    protected class AStarCrateOnly extends AStar {
 
         @Override
         protected void preInit(TileInfo playerStart, TileInfo playerDest, TileInfo crateStart, TileInfo crateDest) {
@@ -122,6 +130,7 @@ public class Pathfinder {
 
         @Override
         protected void postInit(TileInfo playerStart, TileInfo playerDest, TileInfo crateStart, TileInfo crateDest) {
+            super.postInit(playerStart, playerDest, crateStart, crateDest);
             crateStart.addCrate();
         }
 
@@ -157,7 +166,8 @@ public class Pathfinder {
         }
     }
 
-    protected static class AStarFull extends AStarCrateOnly {
+
+    protected class AStarFull extends AStarCrateOnly {
 
         @Override
         protected Node processMove(Node parent, Direction dir) {
@@ -187,7 +197,7 @@ public class Pathfinder {
     }
 
 
-    protected abstract static class AStar {
+    protected abstract class AStar {
 
         public boolean hasPath(TileInfo playerStart, TileInfo playerDest, TileInfo crateStart, TileInfo crateDest) {
             return findPath(playerStart, playerDest, crateStart, crateDest) != null;
@@ -202,8 +212,6 @@ public class Pathfinder {
 
             preInit(playerStart, playerDest, crateStart, crateDest);
 
-            Set<Node> visited = new HashSet<>();
-            PriorityQueue<Node> queue = new PriorityQueue<>();
             queue.offer(n);
             visited.add(n);
 
@@ -235,7 +243,8 @@ public class Pathfinder {
         }
 
         protected void postInit(TileInfo playerStart, TileInfo playerDest, TileInfo crateStart, TileInfo crateDest) {
-
+            queue.clear();
+            visited.clear();
         }
 
         protected abstract Node initialNode(TileInfo playerStart, TileInfo playerDest, TileInfo crateStart, TileInfo crateDest);

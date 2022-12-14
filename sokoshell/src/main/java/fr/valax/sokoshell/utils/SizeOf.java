@@ -39,12 +39,13 @@ public class SizeOf {
         return map.size() * (
                 HASH_MAP_NODE_LAYOUT.instanceSize() +
                         STATE_LAYOUT.instanceSize() +
-                        nCrate * INT_ARRAY_LAYOUT.instanceSize());
+                        INT_ARRAY_LAYOUT.instanceSize() +
+                        (long) Integer.BYTES * nCrate);
     }
 
     public static long approxSizeOf2(Set<State> map, int nCrate) {
         // hash map size can be neglected
-        return map.size() * (32 + 32 + nCrate * 16L);
+        return map.size() * (32 + 32 + 16 + (long) Integer.BYTES * nCrate);
     }
 
     public static ClassLayout getHashMapLayout() {

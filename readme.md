@@ -18,8 +18,6 @@ For IntelliJ IDEA:
 | A*: pushes lower bound calculation                                                                                                        | in progress... |
 | deadlocks:<ul><li>corral</li><li>closed diagonals</li><li>bipartite deadlocks</li></ul>                                                   | no             |
 | goal cuts -> packing order                                                                                                                | no             |
-| better analysis of results<br>min, max and average of:<ul><li>state explored</li><li>queue size</li><li>time</li><li>solution length</li> | DONE!          |
-| better size of                                                                                                                            | no             |
 | table comparing feature                                                                                                                   | no             |
 
 ## Results

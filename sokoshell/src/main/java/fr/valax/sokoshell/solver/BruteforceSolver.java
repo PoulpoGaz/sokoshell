@@ -220,7 +220,7 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
 
             // the crate will be pushed inside the tunnel
             if (tunnel != null) {
-                if (tunnel.crateInside()) { // pushing inside will lead to a pi corral deadlock
+                if (tunnel.crateInside()) { // pushing inside will lead to a corral deadlock
                     continue;
                 }
 

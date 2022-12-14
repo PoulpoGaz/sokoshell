@@ -15,12 +15,12 @@ public class MapStyleReaderTest {
     @Test
     void test() throws IOException, JsonException {
         MapStyleReader reader = new MapStyleReader();
-        MapStyle style = reader.read(Path.of("styles/default/style"));
+        MapStyle style = reader.read(Path.of("../styles/warehouse/warehouse.style"));
 
         MapRenderer renderer = new MapRenderer();
         renderer.setStyle(style);
 
-        Pack pack = PackReaders.read(Path.of("levels/Original.8xv"), false);
+        Pack pack = PackReaders.read(Path.of("../levels/levels8xv/Original.8xv"), false);
         Level level = pack.getLevel(0);
 
         loop:

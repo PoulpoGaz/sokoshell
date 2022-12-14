@@ -14,13 +14,13 @@ public class AbstractSolverTest {
 
     @Test
     void deadPositionsDetectionTest() throws IOException, JsonException {
-        Pack pack = PackReaders.read(Path.of("levels8xv/Aruba10.8xv"), false);
+        Pack pack = PackReaders.read(Path.of("../levels/levels8xv/Aruba10.8xv"), false);
 
         Level level = pack.getLevel(46 - 1);
         Map map = level.getMap();
         map.removeStateCrates(level.getInitialState());
         MapRenderer mR = new MapRenderer();
-        mR.setStyle(new MapStyleReader().read(Path.of("styles/isekai/isekai.style")));
+        mR.setStyle(new MapStyleReader().read(Path.of("../styles/isekai/isekai.style")));
         mR.setShowDeadTiles(true);
         mR.sysPrint(level);
         System.out.println("Computing dead positions...");
@@ -69,14 +69,14 @@ public class AbstractSolverTest {
 
     @Test
     void freezeDeadlockTest2() throws Exception {
-        Pack pack = PackReaders.read(Path.of("levels8xv/Aruba10.8xv"), false);
+        Pack pack = PackReaders.read(Path.of("../levels/levels8xv/Aruba10.8xv"), false);
 
         Assertions.assertNotNull(pack);
         Assertions.assertNotNull(pack.levels());
         Assertions.assertNotEquals(0, pack.nLevels());
 
         MapRenderer mr = new MapRenderer();
-        mr.setStyle(new MapStyleReader().read(Path.of("styles/isekai/isekai.style")));
+        mr.setStyle(new MapStyleReader().read(Path.of("../styles/isekai/isekai.style")));
         mr.setShowDeadTiles(true);
 
         BasicBruteforceSolver solver = BasicBruteforceSolver.newBFSSolver();
@@ -99,14 +99,14 @@ public class AbstractSolverTest {
 
     @Test
     void freezeDeadlockTest3() throws JsonException, IOException {
-        Pack pack = PackReaders.read(Path.of("levels8xv/Original.8xv"), false);
+        Pack pack = PackReaders.read(Path.of("../levels/levels8xv/Original.8xv"), false);
 
         Assertions.assertNotNull(pack);
         Assertions.assertNotNull(pack.levels());
         Assertions.assertNotEquals(0, pack.nLevels());
 
         MapRenderer mr = new MapRenderer();
-        mr.setStyle(new MapStyleReader().read(Path.of("styles/isekai/isekai.style")));
+        mr.setStyle(new MapStyleReader().read(Path.of("../styles/isekai/isekai.style")));
         mr.setShowDeadTiles(true);
 
         BasicBruteforceSolver solver = BasicBruteforceSolver.newBFSSolver();

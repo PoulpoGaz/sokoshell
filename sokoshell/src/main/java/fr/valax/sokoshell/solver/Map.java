@@ -59,6 +59,8 @@ public class Map {
      */
     private boolean isGoalRoomLevel;
 
+    private Pathfinder pathfinder;
+
     /**
      * Creates a Map with the specified width, height and tiles
      *
@@ -191,6 +193,8 @@ public class Map {
      * @see Tunnel
      */
     public void initForSolver() {
+        pathfinder = new Pathfinder();
+
         computeFloors();
         computeDeadTiles();
         findTunnels();
@@ -640,7 +644,7 @@ public class Map {
                 crate.removeCrate();
                 inRoom.addCrate();
 
-                if (Pathfinder.getCrateAStar().hasPath(entrance, null, inRoom, crate)) {
+                if (pathfinder.getCrateAStar().hasPath(entrance, null, inRoom, crate)) {
                     accessibleCrates.remove(i);
                     i--;
                     crate.unmark();
@@ -660,6 +664,10 @@ public class Map {
             }
 
             if (!hasChanged) {
+                for (TileInfo t : targets) {
+                    t.removeCrate();
+                }
+
                 return false;
             }
         }

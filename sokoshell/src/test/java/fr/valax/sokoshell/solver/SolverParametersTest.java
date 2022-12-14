@@ -14,7 +14,7 @@ public class SolverParametersTest {
 
     @Test
     void test() throws IOException, JsonException {
-        Pack pack = PackReaders.read(Path.of("levels/Original.8xv"), false);
+        Pack pack = PackReaders.read(Path.of("../levels/levels8xv/Original.8xv"), false);
 
         SolverParameters params = new SolverParameters(SolverType.BFS, pack.getLevel(3), Map.of(
                 SolverParameters.TIMEOUT, 1000,

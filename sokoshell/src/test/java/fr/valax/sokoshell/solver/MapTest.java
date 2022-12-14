@@ -15,7 +15,7 @@ public class MapTest {
 
     @Test
     void topLeftReachablePositionTest() {
-        Level level = TestUtils.getLevel(Path.of("levels8xv/Original.8xv"));
+        Level level = TestUtils.getLevel(Path.of("../levels/levels8xv/Original.8xv"));
         Map map = level.getMap();
 
         int i = map.topLeftReachablePosition(5, 7, 5, 6);
@@ -41,7 +41,7 @@ public class MapTest {
         tunnelsSet.add(new TTunnel(11, 8, 11, 8,  11, 7, -1, -1, false));
         tunnelsSet.add(new TTunnel(12, 7, 13, 7,  11, 7, 14, 7,  false));
 
-        Level level = TestUtils.getLevel(Path.of("levels8xv/Original.8xv"));
+        Level level = TestUtils.getLevel(Path.of("../levels/levels8xv/Original.8xv"));
         Map map = level.getMap();
         map.removeStateCrates(level.getInitialState());
         map.computeFloors();
@@ -375,7 +375,7 @@ public class MapTest {
 
     @Test
     void packingOrderTest1() {
-        Level level = TestUtils.getLevel(Path.of("levels8xv/Original.8xv"));
+        Level level = TestUtils.getLevel(Path.of("../levels/levels8xv/Original.8xv"));
         Map map = level.getMap();
         map.removeStateCrates(level.getInitialState());
         map.initForSolver();
@@ -397,7 +397,7 @@ public class MapTest {
 
     @Test
     void packingOrderTest2() {
-        Level level = TestUtils.getLevel(Path.of("levels8xv/Original.8xv"), 10);
+        Level level = TestUtils.getLevel(Path.of("../levels/levels8xv/Original.8xv"), 10);
         Map map = level.getMap();
         map.removeStateCrates(level.getInitialState());
         map.initForSolver();

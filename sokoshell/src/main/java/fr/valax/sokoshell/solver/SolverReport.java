@@ -144,6 +144,7 @@ public class SolverReport {
 
         TileInfo player = map.getAt(level.getPlayerX(), level.getPlayerY());
 
+        Pathfinder pathfinder = new Pathfinder();
         for (int i = 0; i < states.size() - 1; i++) {
             State current = states.get(i);
 
@@ -154,7 +155,7 @@ public class SolverReport {
             State next = states.get(i + 1);
             StateDiff diff = getStateDiff(map, current, next);
 
-            Pathfinder.Node node = Pathfinder.findPath(
+            Pathfinder.Node node = pathfinder.findPath(
                     player, null,
                     diff.crate(), diff.crateDest());
 
