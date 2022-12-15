@@ -3,6 +3,7 @@ package fr.valax.sokoshell.solver;
 import fr.valax.sokoshell.utils.SizeOf;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -52,9 +53,9 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
         running = true;
         stopped = false;
 
-        long timeout = params.getLong(SolverParameters.TIMEOUT, -1);
-        long maxRam = params.getLong(SolverParameters.MAX_RAM, -1);
-        boolean detailed = params.getBoolean("detailed", false);
+        long timeout = (long) params.get("timeout").getOrDefault();
+        long maxRam = (long) params.get("max-ram").getOrDefault();
+        boolean detailed = (boolean) params.get("detailed").getOrDefault();
 
         if (detailed) {
             SizeOf.initialize();
@@ -298,6 +299,13 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
     public boolean stop() {
         stopped = true;
         return true;
+    }
+
+    @Override
+    public List<SolverParameter> getParameters() {
+        return List.of(new SolverParameter.Long("timeout", -1),
+                new SolverParameter.RamParameter("max-ram", -1),
+                new SolverParameter.Boolean("detailed", false));
     }
 
     private SolverStatistics getStatistics() {

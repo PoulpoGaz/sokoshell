@@ -7,10 +7,8 @@ import fr.poulpogaz.json.JsonToken;
 import fr.poulpogaz.json.utils.Pair;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.*;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Contains the level to solve, the type of the solver and various others parameters that are contained in a Map
@@ -30,20 +28,24 @@ public class SolverParameters {
 
     private final SolverType solver;
     private final Level level;
-    private final Map<String, Object> parameters;
+    private final Map<String, SolverParameter> parameters;
 
     public SolverParameters(SolverType solver, Level level) {
-        this(solver, level, Map.of());
+        this(solver, level, null);
     }
 
-    public SolverParameters(SolverType solver, Level level, Map<String, Object> parameters) {
+    public SolverParameters(SolverType solver, Level level, List<SolverParameter> parameters) {
         this.solver = Objects.requireNonNull(solver);
         this.level = Objects.requireNonNull(level);
 
         if (parameters == null) {
             this.parameters = Map.of();
         } else {
-            this.parameters = Collections.unmodifiableMap(parameters);
+            this.parameters = new HashMap<>();
+
+            for (SolverParameter p : parameters) {
+                this.parameters.put(p.getName(), p);
+            }
         }
     }
 
@@ -51,88 +53,15 @@ public class SolverParameters {
      * @param param parameter name
      * @return the parameter named param
      */
-    public Object get(String param) {
+    public SolverParameter get(String param) {
         return parameters.get(param);
-    }
-
-
-    /**
-     * @param param parameter name
-     * @param default_ default value
-     * @return the parameter named param as int or default_ if it doesn't exist or isn't an int
-     */
-    public int getInt(String param, int default_) {
-        try {
-            Object o = get(param);
-
-            if (o instanceof Number n) {
-                return n.intValue();
-            } else if (o != null) {
-                return Integer.parseInt(o.toString());
-            } else {
-                return default_;
-            }
-        } catch (NumberFormatException e) {
-            return default_;
-        }
-    }
-
-    /**
-     * @param param parameter name
-     * @param default_ default value
-     * @return the parameter named param as long or default_ if it doesn't exist or isn't a long
-     */
-    public long getLong(String param, int default_) {
-        try {
-            Object o = get(param);
-
-            if (o instanceof Number n) {
-                return n.longValue();
-            } else if (o != null) {
-                return Long.parseLong(o.toString());
-            } else {
-                return default_;
-            }
-        } catch (NumberFormatException e) {
-            return default_;
-        }
-    }
-
-    /**
-     * @param param parameter name
-     * @param default_ default value
-     * @return the parameter named param as long or default_ if it doesn't exist
-     */
-    public boolean getBoolean(String param, boolean default_) {
-        try {
-            Object o = get(param);
-
-            if (o instanceof Boolean b) {
-                return b;
-            } else if (o != null) {
-                return Boolean.parseBoolean(o.toString());
-            } else {
-                return default_;
-            }
-        } catch (NumberFormatException e) {
-            return default_;
-        }
-    }
-
-    /**
-     * @param key parameter name
-     * @param defaultValue the default value
-     * @return the parameter named param or a default value
-     */
-    public Object getOrDefault(String key, Object defaultValue) {
-        return parameters.getOrDefault(key, defaultValue);
     }
 
     /**
      * @return all parameters
      */
-    public Map<String, Object> getParameters() {
-        return parameters;
+    public Collection<SolverParameter> getParameters() {
+        return parameters.values();
     }
 
     /**
@@ -154,7 +83,7 @@ public class SolverParameters {
         jw.beginObject();
         jw.field("solver", solver.name());
 
-        for (Map.Entry<String, Object> param : parameters.entrySet()) {
+        /*for (Map.Entry<String, Object> param : parameters.entrySet()) {
             jw.key(param.getKey());
 
             if (param.getValue() instanceof Enum<?> e) {
@@ -167,7 +96,7 @@ public class SolverParameters {
             } else if (param.getValue() instanceof Number e) {
                 jw.value(e);
             }
-        }
+        }*/
         jw.endObject();
     }
 
@@ -194,7 +123,7 @@ public class SolverParameters {
             throw new IOException("Can't find solver");
         }
 
-        return new SolverParameters(solver, level, map);
+        return new SolverParameters(solver, level, null);// map);
     }
 
     private static void parseParameter(String key, IJsonReader jr, Map<String, Object> parameters) throws JsonException, IOException {

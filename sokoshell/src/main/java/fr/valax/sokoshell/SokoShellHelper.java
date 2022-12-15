@@ -54,14 +54,6 @@ public class SokoShellHelper {
     }
 
     // tasks
-
-    public void addTask(Solver solver, Map<String, Object> params, List<Level> levels, String pack, String level) {
-        Objects.requireNonNull(params);
-        Objects.requireNonNull(levels);
-
-        addTask(new SolverTask(solver, params, levels, pack, level));
-    }
-
     public void addTask(SolverTask task) {
         taskList.offerTask(task);
     }

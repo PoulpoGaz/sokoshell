@@ -1,5 +1,7 @@
 package fr.valax.sokoshell.solver;
 
+import java.util.List;
+
 /**
  * Defines the basics for all sokoban solver
  *
@@ -36,4 +38,12 @@ public interface Solver {
      * Otherwise, it returns {@code false}.
      */
     boolean stop();
+
+    /**
+     * Returns parameters accepted by this solver.
+     * The list returned is always a new one except when the solver don't have any parameter.
+     *
+     * @return Parameters accepted by this solver.
+     */
+    List<SolverParameter> getParameters();
 }

@@ -293,7 +293,7 @@ public abstract class AbstractCommand implements JLineCommand {
         return inf && sup;
     }
 
-    protected static class InvalidArgument extends Exception {
+    public static class InvalidArgument extends Exception {
 
         public InvalidArgument(String message) {
             super(message);

@@ -66,12 +66,6 @@ public class SolveCommand extends AbstractCommand {
             return SUCCESS;
         }
 
-        Map<String, Object> params = new HashMap<>();
-        if (timeout > 0) {
-            params.put(SolverParameters.TIMEOUT, timeout);
-        }
-        addParameters(params);
-
         System.out.println(solverType);
 
         final Solver solver = switch (solverType) {
@@ -80,14 +74,16 @@ public class SolveCommand extends AbstractCommand {
             default -> BasicBruteforceSolver.newDFSSolver();
         };
 
+        List<SolverParameter> parameters = getParameters(solver, args);
+
         String packRequest = formatPackRequest();
         SolverTask lastTask = null;
         if (split) {
             for (Level level : levels) {
-                lastTask = newTask(solver, params, List.of(level), packRequest);
+                lastTask = newTask(solver, parameters, List.of(level), packRequest);
             }
         } else {
-            lastTask = newTask(solver, params, levels, packRequest);
+            lastTask = newTask(solver, parameters, levels, packRequest);
         }
 
         if (waitUntilFinished) {
@@ -100,49 +96,36 @@ public class SolveCommand extends AbstractCommand {
         return Command.SUCCESS;
     }
 
-    // TODO: rework
-    private void addParameters(Map<String, Object> params) throws InvalidArgument {
-        if (args.length % 2 != 0) {
-            throw new InvalidArgument("Odd number of arguments");
-        }
+    private List<SolverParameter> getParameters(Solver solver, String[] args) throws InvalidArgument {
+        List<SolverParameter> parameters = solver.getParameters();
 
         for (int i = 0; i < args.length; i += 2) {
             String name = args[i];
-            String value = args[i + 1];
+            SolverParameter param = getParameter(parameters, name);
 
-            if (SolverParameters.MAX_RAM.equals(name)) {
-                params.put(SolverParameters.MAX_RAM, parseRAM(value));
-            } else {
-                params.put(name, value);
-            }
-        }
-    }
 
-    private long parseRAM(String value) {
-        Pattern p = Pattern.compile("^(\\d+)\\s*([gmk])?b$", Pattern.CASE_INSENSITIVE);
-        Matcher matcher = p.matcher(value);
-
-        if (matcher.matches() && matcher.groupCount() >= 1 && matcher.groupCount() <= 2) {
-            long r = Long.parseLong(matcher.group(1));
-
-            if (matcher.groupCount() == 2) {
-                String unit = matcher.group(2).toLowerCase();
-
-                r = switch (unit) {
-                    case "g" -> r * 1024 * 1024 * 1024;
-                    case "m" -> r * 1024 * 1024;
-                    case "k" -> r * 1024;
-                    default -> r;
-                };
+            if (param == null) {
+                throw new InvalidArgument("Solver " + solver.getSolverType() +
+                        " doesn't have a parameter named " + name);
             }
 
-            return r;
-        } else {
-            return -1;
+            param.set(args[i + 1]);
         }
+
+        return parameters;
     }
 
-    private SolverTask newTask(Solver solver, Map<String, Object> params, List<Level> levels, String packRequest) {
+    private SolverParameter getParameter(List<SolverParameter> parameters, String name) {
+        for (SolverParameter p : parameters) {
+            if (p.getName().equals(name)) {
+                return p;
+            }
+        }
+
+        return null;
+    }
+
+    private SolverTask newTask(Solver solver, List<SolverParameter> params, List<Level> levels, String packRequest) {
         SolverTask task = new SolverTask(solver, params, levels, packRequest, nullSafeToString(this.levels));
         TaskList list = helper.getTaskList();
 

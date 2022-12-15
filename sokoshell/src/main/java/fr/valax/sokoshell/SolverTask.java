@@ -27,7 +27,7 @@ public class SolverTask {
     protected Tracker tracker;
     protected ScheduledFuture<?> trackerFuture;
 
-    private final Map<String, Object> params;
+    private final List<SolverParameter> params;
     private final List<Level> levels;
     private int currentLevel = -1;
 
@@ -44,7 +44,7 @@ public class SolverTask {
 
     private List<SolverReport> solverReports;
 
-    public SolverTask(Solver solver, Map<String, Object> params, List<Level> levels, String pack, String level) {
+    public SolverTask(Solver solver, List<SolverParameter> params, List<Level> levels, String pack, String level) {
         this.solver = solver;
         this.params = params;
         this.levels = Objects.requireNonNull(levels);
@@ -100,13 +100,13 @@ public class SolverTask {
     }
 
     protected Tracker getTracker() {
-        Object object = params.get(Tracker.TRACKER_PARAM);
+        /*Object object = params.get(Tracker.TRACKER_PARAM);
 
         if (object instanceof Tracker tracker) {
             return tracker;
-        } else {
+        } else {*/
             return new BasicTracker();
-        }
+        //}
     }
 
     protected void solve() {

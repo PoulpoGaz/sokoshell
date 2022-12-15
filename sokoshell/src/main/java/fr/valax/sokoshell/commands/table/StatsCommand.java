@@ -3,10 +3,7 @@ package fr.valax.sokoshell.commands.table;
 import fr.valax.args.api.Command;
 import fr.valax.args.api.Option;
 import fr.valax.args.utils.ArgsUtils;
-import fr.valax.sokoshell.solver.Level;
-import fr.valax.sokoshell.solver.SolverParameters;
-import fr.valax.sokoshell.solver.SolverReport;
-import fr.valax.sokoshell.solver.SolverStatistics;
+import fr.valax.sokoshell.solver.*;
 import fr.valax.sokoshell.utils.Alignment;
 import fr.valax.sokoshell.utils.PrettyColumn;
 import fr.valax.sokoshell.utils.PrettyTable;
@@ -17,6 +14,7 @@ import org.jline.utils.AttributedString;
 
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -57,12 +55,14 @@ public class StatsCommand extends TableCommand {
         SolverParameters params = s.getParameters();
         out.printf("Level: %s - %d%n", params.getLevel().getPack().name(), params.getLevel().getIndex());
 
-        Map<String, Object> map = params.getParameters();
-        if (!map.isEmpty()) {
+        Collection<SolverParameter> collection = params.getParameters();
+        if (!collection.isEmpty()) {
             out.println("Parameters:");
 
-            for (Map.Entry<String, Object> param : map.entrySet()) {
-                out.printf("%s = %s%n", param.getKey(), param.getValue());
+            for (SolverParameter p : collection) {
+                if (p.hasArgument()) {
+                    out.printf("%s = %s%n", p.getName(), p.get());
+                }
             }
         }
 
