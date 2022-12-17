@@ -119,7 +119,7 @@ public class SolverTask {
 
             for (currentLevel = 0; currentLevel < levels.size(); currentLevel++) {
                 Level level = levels.get(currentLevel);
-                SolverParameters parameters = new SolverParameters(solver.getSolverType(), level, params);
+                SolverParameters parameters = new SolverParameters(solver.getName(), level, params);
 
                 SolverReport solverReport = solver.solve(parameters);
                 level.addSolverReport(solverReport);

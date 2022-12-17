@@ -16,7 +16,6 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 public class StatsCommand extends TableCommand {
 
@@ -50,7 +49,7 @@ public class StatsCommand extends TableCommand {
             s = l.getLastReport();
         }
 
-        out.printf("Status: %s. Solver: %s%n", s.getStatus(), s.getType());
+        out.printf("Status: %s. Solver: %s%n", s.getStatus(), s.getSolverName());
 
         SolverParameters params = s.getParameters();
         out.printf("Level: %s - %d%n", params.getLevel().getPack().name(), params.getLevel().getIndex());

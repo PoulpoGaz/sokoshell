@@ -10,6 +10,10 @@ import java.util.List;
  */
 public interface Solver {
 
+    String DFS = "DFS";
+    String BFS = "BFS";
+    String A_STAR = "A*";
+
     /**
      * Try to solve the sokoban that is in the {@link SolverParameters}.
      * @param params non null solver parameters
@@ -20,10 +24,9 @@ public interface Solver {
     SolverReport solve(SolverParameters params);
 
     /**
-     * @return the type of solver
-     * @see SolverType
+     * @return the name of solver
      */
-    SolverType getSolverType();
+    String getName();
 
     /**
      * @return {@code true} if the solver is running

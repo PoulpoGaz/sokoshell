@@ -6,6 +6,7 @@ import fr.valax.args.api.TypeConverter;
 import fr.valax.args.api.VaArgs;
 import fr.valax.args.utils.ArgsUtils;
 import fr.valax.args.utils.TypeException;
+import fr.valax.sokoshell.SokoShellHelper;
 import fr.valax.sokoshell.SolverTask;
 import fr.valax.sokoshell.TaskList;
 import fr.valax.sokoshell.TaskStatus;
@@ -15,9 +16,7 @@ import org.jline.reader.LineReader;
 
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -34,10 +33,9 @@ public class SolveCommand extends AbstractCommand {
     protected String levels;
 
     @Option(names = {"s", "solver-type"}, hasArgument = true, argName = "Solver type",
-            description = "solving strategy: DFS (default) BFS, ASTAR",
-            defaultValue = "DFS",
-            converter = SolverConverter.class)
-    protected SolverType solverType;
+            description = "solving strategy: DFS (default) BFS, A*",
+            defaultValue = "DFS")
+    protected String solver;
 
     @Option(names = {"t", "timeout"}, hasArgument = true, argName = "Timeout", defaultValue = "-1", description = "in ms")
     private long timeout;
@@ -66,13 +64,11 @@ public class SolveCommand extends AbstractCommand {
             return SUCCESS;
         }
 
-        System.out.println(solverType);
-
-        final Solver solver = switch (solverType) {
-            case BFS -> BasicBruteforceSolver.newBFSSolver();
-            case ASTAR -> new AStarSolver();
-            default -> BasicBruteforceSolver.newDFSSolver();
-        };
+        Solver solver = helper.getSolver(this.solver);
+        if (solver == null) {
+            err.printf("No such solver: %s%n", this.solver);
+            return FAILURE;
+        }
 
         List<SolverParameter> parameters = getParameters(solver, args);
 
@@ -105,7 +101,7 @@ public class SolveCommand extends AbstractCommand {
 
 
             if (param == null) {
-                throw new InvalidArgument("Solver " + solver.getSolverType() +
+                throw new InvalidArgument("Solver " + solver.getName() +
                         " doesn't have a parameter named " + name);
             }
 
@@ -184,26 +180,16 @@ public class SolveCommand extends AbstractCommand {
         if (ArgsUtils.contains(option.names(), "p")) {
             helper.addPackCandidates(candidates);
         } else if (ArgsUtils.contains(option.names(), "s")) {
-            for (SolverType solver : SolverType.values()) {
-                candidates.add(new Candidate(solver.name()));
+            Set<String> solvers = SokoShellHelper.INSTANCE.getSolvers().keySet();
+
+            for (String solver : solvers) {
+                candidates.add(new Candidate(solver));
             }
         }
     }
 
-    private static class SolverConverter implements TypeConverter<SolverType> {
-
-        @Override
-        public SolverType convert(String value) throws TypeException {
-            if (value == null) {
-                return null;
-            } else {
-                return switch (value.toLowerCase()) {
-                    case "dfs" -> SolverType.DFS;
-                    case "bfs" -> SolverType.BFS;
-                    case "a*", "astar" -> SolverType.ASTAR;
-                    default -> throw new TypeException(String.format("Invalid solver type '%s'", value));
-                };
-            }
-        }
+    @Override
+    public void completeVaArgs(LineReader reader, String argument, List<Candidate> candidates) {
+        super.completeVaArgs(reader, argument, candidates);
     }
 }

@@ -5,10 +5,10 @@ import fr.valax.sokoshell.solver.heuristic.SimpleHeuristic;
 
 public class AStarSolver extends BruteforceSolver<WeightedState> {
 
-    private final Heuristic heuristic = new SimpleHeuristic(this.map);
+    private final Heuristic heuristic = null;// = new SimpleHeuristic(this.map);
 
     public AStarSolver() {
-        super(SolverType.ASTAR);
+        super(A_STAR);
     }
 
     @Override

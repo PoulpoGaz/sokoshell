@@ -14,7 +14,7 @@ public class SolverParametersTest {
 
     @Test
     void test() throws IOException, JsonException {
-        Pack pack = PackReaders.read(Path.of("../levels/levels8xv/Original.8xv"), false);
+        /*Pack pack = PackReaders.read(Path.of("../levels/levels8xv/Original.8xv"), false);
 
         SolverParameters params = new SolverParameters(SolverType.BFS, pack.getLevel(3), Map.of(
                 SolverParameters.TIMEOUT, 1000,
@@ -38,6 +38,6 @@ public class SolverParametersTest {
         System.out.println(params.getLevel().getIndex());
         System.out.println(params.getSolver());
 
-        params.getParameters().forEach((k, v) -> System.out.println(k + "=" + v));
+        params.getParameters().forEach((k, v) -> System.out.println(k + "=" + v));*/
     }
 }

@@ -23,19 +23,16 @@ import java.util.Map;
  */
 public class SolverParameters {
 
-    public static final String TIMEOUT = "timeout";
-    public static final String MAX_RAM = "max-ram";
-
-    private final SolverType solver;
+    private final String solverName;
     private final Level level;
     private final Map<String, SolverParameter> parameters;
 
-    public SolverParameters(SolverType solver, Level level) {
-        this(solver, level, null);
+    public SolverParameters(String solverName, Level level) {
+        this(solverName, level, null);
     }
 
-    public SolverParameters(SolverType solver, Level level, List<SolverParameter> parameters) {
-        this.solver = Objects.requireNonNull(solver);
+    public SolverParameters(String solverName, Level level, List<SolverParameter> parameters) {
+        this.solverName = Objects.requireNonNull(solverName);
         this.level = Objects.requireNonNull(level);
 
         if (parameters == null) {
@@ -72,18 +69,18 @@ public class SolverParameters {
     }
 
     /**
-     * @return the type of the solver used
+     * @return the name of the solver used
      */
-    public SolverType getSolver() {
-        return solver;
+    public String getSolverName() {
+        return solverName;
     }
 
 
     public void append(IJsonWriter jw) throws JsonException, IOException {
-        jw.beginObject();
+        /*jw.beginObject();
         jw.field("solver", solver.name());
 
-        /*for (Map.Entry<String, Object> param : parameters.entrySet()) {
+        for (Map.Entry<String, Object> param : parameters.entrySet()) {
             jw.key(param.getKey());
 
             if (param.getValue() instanceof Enum<?> e) {
@@ -96,12 +93,12 @@ public class SolverParameters {
             } else if (param.getValue() instanceof Number e) {
                 jw.value(e);
             }
-        }*/
-        jw.endObject();
+        }
+        jw.endObject();*/
     }
 
     public static SolverParameters fromJson(IJsonReader jr, Level level) throws JsonException, IOException {
-        SolverType solver = null;
+        /*SolverType solver = null;
 
         Map<String, Object> map = new HashMap<>();
 
@@ -123,7 +120,8 @@ public class SolverParameters {
             throw new IOException("Can't find solver");
         }
 
-        return new SolverParameters(solver, level, null);// map);
+        return new SolverParameters(solver, level, null);// map);*/
+        return null;
     }
 
     private static void parseParameter(String key, IJsonReader jr, Map<String, Object> parameters) throws JsonException, IOException {

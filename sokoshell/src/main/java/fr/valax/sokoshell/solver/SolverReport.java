@@ -6,7 +6,6 @@ import fr.poulpogaz.json.JsonPrettyWriter;
 import fr.poulpogaz.json.JsonReader;
 import fr.valax.sokoshell.SokoShellHelper;
 import fr.valax.sokoshell.graphics.MapRenderer;
-import org.dom4j.rule.Mode;
 
 import java.io.IOException;
 import java.util.*;
@@ -322,8 +321,8 @@ public class SolverReport {
      *
      * @return the type of the solver used to produce this report
      */
-    public SolverType getType() {
-        return parameters.getSolver();
+    public String getSolverName() {
+        return parameters.getSolverName();
     }
 
     /**

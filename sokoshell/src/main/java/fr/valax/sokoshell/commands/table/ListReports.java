@@ -70,7 +70,7 @@ public class ListReports extends TableCommand {
         PrettyColumn<String> packName = new PrettyColumn<>("Pack");
         PrettyColumn<Integer> index = new PrettyColumn<>("Index");
         PrettyColumn<String> status = new PrettyColumn<>("Status");
-        PrettyColumn<SolverType> solverType = new PrettyColumn<>("Solver");
+        PrettyColumn<String> solverName = new PrettyColumn<>("Solver");
         PrettyColumn<Integer> pushes = new PrettyColumn<>("Pushes");
         PrettyColumn<Integer> moves = new PrettyColumn<>("Moves");
 
@@ -86,7 +86,7 @@ public class ListReports extends TableCommand {
             packName.add(s.getParameters().getLevel().getPack().name());
             index.add(Alignment.RIGHT, s.getParameters().getLevel().getIndex() + 1);
             status.add(s.getStatus());
-            solverType.add(s.getType());
+            solverName.add(s.getSolverName());
             pushes.add(Alignment.RIGHT, s.numberOfPushes());
             moves.add(Alignment.RIGHT, s.numberOfMoves());
             date.add(stats.getTimeStarted());
@@ -96,7 +96,7 @@ public class ListReports extends TableCommand {
         table.addColumn(packName);
         table.addColumn(index);
         table.addColumn(status);
-        table.addColumn(solverType);
+        table.addColumn(solverName);
         table.addColumn(pushes);
         table.addColumn(moves);
         table.addColumn(date);

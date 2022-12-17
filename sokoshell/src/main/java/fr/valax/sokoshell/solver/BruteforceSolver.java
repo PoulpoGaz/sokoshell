@@ -29,8 +29,8 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
     private int queueSize = -1;
     private Tracker tracker;
     
-    public BruteforceSolver(SolverType type) {
-        super(type);
+    public BruteforceSolver(String name) {
+        super(name);
     }
 
     /**

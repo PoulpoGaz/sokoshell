@@ -7,15 +7,15 @@ package fr.valax.sokoshell.solver;
  */
 public abstract class AbstractSolver implements Solver {
 
-    protected SolverType type;
+    protected final String name;
 
-    @Override
-    public SolverType getSolverType() {
-        return type;
+    AbstractSolver(String name) {
+        this.name = name;
     }
 
-    AbstractSolver(SolverType type) {
-        this.type = type;
+    @Override
+    public String getName() {
+        return name;
     }
 
     // http://www.sokobano.de/wiki/index.php?title=How_to_detect_deadlocks

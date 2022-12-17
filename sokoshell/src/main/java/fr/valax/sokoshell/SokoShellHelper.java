@@ -4,10 +4,7 @@ import fr.poulpogaz.json.JsonException;
 import fr.valax.args.CommandLine;
 import fr.valax.sokoshell.graphics.MapRenderer;
 import fr.valax.sokoshell.graphics.MapStyle;
-import fr.valax.sokoshell.solver.Direction;
-import fr.valax.sokoshell.solver.Level;
-import fr.valax.sokoshell.solver.Pack;
-import fr.valax.sokoshell.solver.Solver;
+import fr.valax.sokoshell.solver.*;
 import fr.valax.sokoshell.utils.Utils;
 import org.jline.reader.Candidate;
 import org.jline.terminal.Terminal;
@@ -18,6 +15,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.Map;
 
 /**
  * Contains all packs, styles, the task list, the selected level, the selected pack and the map renderer.
@@ -29,6 +27,7 @@ public class SokoShellHelper {
 
     public static final SokoShellHelper INSTANCE = new SokoShellHelper();
 
+    private final Map<String, Solver> solvers = new HashMap<>();
     private final Map<String, Pack> packs = new HashMap<>();
     private final Map<String, MapStyle> styles = new HashMap<>();
 
@@ -46,11 +45,20 @@ public class SokoShellHelper {
     private boolean autoSaveSolution = false;
 
     private SokoShellHelper() {
+        addSolver(BasicBruteforceSolver.newBFSSolver());
+        addSolver(BasicBruteforceSolver.newDFSSolver());
+        addSolver(new AStarSolver());
+
+
         addMapStyle(MapStyle.DEFAULT_STYLE);
         renderer.setStyle(MapStyle.DEFAULT_STYLE);
         exporter.setMapStyle(MapStyle.DEFAULT_STYLE);
 
         taskList = new TaskList();
+    }
+
+    private void addSolver(Solver solver) {
+        solvers.put(solver.getName(), solver);
     }
 
     // tasks
@@ -101,6 +109,17 @@ public class SokoShellHelper {
 
         return out;
     }
+
+    // solvers
+
+    public Map<String, Solver> getSolvers() {
+        return Collections.unmodifiableMap(solvers);
+    }
+
+    public Solver getSolver(String name) {
+        return solvers.get(name);
+    }
+
 
     // packs
 
