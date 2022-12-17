@@ -1,5 +1,6 @@
 package fr.valax.sokoshell.commands;
 
+import fr.valax.args.CommandLine;
 import fr.valax.args.api.Command;
 import fr.valax.args.api.Option;
 import fr.valax.args.api.TypeConverter;
@@ -176,20 +177,17 @@ public class SolveCommand extends AbstractCommand {
     }
 
     @Override
-    public void completeOption(LineReader reader, String argument, List<Candidate> candidates, Option option) {
-        if (ArgsUtils.contains(option.names(), "p")) {
-            helper.addPackCandidates(candidates);
-        } else if (ArgsUtils.contains(option.names(), "s")) {
-            Set<String> solvers = SokoShellHelper.INSTANCE.getSolvers().keySet();
+    public void complete(LineReader reader, CommandLine.CommandSpec command, List<Candidate> candidates, CommandLine.OptionSpec option, String argument) {
+        if (option != null) {
+            if (ArgsUtils.contains(option.getShortNames(), 'p')) {
+                helper.addPackCandidates(candidates);
+            } else if (ArgsUtils.contains(option.getShortNames(), 's')) {
+                Set<String> solvers = SokoShellHelper.INSTANCE.getSolvers().keySet();
 
-            for (String solver : solvers) {
-                candidates.add(new Candidate(solver));
+                for (String solver : solvers) {
+                    candidates.add(new Candidate(solver));
+                }
             }
         }
-    }
-
-    @Override
-    public void completeVaArgs(LineReader reader, String argument, List<Candidate> candidates) {
-        super.completeVaArgs(reader, argument, candidates);
     }
 }

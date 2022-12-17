@@ -1,5 +1,6 @@
 package fr.valax.args.jline;
 
+import fr.valax.args.CommandLine;
 import fr.valax.args.api.Command;
 import fr.valax.args.api.Option;
 import org.jline.reader.Candidate;
@@ -9,14 +10,16 @@ import java.util.List;
 
 public interface JLineCommand extends Command {
 
-    default void completeOption(LineReader reader, String argument, List<Candidate> candidates, Option option) {
+    /**
+     * if option is null, the command may complete vaArgs
+     */
+    default void complete(LineReader reader,
+                          CommandLine.CommandSpec command,
+                          List<Candidate> candidates,
+                          CommandLine.OptionSpec option,
+                          String argument) {
 
     }
-
-    default void completeVaArgs(LineReader reader, String argument, List<Candidate> candidates) {
-
-    }
-
 
     /**
      * JLine add by default a help option.

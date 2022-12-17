@@ -1,6 +1,8 @@
 package fr.valax.sokoshell.commands.select;
 
+import fr.valax.args.CommandLine;
 import fr.valax.args.api.VaArgs;
+import fr.valax.args.jline.FileNameCompleter;
 import fr.valax.sokoshell.commands.AbstractCommand;
 import fr.valax.sokoshell.solver.Pack;
 import org.jline.reader.Candidate;
@@ -9,6 +11,7 @@ import org.jline.reader.LineReader;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.List;
+import java.util.Objects;
 
 public class SelectPack extends AbstractCommand {
 
@@ -49,7 +52,9 @@ public class SelectPack extends AbstractCommand {
     }
 
     @Override
-    public void completeVaArgs(LineReader reader, String argument, List<Candidate> candidates) {
-        helper.addPackCandidates(candidates);
+    public void complete(LineReader reader, CommandLine.CommandSpec command, List<Candidate> candidates, CommandLine.OptionSpec option, String argument) {
+        if (option == null) {
+            helper.addPackCandidates(candidates);
+        }
     }
 }

@@ -1,5 +1,6 @@
 package fr.valax.sokoshell.commands;
 
+import fr.valax.args.CommandLine;
 import fr.valax.args.api.VaArgs;
 import org.jline.reader.Candidate;
 import org.jline.reader.LineReader;
@@ -47,8 +48,10 @@ public class AutoSaveSolutionCommand extends AbstractCommand {
     }
 
     @Override
-    public void completeVaArgs(LineReader reader, String argument, List<Candidate> candidates) {
-        candidates.add(new Candidate("on"));
-        candidates.add(new Candidate("off"));
+    public void complete(LineReader reader, CommandLine.CommandSpec command, List<Candidate> candidates, CommandLine.OptionSpec option, String argument) {
+        if (option == null) {
+            candidates.add(new Candidate("on"));
+            candidates.add(new Candidate("off"));
+        }
     }
 }

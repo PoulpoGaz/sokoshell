@@ -11,6 +11,11 @@ import org.jline.reader.Completer;
 import org.jline.reader.LineReader;
 import org.jline.reader.ParsedLine;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -30,18 +35,26 @@ public class ShellCompleter implements Completer {
         String command = getCommand(line);
         boolean newToken = command.endsWith(" ");
 
-        Context context = new BaseContext(cli.getCommands());
-        Tokenizer tokenizer = new Tokenizer(command);
-        tokenizer.disableAlias();
+        BaseContext base = new BaseContext(cli.getCommandSpecs());
 
-        Token last = null;
-        while (tokenizer.hasNext()) {
-            last = tokenizer.next();
+        try {
+            Context context = base;
+            Tokenizer tokenizer = new Tokenizer(command);
+            tokenizer.disableAlias();
 
-            context = context.on(last, !tokenizer.hasNext(), newToken);
+            Token last = null;
+            while (tokenizer.hasNext()) {
+                last = tokenizer.next();
+
+                context = context.on(last, !tokenizer.hasNext(), newToken);
+            }
+
+            context.complete(last, reader, line, candidates, newToken);
+        } finally {
+            if (base.spec != null) {
+                base.spec.reset();
+            }
         }
-
-        context.complete(last, reader, line, candidates, newToken);
     }
 
     protected String getCommand(ParsedLine line) {
@@ -54,22 +67,15 @@ public class ShellCompleter implements Completer {
         for (int i = 0; i < line.cursor(); i++) {
             char c = chars[i];
 
-            boolean escape2 = escape;
-            escape = false;
-
-            if (escape2) {
-                continue;
-
+            if (escape) {
+                escape = false;
             } else if (c == '\\') {
                 escape = true;
 
             } else if (c == '"') {
                 inQuote = !inQuote;
 
-            } else if (inQuote) {
-                continue;
-
-            } else if (c == '|' || c == ';') { // command separator
+            } else if (!inQuote && (c == '|' || c == ';')) { // command separator
                 commandStart = i + 1;
             }
         }
@@ -85,38 +91,32 @@ public class ShellCompleter implements Completer {
         protected abstract void complete(Token lastToken, LineReader reader, ParsedLine line, List<Candidate> candidates, boolean newToken);
 
         protected void addAllOptions(boolean longName, boolean shortName,
-                                     String optionNameStart, Set<Option> presentOptions, List<Candidate> candidates, CommandDescriber desc) {
+                                     String optionNameStart, Set<CommandLine.OptionSpec> presentOptions,
+                                     List<Candidate> candidates, CommandLine.CommandSpec desc) {
             if (!(longName | shortName)) {
                 return;
             }
 
-            OptionIterator iterator = desc.optionIterator();
 
-            while (iterator.hasNext()) {
-                OptionGroup group = iterator.currentGroup();
-
-                Option opt = iterator.next();
-
+            for (CommandLine.OptionSpec opt : desc.getOptions().values()) {
                 if (presentOptions.contains(opt) && !opt.allowDuplicate()) {
                     continue;
                 }
 
                 String name = null;
-                for (String n : opt.names()) {
-                    if (longName != shortName) {
-                        if (longName && n.length() <= 1) {
-                            continue;
-                        }
-                        if (shortName && n.length() > 1) {
-                            continue;
+                if (longName) {
+                    for (String n : opt.getLongNames()) {
+                        if (n.startsWith(optionNameStart)) {
+                            name = "--" + n;
+                            break;
                         }
                     }
-
-                    if (n.startsWith(optionNameStart)) {
-                        if (n.length() > 1) {
-                            name = "--" + n;
-                        } else {
-                            name = "-" + n;
+                }
+                if (shortName && name == null) {
+                    for (char c : opt.getShortNames()) {
+                        if (optionNameStart.charAt(0) == c) {
+                            name = "-" + c;
+                            break;
                         }
                     }
                 }
@@ -125,8 +125,9 @@ public class ShellCompleter implements Completer {
                     continue;
                 }
 
+                OptionGroup group = opt.getGroup();
                 String groupName = group == null ? null : group.name();
-                String description = ArgsUtils.first(opt.description());
+                String description = ArgsUtils.first(opt.getOption().description());
 
                 candidates.add(new Candidate(name, name, groupName, description, null, null, true));
             }
@@ -145,17 +146,17 @@ public class ShellCompleter implements Completer {
 
         private boolean findingCommand = true;
         private boolean endOfOptions = false;
-        private final Set<Option> presentOptions = new HashSet<>();
+        private final Set<CommandLine.OptionSpec> presentOptions = new HashSet<>();
 
-        private INode<CommandDescriber> command;
+        private INode<CommandLine.CommandSpec> command;
+        private CommandLine.CommandSpec spec;
 
-        public BaseContext(INode<CommandDescriber> rootCommand) {
+        public BaseContext(INode<CommandLine.CommandSpec> rootCommand) {
             this.command = rootCommand;
         }
 
         @Override
         protected Context on(Token token, boolean last, boolean newToken) {
-
             if (isOption(token, last, newToken) && !endOfOptions) {
                 findingCommand = false;
                 return new OptionContext(this, command.getValue(), token.value());
@@ -169,31 +170,43 @@ public class ShellCompleter implements Completer {
 
                 return new RedirectContext(this, token);
             } else if (token.isWord() && findingCommand) {
-                INode<CommandDescriber> child = findChild(command, token.value());
+                INode<CommandLine.CommandSpec> child = findChild(command, token.value());
 
                 if (child == null) {
-                    findingCommand = false;
+                    if (spec != null) {
+                        addVaArgs(token.value());
+                        findingCommand = false;
+                    }
                 } else {
                     command = child;
+                    spec = command.getValue();
                 }
+            } else if (token.isWord()) {
+                addVaArgs(token.value());
             }
 
             return this;
+        }
+
+        protected void addVaArgs(String arg) {
+            if (spec.getVaargs() != null) {
+                spec.getVaargs().addValue(arg);
+            }
         }
 
         @Override
         protected void complete(Token last, LineReader reader, ParsedLine line, List<Candidate> candidates, boolean newToken) {
             if (findingCommand ||
                     (last != null && !isOption(last, true, newToken))) {
-                for (INode<CommandDescriber> child : command.getChildren()) {
+                for (INode<CommandLine.CommandSpec> child : command.getChildren()) {
                     candidates.add(new Candidate(child.getValue().getName()));
                 }
             }
 
-            CommandDescriber desc = command.getValue();
+            CommandLine.CommandSpec desc = command.getValue();
 
             if (desc != null) {
-                if (desc.nOptions() != presentOptions.size() && !endOfOptions) {
+                if (desc.getOptions().size() != presentOptions.size() && !endOfOptions) {
                     candidates.add(new Candidate("-", "-", null, null, null, null, false));
                 }
 
@@ -201,18 +214,45 @@ public class ShellCompleter implements Completer {
                     Command command = desc.getCommand();
 
                     if (command instanceof JLineCommand jLineCommand) {
+                        printComplete();
                         if (newToken) {
-                            jLineCommand.completeVaArgs(reader, "", candidates);
+                            jLineCommand.complete(reader, spec, candidates, null, null);
                         } else {
-                            jLineCommand.completeVaArgs(reader, last.value(), candidates);
+                            jLineCommand.complete(reader, spec, candidates, null, last.value());
                         }
                     }
                 }
             }
         }
 
-        protected INode<CommandDescriber> findChild(INode<CommandDescriber> parent, String name) {
-            for (INode<CommandDescriber> child : parent.getChildren()) {
+        protected void printComplete() {
+            try (BufferedWriter bw = Files.newBufferedWriter(Path.of("log"), StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {
+                if (spec == null) {
+                    bw.write("Spec is null\n");
+                } else {
+                    bw.write("Command: " + spec.getCommand().getName() + "\n");
+
+                    for (CommandLine.OptionSpec s : spec.getOptions().values()) {
+                        if (s.isPresent()) {
+                            bw.write(s.getLongNames()[0] + " is present. Values = " + s.getArgumentsList() + "\n");
+                        } else {
+                            bw.write(s.getLongNames()[0] + " isn't present.\n");
+                        }
+                    }
+
+                    if (spec.getVaargs() != null) {
+                        bw.write("VaArgs: " + spec.getVaargs().getValues() + "\n");
+                    }
+                }
+
+
+            } catch (IOException e) {
+                // ignored
+            }
+        }
+
+        protected INode<CommandLine.CommandSpec> findChild(INode<CommandLine.CommandSpec> parent, String name) {
+            for (INode<CommandLine.CommandSpec> child : parent.getChildren()) {
                 if (child.getValue().getName().equals(name)) {
                     return child;
                 }
@@ -221,13 +261,13 @@ public class ShellCompleter implements Completer {
             return null;
         }
 
-        public void addOption(Option option) {
+        public void addOption(CommandLine.OptionSpec option) {
             if (option != null) {
                 presentOptions.add(option);
             }
         }
 
-        public Set<Option> getPresentOptions() {
+        public Set<CommandLine.OptionSpec> getPresentOptions() {
             return presentOptions;
         }
     }
@@ -235,13 +275,13 @@ public class ShellCompleter implements Completer {
     protected static class OptionContext extends Context {
 
         private final BaseContext baseContext;
-        private final CommandDescriber command;
+        private final CommandLine.CommandSpec command;
         private final String optionStart;
 
-        private Option option;
+        private CommandLine.OptionSpec option;
         private boolean optionNameParsing = false;
 
-        public OptionContext(BaseContext baseContext, CommandDescriber command, String optionStart) {
+        public OptionContext(BaseContext baseContext, CommandLine.CommandSpec command, String optionStart) {
             this.baseContext = baseContext;
             this.command = command;
             this.optionStart = optionStart;
@@ -253,10 +293,10 @@ public class ShellCompleter implements Completer {
 
                 if (option == null) {
                     optionNameParsing = true;
-                    for (Option opt : command) {
-                        if (contains(opt, token.value())) {
-                            option = opt;
-                        }
+                    option = command.findOption(token.value());
+
+                    if (option != null) {
+                        option.markPresent();
                     }
 
                     if (option == null || !option.hasArgument()) {
@@ -271,7 +311,9 @@ public class ShellCompleter implements Completer {
                         }
                     }
 
+                    return this;
                 } else {
+                    option.addArgument(token.value());
                     optionNameParsing = false;
 
                     if (last && !newToken) {
@@ -283,24 +325,8 @@ public class ShellCompleter implements Completer {
                     }
                 }
             } else {
-                throw new IllegalStateException();
+                return baseContext.on(token, last, newToken);
             }
-
-            return this;
-        }
-
-        private boolean contains(Option opt, String name) {
-            for (String n : opt.names()) {
-                if (optionStart.length() >= 2) {
-                    if (n.length() > 1 && n.equals(name)) {
-                        return true;
-                    }
-                } else if (n.equals(name)) {
-                    return true;
-                }
-            }
-
-            return false;
         }
 
         @Override
@@ -319,7 +345,8 @@ public class ShellCompleter implements Completer {
 
         private void completeOption(LineReader reader, String arg, List<Candidate> candidates) {
             if (command.getCommand() instanceof JLineCommand jLineCommand) {
-                jLineCommand.completeOption(reader, arg, candidates, option);
+                baseContext.printComplete();
+                jLineCommand.complete(reader, baseContext.spec, candidates, option, arg);
             }
         }
     }
@@ -338,8 +365,10 @@ public class ShellCompleter implements Completer {
         protected Context on(Token token, boolean last, boolean newToken) {
             if (token.isWord() && last && !newToken) {
                 return this;
-            } else {
+            } else if (token.isWord()) {
                 return baseContext;
+            } else {
+                return baseContext.on(token, last, newToken);
             }
         }
 

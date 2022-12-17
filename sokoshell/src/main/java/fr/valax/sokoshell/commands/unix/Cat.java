@@ -1,5 +1,6 @@
 package fr.valax.sokoshell.commands.unix;
 
+import fr.valax.args.CommandLine;
 import fr.valax.args.api.Option;
 import fr.valax.args.api.VaArgs;
 import fr.valax.args.jline.FileNameCompleter;
@@ -11,6 +12,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * only --show-nonprinting is not implemented
@@ -150,7 +152,9 @@ public class Cat extends AbstractCommand {
     }
 
     @Override
-    public void completeVaArgs(LineReader reader, String argument, List<Candidate> candidates) {
-        FileNameCompleter.INSTANCE.complete(reader, argument, candidates);
+    public void complete(LineReader reader, CommandLine.CommandSpec command, List<Candidate> candidates, CommandLine.OptionSpec option, String argument) {
+        if (option == null) {
+            FileNameCompleter.INSTANCE.complete(reader, Objects.requireNonNullElse(argument, ""), candidates);
+        }
     }
 }

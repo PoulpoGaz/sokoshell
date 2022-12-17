@@ -1,5 +1,6 @@
 package fr.valax.sokoshell.commands.select;
 
+import fr.valax.args.CommandLine;
 import fr.valax.args.api.Option;
 import fr.valax.args.utils.ArgsUtils;
 import fr.valax.sokoshell.commands.AbstractCommand;
@@ -30,8 +31,8 @@ public class SelectStyle extends AbstractCommand {
     }
 
     @Override
-    public void completeOption(LineReader reader, String argument, List<Candidate> candidates, Option option) {
-        if (ArgsUtils.contains(option.names(), "s")) {
+    public void complete(LineReader reader, CommandLine.CommandSpec command, List<Candidate> candidates, CommandLine.OptionSpec option, String argument) {
+        if (option != null && ArgsUtils.contains(option.getShortNames(), 's')) {
             helper.addMapStyleCandidates(candidates);
         }
     }

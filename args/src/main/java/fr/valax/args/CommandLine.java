@@ -517,6 +517,10 @@ public class CommandLine {
         return commands;
     }
 
+    public INode<CommandSpec> getCommandSpecs() {
+        return root;
+    }
+
     public INode<CommandDescriber> getFirstCommand(String command) {
         ParsedCommand first = getFirstCommandWithIndex(command);
 
@@ -614,7 +618,7 @@ public class CommandLine {
      *  - parsing: parse the options
      *  - reflection: set fields in the command
      */
-    private class CommandSpec {
+    public class CommandSpec {
 
         private final Command command;
         private final CommandDescriber describer;
@@ -631,7 +635,7 @@ public class CommandLine {
 
             createOptions(builder);
             if (command.addHelp()) {
-                help = new OptionSpec(HELP_OPTION, null);
+                help = new OptionSpec(HELP_OPTION, null, null);
 
                 if (builder.addOption(help) != null) {
                     thrExc("Two option have same name in %s", command.getName());
@@ -670,7 +674,7 @@ public class CommandLine {
                         checkBoolean(field, "%s should be a boolean", field.getName());
                     }
 
-                    OptionSpec spec = new OptionSpec(option, field);
+                    OptionSpec spec = new OptionSpec(option, optGroup, field);
                     OptionSpec old = builder.addOption(optGroup, spec);
 
                     if (old != null) {
@@ -947,9 +951,10 @@ public class CommandLine {
      * checking if an option is required but not present
      * @author PoulpoGaz
      */
-    private class OptionSpec {
+    public class OptionSpec {
 
         private final Option option;
+        private final OptionGroup group;
         private final Field field;
         private final TypeConverter<?> converter;
 
@@ -960,8 +965,9 @@ public class CommandLine {
 
         private boolean present;
 
-        public OptionSpec(Option option, Field field) throws CommandLineException {
+        public OptionSpec(Option option, OptionGroup group, Field field) throws CommandLineException {
             this.option = option;
+            this.group = group;
             this.field = field;
 
             if (option.hasArgument()) {
@@ -1002,6 +1008,10 @@ public class CommandLine {
 
         public Option getOption() {
             return option;
+        }
+
+        public OptionGroup getGroup() {
+            return group;
         }
 
         public String firstName() {

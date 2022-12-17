@@ -1,5 +1,6 @@
 package fr.valax.sokoshell.commands.pack;
 
+import fr.valax.args.CommandLine;
 import fr.valax.args.api.Option;
 import fr.valax.args.utils.ArgsUtils;
 import fr.valax.sokoshell.commands.AbstractCommand;
@@ -14,8 +15,8 @@ public abstract class PackCommand extends AbstractCommand {
     protected String pack;
 
     @Override
-    public void completeOption(LineReader reader, String argument, List<Candidate> candidates, Option option) {
-        if (ArgsUtils.contains(option.names(), "p")) {
+    public void complete(LineReader reader, CommandLine.CommandSpec command, List<Candidate> candidates, CommandLine.OptionSpec option, String argument) {
+        if (option != null && ArgsUtils.contains(option.getShortNames(), 'p')) {
             helper.addPackCandidates(candidates);
         }
     }

@@ -1,5 +1,6 @@
 package fr.valax.sokoshell.commands;
 
+import fr.valax.args.CommandLine;
 import fr.valax.args.api.Option;
 import fr.valax.args.utils.ArgsUtils;
 import fr.valax.interval.Set;
@@ -120,14 +121,16 @@ public class PrintCommand extends AbstractCommand {
     }
 
     @Override
-    public void completeOption(LineReader reader, String argument, List<Candidate> candidates, Option option) {
-        if (ArgsUtils.contains(option.names(), "p")) {
-            helper.addPackCandidates(candidates);
-        } else if (ArgsUtils.contains(option.names(), "d")) {
-            candidates.add(new Candidate("left"));
-            candidates.add(new Candidate("right"));
-            candidates.add(new Candidate("up"));
-            candidates.add(new Candidate("down"));
+    public void complete(LineReader reader, CommandLine.CommandSpec command, List<Candidate> candidates, CommandLine.OptionSpec option, String argument) {
+        if (option != null) {
+            if (ArgsUtils.contains(option.getShortNames(), 'p')) {
+                helper.addPackCandidates(candidates);
+            } else if (ArgsUtils.contains(option.getShortNames(), 'd')) {
+                candidates.add(new Candidate("left"));
+                candidates.add(new Candidate("right"));
+                candidates.add(new Candidate("up"));
+                candidates.add(new Candidate("down"));
+            }
         }
     }
 }

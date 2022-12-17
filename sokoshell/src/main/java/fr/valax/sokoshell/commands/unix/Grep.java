@@ -1,5 +1,6 @@
 package fr.valax.sokoshell.commands.unix;
 
+import fr.valax.args.CommandLine;
 import fr.valax.args.api.Option;
 import fr.valax.args.api.VaArgs;
 import fr.valax.args.jline.FileNameCompleter;
@@ -14,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -189,7 +191,9 @@ public class Grep extends AbstractCommand {
     }
 
     @Override
-    public void completeVaArgs(LineReader reader, String argument, List<Candidate> candidates) {
-        FileNameCompleter.INSTANCE.complete(reader, argument, candidates);
+    public void complete(LineReader reader, CommandLine.CommandSpec command, List<Candidate> candidates, CommandLine.OptionSpec option, String argument) {
+        if (option == null) {
+            FileNameCompleter.INSTANCE.complete(reader, Objects.requireNonNullElse(argument, ""), candidates);
+        }
     }
 }
