@@ -80,6 +80,7 @@ public class PrettyTable {
         return sb.toString();
     }
 
+    @SuppressWarnings("unchecked")
     private <T> void drawSorted(PrettyColumn<T> column, boolean reversed,
                                 final StringBuilder sb, int[] columnsWidth, int[] cellHeight, int offset) {
         List<PrettyCell<T>> cells = column.getContent();

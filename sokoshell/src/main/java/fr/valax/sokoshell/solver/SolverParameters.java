@@ -55,6 +55,24 @@ public class SolverParameters {
     }
 
     /**
+     *
+     * @param param name of the parameter
+     * @return argument of parameter param or default value
+     * @param <T> type of the argument
+     * @throws ClassCastException if the argument can't be cast to a T
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T getArgument(String param) {
+        SolverParameter p = parameters.get(param);
+
+        if (p == null) {
+            throw new NoSuchElementException("No such parameter: " + param);
+        }
+
+        return (T) p.getOrDefault();
+    }
+
+    /**
      * @return all parameters
      */
     public Collection<SolverParameter> getParameters() {

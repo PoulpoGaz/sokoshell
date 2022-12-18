@@ -14,6 +14,7 @@ import org.jline.reader.Candidate;
 import org.jline.reader.LineReader;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.*;
 
@@ -64,6 +65,7 @@ public class SolveCommand extends AbstractCommand {
         }
 
         List<SolverParameter> parameters = getParameters(solver, args);
+        printTask(out, solver, parameters, levels);
 
         String packRequest = formatPackRequest();
         SolverTask lastTask = null;
@@ -111,6 +113,23 @@ public class SolveCommand extends AbstractCommand {
         }
 
         return null;
+    }
+
+    private void printTask(PrintStream out, Solver solver, List<SolverParameter> parameters, List<Level> levels) {
+        if (levels.size() == 1) {
+            out.printf("Solving 1 level with %s%n", solver.getName());
+        } else {
+            out.printf("Solving %d levels with %s%n", levels.size(), solver.getName());
+        }
+
+        out.println("Parameters:");
+        for (SolverParameter p : parameters) {
+            if (p.hasArgument()) {
+                out.println(p.getName() + " = " + p.get());
+            } else {
+                out.println(p.getName() + " = " + p.getDefaultValue() + " (default value)");
+            }
+        }
     }
 
     private SolverTask newTask(Solver solver, List<SolverParameter> params, List<Level> levels, String packRequest) {

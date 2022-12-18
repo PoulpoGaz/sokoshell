@@ -14,6 +14,10 @@ import java.util.Set;
  */
 public abstract class BruteforceSolver<S extends State> extends AbstractSolver implements Trackable {
 
+    protected static final String TIMEOUT = "timeout";
+    protected static final String MAX_RAM = "max-ram";
+    protected static final String ACCURATE = "accurate";
+
     protected SolverCollection<S> toProcess;
     protected final Set<State> processed = new HashSet<>();
 
@@ -53,9 +57,9 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
         running = true;
         stopped = false;
 
-        long timeout = (long) params.get("timeout").getOrDefault();
-        long maxRam = (long) params.get("max-ram").getOrDefault();
-        boolean detailed = (boolean) params.get("detailed").getOrDefault();
+        long timeout = params.getArgument(TIMEOUT);
+        long maxRam = params.getArgument(MAX_RAM);
+        boolean detailed = params.getArgument(ACCURATE);
 
         if (detailed) {
             SizeOf.initialize();
@@ -303,9 +307,9 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
 
     @Override
     public List<SolverParameter> getParameters() {
-        return List.of(new SolverParameter.Long("timeout", "Maximal runtime of the solver", -1),
-                new SolverParameter.RamParameter("max-ram", -1),
-                new SolverParameter.Boolean("accurate", "Use a more accurate method to calculate ram usage", false));
+        return List.of(new SolverParameter.Long(TIMEOUT, "Maximal runtime of the solver", -1),
+                new SolverParameter.RamParameter(MAX_RAM, -1),
+                new SolverParameter.Boolean(ACCURATE, "Use a more accurate method to calculate ram usage", false));
     }
 
     private SolverStatistics getStatistics() {
