@@ -16,13 +16,19 @@ import java.util.regex.Pattern;
 public abstract class SolverParameter {
 
     protected final String name;
+    protected final String description;
 
-    public SolverParameter(String name) {
+    public SolverParameter(String name, String description) {
         this.name = name;
+        this.description = description;
     }
 
     public String getName() {
         return name;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public abstract void set(String argument) throws AbstractCommand.InvalidArgument;
@@ -70,7 +76,11 @@ public abstract class SolverParameter {
         protected java.lang.Integer value = null;
 
         public Integer(String name, int defaultValue) {
-            super(name);
+            this(name, null, defaultValue);
+        }
+
+        public Integer(String name, String description, int defaultValue) {
+            super(name, description);
             this.defaultValue = defaultValue;
         }
 
@@ -112,7 +122,11 @@ public abstract class SolverParameter {
         protected java.lang.Long value = null;
 
         public Long(String name, long defaultValue) {
-            super(name);
+            this(name, null, defaultValue);
+        }
+
+        public Long(String name, String description, long defaultValue) {
+            super(name, description);
             this.defaultValue = defaultValue;
         }
 
@@ -155,7 +169,11 @@ public abstract class SolverParameter {
         protected java.lang.Boolean value = null;
 
         public Boolean(String name, boolean defaultValue) {
-            super(name);
+            this(name, null, defaultValue);
+        }
+
+        public Boolean(String name, String description, boolean defaultValue) {
+            super(name, description);
             this.defaultValue = defaultValue;
         }
 
@@ -200,7 +218,11 @@ public abstract class SolverParameter {
         private static final Pattern PATTERN = Pattern.compile("^(\\d+)\\s*([gmk])?b$", Pattern.CASE_INSENSITIVE);
 
         public RamParameter(String name, long defaultValue) {
-            super(name, defaultValue);
+            super(name, "Maximal ram usage of the solver", defaultValue);
+        }
+
+        public RamParameter(String name, String description, long defaultValue) {
+            super(name, description, defaultValue);
         }
 
         @Override

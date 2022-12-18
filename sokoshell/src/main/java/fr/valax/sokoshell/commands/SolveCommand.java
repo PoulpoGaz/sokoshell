@@ -33,9 +33,6 @@ public class SolveCommand extends AbstractCommand {
             defaultValue = "DFS")
     protected String solver;
 
-    @Option(names = {"t", "timeout"}, hasArgument = true, argName = "Timeout", defaultValue = "-1", description = "in ms")
-    private long timeout;
-
     @Option(names = {"P", "position"}, hasArgument = true)
     private Integer position;
 
@@ -94,7 +91,6 @@ public class SolveCommand extends AbstractCommand {
         for (int i = 0; i < args.length; i += 2) {
             String name = args[i];
             SolverParameter param = getParameter(parameters, name);
-
 
             if (param == null) {
                 throw new InvalidArgument("Solver " + solver.getName() +
@@ -168,7 +164,24 @@ public class SolveCommand extends AbstractCommand {
 
     @Override
     public String[] getUsage() {
-        return new String[0];
+        List<String> usage = new ArrayList<>();
+        usage.add("solve [OPTIONS]... LEVEL(S) PACK(S) [SOLVER PARAMETERS]...");
+        usage.add("");
+        usage.add("Solver parameters:");
+
+        for (Solver solver : helper.getSolvers().values()) {
+            usage.add(solver.getName() + ":");
+
+            for (SolverParameter param : solver.getParameters()) {
+                if (param.getDescription() == null) {
+                    usage.add(" -" + param.getName());
+                } else {
+                    usage.add(" -" + param.getName() + "     " + param.getDescription());
+                }
+            }
+        }
+
+        return usage.toArray(new String[0]);
     }
 
     @Override

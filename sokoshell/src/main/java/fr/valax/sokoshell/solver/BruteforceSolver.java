@@ -303,9 +303,9 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
 
     @Override
     public List<SolverParameter> getParameters() {
-        return List.of(new SolverParameter.Long("timeout", -1),
+        return List.of(new SolverParameter.Long("timeout", "Maximal runtime of the solver", -1),
                 new SolverParameter.RamParameter("max-ram", -1),
-                new SolverParameter.Boolean("detailed", false));
+                new SolverParameter.Boolean("accurate", "Use a more accurate method to calculate ram usage", false));
     }
 
     private SolverStatistics getStatistics() {
