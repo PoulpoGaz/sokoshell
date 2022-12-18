@@ -3,10 +3,8 @@ package fr.valax.sokoshell.commands;
 import fr.valax.args.CommandLine;
 import fr.valax.args.api.Command;
 import fr.valax.args.api.Option;
-import fr.valax.args.api.TypeConverter;
 import fr.valax.args.api.VaArgs;
 import fr.valax.args.utils.ArgsUtils;
-import fr.valax.args.utils.TypeException;
 import fr.valax.sokoshell.SokoShellHelper;
 import fr.valax.sokoshell.SolverTask;
 import fr.valax.sokoshell.TaskList;
@@ -18,9 +16,6 @@ import org.jline.reader.LineReader;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.*;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author PoulpoGaz
@@ -177,7 +172,12 @@ public class SolveCommand extends AbstractCommand {
     }
 
     @Override
-    public void complete(LineReader reader, CommandLine.CommandSpec command, List<Candidate> candidates, CommandLine.OptionSpec option, String argument) {
+    public void complete(LineReader reader,
+                         String commandString,
+                         CommandLine.CommandSpec command,
+                         List<Candidate> candidates,
+                         CommandLine.OptionSpec option,
+                         String argument) {
         if (option != null) {
             if (ArgsUtils.contains(option.getShortNames(), 'p')) {
                 helper.addPackCandidates(candidates);
@@ -186,6 +186,68 @@ public class SolveCommand extends AbstractCommand {
 
                 for (String solver : solvers) {
                     candidates.add(new Candidate(solver));
+                }
+            }
+        } else {
+            CommandLine.OptionSpec spec = command.findOption("s");
+
+            Solver solver;
+            if (spec.isPresent()) {
+                List<String> args = spec.getArgumentsList();
+
+                if (args.isEmpty()) {
+                    return;
+                }
+
+                solver = helper.getSolver(args.get(0));
+            } else {
+                solver = helper.getSolver(Solver.BFS);
+            }
+
+            if (solver != null) {
+                completeSolverParameter(reader, commandString, command, solver, candidates);
+            }
+        }
+    }
+
+    private void completeSolverParameter(LineReader reader,
+                                         String commandString,
+                                         CommandLine.CommandSpec command,
+                                         Solver solver,
+                                         List<Candidate> candidates) {
+        boolean newToken = commandString.endsWith(" ");
+
+        List<SolverParameter> params = solver.getParameters();
+
+        List<String> vaArgs = command.getVaargs().getValues();
+        Set<String> present = new HashSet<>();
+
+        SolverParameter last = null;
+        boolean inValue = false;
+        for (String vaArg : vaArgs) {
+            if (inValue) {
+                inValue = false;
+            } else {
+                SolverParameter curr = getParameter(params, vaArg);
+
+                if (curr != null) {
+                    present.add(vaArg);
+                    inValue = true;
+                    last = curr;
+                } else {
+                    last = null;
+                }
+            }
+        }
+
+        if (inValue) {
+            last.complete(reader, null, candidates);
+        } else if (last != null && !newToken) {
+            last.complete(reader, vaArgs.get(vaArgs.size() - 1), candidates);
+        } else {
+            for (SolverParameter param : params) {
+                if (!present.contains(param.getName())) {
+                    candidates.add(new Candidate(param.getName()));
                 }
             }
         }

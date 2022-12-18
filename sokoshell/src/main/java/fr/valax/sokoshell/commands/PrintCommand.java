@@ -121,7 +121,7 @@ public class PrintCommand extends AbstractCommand {
     }
 
     @Override
-    public void complete(LineReader reader, CommandLine.CommandSpec command, List<Candidate> candidates, CommandLine.OptionSpec option, String argument) {
+    public void complete(LineReader reader, String commandString, CommandLine.CommandSpec command, List<Candidate> candidates, CommandLine.OptionSpec option, String argument) {
         if (option != null) {
             if (ArgsUtils.contains(option.getShortNames(), 'p')) {
                 helper.addPackCandidates(candidates);

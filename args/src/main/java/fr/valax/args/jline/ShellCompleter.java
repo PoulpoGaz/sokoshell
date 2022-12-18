@@ -49,7 +49,7 @@ public class ShellCompleter implements Completer {
                 context = context.on(last, !tokenizer.hasNext(), newToken);
             }
 
-            context.complete(last, reader, line, candidates, newToken);
+            context.complete(last, reader, command, line, candidates, newToken);
         } finally {
             if (base.spec != null) {
                 base.spec.reset();
@@ -88,7 +88,7 @@ public class ShellCompleter implements Completer {
 
         protected abstract Context on(Token token, boolean last, boolean newToken);
 
-        protected abstract void complete(Token lastToken, LineReader reader, ParsedLine line, List<Candidate> candidates, boolean newToken);
+        protected abstract void complete(Token lastToken, LineReader reader, String commandString, ParsedLine line, List<Candidate> candidates, boolean newToken);
 
         protected void addAllOptions(boolean longName, boolean shortName,
                                      String optionNameStart, Set<CommandLine.OptionSpec> presentOptions,
@@ -195,7 +195,7 @@ public class ShellCompleter implements Completer {
         }
 
         @Override
-        protected void complete(Token last, LineReader reader, ParsedLine line, List<Candidate> candidates, boolean newToken) {
+        protected void complete(Token last, LineReader reader, String commandString, ParsedLine line, List<Candidate> candidates, boolean newToken) {
             if (findingCommand ||
                     (last != null && !isOption(last, true, newToken))) {
                 for (INode<CommandLine.CommandSpec> child : command.getChildren()) {
@@ -206,7 +206,7 @@ public class ShellCompleter implements Completer {
             CommandLine.CommandSpec desc = command.getValue();
 
             if (desc != null) {
-                if (desc.getOptions().size() != presentOptions.size() && !endOfOptions) {
+                if (desc.getOptions().size() != presentOptions.size() && !endOfOptions && newToken) {
                     candidates.add(new Candidate("-", "-", null, null, null, null, false));
                 }
 
@@ -214,40 +214,13 @@ public class ShellCompleter implements Completer {
                     Command command = desc.getCommand();
 
                     if (command instanceof JLineCommand jLineCommand) {
-                        printComplete();
                         if (newToken) {
-                            jLineCommand.complete(reader, spec, candidates, null, null);
+                            jLineCommand.complete(reader, commandString, spec, candidates, null, null);
                         } else {
-                            jLineCommand.complete(reader, spec, candidates, null, last.value());
+                            jLineCommand.complete(reader, commandString, spec, candidates, null, last.value());
                         }
                     }
                 }
-            }
-        }
-
-        protected void printComplete() {
-            try (BufferedWriter bw = Files.newBufferedWriter(Path.of("log"), StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {
-                if (spec == null) {
-                    bw.write("Spec is null\n");
-                } else {
-                    bw.write("Command: " + spec.getCommand().getName() + "\n");
-
-                    for (CommandLine.OptionSpec s : spec.getOptions().values()) {
-                        if (s.isPresent()) {
-                            bw.write(s.getLongNames()[0] + " is present. Values = " + s.getArgumentsList() + "\n");
-                        } else {
-                            bw.write(s.getLongNames()[0] + " isn't present.\n");
-                        }
-                    }
-
-                    if (spec.getVaargs() != null) {
-                        bw.write("VaArgs: " + spec.getVaargs().getValues() + "\n");
-                    }
-                }
-
-
-            } catch (IOException e) {
-                // ignored
             }
         }
 
@@ -330,7 +303,7 @@ public class ShellCompleter implements Completer {
         }
 
         @Override
-        protected void complete(Token last, LineReader reader, ParsedLine line, List<Candidate> candidates, boolean newToken) {
+        protected void complete(Token last, LineReader reader, String commandString, ParsedLine line, List<Candidate> candidates, boolean newToken) {
             if (option == null || (optionNameParsing && !newToken)) {
                 if (isOption(last, true, newToken)) {
                     addAllOptions(true, true, "", baseContext.getPresentOptions(), candidates, command);
@@ -339,14 +312,13 @@ public class ShellCompleter implements Completer {
                             last.value(), baseContext.getPresentOptions(), candidates, command);
                 }
             } else {
-                completeOption(reader, last.value(), candidates);
+                completeOption(reader, commandString, last.value(), candidates);
             }
         }
 
-        private void completeOption(LineReader reader, String arg, List<Candidate> candidates) {
+        private void completeOption(LineReader reader, String commandString, String arg, List<Candidate> candidates) {
             if (command.getCommand() instanceof JLineCommand jLineCommand) {
-                baseContext.printComplete();
-                jLineCommand.complete(reader, baseContext.spec, candidates, option, arg);
+                jLineCommand.complete(reader, commandString, baseContext.spec, candidates, option, arg);
             }
         }
     }
@@ -373,7 +345,7 @@ public class ShellCompleter implements Completer {
         }
 
         @Override
-        protected void complete(Token last, LineReader reader, ParsedLine line, List<Candidate> candidates, boolean newToken) {
+        protected void complete(Token last, LineReader reader, String commandString, ParsedLine line, List<Candidate> candidates, boolean newToken) {
             if (redirect.type() != Token.READ_INPUT_UNTIL) {
                 FileNameCompleter.INSTANCE.complete(reader, last.value(), candidates);
             }

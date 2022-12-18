@@ -175,7 +175,7 @@ public class StatsCommand extends TableCommand {
     }
 
     @Override
-    public void complete(LineReader reader, CommandLine.CommandSpec command, List<Candidate> candidates, CommandLine.OptionSpec option, String argument) {
+    public void complete(LineReader reader, String commandString, CommandLine.CommandSpec command, List<Candidate> candidates, CommandLine.OptionSpec option, String argument) {
         if (option != null && ArgsUtils.contains(option.getShortNames(), 'p')) {
             helper.addPackCandidates(candidates);
         }

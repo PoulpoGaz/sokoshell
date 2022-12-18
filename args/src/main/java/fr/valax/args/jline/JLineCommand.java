@@ -2,7 +2,6 @@ package fr.valax.args.jline;
 
 import fr.valax.args.CommandLine;
 import fr.valax.args.api.Command;
-import fr.valax.args.api.Option;
 import org.jline.reader.Candidate;
 import org.jline.reader.LineReader;
 
@@ -14,6 +13,7 @@ public interface JLineCommand extends Command {
      * if option is null, the command may complete vaArgs
      */
     default void complete(LineReader reader,
+                          String commandString,
                           CommandLine.CommandSpec command,
                           List<Candidate> candidates,
                           CommandLine.OptionSpec option,
