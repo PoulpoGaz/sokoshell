@@ -1,5 +1,6 @@
-package fr.valax.sokoshell.graphics;
+package fr.valax.sokoshell.graphics.style;
 
+import fr.valax.sokoshell.graphics.Graphics;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;

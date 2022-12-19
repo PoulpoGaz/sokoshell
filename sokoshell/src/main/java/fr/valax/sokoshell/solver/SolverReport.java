@@ -5,7 +5,7 @@ import fr.poulpogaz.json.JsonException;
 import fr.poulpogaz.json.JsonPrettyWriter;
 import fr.poulpogaz.json.JsonReader;
 import fr.valax.sokoshell.SokoShellHelper;
-import fr.valax.sokoshell.graphics.MapRenderer;
+import fr.valax.sokoshell.graphics.style.MapRenderer;
 
 import java.io.IOException;
 import java.util.*;

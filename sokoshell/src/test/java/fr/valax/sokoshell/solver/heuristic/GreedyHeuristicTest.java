@@ -1,8 +1,8 @@
 package fr.valax.sokoshell.solver.heuristic;
 
 import fr.poulpogaz.json.JsonException;
-import fr.valax.sokoshell.graphics.MapRenderer;
-import fr.valax.sokoshell.graphics.MapStyleReader;
+import fr.valax.sokoshell.graphics.style.MapRenderer;
+import fr.valax.sokoshell.graphics.style.MapStyleReader;
 import fr.valax.sokoshell.readers.PackReaders;
 import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.solver.Map;
@@ -10,7 +10,6 @@ import fr.valax.sokoshell.solver.Pack;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
-import java.util.Arrays;
 
 public class GreedyHeuristicTest {
 

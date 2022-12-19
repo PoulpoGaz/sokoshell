@@ -1,9 +1,9 @@
 package fr.valax.sokoshell;
 
-import fr.valax.sokoshell.graphics.AnsiTile;
-import fr.valax.sokoshell.graphics.ImageTile;
-import fr.valax.sokoshell.graphics.MapStyle;
-import fr.valax.sokoshell.graphics.TileStyle;
+import fr.valax.sokoshell.graphics.style.AnsiTile;
+import fr.valax.sokoshell.graphics.style.ImageTile;
+import fr.valax.sokoshell.graphics.style.MapStyle;
+import fr.valax.sokoshell.graphics.style.TileStyle;
 import fr.valax.sokoshell.solver.Direction;
 import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.solver.Map;

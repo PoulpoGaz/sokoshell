@@ -1,4 +1,4 @@
-package fr.valax.sokoshell.graphics;
+package fr.valax.sokoshell.graphics.style;
 
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStringBuilder;
@@ -15,7 +15,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import static fr.valax.sokoshell.graphics.MapStyle.Element;
+import static fr.valax.sokoshell.graphics.style.MapStyle.Element;
 import static org.jline.utils.AttributedStyle.*;
 
 public class MapStyleReader {

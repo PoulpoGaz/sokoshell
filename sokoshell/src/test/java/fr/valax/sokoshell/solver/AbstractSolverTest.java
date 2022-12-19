@@ -1,8 +1,8 @@
 package fr.valax.sokoshell.solver;
 
 import fr.poulpogaz.json.JsonException;
-import fr.valax.sokoshell.graphics.MapRenderer;
-import fr.valax.sokoshell.graphics.MapStyleReader;
+import fr.valax.sokoshell.graphics.style.MapRenderer;
+import fr.valax.sokoshell.graphics.style.MapStyleReader;
 import fr.valax.sokoshell.readers.PackReaders;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

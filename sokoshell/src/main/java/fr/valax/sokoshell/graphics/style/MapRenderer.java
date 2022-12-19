@@ -1,4 +1,4 @@
-package fr.valax.sokoshell.graphics;
+package fr.valax.sokoshell.graphics.style;
 
 import fr.valax.sokoshell.solver.Direction;
 import fr.valax.sokoshell.solver.Level;
@@ -112,13 +112,13 @@ public class MapRenderer {
 
     // Methods that use Graphics
 
-    public void draw(Graphics g,
+    public void draw(fr.valax.sokoshell.graphics.Graphics g,
                      int x, int y, int width, int height,
                      Map map, int playerX, int playerY, Direction playerDir) {
         draw(g, x, y, width, height, map, playerX, playerY, playerDir, true);
     }
 
-    public void draw(Graphics g,
+    public void draw(fr.valax.sokoshell.graphics.Graphics g,
                      int x, int y, int width, int height,
                      Map map, int playerX, int playerY, Direction playerDir, boolean center) {
         if (style == null) {
@@ -148,7 +148,7 @@ public class MapRenderer {
         }
     }
 
-    public void draw(Graphics g,
+    public void draw(fr.valax.sokoshell.graphics.Graphics g,
                      int x, int y, int size,
                      Map map, int playerX, int playerY, Direction playerDir) {
         if (style == null) {

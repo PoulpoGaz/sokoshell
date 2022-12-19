@@ -217,7 +217,7 @@ public class MonitorCommand extends AbstractCommand {
 
         @Override
         protected void updateComponent() {
-            if (keyReleased(Key.ESCAPE)) {
+            if (keyPressed(Key.ESCAPE)) {
                 getEngine().stop();
             }
 

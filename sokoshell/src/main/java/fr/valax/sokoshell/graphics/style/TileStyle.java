@@ -1,5 +1,6 @@
-package fr.valax.sokoshell.graphics;
+package fr.valax.sokoshell.graphics.style;
 
+import fr.valax.sokoshell.graphics.Graphics;
 import org.jline.utils.AttributedString;
 
 public abstract class TileStyle {

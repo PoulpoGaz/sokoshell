@@ -1,6 +1,6 @@
 package fr.valax.sokoshell.commands.table;
 
-import fr.valax.sokoshell.graphics.MapStyle;
+import fr.valax.sokoshell.graphics.style.MapStyle;
 import fr.valax.sokoshell.utils.PrettyColumn;
 import fr.valax.sokoshell.utils.PrettyTable;
 import fr.valax.sokoshell.utils.Utils;

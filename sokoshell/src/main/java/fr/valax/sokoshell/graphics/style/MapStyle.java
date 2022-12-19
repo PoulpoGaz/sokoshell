@@ -1,4 +1,4 @@
-package fr.valax.sokoshell.graphics;
+package fr.valax.sokoshell.graphics.style;
 
 import fr.valax.sokoshell.SokoShell;
 import fr.valax.sokoshell.solver.Direction;

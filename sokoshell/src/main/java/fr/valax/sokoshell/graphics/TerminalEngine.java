@@ -10,6 +10,7 @@ import org.jline.terminal.Terminal;
 import org.jline.utils.Display;
 import org.jline.utils.InfoCmp;
 
+import java.awt.*;
 import java.io.IOError;
 import java.io.InterruptedIOException;
 import java.util.ArrayDeque;
@@ -97,6 +98,7 @@ public class TerminalEngine implements AutoCloseable {
                 // update
                 pollEvents();
                 if (rootComponent != null) {
+                    rootComponent.layoutIfNeeded();
                     rootComponent.update();
 
                     if (!running) {
@@ -201,7 +203,7 @@ public class TerminalEngine implements AutoCloseable {
 
             lastMouseEvent = null;
             for (KeyInfo i : keyInfos.values()) {
-                i.pressed = false;
+                i.setPressed(false);
             }
 
             while (!keyEvents.isEmpty()) {
@@ -217,18 +219,9 @@ public class TerminalEngine implements AutoCloseable {
                         keyInfos.put(k, key);
                     }
 
-                    key.press();
+                    key.setPressed(true);
                 } else {
                     throw new IllegalStateException("Unknown event: " + o);
-                }
-            }
-
-            for (KeyInfo i : keyInfos.values()) {
-                if (!i.pressed && i.count > 0) {
-                    i.released = true;
-                    i.count = 0;
-                } else if (i.released) {
-                    i.released = false;
                 }
             }
         }
@@ -243,33 +236,11 @@ public class TerminalEngine implements AutoCloseable {
      * @param k the key
      * @return true if t is pressed
      */
-    @Deprecated
     public boolean keyPressed(Key k) {
         KeyInfo key = keyInfos.get(k);
 
         return key != null && key.isPressed();
     }
-
-    /**
-     * @param k the key
-     * @return the number of time t was pressed
-     * between now and the last time the update function
-     * was called
-     */
-    @Deprecated
-    public int keyPressedCount(Key k) {
-        KeyInfo key = keyInfos.get(k);
-
-        return key == null ? 0 : key.pressedFor();
-    }
-
-    @Deprecated
-    public boolean keyReleased(Key k) {
-        KeyInfo key = keyInfos.get(k);
-
-        return key != null && key.isReleased();
-    }
-
 
     public boolean hasMouseSupport() {
         return hasMouseSupport;
@@ -366,46 +337,19 @@ public class TerminalEngine implements AutoCloseable {
 
     private static class KeyInfo {
 
-        /**
-         * The key that represent this KeyInfo
-         */
         private final Key key;
-
-        /**
-         * How many times this key was pressed
-         */
-        private int count;
-
-        /**
-         * If the key is pressed
-         */
         private boolean pressed = false;
-        private boolean released = false;
 
         public KeyInfo(Key key) {
             this.key = key;
         }
 
-        public void press() {
-            count++;
-            pressed = true;
-            released = false;
+        public void setPressed(boolean pressed) {
+            this.pressed = pressed;
         }
 
         public boolean isPressed() {
             return pressed;
-        }
-
-        public boolean isReleased() {
-            return released;
-        }
-
-        public boolean isPressed(int count) {
-            return pressed && this.count > count;
-        }
-
-        private int pressedFor() {
-            return count;
         }
     }
 }

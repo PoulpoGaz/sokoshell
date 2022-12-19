@@ -1,6 +1,9 @@
 package fr.valax.sokoshell.graphics;
 
 import fr.poulpogaz.json.JsonException;
+import fr.valax.sokoshell.graphics.style.MapRenderer;
+import fr.valax.sokoshell.graphics.style.MapStyle;
+import fr.valax.sokoshell.graphics.style.MapStyleReader;
 import fr.valax.sokoshell.readers.PackReaders;
 import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.solver.Pack;

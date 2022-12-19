@@ -1,4 +1,4 @@
-package fr.valax.sokoshell.graphics;
+package fr.valax.sokoshell.graphics.style;
 
 import org.jline.utils.AttributedStyle;
 

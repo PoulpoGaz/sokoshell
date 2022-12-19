@@ -1,6 +1,7 @@
 package fr.valax.sokoshell.graphics;
 
 import fr.valax.sokoshell.SokoShellHelper;
+import fr.valax.sokoshell.graphics.style.MapRenderer;
 import fr.valax.sokoshell.solver.Direction;
 import fr.valax.sokoshell.solver.Map;
 

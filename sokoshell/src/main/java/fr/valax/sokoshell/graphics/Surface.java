@@ -1,5 +1,6 @@
 package fr.valax.sokoshell.graphics;
 
+import fr.valax.sokoshell.graphics.style.TrueColorString;
 import org.jline.terminal.Size;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStringBuilder;

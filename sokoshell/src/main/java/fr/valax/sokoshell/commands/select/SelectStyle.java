@@ -4,7 +4,7 @@ import fr.valax.args.CommandLine;
 import fr.valax.args.api.Option;
 import fr.valax.args.utils.ArgsUtils;
 import fr.valax.sokoshell.commands.AbstractCommand;
-import fr.valax.sokoshell.graphics.MapStyle;
+import fr.valax.sokoshell.graphics.style.MapStyle;
 import org.jline.reader.Candidate;
 import org.jline.reader.LineReader;
 

@@ -129,18 +129,18 @@ public class PlayCommand extends LevelCommand {
 
         @Override
         protected void updateComponent() {
-            if (keyReleased(Key.ESCAPE) || keyReleased(Key.ENTER)) {
+            if (keyPressed(Key.ESCAPE) || keyPressed(Key.ENTER)) {
                 getEngine().stop();
-            } else if (keyReleased(Key.LEFT)) {
+            } else if (keyPressed(Key.LEFT)) {
                 controller.move(Direction.LEFT);
                 updateComponents();
-            } else if (keyReleased(Key.RIGHT)) {
+            } else if (keyPressed(Key.RIGHT)) {
                 controller.move(Direction.RIGHT);
                 updateComponents();
-            } else if (keyReleased(Key.UP)) {
+            } else if (keyPressed(Key.UP)) {
                 controller.move(Direction.UP);
                 updateComponents();
-            } else if (keyReleased(Key.DOWN)) {
+            } else if (keyPressed(Key.DOWN)) {
                 controller.move(Direction.DOWN);
                 updateComponents();
             } /*else if (keyPressed(Key.E)) {

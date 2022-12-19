@@ -52,7 +52,7 @@ public class TestCommand extends AbstractCommand {
         fr.valax.sokoshell.graphics.Component root = new fr.valax.sokoshell.graphics.Component() {
             @Override
             public void updateComponent() {
-                if (keyReleased(Key.ESCAPE)) {
+                if (keyPressed(Key.ESCAPE)) {
                     getEngine().stop();
                 }
             }

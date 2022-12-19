@@ -23,7 +23,7 @@ public class ExportComponent extends Component {
 
     @Override
     protected void updateComponent() {
-        if (keyReleased(Key.CTRL_E)) {
+        if (keyPressed(Key.CTRL_E)) {
             String out = exporter.get();
 
             if (out != null) {

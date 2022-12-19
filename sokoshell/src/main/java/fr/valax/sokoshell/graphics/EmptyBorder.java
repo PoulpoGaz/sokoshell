@@ -21,7 +21,7 @@ public class EmptyBorder implements Border {
     }
 
     @Override
-    public void drawBorder(fr.valax.sokoshell.graphics.Component c, Graphics g, int x, int y, int width, int height) {
+    public void drawBorder(Component c, Graphics g, int x, int y, int width, int height) {
 
     }
 

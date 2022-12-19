@@ -206,9 +206,9 @@ public class SolutionCommand extends LevelCommand {
                 animate();
             }
 
-            if (keyReleased(Key.ESCAPE)) {
+            if (keyPressed(Key.ESCAPE)) {
                 getEngine().stop();
-            } else if (keyReleased(Key.SPACE)) {
+            } else if (keyPressed(Key.SPACE)) {
                 paused = !paused;
                 lastTime = System.currentTimeMillis();
             } else if (keyPressed(Key.LEFT) && paused) {
@@ -233,7 +233,7 @@ public class SolutionCommand extends LevelCommand {
                 if (speed > 1) {
                     speed--;
                 }
-            } else if (keyReleased(Key.R)) {
+            } else if (keyPressed(Key.R)) {
                 animator.reset();
                 updateComponents();
             } /*else if (keyReleased(Key.E)) {
