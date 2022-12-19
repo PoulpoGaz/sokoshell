@@ -5,6 +5,7 @@ import fr.poulpogaz.json.IJsonWriter;
 import fr.poulpogaz.json.JsonException;
 import fr.poulpogaz.json.JsonToken;
 import fr.poulpogaz.json.utils.Pair;
+import fr.valax.sokoshell.SokoShellHelper;
 
 import java.io.IOException;
 import java.util.*;
@@ -95,92 +96,42 @@ public class SolverParameters {
 
 
     public void append(IJsonWriter jw) throws JsonException, IOException {
-        /*jw.beginObject();
-        jw.field("solver", solver.name());
+        jw.beginObject();
+        jw.field("solver", solverName);
 
-        for (Map.Entry<String, Object> param : parameters.entrySet()) {
-            jw.key(param.getKey());
-
-            if (param.getValue() instanceof Enum<?> e) {
-                jw.beginArray();
-                jw.value(e.getClass().getName());
-                jw.value(e.name());
-                jw.endArray();
-            } else if (param.getValue() instanceof String str) {
-                jw.value(str);
-            } else if (param.getValue() instanceof Number e) {
-                jw.value(e);
+        for (Map.Entry<String, SolverParameter> param : parameters.entrySet()) {
+            if (param.getValue().hasArgument()) {
+                jw.key(param.getKey());
+                param.getValue().toJson(jw);
             }
         }
-        jw.endObject();*/
+
+        jw.endObject();
     }
 
     public static SolverParameters fromJson(IJsonReader jr, Level level) throws JsonException, IOException {
-        /*SolverType solver = null;
-
-        Map<String, Object> map = new HashMap<>();
-
         jr.beginObject();
+        String solverName = jr.assertKeyEquals("solver").nextString();
 
+        Solver solver = SokoShellHelper.INSTANCE.getSolver(solverName);
+        if (solver == null) {
+            throw new IOException("No such solver: " + solverName);
+        }
+
+        List<SolverParameter> parameters = solver.getParameters();
         while (!jr.isObjectEnd()) {
             String key = jr.nextKey();
 
-            if ("solver".equals(key)) {
-                solver = SolverType.valueOf(jr.nextString());
-            } else {
-                parseParameter(key, jr, map);
-            }
+            SolverParameter parameter = parameters.stream()
+                    .filter((s) -> s.getName().equals(key))
+                    .findFirst()
+                    .orElseThrow(() -> new IOException("No such parameter: " + key));
+
+            parameter.fromJson(jr);
         }
 
         jr.endObject();
 
-        if (solver == null) {
-            throw new IOException("Can't find solver");
-        }
-
-        return new SolverParameters(solver, level, null);// map);*/
-        return null;
-    }
-
-    private static void parseParameter(String key, IJsonReader jr, Map<String, Object> parameters) throws JsonException, IOException {
-        Pair<JsonToken, Object> pair = jr.next();
-        JsonToken token = pair.getLeft();
-
-        if (token.isNumber() || token == JsonToken.STRING_TOKEN) {
-            parameters.put(key, pair.getRight());
-
-        } else if (token == JsonToken.BEGIN_ARRAY_TOKEN) {
-
-            String enumName = jr.nextString();
-            String name = jr.nextString();
-
-            jr.endArray();
-
-            try {
-                Class<?> cls = Class.forName(enumName);
-
-                if (!cls.isEnum()) {
-                    throw new IOException("Not an enum");
-                }
-
-                parameters.put(key, getEnum(cls, name));
-            } catch (ClassNotFoundException e) {
-                throw new IOException("Invalid class: " + enumName, e);
-            }
-
-        } else {
-            throw new IOException("Invalid parameter: " + key);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T extends Enum<T>> T getEnum(Class<?> cls, String name) {
-        if (cls.isEnum()) {
-            Class<T> clsEnum = (Class<T>) cls;
-
-            return Enum.valueOf(clsEnum, name);
-        } else {
-            return null;
-        }
+        return new SolverParameters(solverName, level, parameters);
     }
 }

@@ -6,22 +6,28 @@ package fr.valax.sokoshell.solver;
  */
 public enum Move {
 
-    LEFT(Direction.LEFT, false),
-    UP(Direction.UP, false),
-    DOWN(Direction.DOWN, false),
-    RIGHT(Direction.RIGHT, false),
+    LEFT("l", Direction.LEFT, false),
+    UP("u", Direction.UP, false),
+    DOWN("d", Direction.DOWN, false),
+    RIGHT("r", Direction.RIGHT, false),
 
-    LEFT_PUSH(Direction.LEFT, true),
-    UP_PUSH(Direction.UP, true),
-    RIGHT_PUSH(Direction.RIGHT, true),
-    DOWN_PUSH(Direction.DOWN, true);
+    LEFT_PUSH("L", Direction.LEFT, true),
+    UP_PUSH("U", Direction.UP, true),
+    RIGHT_PUSH("R", Direction.RIGHT, true),
+    DOWN_PUSH("D", Direction.DOWN, true);
 
+    private final String shortName;
     private final Direction direction;
     private final boolean moveCrate;
 
-    Move(Direction direction, boolean moveCrate) {
+    Move(String name, Direction direction, boolean moveCrate) {
+        this.shortName = name;
         this.direction = direction;
         this.moveCrate = moveCrate;
+    }
+
+    public String shortName() {
+        return shortName;
     }
 
     public Direction direction() {
@@ -39,5 +45,15 @@ public enum Move {
             case DOWN -> moveCrate ? DOWN_PUSH : DOWN;
             case RIGHT -> moveCrate ? RIGHT_PUSH : RIGHT;
         };
+    }
+
+    public static Move of(String shortName) {
+        for (Move move : Move.values()) {
+            if (move.shortName().equals(shortName)) {
+                return move;
+            }
+        }
+
+        return null;
     }
 }

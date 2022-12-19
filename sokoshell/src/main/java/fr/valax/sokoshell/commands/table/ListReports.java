@@ -104,7 +104,7 @@ public class ListReports extends TableCommand {
         table.addColumn(time);
 
         printTable(out, err, table);
-        out.printf("%nNumber of solutions: %d%n", solverReports.size());
+        out.printf("%nNumber of reports: %d%n", solverReports.size());
 
         if (stats) {
             out.println();
@@ -217,10 +217,10 @@ public class ListReports extends TableCommand {
         out.printf("Average run time per report: %s%n", Utils.prettyDate(timeSum / solverReports.size()));
 
         Level l = minTimeReport.getLevel();
-        out.printf("Fastest solved level: in %s - %s #%d%n", Utils.prettyDate(minTime), l.getPack().name(), l.getIndex() + 1);
+        out.printf("Slowest solved level: in %s - %s #%d%n", Utils.prettyDate(minTime), l.getPack().name(), l.getIndex() + 1);
 
         l = maxTimeReport.getLevel();
-        out.printf("Slowest solved level: in %s - %s #%d%n", Utils.prettyDate(maxTime), l.getPack().name(), l.getIndex() + 1);
+        out.printf("Fastest solved level: in %s - %s #%d%n", Utils.prettyDate(maxTime), l.getPack().name(), l.getIndex() + 1);
         out.println();
 
 

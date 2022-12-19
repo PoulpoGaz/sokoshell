@@ -243,19 +243,14 @@ public class SolverReport {
 
         if (fullSolution != null) {
             jpw.key("solution").beginArray();
+            jpw.setInline(JsonPrettyWriter.Inline.ALL);
 
             for (Move m : fullSolution) {
-                jpw.beginObject();
-
-                jpw.setInline(JsonPrettyWriter.Inline.ALL);
-                jpw.field("move", m.direction().toString());
-                jpw.field("crate", m.moveCrate());
-
-                jpw.endObject();
-                jpw.setInline(JsonPrettyWriter.Inline.NONE);
+                jpw.value(m.shortName());
             }
 
             jpw.endArray();
+            jpw.setInline(JsonPrettyWriter.Inline.NONE);
         }
 
         jpw.key("statistics");
@@ -277,42 +272,25 @@ public class SolverReport {
 
             moves = new ArrayList<>();
             while (!jr.isArrayEnd()) {
-                jr.beginObject();
+                String name = jr.nextString();
+                Move move = Move.of(name);
 
-                String move = jr.assertKeyEquals("move").nextString();
-                boolean crate = jr.assertKeyEquals("crate").nextBoolean();
-                moves.add(Move.of(Direction.valueOf(move), crate));
+                if (move == null) {
+                    throw new IOException("Unknown move: " + name);
+                }
 
-                jr.endObject();
+                moves.add(move);
             }
             jr.endArray();
 
             jr.assertKeyEquals("statistics");
         } else if (!key.equals("statistics")) {
-            throw new JsonException(String.format("Invalid key. Expected \"%s\" but was \"%s\"", "statistics", key));
+            throw new JsonException(String.format("Invalid key. Expected \"statistics\" but was \"%s\"", key));
         }
 
         SolverStatistics stats = SolverStatistics.fromJson(jr);
 
         return new SolverReport(parameters, stats, status, moves);
-    }
-
-    private static int[] readIntArray(IJsonReader jr) throws JsonException, IOException {
-        List<Integer> integers = new ArrayList<>();
-
-        jr.beginArray();
-        while (!jr.isArrayEnd()) {
-            integers.add(jr.nextInt());
-        }
-
-        jr.endArray();
-
-        int[] array = new int[integers.size()];
-        for (int i = 0; i < integers.size(); i++) {
-            array[i] = integers.get(i);
-        }
-
-        return array;
     }
 
 
