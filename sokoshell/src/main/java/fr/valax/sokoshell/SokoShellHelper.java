@@ -8,14 +8,19 @@ import fr.valax.sokoshell.solver.*;
 import fr.valax.sokoshell.utils.Utils;
 import org.jline.reader.Candidate;
 import org.jline.terminal.Terminal;
+import org.jline.utils.AttributedString;
+import org.jline.utils.Status;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
 import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * Contains all packs, styles, the task list, the selected level, the selected pack and the map renderer.
@@ -27,6 +32,12 @@ public class SokoShellHelper {
 
     public static final SokoShellHelper INSTANCE = new SokoShellHelper();
 
+
+    private final ExecutorService executor = Executors.newCachedThreadPool();
+    private final ScheduledExecutorService scheduledExecutor =
+            Executors.newScheduledThreadPool(
+                    Math.max(1, Runtime.getRuntime().availableProcessors() / 4));
+
     private final Map<String, Solver> solvers = new HashMap<>();
     private final Map<String, Pack> packs = new HashMap<>();
     private final Map<String, MapStyle> styles = new HashMap<>();
@@ -34,10 +45,11 @@ public class SokoShellHelper {
     private final MapRenderer renderer = new MapRenderer();
     private final PNGExporter exporter = new PNGExporter();
 
+    private final TaskList taskList;
+
     private CommandLine cli;
     private Terminal terminal;
-
-    private final TaskList taskList;
+    private NotificationHandler notificationHandler;
 
     private Pack selectedPack = null;
     private int selectedLevel = -1;
@@ -57,8 +69,19 @@ public class SokoShellHelper {
         taskList = new TaskList();
     }
 
+    // solvers
+
+    // actually private, but one day...
     private void addSolver(Solver solver) {
         solvers.put(solver.getName(), solver);
+    }
+
+    public Map<String, Solver> getSolvers() {
+        return Collections.unmodifiableMap(solvers);
+    }
+
+    public Solver getSolver(String name) {
+        return solvers.get(name);
     }
 
     // tasks
@@ -108,16 +131,6 @@ public class SokoShellHelper {
         ImageIO.write(image, "png", out.toFile());
 
         return out;
-    }
-
-    // solvers
-
-    public Map<String, Solver> getSolvers() {
-        return Collections.unmodifiableMap(solvers);
-    }
-
-    public Solver getSolver(String name) {
-        return solvers.get(name);
     }
 
 
@@ -271,6 +284,22 @@ public class SokoShellHelper {
         return exporter;
     }
 
+    public ExecutorService getExecutor() {
+        return executor;
+    }
+
+    public ScheduledExecutorService getScheduledExecutor() {
+        return scheduledExecutor;
+    }
+
+    public void shutdown() {
+        executor.shutdown();
+        scheduledExecutor.shutdown();
+
+        if (notificationHandler != null) {
+            notificationHandler.shutdown();
+        }
+    }
 
     public Terminal getTerminal() {
         return terminal;
@@ -286,5 +315,21 @@ public class SokoShellHelper {
 
     public void setCli(CommandLine cli) {
         this.cli = cli;
+    }
+
+    public void newNotification(String message) {
+        getNotificationHandler().newNotification(message);
+    }
+
+    public void newNotification(AttributedString message) {
+        getNotificationHandler().newNotification(message);
+    }
+
+    public NotificationHandler getNotificationHandler() {
+        if (notificationHandler == null) {
+            notificationHandler = new NotificationHandler(terminal);
+        }
+
+        return notificationHandler;
     }
 }

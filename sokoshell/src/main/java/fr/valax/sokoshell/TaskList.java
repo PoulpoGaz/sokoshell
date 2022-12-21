@@ -1,5 +1,7 @@
 package fr.valax.sokoshell;
 
+import org.jline.utils.AttributedString;
+
 import java.util.*;
 
 /**
@@ -69,9 +71,6 @@ public class TaskList {
 
                 if (runningTask != null) {
                     runningTask.start();
-                } else {
-                    // TODO:
-                    // System.out.println("Finished all tasks! See results with 'list solution --task-index INDEX'");
                 }
             } else {
                 pending.remove(task);

@@ -17,7 +17,6 @@ import fr.valax.sokoshell.commands.select.SelectPack;
 import fr.valax.sokoshell.commands.select.SelectStyle;
 import fr.valax.sokoshell.commands.table.*;
 import fr.valax.sokoshell.commands.unix.*;
-import fr.valax.sokoshell.utils.Utils;
 import org.jline.reader.EndOfFileException;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
@@ -29,7 +28,9 @@ import org.jline.reader.impl.history.DefaultHistory;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.terminal.impl.AbstractWindowsTerminal;
+import org.jline.terminal.impl.DumbTerminal;
 import org.jline.utils.AttributedStringBuilder;
+import org.jline.utils.Status;
 import org.jline.widget.AutosuggestionWidgets;
 
 import java.io.IOException;
@@ -67,28 +68,16 @@ public class SokoShell {
         try {
             sokoshell.loop(args);
         } finally {
-            SokoShellHelper helper = SokoShellHelper.INSTANCE;
-
-            helper.getTaskList().stopAll();
-            Utils.shutdownExecutors();
-
-            if (helper.isAutoSaveSolution()) {
-                try {
-                    helper.saveAllSolution();
-                } catch (IOException | JsonException e) {
-                    e.printStackTrace();
-                    System.err.println("Failed to save solutions");
-                }
-            }
-
             sokoshell.goodbye();
         }
     }
 
     private final CommandLine cli;
     private final SokoShellHelper helper = SokoShellHelper.INSTANCE;
+
     private LineReaderImpl reader;
     private Terminal terminal;
+    private Status status;
 
     private SokoShell() throws CommandLineException {
         HelpCommand help = new HelpCommand();
@@ -156,18 +145,30 @@ public class SokoShell {
     }
 
     private void goodbye() {
+        SokoShellHelper helper = SokoShellHelper.INSTANCE;
+
+        helper.getTaskList().stopAll();
+        helper.shutdown();
+
+        if (helper.isAutoSaveSolution()) {
+            try {
+                helper.saveAllSolution();
+            } catch (IOException | JsonException e) {
+                e.printStackTrace();
+                System.err.println("Failed to save solutions");
+            }
+        }
+
         System.out.println("Goodbye!");
     }
 
     // READING AND EXECUTING
 
     private void loop(String[] args) {
-        DefaultParser parser = new DefaultParser();
-
         try (Terminal terminal = TerminalBuilder.terminal()) {
             this.terminal = terminal;
 
-            if (terminal instanceof AbstractWindowsTerminal) {
+            if (terminal instanceof AbstractWindowsTerminal || terminal instanceof DumbTerminal) {
                 System.err.println("[WARNING]. Your terminal isn't supported");
             }
 
@@ -180,14 +181,13 @@ public class SokoShell {
                     .appName(NAME)
                     .history(new DefaultHistory())
                     .highlighter(new DefaultHighlighter())
-                    .parser(parser)
+                    .parser(new DefaultParser())
                     .completer(JLineUtils.createCompleter(cli))
                     .variable(LineReader.HISTORY_FILE, HISTORY)
                     .option(LineReader.Option.DISABLE_EVENT_EXPANSION, true)
                     .build();
 
             welcome();
-
             if (!executeStartupScript()) {
                 return;
             }
@@ -274,6 +274,8 @@ public class SokoShell {
     private int clear(InputStream in, PrintStream out, PrintStream err) {
         if (reader != null) {
             reader.clearScreen();
+            helper.getNotificationHandler().clearStatus();
+            helper.getNotificationHandler().getNotifications().clear();
         }
 
         return SUCCESS;

@@ -4,14 +4,13 @@ import fr.valax.sokoshell.solver.*;
 import fr.valax.sokoshell.utils.Utils;
 
 import java.nio.file.Path;
-import java.util.Map;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static fr.valax.sokoshell.utils.Utils.SCHEDULED_EXECUTOR;
-import static fr.valax.sokoshell.utils.Utils.SOKOSHELL_EXECUTOR;
 
 /**
  * A solver task is used to solve a collection of level in another thread.
@@ -79,7 +78,7 @@ public class SolverTask {
                     tracker = getTracker();
                     t.setTacker(tracker);
 
-                    trackerFuture = SCHEDULED_EXECUTOR.scheduleWithFixedDelay(
+                    trackerFuture = SokoShellHelper.INSTANCE.getScheduledExecutor().scheduleWithFixedDelay(
                             () -> tracker.updateStatistics(t),
                             1000, 1000, TimeUnit.MILLISECONDS);
                 } else {
@@ -87,7 +86,7 @@ public class SolverTask {
                 }
 
                 if (asynchronously) {
-                    SOKOSHELL_EXECUTOR.submit(this::solve);
+                    SokoShellHelper.INSTANCE.getExecutor().submit(this::solve);
                 } else {
                     solve = true;
                 }
@@ -124,6 +123,12 @@ public class SolverTask {
                 SolverReport solverReport = solver.solve(parameters);
                 level.addSolverReport(solverReport);
                 solverReports.add(solverReport);
+
+                SokoShellHelper.INSTANCE.newNotification("Level %s of %s : %s (Task #%d)"
+                                .formatted(level.getIndex() + 1,
+                                        level.getPack().name(),
+                                        solverReport.getStatus(),
+                                        taskIndex));
 
                 if (taskStatus != TaskStatus.RUNNING) {
                     noChange = true;

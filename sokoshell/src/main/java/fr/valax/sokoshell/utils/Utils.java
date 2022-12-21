@@ -22,11 +22,6 @@ import java.util.concurrent.ScheduledExecutorService;
 
 public class Utils {
 
-    public static final ExecutorService SOKOSHELL_EXECUTOR = Executors.newCachedThreadPool();
-    public static final ScheduledExecutorService SCHEDULED_EXECUTOR =
-            Executors.newScheduledThreadPool(
-                    Math.max(1, Runtime.getRuntime().availableProcessors() / 4));
-
     public static final Comparator<AttributedString> ATTRIBUTED_STRING_COMPARATOR =
             Comparator.comparing(AttributedString::toString);
 
@@ -159,11 +154,5 @@ public class Utils {
         } else {
             return parent.resolve(s);
         }
-    }
-
-
-    public static void shutdownExecutors() {
-        SOKOSHELL_EXECUTOR.shutdown();
-        SCHEDULED_EXECUTOR.shutdown();
     }
 }
