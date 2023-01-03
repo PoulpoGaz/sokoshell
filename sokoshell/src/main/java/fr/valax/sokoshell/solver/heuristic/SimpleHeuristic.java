@@ -21,40 +21,20 @@ public class SimpleHeuristic extends AbstractHeuristic {
         super(map);
 
         distances = new int[map.getHeight() * map.getWidth()];
-        Arrays.fill(distances, Integer.MAX_VALUE);
-
         for (int i = 0; i < distances.length; i++) {
             final TileInfo t = map.getAt(i);
-            if (!t.isTarget()) {
-                continue;
+            if (t.isTarget()) {
+                distances[i] = 0;
+            } else {
+                int minDistToTarget = Integer.MAX_VALUE;
+                for (int j = 0; j < map.getTargetIndices().length; j++) {
+                    final int d = t.manhattanDistance(map.getAt(map.getTargetIndices()[j]));
+                    if (d < minDistToTarget) {
+                        minDistToTarget = d;
+                    }
+                }
+                distances[i] = minDistToTarget;
             }
-            computeDistancesFrom(i, 0);
-        }
-    }
-
-    /**
-     * Computes the distance from the given tile to the nearest goal.
-     * To do this, we perform a simple BFS from each target tile, updating the distance only when we find a lower one.
-     */
-    private void computeDistancesFrom(int index, int prevDistance) {
-
-        distances[index] = prevDistance;
-
-        for (Direction d : Direction.VALUES) {
-
-            final int nextX = map.getX(index) + d.dirX();
-            final int nextY = map.getY(index) + d.dirY();
-            final int nextIndex = map.getIndex(nextX, nextY);  // A bit ugly, feel free to improve it
-
-            if (nextIndex < 0 || nextIndex >= distances.length) {
-                continue;
-            }
-
-            if (prevDistance + 1 >= distances[nextIndex]) {
-                continue;
-            }
-
-            computeDistancesFrom(nextIndex, prevDistance + 1);
         }
     }
 

@@ -22,7 +22,7 @@ public class GreedyHeuristic extends AbstractHeuristic {
 
         tileData = new TileData[map.getHeight() * map.getWidth()];
         for (int i = 0; i < tileData.length; i++) {
-            tileData[i] = new TileData(map.getTargetCount());
+            tileData[i] = new TileData(map.getTargetIndices().length);
         }
 
         for (int i = 0; i < map.getHeight() * map.getWidth(); i++) {

@@ -42,9 +42,9 @@ public class Map {
     private final int height;
 
     /**
-     * Number of targets on the map. Initialized to minus, first calculated in getter.
+     * Indices of the targets in the {@link Map#content} array.
      */
-    private int targetCount = -1;
+    private int[] targetIndices;
 
     /**
      * Tiles that can be 'target' or 'floor'
@@ -75,11 +75,25 @@ public class Map {
 
         this.content = new TileInfo[height][width];
 
+        List<Integer> targetIndicesList = new ArrayList<>();
+
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 this.content[y][x] = new TileInfo(this, content[y][x], x, y);
+                if (this.content[y][x].isTarget()) {
+                    targetIndicesList.add(getIndex(x, y));
+                }
             }
         }
+
+        targetIndices = targetIndicesList.stream().mapToInt(Integer::intValue).toArray();
+
+        /*
+        targetIndices = new int[targetIndicesList.size()];
+        for (int i = 0; i < targetIndices.length; i++) {
+            targetIndices[i] = targetIndicesList.get(i);
+        }
+         */
 
         State.initZobristValues(width * height);
     }
@@ -100,6 +114,8 @@ public class Map {
                 this.content[y][x] = other.content[y][x].copyTo(this);
             }
         }
+
+        this.targetIndices = Arrays.copyOf(other.targetIndices, other.targetIndices.length);
     }
 
     // =======================================================
@@ -727,7 +743,7 @@ public class Map {
 
     /**
      * Find reachable tiles
-     * @param playerPos
+     * @param playerPos The indic of the case on which the player currently is.
      */
     protected void findReachableCases(int playerPos) {
         reachableMarkSystem.unmarkAll();
@@ -1063,19 +1079,9 @@ public class Map {
     }
 
     /**
-     * @return The number of targets on the map.
+     * @return The indices of the targets on the map
      */
-    public int getTargetCount() {
-        if (targetCount == -1) {
-            targetCount = 0;
-            for (int y = 0; y < height; y++) {
-                for (int x = 0; x < width; x++) {
-                    if (content[y][x].isTarget()) {
-                        targetCount++;
-                   }
-               }
-           }
-        }
-        return targetCount;
+    public int[] getTargetIndices() {
+        return targetIndices;
     }
 }
