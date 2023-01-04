@@ -77,7 +77,6 @@ public class SokoShell {
 
     private LineReaderImpl reader;
     private Terminal terminal;
-    private Status status;
 
     private SokoShell() throws CommandLineException {
         HelpCommand help = new HelpCommand();
@@ -100,7 +99,7 @@ public class SokoShell {
                     .addCommand(new ListStyle())
                     .addCommand(new ListReports())
                     .addCommand(new ListTasks())
-                .endSubCommand()
+                    .endSubCommand()
 
                 .subCommand(new PrintCommand())
                     .addCommand(new SolutionCommand())
