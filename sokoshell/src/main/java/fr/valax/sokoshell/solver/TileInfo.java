@@ -2,6 +2,8 @@ package fr.valax.sokoshell.solver;
 
 import fr.valax.sokoshell.solver.mark.Mark;
 
+import java.util.Arrays;
+
 /**
  * TileInfo stores information about a Tile. It stores:
  * <ul>
@@ -43,6 +45,17 @@ public class TileInfo {
     // contains for each direction, where is the outside of the tunnel from this tile
     private Tunnel.Exit tunnelExit;
     private Room room;
+
+    /**
+     * Remoteness data from this tile to every target on the map.
+     */
+    private TargetRemoteness[] targets;
+
+    /**
+     * Nearest target on the map.
+     */
+    private TargetRemoteness nearestTarget;
+
 
     // Dynamic information
     private final Mark reachable;
@@ -87,6 +100,12 @@ public class TileInfo {
         deadTile = other.deadTile;
         setReachable(other.isReachable());
         mark.setMarked(other.isMarked());
+        if (other.targets == null) {
+            targets = null;
+        } else {
+            targets = Arrays.copyOf(other.targets, other.targets.length);
+        }
+        nearestTarget = other.nearestTarget;
     }
 
     /**
@@ -406,5 +425,42 @@ public class TileInfo {
 
     public int positionHashCode() {
         return y * map.getWidth() + x;
+    }
+
+
+    public TargetRemoteness[] getTargets() {
+        return targets;
+    }
+
+    public void setTargets(TargetRemoteness[] targets) {
+        this.targets = targets;
+    }
+
+    public TargetRemoteness getNearestTarget() {
+        return nearestTarget;
+    }
+
+    public void setNearestTarget(TargetRemoteness nearestTarget) {
+        this.nearestTarget = nearestTarget;
+    }
+
+    public record TargetRemoteness(int index, int distance) implements Comparable<TargetRemoteness> {
+
+        public int getIndex() {
+            return index;
+        }
+
+        public int getDistance() {
+            return distance;
+        }
+
+        public boolean equals(TargetRemoteness other) {
+            return (this.index == other.index) && (this.distance == other.distance);
+        }
+
+        @Override
+        public int compareTo(TargetRemoteness other) {
+            return this.distance - other.distance;
+        }
     }
 }

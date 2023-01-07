@@ -10,6 +10,7 @@ import fr.valax.sokoshell.solver.Pack;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
+import java.util.Arrays;
 
 public class SimpleHeuristicTest {
 
@@ -20,16 +21,17 @@ public class SimpleHeuristicTest {
 
         Level level = pack.getLevel(0);
         Map map = level.getMap();
-        //map.removeStateCrates(level.getInitialState());
         MapRenderer mR = new MapRenderer();
         mR.setStyle(new MapStyleReader().read(Path.of("../styles/isekai/isekai.style")));
-        //mR.setShowDeadTiles(true);
-        //mR.sysPrint(level);
 
-        map.computeFloors();
-        map.computeDeadTiles();
+        map.initForSolver();
         mR.sysPrint(map, level.getPlayerX(), level.getPlayerY());
 
+        for (int y = 0; y < map.getHeight(); y++) {
+            for (int x = 0; x < map.getWidth(); x++) {
+                System.out.printf("(%d,%d) : %s%n", x, y, Arrays.toString(map.getAt(x, y).getTargets()));
+            }
+        }
 
         SimpleHeuristic h = new SimpleHeuristic(map);
         System.out.println(h);

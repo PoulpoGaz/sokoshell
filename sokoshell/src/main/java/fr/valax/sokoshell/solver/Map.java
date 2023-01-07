@@ -41,10 +41,6 @@ public class Map {
     private final int width;
     private final int height;
 
-    /**
-     * Indices of the targets in the {@link Map#content} array.
-     */
-    private int[] targetIndices;
 
     /**
      * Tiles that can be 'target' or 'floor'
@@ -75,25 +71,11 @@ public class Map {
 
         this.content = new TileInfo[height][width];
 
-        List<Integer> targetIndicesList = new ArrayList<>();
-
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 this.content[y][x] = new TileInfo(this, content[y][x], x, y);
-                if (this.content[y][x].isTarget()) {
-                    targetIndicesList.add(getIndex(x, y));
-                }
             }
         }
-
-        targetIndices = targetIndicesList.stream().mapToInt(Integer::intValue).toArray();
-
-        /*
-        targetIndices = new int[targetIndicesList.size()];
-        for (int i = 0; i < targetIndices.length; i++) {
-            targetIndices[i] = targetIndicesList.get(i);
-        }
-         */
 
         State.initZobristValues(width * height);
     }
@@ -114,12 +96,10 @@ public class Map {
                 this.content[y][x] = other.content[y][x].copyTo(this);
             }
         }
-
-        this.targetIndices = Arrays.copyOf(other.targetIndices, other.targetIndices.length);
     }
 
     // =======================================================
-    // * Methods below doesn't need a call to #initForSolver *
+    // *  Methods below don't need a call to #initForSolver  *
     // =======================================================
 
     /**
@@ -216,9 +196,8 @@ public class Map {
         findTunnels();
         findRooms();
         tryComputePackingOrder();
+        computeTilesDistanceToTargets();
     }
-
-
 
     /**
      * Creates or recreates the floor array. It is an array containing all tile info
@@ -699,6 +678,46 @@ public class Map {
         return true;
     }
 
+    private void computeTilesDistanceToTargets() {
+
+        List<Integer> targetIndices = new ArrayList<>();
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                if (this.content[y][x].isTarget()) {
+                    targetIndices.add(getIndex(x, y));
+                }
+            }
+        }
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+
+                final TileInfo t = getAt(x, y);
+
+                int minDistToTarget = Integer.MAX_VALUE;
+                int minDistToTargetIndex = -1;
+
+                getAt(x, y).setTargets(new TileInfo.TargetRemoteness[targetIndices.size()]);
+
+                for (int j = 0; j < targetIndices.size(); j++) {
+
+                    final int targetIndex = targetIndices.get(j);
+                    final int d = t.manhattanDistance(getAt(targetIndex));
+
+                    if (d < minDistToTarget) {
+                        minDistToTarget = d;
+                        minDistToTargetIndex = j;
+                    }
+
+                    getAt(x, y).getTargets()[j] = new TileInfo.TargetRemoteness(targetIndex, d);
+                }
+                Arrays.sort(getAt(x, y).getTargets());
+                getAt(x, y).setNearestTarget(new TileInfo.TargetRemoteness(minDistToTargetIndex, minDistToTarget));
+            }
+        }
+    }
+
     /**
      * Find accessible crates using bfs from lastFrontier.
      *
@@ -1076,12 +1095,5 @@ public class Map {
                 forEachNotWall(reset);
             }
         };
-    }
-
-    /**
-     * @return The indices of the targets on the map
-     */
-    public int[] getTargetIndices() {
-        return targetIndices;
     }
 }
