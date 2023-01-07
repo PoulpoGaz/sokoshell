@@ -462,5 +462,10 @@ public class TileInfo {
         public int compareTo(TargetRemoteness other) {
             return this.distance - other.distance;
         }
+
+        @Override
+        public String toString() {
+            return "TR[d=" + distance + ", i=" + index + "]";
+        }
     }
 }

@@ -13,12 +13,12 @@ For IntelliJ IDEA:
 
 ### TODO
 
-| TODO                                                                                    | DONE?       |
-|-----------------------------------------------------------------------------------------|-------------|
-| A*: pushes lower bound calculation                                                      | in progress |
-| deadlocks:<ul><li>corral</li><li>closed diagonals</li><li>bipartite deadlocks</li></ul> | no          |
-| goal cuts -> packing order                                                              | no          |
-| charts comparing optimization                                                           | no          |
+| TODO                                                                                                             | DONE?       |
+|:-----------------------------------------------------------------------------------------------------------------|-------------|
+| deadlocks:<ul><li>corral</li><li>closed diagonals</li><li>bipartite deadlocks</li></ul>                          | no          |
+| A* pushes lower bound calculation :<ul><li>greedy</li><li>optimal</li><li>according to player position</li></ul> | in progress |
+| goal cuts -> packing order                                                                                       | no          |
+| charts comparing optimization                                                                                    | no          |
 
 ## Results
 

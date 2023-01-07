@@ -41,6 +41,8 @@ public class Map {
     private final int width;
     private final int height;
 
+    private int targetCount;
+
 
     /**
      * Tiles that can be 'target' or 'floor'
@@ -682,9 +684,11 @@ public class Map {
 
         List<Integer> targetIndices = new ArrayList<>();
 
+        targetCount = 0;
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 if (this.content[y][x].isTarget()) {
+                    targetCount++;
                     targetIndices.add(getIndex(x, y));
                 }
             }
@@ -849,6 +853,14 @@ public class Map {
      * @return the height of the map
      */
     public int getHeight() { return height; }
+
+    /**
+     * Returns the number of target i.e. tiles on which a crate has to be pushed to solve the level) on the map
+     * @return the number of target i.e. tiles on which a crate has to be pushed to solve the level) on the map
+     */
+    public int getTargetCount() {
+        return targetCount;
+    }
 
     /**
      * Convert an index to a position on the x-axis
