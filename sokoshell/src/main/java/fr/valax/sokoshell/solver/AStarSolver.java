@@ -5,7 +5,7 @@ import fr.valax.sokoshell.solver.heuristic.SimpleHeuristic;
 
 public class AStarSolver extends BruteforceSolver<WeightedState> {
 
-    private final Heuristic heuristic = null;// = new SimpleHeuristic(this.map);
+    private Heuristic heuristic;
 
     public AStarSolver() {
         super(A_STAR);
@@ -13,12 +13,12 @@ public class AStarSolver extends BruteforceSolver<WeightedState> {
 
     @Override
     protected void createCollection() {
+        heuristic = new SimpleHeuristic(this.map);
         toProcess = new SolverPriorityQueue();
     }
 
     @Override
     protected void addInitialState(Level level) {
-
         final State s = level.getInitialState();
 
         toProcess.addState(new WeightedState(s, 0, heuristic.compute(s)));
