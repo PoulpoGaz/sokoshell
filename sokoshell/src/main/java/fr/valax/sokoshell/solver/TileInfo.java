@@ -446,18 +446,6 @@ public class TileInfo {
 
     public record TargetRemoteness(int index, int distance) implements Comparable<TargetRemoteness> {
 
-        public int getIndex() {
-            return index;
-        }
-
-        public int getDistance() {
-            return distance;
-        }
-
-        public boolean equals(TargetRemoteness other) {
-            return (this.index == other.index) && (this.distance == other.distance);
-        }
-
         @Override
         public int compareTo(TargetRemoteness other) {
             return this.distance - other.distance;

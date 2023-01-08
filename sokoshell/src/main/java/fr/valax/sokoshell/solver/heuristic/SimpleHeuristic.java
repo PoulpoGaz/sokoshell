@@ -18,7 +18,7 @@ public class SimpleHeuristic extends AbstractHeuristic {
     public int compute(State s) {
         int h = 0;
         for (int i : s.cratesIndices()) {
-            h += map.getAt(i).getNearestTarget().getDistance();
+            h += map.getAt(i).getNearestTarget().distance();
         }
         return h;
     }

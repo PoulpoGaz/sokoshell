@@ -42,12 +42,14 @@ public class GreedyHeuristicTest {
         }*/
 
         GreedyHeuristic h = new GreedyHeuristic(map);
-        h.compute(level.getInitialState());
+        int score = h.compute(level.getInitialState());
+        System.out.printf("Score: %d%n", score);
         List<GreedyHeuristic.CrateToTarget> ctt = h.getCrateToTargets();
-        assertEquals(map.getTargetCount() * map.getTargetCount(), ctt.size());
+        assertEquals(88, score);
         for (int i = 1; i < ctt.size(); i++) {
             assertTrue(ctt.get(i - 1).compareTo(ctt.get(i)) <= 0);
         }
+        System.out.println(map.getTargetCount());
         System.out.println(h);
     }
 }

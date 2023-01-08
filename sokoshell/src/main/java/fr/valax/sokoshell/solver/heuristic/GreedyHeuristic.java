@@ -4,8 +4,7 @@ import fr.valax.sokoshell.solver.Map;
 import fr.valax.sokoshell.solver.State;
 import fr.valax.sokoshell.solver.TileInfo;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * According to <a href="http://sokobano.de/wiki/index.php?title=Solver#Greedy_approach">this article</a>
@@ -25,15 +24,41 @@ public class GreedyHeuristic extends AbstractHeuristic {
 
     @Override
     public int compute(State s) {
-        computeCratesToTargetArray(s);
-        return 0;
-    }
 
-    private void computeCratesToTargetArray(State s) {
         crateToTargets = new ArrayList<>();
-        for (int i : s.cratesIndices()) {
-            mergeCrateDistances(i);
+        for (int crateIndex : s.cratesIndices()) {
+            mergeCrateDistances(crateIndex);
         }
+
+        List<CrateToTarget> newCrateToTargets = new ArrayList<>();
+        Set<Integer> matchedCrates = new HashSet<>();
+        Set<Integer> matchedTargets = new HashSet<>();
+
+        List<Integer> remainingCrateIndices = new LinkedList<>();
+        for (int i : s.cratesIndices()) {
+            remainingCrateIndices.add(i);
+        }
+
+        for (CrateToTarget ctt : crateToTargets) {
+            if (matchedCrates.contains(ctt.crateIndex) || matchedTargets.contains(ctt.target.index())) {
+                continue;
+            }
+            matchedCrates.add(ctt.crateIndex);
+            matchedTargets.add(ctt.target.index());
+            remainingCrateIndices.remove(Integer.valueOf(ctt.crateIndex));
+            newCrateToTargets.add(new CrateToTarget(ctt));
+        }
+        crateToTargets = newCrateToTargets;
+
+        for (int crateIndex : remainingCrateIndices) {
+            crateToTargets.add(new CrateToTarget(crateIndex, map.getAt(crateIndex).getNearestTarget()));
+        }
+
+        int heuristic = 0;
+        for (CrateToTarget ctt : crateToTargets) {
+            heuristic += ctt.target().distance();
+        }
+        return heuristic;
     }
 
     private void mergeCrateDistances(int crateIndex) {
@@ -58,10 +83,14 @@ public class GreedyHeuristic extends AbstractHeuristic {
 
     @Override
     public String toString() {
-        return crateToTargets.toString();
+        return "GreedyHeuristic[" + crateToTargets.size() + " ctt: " + crateToTargets.toString() + "]";
     }
 
     record CrateToTarget(int crateIndex, TileInfo.TargetRemoteness target) implements Comparable<CrateToTarget> {
+
+        public CrateToTarget(CrateToTarget other) {
+            this(other.crateIndex, other.target);//new TileInfo.TargetRemoteness(other.target));
+        }
 
         @Override
         public int compareTo(CrateToTarget other) {
@@ -70,7 +99,7 @@ public class GreedyHeuristic extends AbstractHeuristic {
 
         @Override
         public String toString() {
-            return "CTT[d=" + target.distance() + ", i=" + crateIndex + "]";
+            return "CTT[d=" + target.distance() + ", " + crateIndex + " -> " + target.index() + "]";
         }
     }
 }
