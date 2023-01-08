@@ -1,5 +1,6 @@
 package fr.valax.sokoshell.solver;
 
+import fr.valax.sokoshell.solver.heuristic.GreedyHeuristic;
 import fr.valax.sokoshell.solver.heuristic.Heuristic;
 import fr.valax.sokoshell.solver.heuristic.SimpleHeuristic;
 
@@ -13,7 +14,7 @@ public class AStarSolver extends BruteforceSolver<WeightedState> {
 
     @Override
     protected void createCollection() {
-        heuristic = new SimpleHeuristic(this.map);
+        heuristic = new GreedyHeuristic(this.map);
         toProcess = new SolverPriorityQueue();
     }
 
