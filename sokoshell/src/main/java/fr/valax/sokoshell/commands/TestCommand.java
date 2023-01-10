@@ -228,9 +228,9 @@ public class TestCommand extends AbstractCommand {
             for (int y = 0; y < getHeight(); y++) {
                 for (int x = 0; x < getWidth(); x++) {
                     if (filled[y][x]) {
-                        s.set(FILLED, x, y);
+                        s.draw(FILLED, x, y);
                     } else {
-                        s.set(NOT_FILLED, x, y);
+                        s.draw(NOT_FILLED, x, y);
                     }
                 }
             }

@@ -1,6 +1,5 @@
 package fr.valax.sokoshell.graphics;
 
-import fr.valax.sokoshell.graphics.style.TrueColorString;
 import org.jline.terminal.Size;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStringBuilder;
@@ -9,7 +8,6 @@ import org.jline.utils.Display;
 
 import java.awt.*;
 import java.io.PrintStream;
-import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -55,7 +53,10 @@ public class Surface {
      * @param height new height
      */
     public void resize(int width, int height) {
-        if (width < 0 || height < 0) {
+        boolean widthChanged = this.width != width;
+        boolean heightChanged = this.height != height;
+
+        if (width < 0 || height < 0 || (!widthChanged && !heightChanged)) {
             return;
         }
 
@@ -67,9 +68,32 @@ public class Surface {
             }
         }
 
+        // if the width changed, we need to grow or reduce every builder
+        int y = widthChanged ? 0 : this.height;
+        for (; y < height; y++) {
+            if (builders[y].length() > width) {
+                builders[y].setLength(width);
+            } else {
+                while (builders[y].length() != width) {
+                    builders[y].append(background);
+                }
+            }
+        }
+
         this.width = width;
         this.height = height;
     }
+
+    public void drawBuffer() {
+        drawBuffer(System.out);
+    }
+
+    public void drawBuffer(PrintStream out) {
+        for (AttributedStringBuilder b : builders) {
+            out.println(TrueColorString.toAnsi(b));
+        }
+    }
+
 
     /**
      * Draw the surface on the display and put the cursor at cursorPos
@@ -80,20 +104,10 @@ public class Surface {
         List<AttributedString> strings = new ArrayList<>();
 
         for (AttributedStringBuilder b : builders) {
-            strings.add(new TrueColorString(b.toAttributedString()));
+            strings.add(new TrueColorString(b));
         }
 
         display.update(strings, cursorPos);
-    }
-
-    public void drawBuffer() {
-        drawBuffer(System.out);
-    }
-
-    public void drawBuffer(PrintStream out) {
-        for (AttributedStringBuilder b : builders) {
-            out.println(new TrueColorString(b.toAttributedString()).toAnsi());
-        }
     }
 
     /**
@@ -101,28 +115,12 @@ public class Surface {
      * It doesn't clear the screen
      */
     public void clear() {
-        for (AttributedStringBuilder builder : builders) {
-            builder.setLength(0);
-        }
-    }
+        for (int y = 0; y < height; y++) {
+            builders[y].setLength(0);
 
-    /**
-     * Set at (x, y) the string. It should be a one-column length string
-     * @param str the string to draw
-     * @param x destination x
-     * @param y destination y
-     */
-    public void set(AttributedString str, int x, int y) {
-        if (str.columnLength() == 1) {
-            draw(str, x, y);
-        } else if (str.columnLength() > 1) {
-            AttributedString sub = str.subSequence(0, 1);
-
-            if (sub.columnLength() > 1) {
-                throw new IllegalArgumentException();
+            for (int x = 0; x < width; x++) {
+                builders[y].append(background);
             }
-
-            draw(sub, x, y);
         }
     }
 
@@ -132,7 +130,7 @@ public class Surface {
      * @param x destination x
      * @param y destination y
      */
-    public void set(char c, AttributedStyle style, int x, int y) {
+    public void draw(char c, AttributedStyle style, int x, int y) {
         draw(new AttributedString(String.valueOf(c), style), x, y);
     }
 
@@ -142,11 +140,11 @@ public class Surface {
      * @param x destination x
      * @param y destination y
      */
-    public void draw(String str, int x, int y) {
-        draw(new AttributedString(str), x, y);
+    public void draw(CharSequence str, int x, int y) {
+        draw(str, x, y, str.length());
     }
 
-    public void draw(String str, AttributedStyle style, int x, int y) {
+    public void draw(CharSequence str, AttributedStyle style, int x, int y) {
         draw(new AttributedString(str, style), x, y);
     }
 
@@ -157,15 +155,25 @@ public class Surface {
      * @param y destination y
      */
     public void draw(AttributedString str, int x, int y) {
-        int len = str.columnLength();
+        draw(str, x, y, str.columnLength());
+    }
 
-        if (str.length() != str.columnLength()) {
+    /**
+     * Draw the string at (x; y).
+     *
+     * @param str the string to draw
+     * @param x destination x
+     * @param y destination y
+     * @param columnLength the length of the string in column
+     */
+    private void draw(CharSequence str, int x, int y, int columnLength) {
+        if (str.length() != columnLength) {
             throw new IllegalArgumentException("Attempting to draw a string that contains non 1-column-length char");
         }
 
         int origDrawX = x + tx;
         int drawY = y + ty;
-        int origEndX = origDrawX + len;
+        int origEndX = origDrawX + columnLength;
 
         if (drawY < clip.y || drawY >= clip.y + clip.height || drawY < 0 || drawY >= height) {
             return;
@@ -188,49 +196,22 @@ public class Surface {
             return;
         }
 
-        try {
-            drawUnchecked(str.substring(drawX - origDrawX, endX - origDrawX), drawX, drawY);
-        } catch (IndexOutOfBoundsException | InvalidParameterException e) {
-            System.out.println(str);
-            System.out.println(origDrawX + " - " + origEndX);
-            System.out.println(drawX + " - " + endX);
-            System.out.println((drawX - origDrawX + " - " + (endX - drawX)));
-            System.out.println(clip);
-            System.out.println(tx + " - " + ty);
-            e.printStackTrace();
-
-            System.exit(0);
-        }
+        drawUnchecked(str, drawX, drawY, drawX - origDrawX, endX - origDrawX);
     }
 
     /**
      * Draw the string at (x; y) with checking if the text can fill in the screen
+     *
      * @param str the string to draw
      * @param x destination x
      * @param y destination y
      */
-    private void drawUnchecked(AttributedString str, int x, int y) {
+    private void drawUnchecked(CharSequence str, int x, int y, int start, int end) {
         AttributedStringBuilder b = builders[y];
 
-        int endX = x + str.length();
-
-        int length = -1;
-        if (b.length() < x) {
-            for (int x2 = b.length(); x2 < x; x2++) {
-                b.append(background);
-            }
-        } else if (b.length() > x) {
-            if (b.length() > endX) {
-                length = b.length();
-            }
-
-            b.setLength(x);
-        }
-        b.append(str);
-
-        if (length >= 0) {
-            b.setLength(length);
-        }
+        b.setLength(x);
+        b.append(str, start, end);
+        b.setLength(width);
     }
 
     /**
@@ -318,164 +299,5 @@ public class Surface {
         }
 
         return sb.toString();
-    }
-
-    public static void main(String[] args) {
-
-        /*try (Terminal terminal = TerminalBuilder.terminal()) {
-
-            try (TestClass test = new TestClass(terminal)) {
-                test.show();
-            } finally {
-                terminal.puts(InfoCmp.Capability.clear_screen);
-                terminal.writer().flush();
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
-    }
-
-    private enum KeyEvent {
-        UP,
-        DOWN
-    }
-
-    /**
-     * A test class
-     */
-    /*private static class TestClass extends TerminalEngine<KeyEvent> {
-
-        private Surface surface;
-        private Graphics g;
-        private BufferedImage img;
-
-        public TestClass(Terminal terminal) {
-            super(terminal);
-        }
-
-        @Override
-        protected void start() {
-            surface = new Surface();
-            surface.resize(terminal.getWidth(), terminal.getHeight());
-
-            g = new Graphics(surface);
-            try {
-                img = ImageIO.read(new File("styles/isekai/tileset.png"));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
-            keyMap.bind(KeyEvent.DOWN, KeyMap.key(terminal, InfoCmp.Capability.key_up));
-            keyMap.bind(KeyEvent.UP, KeyMap.key(terminal, InfoCmp.Capability.key_up));
-        }
-
-        protected int render(Size size) {
-            surface.clear();
-            surface.setClip(0, 0, size.getColumns(), size.getRows());
-            surface.draw(AttributedString.fromAnsi("hello world!"), 5, 5);
-            surface.draw(AttributedString.fromAnsi("oooooooorld!"), 13, 5);
-            surface.draw(AttributedString.fromAnsi("aqzsedrftgHello world!"), -10, 0);
-
-            g.setStyle(AttributedStyle.DEFAULT.background(AttributedStyle.GREEN));
-            g.fillCircle(50, 10, 10);
-
-            g.setStyle(AttributedStyle.DEFAULT.background(AttributedStyle.RED));
-            g.drawCircle(50, 10, 5);
-
-            g.setChar('c');
-            g.setStyle(AttributedStyle.DEFAULT.blink());
-
-            int cx = 15;
-            int cy = 25;
-            int rad = 10;
-
-            g.drawLine(cx, cy, cx - rad, cy);
-            g.drawLine(cx, cy, cx, cy - rad);
-            g.drawLine(cx, cy, cx - rad, cy - rad);
-
-            g.drawLine(cx, cy, cx + rad, cy);
-            g.drawLine(cx, cy, cx, cy + rad);
-            g.drawLine(cx, cy, cx + rad, cy + rad);
-
-            g.drawLine(cx, cy, cx - rad, cy + rad);
-            g.drawLine(cx, cy, cx + rad, cy - rad);
-
-            g.drawLine(0, 0, surface.getWidth(), surface.getHeight());
-
-            surface.translate(100, 10);
-            g.setChar(' ');
-            g.setStyle(AttributedStyle.DEFAULT.background(AttributedStyle.YELLOW));
-            g.fillRectangle(0, 0, 50, 10);
-
-            surface.translate(10, 2);
-            g.setStyle(AttributedStyle.DEFAULT.background(AttributedStyle.MAGENTA));
-            g.drawRectangle(0, 0, 30, 6);
-            surface.translate(-110, -12);
-
-            surface.draw(new AttributedString("FPS: " + getFPS()), 0, surface.getHeight() - 2);
-            surface.draw(new AttributedString("TPS: " + getTPS()), 0, surface.getHeight() - 1);
-            g.drawImage(img, 50, 20);
-
-            surface.translate(0, 40);
-
-            Rectangle old = surface.getClip();
-            surface.setClip(0, 0, 10, 20);
-            g.setPaint(new RadialGradient(java.awt.Color.RED, java.awt.Color.BLUE));
-            g.fillRectangle(0, 0, 20, 20);
-            surface.setClip(old);
-            surface.translate(0, -40);
-
-            return 0;
-        }
-
-        protected void update() {
-            surface.resize(terminal.getWidth(), terminal.getHeight());
-        }
-    }*/
-
-    /**
-     * From box center
-     */
-    private static class RadialGradient implements Graphics.Paint {
-
-        private final java.awt.Color from;
-        private final java.awt.Color to;
-
-        public RadialGradient(java.awt.Color from, java.awt.Color to) {
-            this.from = from;
-            this.to = to;
-        }
-
-        @Override
-        public AttributedString at(int x, int y, Rectangle box) {
-            double x2 = x - box.x;
-            double y2 = y - box.y;
-
-            double cx = box.width / 2d;
-            double cy = box.height / 2d;
-
-            double gradRadius = Math.sqrt(cx * cx + cy * cy);
-            double radius = Math.sqrt((x2 - cx) * (x2 - cx) + (y2 - cy) * (y2 - cy));
-
-            double factor = radius / gradRadius;
-
-            int newRed   = (int) ((1 - factor) * from.getRed() + factor * to.getRed());
-            int newGreen = (int) ((1 - factor) * from.getGreen() + factor * to.getGreen());
-            int newBlue  = (int) ((1 - factor) * from.getBlue() + factor * to.getBlue());
-
-            return new AttributedString(" ", AttributedStyle.DEFAULT.background(newRed, newGreen, newBlue));
-        }
-
-        @Override
-        public AttributedString fromTo(int x, int y, int width, Rectangle box) {
-            AttributedStringBuilder builder = new AttributedStringBuilder();
-
-            for (int x2 = x; x2 <= x + width; x2++) {
-                builder.append(at(x2, y, box));
-            }
-
-            return builder.toAttributedString();
-        }
     }
 }

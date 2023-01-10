@@ -203,7 +203,7 @@ public class Graphics {
                     int drawX = x + cx;
                     int drawY = y + cy;
 
-                    surface.set(paint.at(cx, cy, box), drawX, drawY);
+                    surface.draw(paint.at(cx, cy, box), drawX, drawY);
                 }
 
             }
@@ -229,7 +229,7 @@ public class Graphics {
                     int drawX = x + cx;
                     int drawY = y + cy;
 
-                    surface.set(paint.at(cx, cy, box), drawX, drawY);
+                    surface.draw(paint.at(cx, cy, box), drawX, drawY);
                 }
 
             }
@@ -265,7 +265,7 @@ public class Graphics {
                 int green = (rgb >> 8) & 0xFF;
                 int blue = rgb & 0xFF;
 
-                surface.set(' ', AttributedStyle.DEFAULT.background(red, green, blue),
+                surface.draw(' ', AttributedStyle.DEFAULT.background(red, green, blue),
                         x2,
                         y2);
             }

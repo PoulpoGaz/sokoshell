@@ -26,3 +26,10 @@ For IntelliJ IDEA:
 |--------|-----------------------|------------|--------|---------------------------|-------|------------------|------------------|----------------|
 | BFS    | Large test suite      | 30 sec     | 1732   | 8 errors - 46 no solution | 3272  | 10/12/2022 15:28 | 11/12/2022 04:43 | 13h 45min      |
 | BFS    | GroupEffort small set | 30 sec     | 47     | 1 no solution             | 200   | 11/12/2022 16:19 | 11/12/2022 17:43 | 1h 24min       |
+
+## Style V2
+
+Problems: can't create dynamic style. deadtiles for example cannot be shown
+difficult to indicate x, y of tile 
+style format isn't very flexible
+

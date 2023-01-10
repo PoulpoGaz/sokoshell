@@ -1,6 +1,7 @@
-package fr.valax.sokoshell.graphics.style;
+package fr.valax.sokoshell.graphics;
 
 import org.jline.terminal.Terminal;
+import org.jline.utils.AttributedCharSequence;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;
 
@@ -48,6 +49,14 @@ public class TrueColorString extends AttributedString {
             return super.toAnsi(TRUE_COLORS, ForceMode.ForceTrueColors);
         } else {
             return super.toAnsi(terminal);
+        }
+    }
+
+    public static String toAnsi(AttributedCharSequence str) {
+        if (SUPPORTED) {
+            return str.toAnsi(TRUE_COLORS, ForceMode.ForceTrueColors);
+        } else {
+            return str.toAnsi();
         }
     }
 }

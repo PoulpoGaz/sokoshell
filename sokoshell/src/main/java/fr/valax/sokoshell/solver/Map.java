@@ -680,6 +680,45 @@ public class Map {
         return true;
     }
 
+    /**
+     * Find accessible crates using bfs from lastFrontier.
+     *
+     * @param lastFrontier starting point of the bfs
+     * @param newFrontier a non-null list that will contain the next tile info to visit
+     * @param out a list that will contain accessible crates
+     */
+    private void findAccessibleCrates(List<TileInfo> lastFrontier, List<TileInfo> newFrontier, List<TileInfo> out) {
+        newFrontier.clear();
+
+        for (int i = 0; i < lastFrontier.size(); i++) {
+            TileInfo tile = lastFrontier.get(i);
+
+            if (!tile.isMarked()) {
+                tile.mark();
+                if (tile.anyCrate()) {
+                    out.add(tile);
+                } else {
+                    for (Direction dir : Direction.VALUES) {
+                        TileInfo adj = tile.adjacent(dir);
+
+                        if (!adj.isMarked() && !adj.isWall()) {
+                            newFrontier.add(adj);
+                        }
+                    }
+                }
+            }
+        }
+
+        if (!newFrontier.isEmpty()) {
+            findAccessibleCrates(newFrontier, lastFrontier, out);
+        } else {
+            lastFrontier.clear();
+        }
+    }
+
+
+
+
     private void computeTilesDistanceToTargets() {
 
         List<Integer> targetIndices = new ArrayList<>();
@@ -719,42 +758,6 @@ public class Map {
                 Arrays.sort(getAt(x, y).getTargets());
                 getAt(x, y).setNearestTarget(new TileInfo.TargetRemoteness(minDistToTargetIndex, minDistToTarget));
             }
-        }
-    }
-
-    /**
-     * Find accessible crates using bfs from lastFrontier.
-     *
-     * @param lastFrontier starting point of the bfs
-     * @param newFrontier a non-null list that will contain the next tile info to visit
-     * @param out a list that will contain accessible crates
-     */
-    private void findAccessibleCrates(List<TileInfo> lastFrontier, List<TileInfo> newFrontier, List<TileInfo> out) {
-        newFrontier.clear();
-
-        for (int i = 0; i < lastFrontier.size(); i++) {
-            TileInfo tile = lastFrontier.get(i);
-
-            if (!tile.isMarked()) {
-                tile.mark();
-                if (tile.anyCrate()) {
-                    out.add(tile);
-                } else {
-                    for (Direction dir : Direction.VALUES) {
-                        TileInfo adj = tile.adjacent(dir);
-
-                        if (!adj.isMarked() && !adj.isWall()) {
-                            newFrontier.add(adj);
-                        }
-                    }
-                }
-            }
-        }
-
-        if (!newFrontier.isEmpty()) {
-            findAccessibleCrates(newFrontier, lastFrontier, out);
-        } else {
-            lastFrontier.clear();
         }
     }
 
