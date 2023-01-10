@@ -125,7 +125,7 @@ public class Surface {
     }
 
     /**
-     * Set at (x, y) the char c
+     * Draw at (x, y) the char c
      * @param c the char to draw
      * @param x destination x
      * @param y destination y
@@ -135,17 +135,36 @@ public class Surface {
     }
 
     /**
-     * Draw the string at (x; y).
+     * Draw the {@linkplain CharSequence#subSequence(int, int) subsequence} of
+     * the string from start to end at (x; y).
+     *
      * @param str the string to draw
      * @param x destination x
      * @param y destination y
      */
     public void draw(CharSequence str, int x, int y) {
-        draw(str, x, y, str.length());
+        draw(str, 0, str.length(), x, y, str.length());
+    }
+
+    /**
+     * Draw the string at (x; y).
+     *
+     * @param str the string to draw
+     * @param start start index in str (inclusive)
+     * @param end end index in str (exclusive)
+     * @param x destination x
+     * @param y destination y
+     */
+    public void draw(CharSequence str, int start, int end, int x, int y) {
+        draw(str, start, end, x, y, str.length());
     }
 
     public void draw(CharSequence str, AttributedStyle style, int x, int y) {
         draw(new AttributedString(str, style), x, y);
+    }
+
+    public void draw(CharSequence str, AttributedStyle style, int start, int end, int x, int y) {
+        draw(new AttributedString(str, style), start, end, x, y);
     }
 
     /**
@@ -155,19 +174,35 @@ public class Surface {
      * @param y destination y
      */
     public void draw(AttributedString str, int x, int y) {
-        draw(str, x, y, str.columnLength());
+        draw(str, 0, str.length(), x, y, str.columnLength());
     }
 
     /**
-     * Draw the string at (x; y).
+     * Draw the {@linkplain CharSequence#subSequence(int, int) subsequence} of
+     * the string from start to end at (x; y).
      *
      * @param str the string to draw
+     * @param start start index in str (inclusive)
+     * @param end end index in str (exclusive)
      * @param x destination x
      * @param y destination y
-     * @param columnLength the length of the string in column
      */
-    private void draw(CharSequence str, int x, int y, int columnLength) {
-        if (str.length() != columnLength) {
+    public void draw(AttributedString str, int start, int end, int x, int y) {
+        draw(str, start, end, x, y, str.columnLength());
+    }
+
+    /**
+     * Draw the subsequence of {@code str} from start (inclusive) to end (exclusive) at (x; y).
+     *
+     * @param str the string to draw
+     * @param start start index in str (inclusive)
+     * @param end end index in str (exclusive)
+     * @param x destination x
+     * @param y destination y
+     * @param columnLength the length of the string in column between start and end
+     */
+    private void draw(CharSequence str, int start, int end, int x, int y, int columnLength) {
+        if (end - start != columnLength) {
             throw new IllegalArgumentException("Attempting to draw a string that contains non 1-column-length char");
         }
 
@@ -196,7 +231,7 @@ public class Surface {
             return;
         }
 
-        drawUnchecked(str, drawX, drawY, drawX - origDrawX, endX - origDrawX);
+        drawUnchecked(str, drawX, drawY, start + drawX - origDrawX, start + endX - origDrawX);
     }
 
     /**

@@ -236,6 +236,10 @@ public class Graphics {
         }
     }
 
+    public void drawImage(BufferedImage image, int x, int y) {
+        drawImage(image, 0, 0, image.getWidth(), image.getHeight(), x, y);
+    }
+
     /**
      * Draw an image at (x; y).
      * If the terminal support true color, there will be no color problem.
@@ -244,15 +248,15 @@ public class Graphics {
      * @param x x
      * @param y y
      */
-    public void drawImage(BufferedImage image, int x, int y) {
-        int endX = Math.min(image.getWidth() + x, surface.getWidth());
-        int endY = Math.min(image.getHeight() + y, surface.getHeight());
+    public void drawImage(BufferedImage image, int subX, int subY, int subWidth, int subHeight, int x, int y) {
+        int endX = Math.min(subWidth + x, surface.getWidth());
+        int endY = Math.min(subHeight + y, surface.getHeight());
 
-        int yImg = 0;
+        int yImg = subY;
 
         for (int y2 = y; y2 < endY; y2++, yImg++) {
 
-            int xImg = 0;
+            int xImg = subX;
             for (int x2 = x; x2 < endX; x2++, xImg++) {
 
                 int rgb = image.getRGB(xImg, yImg);
