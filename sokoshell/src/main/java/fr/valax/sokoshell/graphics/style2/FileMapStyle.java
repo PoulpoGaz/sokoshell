@@ -1,7 +1,6 @@
 package fr.valax.sokoshell.graphics.style2;
 
 import fr.valax.sokoshell.graphics.Graphics;
-import fr.valax.sokoshell.graphics.GraphicsUtils;
 import fr.valax.sokoshell.graphics.Surface;
 import fr.valax.sokoshell.graphics.style.Color;
 import fr.valax.sokoshell.solver.Direction;
