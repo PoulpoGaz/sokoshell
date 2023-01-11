@@ -1,16 +1,14 @@
 package fr.valax.sokoshell.graphics;
 
 import org.jline.terminal.Size;
-import org.jline.utils.AttributedString;
-import org.jline.utils.AttributedStringBuilder;
-import org.jline.utils.AttributedStyle;
-import org.jline.utils.Display;
+import org.jline.utils.*;
 
 import java.awt.*;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.BiFunction;
 
 /**
  * A class used by {@link TerminalEngine} to draw.
@@ -247,6 +245,18 @@ public class Surface {
         b.setLength(x);
         b.append(str, start, end);
         b.setLength(width);
+    }
+
+    public AttributedString get(int x, int y) {
+        int translatedX = x + tx;
+        int translatedY = y + ty;
+
+        if (translatedX < clip.x || translatedY < clip.y ||
+                translatedX >= clip.x + clip.width || translatedY >= clip.y + clip.height) {
+            return null;
+        }
+
+        return builders[translatedY].subSequence(x, x + 1);
     }
 
     /**

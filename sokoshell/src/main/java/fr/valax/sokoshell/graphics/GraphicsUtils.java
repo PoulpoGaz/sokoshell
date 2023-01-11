@@ -1,9 +1,24 @@
 package fr.valax.sokoshell.graphics;
 
+import fr.valax.sokoshell.graphics.style.Color;
 import org.jline.utils.AttributedCharSequence;
+import org.jline.utils.AttributedStyle;
 import org.jline.utils.WCWidth;
 
 public class GraphicsUtils {
+
+    public static final long F_FOREGROUND_IND  = 0x00000100;
+    public static final long F_FOREGROUND_RGB  = 0x00000200;
+    public static final long F_FOREGROUND      = F_FOREGROUND_IND | F_FOREGROUND_RGB;
+    public static final long F_BACKGROUND_IND  = 0x00000400;
+    public static final long F_BACKGROUND_RGB  = 0x00000800;
+    public static final long F_BACKGROUND      = F_BACKGROUND_IND | F_BACKGROUND_RGB;
+
+    public static final int FG_COLOR_EXP    = 15;
+    public static final int BG_COLOR_EXP    = 39;
+    public static final long FG_COLOR        = 0xFFFFFFL << FG_COLOR_EXP;
+    public static final long BG_COLOR        = 0xFFFFFFL << BG_COLOR_EXP;
+
 
     public static int columnLength(AttributedCharSequence string) {
         return columnLength(string, 0, string.length());
@@ -21,5 +36,69 @@ public class GraphicsUtils {
             cur += Character.charCount(cp);
         }
         return cols;
+    }
+
+    public static int blend(double alpha, int background, int foreground) {
+        return (int) ((1 - alpha) * background + alpha * foreground);
+    }
+
+    public static int getAlpha(int rgb) {
+        return (rgb >> 24) & 0xFF;
+    }
+
+    public static int getRed(int rgb) {
+        return (rgb >> 16) & 0xFF;
+    }
+
+    public static int getGreen(int rgb) {
+        return (rgb >> 8) & 0xFF;
+    }
+
+    public static int getBlue(int rgb) {
+        return (rgb >> 0) & 0xFF;
+    }
+
+    public static int toRGB(int red, int green, int blue) {
+        return (red & 0xFF) << 16 | (green & 0xFF) << 8 | (blue & 0xFF);
+    }
+
+    public static Color foreground(AttributedStyle style) {
+        long fg = (style.getStyle() & F_FOREGROUND) != 0 ? style.getStyle() & (FG_COLOR | F_FOREGROUND) : 0;
+
+        if (fg > 0) {
+            if ((fg & F_FOREGROUND_RGB) != 0) {
+                int r = (int) (fg >> (FG_COLOR_EXP + 16)) & 0xFF;
+                int g = (int) (fg >> (FG_COLOR_EXP + 8)) & 0xFF;
+                int b = (int) (fg >> FG_COLOR_EXP) & 0xFF;
+
+                return new Color(r, g, b);
+            } else if ((fg & F_FOREGROUND_IND) != 0) {
+                int index = (int) (fg >> FG_COLOR_EXP) & 0xFF;
+
+                return new Color(index);
+            }
+        }
+
+        return null;
+    }
+
+    public static Color background(AttributedStyle style) {
+        long fg = (style.getStyle() & F_BACKGROUND) != 0 ? style.getStyle() & (BG_COLOR | F_BACKGROUND) : 0;
+
+        if (fg > 0) {
+            if ((fg & F_BACKGROUND_RGB) != 0) {
+                int r = (int) (fg >> (BG_COLOR_EXP + 16)) & 0xFF;
+                int g = (int) (fg >> (BG_COLOR_EXP + 8)) & 0xFF;
+                int b = (int) (fg >> BG_COLOR_EXP) & 0xFF;
+
+                return new Color(r, g, b);
+            } else if ((fg & F_BACKGROUND_IND) != 0) {
+                int index = (int) (fg >> BG_COLOR_EXP) & 0xFF;
+
+                return new Color(index);
+            }
+        }
+
+        return null;
     }
 }
