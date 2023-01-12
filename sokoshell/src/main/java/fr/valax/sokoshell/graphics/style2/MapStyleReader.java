@@ -23,20 +23,20 @@ import static org.jline.utils.AttributedStyle.*;
 
 public class MapStyleReader {
 
-    private final Map<String, Function> functions = new HashMap<>();
-    private final Map<String, Color> reservedColors = new HashMap<>();
-    private final Map<String, StyleFunction> styleFunctions = new HashMap<>();
+    protected final Map<String, Function> functions = new HashMap<>();
+    protected final Map<String, Color> reservedColors = new HashMap<>();
+    protected final Map<String, StyleFunction> styleFunctions = new HashMap<>();
 
-    private BufferedReader br;
-    private Path folder;
+    protected BufferedReader br;
+    protected Path folder;
 
-    private final Map<String, BufferedImage> images = new HashMap<>();
-    private final Map<String, Color> colorAliases = new HashMap<>();
+    protected final Map<String, BufferedImage> images = new HashMap<>();
+    protected final Map<String, Color> colorAliases = new HashMap<>();
 
-    private final Map<String, List<FileMapStyle.Sampler>> samplers = new HashMap<>();
-    private String name;
-    private String author;
-    private String version;
+    protected final Map<String, List<FileMapStyle.Sampler>> samplers = new HashMap<>();
+    protected String name;
+    protected String author;
+    protected String version;
 
     public MapStyleReader() {
         initFunctions();
@@ -176,7 +176,7 @@ public class MapStyleReader {
                 }
             }
 
-            return null;
+            return new FileMapStyle(this);
         } finally {
             if (br != null) {
                 br.close();
@@ -312,6 +312,10 @@ public class MapStyleReader {
     private void clear() {
         images.clear();
         colorAliases.clear();
+
+        for (List<FileMapStyle.Sampler> s : samplers.values()) {
+            s.clear();
+        }
 
         folder = null;
         name = null;

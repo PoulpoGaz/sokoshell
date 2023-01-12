@@ -4,13 +4,14 @@ import fr.valax.sokoshell.graphics.Graphics;
 import fr.valax.sokoshell.graphics.Surface;
 import fr.valax.sokoshell.graphics.style.Color;
 import fr.valax.sokoshell.solver.Direction;
+import fr.valax.sokoshell.solver.Tile;
 import fr.valax.sokoshell.solver.TileInfo;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;
 
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
-import java.util.Objects;
+import java.io.IOException;
+import java.util.*;
 
 import static fr.valax.sokoshell.graphics.GraphicsUtils.*;
 
@@ -19,11 +20,44 @@ import static fr.valax.sokoshell.graphics.GraphicsUtils.*;
  */
 public class FileMapStyle extends MapStyle {
 
-    private int[] availableSizes;
-    private java.util.Map<String, Sampler[]> samplers = new HashMap<>();
+    private final int[] availableSizes;
+    private final Map<String, Sampler[]> samplers = new HashMap<>();
 
-    public FileMapStyle(String name, String author, String version) {
-        super(name, author, version);
+    public FileMapStyle(MapStyleReader reader) throws IOException {
+        super(reader.name, reader.author, reader.version);
+
+        int[] availableSizes = null;
+
+        for (Map.Entry<String, List<Sampler>> s : reader.samplers.entrySet()) {
+            Sampler[] samplerArray = s.getValue().toArray(new Sampler[0]);
+            Arrays.sort(samplerArray, Comparator.comparingInt(Sampler::getSize));
+
+            if (availableSizes == null) {
+                availableSizes = new int[samplerArray.length];
+
+                for (int i = 0; i < samplerArray.length; i++) {
+                    availableSizes[i] = samplerArray[i].getSize();
+
+                    if (i > 0 && availableSizes[i - 1] == availableSizes[i]) {
+                        throw new IOException("Duplicate sampler for " + s.getKey());
+                    }
+                }
+            } else {
+                if (samplerArray.length != availableSizes.length) {
+                    throw new IOException("Invalid number of sampler for " + s.getKey());
+                }
+
+                for (int i = 0; i < samplerArray.length; i++) {
+                    if (availableSizes[i] != samplerArray[i].getSize()) {
+                        throw new IOException("Invalid sampler size for " + s.getKey());
+                    }
+                }
+            }
+
+            samplers.put(s.getKey(), samplerArray);
+        }
+
+        this.availableSizes = Objects.requireNonNull(availableSizes);
     }
 
     @Override
@@ -112,6 +146,8 @@ public class FileMapStyle extends MapStyle {
     protected interface Sampler {
 
         void fetch(int x, int y, StyledCharacter out, boolean merge);
+
+        int getSize();
     }
 
 
@@ -134,6 +170,11 @@ public class FileMapStyle extends MapStyle {
             } else {
                 out.setRGB(image.getRGB(x, y));
             }
+        }
+
+        @Override
+        public int getSize() {
+            return image.getWidth();
         }
     }
 
@@ -168,6 +209,11 @@ public class FileMapStyle extends MapStyle {
             } else {
                 out.setAnsi(c, style);
             }
+        }
+
+        @Override
+        public int getSize() {
+            return ansi.length;
         }
     }
 
