@@ -10,6 +10,9 @@ import java.util.*;
  */
 public class SolverPriorityQueue implements SolverCollection<WeightedState> {
 
+    /**
+     * @implNote We use a min heap collection.
+      */
     private final MinHeap<WeightedState> heap = new MinHeap<>();
 
     private WeightedState cachedState;
