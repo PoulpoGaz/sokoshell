@@ -1,6 +1,7 @@
 package fr.valax.sokoshell.graphics;
 
 import org.jline.terminal.Size;
+import org.jline.terminal.Terminal;
 import org.jline.utils.*;
 
 import java.awt.*;
@@ -99,13 +100,35 @@ public class Surface {
      * @param cursorPos cursor position
      */
     public void drawBuffer(Display display, int cursorPos) {
+        display.update(asList(), cursorPos);
+    }
+
+
+    public void drawBuffer(Terminal terminal) {
+        for (AttributedStringBuilder b : builders) {
+            terminal.writer().println(TrueColorString.toAnsi(terminal, b));
+        }
+    }
+
+
+    public List<AttributedString> asList() {
         List<AttributedString> strings = new ArrayList<>();
 
         for (AttributedStringBuilder b : builders) {
             strings.add(new TrueColorString(b));
         }
 
-        display.update(strings, cursorPos);
+        return strings;
+    }
+
+    public AttributedString asString() {
+        AttributedStringBuilder asb = new AttributedStringBuilder();
+
+        for (AttributedStringBuilder a : this.builders) {
+            asb.append(a).append('\n');
+        }
+
+        return asb.toAttributedString();
     }
 
     /**

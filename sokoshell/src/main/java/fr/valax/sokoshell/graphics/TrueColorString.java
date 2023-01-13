@@ -52,6 +52,15 @@ public class TrueColorString extends AttributedString {
         }
     }
 
+
+    public static String toAnsi(Terminal terminal, AttributedCharSequence str) {
+        if (SUPPORTED) {
+            return str.toAnsi(TRUE_COLORS, ForceMode.ForceTrueColors);
+        } else {
+            return str.toAnsi(terminal);
+        }
+    }
+
     public static String toAnsi(AttributedCharSequence str) {
         if (SUPPORTED) {
             return str.toAnsi(TRUE_COLORS, ForceMode.ForceTrueColors);

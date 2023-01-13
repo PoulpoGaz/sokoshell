@@ -1,0 +1,61 @@
+name Warehouse
+author PoulpoGaz
+version 1.0
+
+# Alias
+alias cratebg 96 70 49
+alias cratefg 153 112 78
+
+alias crate_targetbg 222 159 61
+alias crate_targetfg 242 218 63
+
+alias floor1 90 90 90
+alias floor2 82 82 82
+alias floor3 74 74 74
+
+alias wallbg 47 50 47
+alias wallfg black
+
+alias targetfg 50 168 3
+
+
+# samplers
+# SIZE 1
+set-ansi floor 1
+{bg floor1} {}
+
+set-ansi wall 1
+{bg wallbg} {}
+
+set-ansi target 1
+{fg targetfg bg floor1}●
+
+set-ansi crate 1
+{bg cratebg fg cratefg} {}
+
+set-ansi crate_on_target 1
+{bg crate_targetbg fg crate_targetfg in} {}
+
+set-ansi player 1
+{fg black}o
+
+# SIZE 2
+
+# SIZE 3
+
+# SIZE 4
+
+# SIZE 8
+
+# SIZE 10
+
+# SIZE 12
+
+# SIZE 14
+
+# SIZE 16
+
+
+
+
+# set-image 1 player_up tileset.png 128 58
