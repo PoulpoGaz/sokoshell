@@ -1,8 +1,8 @@
 package fr.valax.sokoshell.solver;
 
+import fr.valax.sokoshell.solver.collections.SolverPriorityQueue;
 import fr.valax.sokoshell.solver.heuristic.GreedyHeuristic;
 import fr.valax.sokoshell.solver.heuristic.Heuristic;
-import fr.valax.sokoshell.solver.heuristic.SimpleHeuristic;
 
 public class AStarSolver extends BruteforceSolver<WeightedState> {
 

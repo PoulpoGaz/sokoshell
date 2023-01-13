@@ -1,4 +1,6 @@
-package fr.valax.sokoshell.solver;
+package fr.valax.sokoshell.solver.collections;
+
+import fr.valax.sokoshell.solver.State;
 
 public interface SolverCollection<T extends State> {
 

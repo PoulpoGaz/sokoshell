@@ -1,5 +1,6 @@
 package fr.valax.sokoshell.solver;
 
+import fr.valax.sokoshell.solver.collections.SolverPriorityQueue;
 import org.junit.jupiter.api.Test;
 
 public class SolverPriorityQueueTest {
