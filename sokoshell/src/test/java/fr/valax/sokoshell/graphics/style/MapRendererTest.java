@@ -25,7 +25,7 @@ public class MapRendererTest {
 
         mr.draw(new Graphics(s), 0, 0, 1, level.getMap(), level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
 
-        s.drawBuffer();
+        s.print();
     }
 
 
@@ -41,6 +41,6 @@ public class MapRendererTest {
 
         mr.print(level);
 
-        s.drawBuffer();
+        s.print();
     }
 }

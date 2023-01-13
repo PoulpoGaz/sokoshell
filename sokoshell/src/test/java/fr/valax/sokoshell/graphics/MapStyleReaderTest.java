@@ -43,7 +43,7 @@ public class MapStyleReaderTest {
             surface.resize(level.getWidth() * size, level.getHeight() * size);
 
             renderer.draw(g, 0, 0, size, level.getMap(), level.getPlayerX(), level.getPlayerY(), null);
-            surface.drawBuffer();
+            surface.print();
         }
     }
 }

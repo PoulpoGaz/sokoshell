@@ -3,6 +3,7 @@ package fr.valax.sokoshell.graphics.style;
 import fr.valax.sokoshell.graphics.Graphics;
 import fr.valax.sokoshell.graphics.Surface;
 import fr.valax.sokoshell.graphics.style2.MapRenderer;
+import fr.valax.sokoshell.graphics.style2.MapStyle;
 import fr.valax.sokoshell.graphics.style2.MapStyleReader;
 import fr.valax.sokoshell.solver.Direction;
 import fr.valax.sokoshell.solver.Level;
@@ -19,13 +20,21 @@ public class MapStyleReaderTest {
         Level level = TestUtils.getLevel(Path.of("../levels/levels8xv/Original.8xv"));
 
         MapRenderer mr = new MapRenderer();
-        mr.setStyle(new MapStyleReader().read(Path.of("../styles/warehouse/warehouse.style2")));
+        MapStyle style = new MapStyleReader().read(Path.of("../styles/warehouse/warehouse.style2"));
+        mr.setStyle(style);
 
         Surface s = new Surface();
         s.resize(level.getWidth(), level.getHeight());
+        Graphics g = new Graphics(s);
 
-        mr.draw(new Graphics(s), 0, 0, 1, level.getMap(), level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
-
-        s.drawBuffer();
+        for (int i = 1; i <= 16; i++) {
+            if (style.isSupported(i)) {
+                System.out.println("Size: " + i);
+                s.clear();
+                s.resize(level.getWidth() * i, level.getHeight() * i);
+                mr.draw(g, 0, 0, i, level.getMap(), level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
+                s.print();
+            }
+        }
     }
 }

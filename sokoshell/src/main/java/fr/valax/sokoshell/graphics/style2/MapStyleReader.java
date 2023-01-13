@@ -13,6 +13,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.cert.CertificateRevokedException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,6 +38,8 @@ public class MapStyleReader {
     protected String name;
     protected String author;
     protected String version;
+
+    private int line = 0;
 
     public MapStyleReader() {
         initFunctions();
@@ -73,6 +76,7 @@ public class MapStyleReader {
         addFunction(new Alias());
         addFunction(new SetImage());
         addFunction(new SetAnsi());
+        addFunction(new Merge());
     }
 
     private void addFunction(Function func) {
@@ -168,7 +172,7 @@ public class MapStyleReader {
             br = Files.newBufferedReader(file);
 
             String line;
-            while ((line = br.readLine()) != null) {
+            while ((line = nextLine()) != null) {
                 if (!line.startsWith("#") && !line.isBlank()) {
                     executeFunction(line);
                 }
@@ -184,12 +188,17 @@ public class MapStyleReader {
         }
     }
 
+    private String nextLine() throws IOException {
+        line++;
+        return br.readLine();
+    }
+
     private void executeFunction(String line) throws IOException {
-        String[] args = line.split(" ");
+        String[] args = line.split("\\s+");
         Function function = functions.get(args[0]);
 
         if (function == null) {
-            throw new IOException("No function named " + args[0]);
+            throw error("No function named %s", args[0]);
         }
 
         function.execute(args);
@@ -211,10 +220,7 @@ public class MapStyleReader {
         }
     }
 
-    /**
-     * @param name name used by {@link FileMapStyle} ie Tile.name() or Direction.name()
-     */
-    private void addSamplerInternalName(String name, FileMapStyle.Sampler sampler) throws IOException {
+    protected List<FileMapStyle.Sampler> getSamplers(String name) {
         List<FileMapStyle.Sampler> samplers = null;
 
         for (Map.Entry<String, List<FileMapStyle.Sampler>> s : this.samplers.entrySet()) {
@@ -224,8 +230,17 @@ public class MapStyleReader {
             }
         }
 
+        return samplers;
+    }
+
+    /**
+     * @param name name used by {@link FileMapStyle} ie Tile.name() or Direction.name()
+     */
+    private void addSamplerInternalName(String name, FileMapStyle.Sampler sampler) throws IOException {
+        List<FileMapStyle.Sampler> samplers = getSamplers(name);
+
         if (samplers == null) {
-            throw new IOException("No such sampler: " + name);
+            throw error("No such sampler: %s");
         }
 
         samplers.add(sampler);
@@ -236,10 +251,10 @@ public class MapStyleReader {
         AttributedStringBuilder asb = new AttributedStringBuilder();
 
         for (int i = 0; i < size; i++) {
-            String line = br.readLine();
+            String line = nextLine();
 
             if (line == null) {
-                throw new IOException("Ansi sampler not terminated. (need " + (size - i) + " more line(s)");
+                throw error("Ansi sampler not terminated. (need %d more line(s)", size - i);
             }
 
             asb.setLength(0);
@@ -252,7 +267,7 @@ public class MapStyleReader {
                         asb.append(line.charAt(j + 1));
                         j++;
                     } else {
-                        throw new IOException("Escape character doesn't escape any character");
+                        throw error("Escape character doesn't escape any character");
                     }
                 } else if (c == '{') {
                     j = executeStyleFunction(line, asb, j + 1);
@@ -271,7 +286,7 @@ public class MapStyleReader {
         int end = line.indexOf('}', i);
 
         if (end < 0) {
-            throw new IOException("Style function without end");
+            throw error("Style function without end");
         }
 
         String sub = line.substring(i, end);
@@ -280,14 +295,14 @@ public class MapStyleReader {
             return end;
         }
 
-        String[] split = line.substring(i, end).split(" ");
+        String[] split = line.substring(i, end).split("\\s+");
 
         int j = 0;
         while (j < split.length) {
             StyleFunction func = styleFunctions.get(split[j]);
 
             if (func == null) {
-                throw new IOException("No such style function: " + split[j]);
+                throw error("No such style function: %s", split[j]);
             }
 
             j = func.execute(split, j + 1, asb);
@@ -310,7 +325,7 @@ public class MapStyleReader {
         try {
             return Integer.parseInt(str);
         } catch (NumberFormatException e) {
-            throw new IOException("Failed to parse %s to int".formatted(str), e);
+            throw error(e, "Failed to parse %s to int", str);
         }
     }
 
@@ -339,6 +354,14 @@ public class MapStyleReader {
         version = null;
     }
 
+    private IOException error(String format, Object... args) {
+        return new IOException(format.formatted(args) + " (at line " + line + ")");
+    }
+
+    private IOException error(Throwable cause, String format, Object... args) {
+        return new IOException(format.formatted(args) + " (at mine " + line + ")", cause);
+    }
+
 
     private abstract static class Function {
 
@@ -359,7 +382,7 @@ public class MapStyleReader {
         }
     }
 
-    private abstract static class SimpleSetter extends Function {
+    private abstract class SimpleSetter extends Function {
 
         public SimpleSetter(String name) {
             super(name);
@@ -370,7 +393,7 @@ public class MapStyleReader {
             if (args.length == 2) {
                 set(args[1]);
             } else {
-                throw new IOException("Invalid number of argument for " + name + ": expected 1, got: " + (args.length - 1));
+                throw error("Invalid number of argument for %s: expected 1, got: %d", name, args.length - 1);
             }
         }
 
@@ -386,21 +409,21 @@ public class MapStyleReader {
         @Override
         public void execute(String[] args) throws IOException {
             if (args.length != 3 && args.length != 5) {
-                throw new IOException("""
+                throw error("""
                         Invalid use of alias, expected 2 or 4 arguments, got: %d.
                         Prototype: alias NAME COLOR_INDEX or alias NAME RED GREEN BLUE
-                        """.formatted(args.length - 1));
+                        """, args.length - 1);
             } else {
                 String name = args[1];
 
                 if (reservedColors.containsKey(name)) {
-                    throw new IOException("Reserved color: " + name);
+                    throw error("Reserved color: %s", name);
                 }
 
                 try {
                     Integer.parseInt(args[1]);
 
-                    throw new IOException("NAME cannot be a number");
+                    throw error("NAME cannot be a number");
                 } catch (NumberFormatException e) {
                     // ignored
                 }
@@ -410,7 +433,7 @@ public class MapStyleReader {
                     color = getColor(args[2]);
 
                     if (color == null) {
-                        throw new IOException("No such color (alias): " + args[2]);
+                        throw error("No such color (alias): %s", args[2]);
                     }
                 } else {
                     color = new Color(parseInt(args[2]), parseInt(args[3]), parseInt(args[4]));
@@ -430,15 +453,15 @@ public class MapStyleReader {
         @Override
         public void execute(String[] args) throws IOException {
             if (args.length != 6) {
-                throw new IOException("""
+                throw error("""
                         Invalid use of set-image, expected 5 arguments, got: %d.
                         Prototype: set-image TILE/PLAYER_DIR SIZE PATH_TO_IMAGE X Y
-                        """.formatted(args.length - 1));
+                        """, args.length - 1);
             }
 
             int size = parseInt(args[2]);
             if (size <= 0) {
-                throw new IOException("Zero or negative size: " + size);
+                throw error("Zero or negative size: %d", size);
             }
 
             BufferedImage image = getImage(args[3]);
@@ -459,22 +482,102 @@ public class MapStyleReader {
         @Override
         public void execute(String[] args) throws IOException {
             if (args.length != 3) {
-                throw new IOException("""
+                throw error("""
                         Invalid use of set-ansi, expected 2 arguments, got: %d.
                         Prototype: set-image TILE/PLAYER_DIR SIZE
                         The SIZE following lines are used for the sampler
-                        """.formatted(args.length - 1));
+                        """, args.length - 1);
             }
 
             int size = parseInt(args[2]);
             if (size <= 0) {
-                throw new IOException("Zero or negative size: " + size);
+                throw error("Zero or negative size: %d", size);
             }
 
             FileMapStyle.Sampler sampler = createAnsiSampler(size);
             addSampler(args[1], sampler);
         }
     }
+
+    private class Merge extends Function {
+
+        public Merge() {
+            super("merge");
+        }
+
+        @Override
+        public void execute(String[] args) throws IOException {
+            if (args.length != 4) {
+                throw error("""
+                        Invalid use of merge, expected 2 arguments, got: %d.
+                        Prototype: merge SIZE BACKGROUND FOREGROUND
+                        Draw FOREGROUND on BACKGROUND and put the result in FOREGROUND
+                        """, args.length - 1);
+            }
+
+            int size = parseInt(args[1]);
+            if (size <= 0) {
+                throw error("Zero or negative size: %d", size);
+            }
+
+            FileMapStyle.Sampler background = getSampler(args[2], size);
+            FileMapStyle.Sampler foreground = getSampler(args[3], size);
+
+            foreground = merge(background, foreground);
+
+            List<FileMapStyle.Sampler> s = getSamplers(args[3]);
+            for (int i = 0; i < s.size(); i++) {
+                FileMapStyle.Sampler old = s.get(i);
+
+                if (old.getSize() == size) {
+                    s.set(i, foreground);
+                }
+            }
+        }
+
+        private FileMapStyle.Sampler merge(FileMapStyle.Sampler a, FileMapStyle.Sampler b) {
+            int size = a.getSize();
+
+            AttributedString[] strings = new AttributedString[size];
+            AttributedStringBuilder asb = new AttributedStringBuilder();
+            StyledCharacter character = new StyledCharacter();
+
+            for (int y = 0; y < size; y++) {
+                asb.setLength(0);
+
+                for (int x = 0; x < size; x++) {
+                    a.fetch(x, y, character, false);
+                    b.fetch(x, y, character, true);
+
+                    character.appendTo(asb);
+                }
+
+                strings[y] = asb.toAttributedString();
+            }
+
+            return new FileMapStyle.AnsiSampler(size, strings);
+        }
+
+        private FileMapStyle.Sampler getSampler(String name, int size) throws IOException {
+            List<FileMapStyle.Sampler> samplers = getSamplers(name);
+
+            if (samplers == null) {
+                throw error("No sampler named %s loaded", name);
+            }
+
+            for (FileMapStyle.Sampler sampler : samplers) {
+                if (sampler.getSize() == size) {
+                    return sampler;
+                }
+            }
+
+            throw error("No sampler named %s with size %d loaded", name, size);
+        }
+    }
+
+
+
+
 
     @FunctionalInterface
     private interface StyleFunction {

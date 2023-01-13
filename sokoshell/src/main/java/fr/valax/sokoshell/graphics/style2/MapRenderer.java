@@ -27,19 +27,19 @@ public class MapRenderer {
     }
 
     public void print(Terminal terminal, Level level) {
-        draw(level).drawBuffer(terminal);
+        draw(level).print(terminal);
     }
 
     public void print(Terminal terminal, Map map, int playerX, int playerY) {
-        draw(map, playerX, playerY).drawBuffer(terminal);
+        draw(map, playerX, playerY).print(terminal);
     }
 
     public void print(PrintStream ps, Level level) {
-        draw(level).drawBuffer(ps);
+        draw(level).print(ps);
     }
 
     public void print(PrintStream ps, Map map, int playerX, int playerY) {
-        draw(map, playerX, playerY).drawBuffer(ps);
+        draw(map, playerX, playerY).print(ps);
     }
 
 

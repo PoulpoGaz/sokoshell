@@ -9,7 +9,6 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.BiFunction;
 
 /**
  * A class used by {@link TerminalEngine} to draw.
@@ -83,16 +82,21 @@ public class Surface {
         this.height = height;
     }
 
-    public void drawBuffer() {
-        drawBuffer(System.out);
+    public void print() {
+        print(System.out);
     }
 
-    public void drawBuffer(PrintStream out) {
+    public void print(PrintStream out) {
         for (AttributedStringBuilder b : builders) {
             out.println(TrueColorString.toAnsi(b));
         }
     }
 
+    public void print(Terminal terminal) {
+        for (AttributedStringBuilder b : builders) {
+            terminal.writer().println(TrueColorString.toAnsi(terminal, b));
+        }
+    }
 
     /**
      * Draw the surface on the display and put the cursor at cursorPos
@@ -101,13 +105,6 @@ public class Surface {
      */
     public void drawBuffer(Display display, int cursorPos) {
         display.update(asList(), cursorPos);
-    }
-
-
-    public void drawBuffer(Terminal terminal) {
-        for (AttributedStringBuilder b : builders) {
-            terminal.writer().println(TrueColorString.toAnsi(terminal, b));
-        }
     }
 
 
