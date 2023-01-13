@@ -9,9 +9,9 @@ public class MinHeap<T> {
     /**
      * Array of nodes.
      */
-    private final List<Node<T>> nodes;
+    protected final List<Node<T>> nodes;
 
-    private int currentSize;
+    protected int currentSize;
 
     public MinHeap() {
         nodes = new ArrayList<>();
@@ -107,8 +107,9 @@ public class MinHeap<T> {
     }
 
     public void clear() {
-        nodes.clear();
-        if (currentSize != - 1) {
+        if (currentSize == - 1) {
+            nodes.clear();
+        } else {
             currentSize = 0;
         }
     }
@@ -124,7 +125,7 @@ public class MinHeap<T> {
     /**
      * Min heap (state, priority) couple.
      */
-    private static final class Node<T> {
+    protected static final class Node<T> {
         private T content;
         private int priority;
 
@@ -154,8 +155,16 @@ public class MinHeap<T> {
             return content;
         }
 
+        public void setContent(T content) {
+            this.content = content;
+        }
+
         public int priority() {
             return priority;
+        }
+
+        public void setPriority(int priority) {
+            this.priority = priority;
         }
     }
 }

@@ -687,7 +687,7 @@ public class Map {
         targetCount = 0;
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                if (this.content[y][x].isTarget()) {
+                if (this.content[y][x].isTarget() || this.content[y][x].isCrateOnTarget()) {
                     targetCount++;
                     targetIndices.add(getIndex(x, y));
                 }
