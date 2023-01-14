@@ -91,28 +91,36 @@ public class Utils {
     }
 
     public static String prettyDate(long millis) {
+        return prettyDate(millis, false);
+    }
+
+    public static String prettyDate(long millis, boolean roundSecondsToInt) {
         if (millis < 1000) {
             return millis + " ms";
         } else if (millis < 1000 * 60) {
             double sec = millis / 1000d;
 
-            return round(sec) + " s";
+            return round(sec, roundSecondsToInt) + " s";
         } else if (millis < 1000 * 60 * 60) {
             int minute = (int) (millis / (1000 * 60d));
             double sec = (millis - minute * 1000 * 60) / 1000d;
 
-            return minute + " min " + sec + " s";
+            return minute + " min " + round(sec, roundSecondsToInt) + " s";
         } else {
             int hour = (int) (millis / (1000 * 60 * 60d));
             int minute = (int) (millis - hour * 1000 * 60 * 60) / (1000 * 60);
             double sec = (millis - hour * 1000 * 60 * 60 - minute * 1000 * 60) / 1000d;
 
-            return hour + " h " + minute + " min " + sec + " s";
+            return hour + " h " + minute + " min " + round(sec, roundSecondsToInt) + " s";
         }
     }
 
-    private static String round(double d) {
-        return FORMAT.format(d);
+    private static String round(double d, boolean roundToInt) {
+        if (roundToInt) {
+            return Integer.toString((int) d);
+        } else {
+            return FORMAT.format(d);
+        }
     }
 
     public static Path checkExists(Path path) {

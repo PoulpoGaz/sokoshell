@@ -592,7 +592,7 @@ public class SokoShell {
 
     public NotificationHandler getNotificationHandler() {
         if (notificationHandler == null) {
-            notificationHandler = new NotificationHandler(terminal);
+            notificationHandler = new NotificationHandler(reader);
         }
 
         return notificationHandler;
