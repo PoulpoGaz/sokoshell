@@ -1,5 +1,7 @@
 package fr.valax.sokoshell.graphics.style;
 
+import fr.valax.sokoshell.solver.Direction;
+import fr.valax.sokoshell.solver.Tile;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
@@ -10,41 +12,80 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.function.BiFunction;
 
-import static fr.valax.sokoshell.graphics.style.MapStyle.Element;
 import static org.jline.utils.AttributedStyle.*;
 
 public class MapStyleReader {
 
-    private final Map<String, Color> reservedColors;
-    private final Map<String, StyleFunction> styleFunctions;
+    protected final Map<String, Function> functions = new HashMap<>();
+    protected final Map<String, Color> reservedColors = new HashMap<>();
+    protected final Map<String, StyleFunction> styleFunctions = new HashMap<>();
 
-    private final Map<String, BufferedImage> images = new HashMap<>();
-    private final Map<String, Color> colorAliases = new HashMap<>();
+    protected BufferedReader br;
+    protected Path folder;
 
-    private Path folder;
-    private BufferedReader br;
-    private Tokenizer tokenizer;
+    protected final Map<String, BufferedImage> images = new HashMap<>();
+    protected final Map<String, Color> colorAliases = new HashMap<>();
 
-    private String name;
-    private String author;
-    private String version;
-    private Map<Integer, Map<Element, TileStyle>> styles;
+    protected final Map<String, List<FileMapStyle.Sampler>> samplers = new HashMap<>();
+    protected String name;
+    protected String author;
+    protected String version;
+
+    private int line = 0;
 
     public MapStyleReader() {
-        reservedColors = initReservedColors();
-
-        styleFunctions = new HashMap<>();
+        initFunctions();
+        initReservedColors();
         initStyleFunctions();
+
+        for (Tile tile : Tile.values()) {
+            samplers.put(tile.name(), new ArrayList<>());
+        }
+        for (Direction dir : Direction.VALUES) {
+            samplers.put(dir.name(), new ArrayList<>());
+        }
     }
 
-    private Map<String, Color> initReservedColors() {
-        Map<String, Color> reservedColors = new HashMap<>();
+    private void initFunctions() {
+        addFunction(new SimpleSetter("name") {
+            @Override
+            public void set(String name) {
+                MapStyleReader.this.name = name;
+            }
+        });
+        addFunction(new SimpleSetter("author") {
+            @Override
+            public void set(String author) {
+                MapStyleReader.this.author = author;
+            }
+        });
+        addFunction(new SimpleSetter("version") {
+            @Override
+            public void set(String version) {
+                MapStyleReader.this.version = version;
+            }
+        });
+        addFunction(new Alias());
+        addFunction(new SetImage());
+        addFunction(new SetAnsi());
+        addFunction(new Merge());
+    }
 
+    private void addFunction(Function func) {
+        if (functions.put(func.getName(), func) != null) {
+            throw new IllegalArgumentException("two function with same name");
+        }
+    }
+
+
+
+    private void initReservedColors() {
         reservedColors.put("black", new Color(BLACK));
         reservedColors.put("red", new Color(RED));
         reservedColors.put("green", new Color(GREEN));
@@ -62,58 +103,56 @@ public class MapStyleReader {
         reservedColors.put("bright_magenta", new Color(MAGENTA + BRIGHT));
         reservedColors.put("bright_cyan", new Color(CYAN + BRIGHT));
         reservedColors.put("bright_white", new Color(WHITE + BRIGHT));
-
-        return reservedColors;
     }
 
 
     private void initStyleFunctions() {
-        addStyleFunction((style, t) -> DEFAULT,                   "d", "default");
+        addStyleFunction(new NoArgumentStyleFunction((style) -> DEFAULT),                   "d", "default");
 
-        addStyleFunction((style, t) -> style.bold(),              "bo", "bold");
-        addStyleFunction((style, t) -> style.boldOff(),           "bo-o", "bold-off");
-        addStyleFunction((style, t) -> style.boldDefault(),       "bo-d", "bold-default");
+        addStyleFunction(new NoArgumentStyleFunction(AttributedStyle::bold),              "bo", "bold");
+        addStyleFunction(new NoArgumentStyleFunction(AttributedStyle::boldOff),           "bo-o", "bold-off");
+        addStyleFunction(new NoArgumentStyleFunction(AttributedStyle::boldDefault),       "bo-d", "bold-default");
 
-        addStyleFunction((style, t) -> style.faint(),             "f", "faint");
-        addStyleFunction((style, t) -> style.faintDefault(),      "f-o", "faint-off");
-        addStyleFunction((style, t) -> style.faintOff(),          "f-d", "faint-default");
+        addStyleFunction(new NoArgumentStyleFunction(AttributedStyle::faint),             "f", "faint");
+        addStyleFunction(new NoArgumentStyleFunction(AttributedStyle::faintDefault),      "f-o", "faint-off");
+        addStyleFunction(new NoArgumentStyleFunction(AttributedStyle::faintOff),          "f-d", "faint-default");
 
-        addStyleFunction((style, t) -> style.italic(),            "it", "italic");
-        addStyleFunction((style, t) -> style.italicDefault(),     "it-o", "italic-off");
-        addStyleFunction((style, t) -> style.italicOff(),         "it-d", "italic-default");
+        addStyleFunction(new NoArgumentStyleFunction(AttributedStyle::italic),            "it", "italic");
+        addStyleFunction(new NoArgumentStyleFunction(AttributedStyle::italicDefault),     "it-o", "italic-off");
+        addStyleFunction(new NoArgumentStyleFunction(AttributedStyle::italicOff),         "it-d", "italic-default");
 
-        addStyleFunction((style, t) -> style.underline(),         "u", "underline");
-        addStyleFunction((style, t) -> style.underlineDefault(),  "u-o", "underline-off");
-        addStyleFunction((style, t) -> style.underlineOff(),      "u-d", "underline-default");
+        addStyleFunction(new NoArgumentStyleFunction(AttributedStyle::underline),         "u", "underline");
+        addStyleFunction(new NoArgumentStyleFunction(AttributedStyle::underlineDefault),  "u-o", "underline-off");
+        addStyleFunction(new NoArgumentStyleFunction(AttributedStyle::underlineOff),      "u-d", "underline-default");
 
-        addStyleFunction((style, t) -> style.blink(),             "bl", "blink");
-        addStyleFunction((style, t) -> style.blinkDefault(),      "bl-o", "blink-off");
-        addStyleFunction((style, t) -> style.blinkOff(),          "bl-d", "blink-default");
+        addStyleFunction(new NoArgumentStyleFunction(AttributedStyle::blink),             "bl", "blink");
+        addStyleFunction(new NoArgumentStyleFunction(AttributedStyle::blinkDefault),      "bl-o", "blink-off");
+        addStyleFunction(new NoArgumentStyleFunction(AttributedStyle::blinkOff),          "bl-d", "blink-default");
 
-        addStyleFunction((style, t) -> style.inverse(),           "in", "inverse");
-        addStyleFunction((style, t) -> style.inverseNeg(),        "in-n", "inverse-neg");
-        addStyleFunction((style, t) -> style.inverseDefault(),    "in-o", "inverse-off");
-        addStyleFunction((style, t) -> style.inverseOff(),        "in-d", "inverse-default");
+        addStyleFunction(new NoArgumentStyleFunction(AttributedStyle::inverse),           "in", "inverse");
+        addStyleFunction(new NoArgumentStyleFunction(AttributedStyle::inverseNeg),        "in-n", "inverse-neg");
+        addStyleFunction(new NoArgumentStyleFunction(AttributedStyle::inverseDefault),    "in-o", "inverse-off");
+        addStyleFunction(new NoArgumentStyleFunction(AttributedStyle::inverseOff),        "in-d", "inverse-default");
 
-        addStyleFunction((style, t) -> style.conceal(),           "co", "conceal");
-        addStyleFunction((style, t) -> style.concealDefault(),    "co-o", "conceal-off");
-        addStyleFunction((style, t) -> style.concealOff(),        "co-d", "conceal-default");
+        addStyleFunction(new NoArgumentStyleFunction(AttributedStyle::conceal),           "co", "conceal");
+        addStyleFunction(new NoArgumentStyleFunction(AttributedStyle::concealDefault),    "co-o", "conceal-off");
+        addStyleFunction(new NoArgumentStyleFunction(AttributedStyle::concealOff),        "co-d", "conceal-default");
 
-        addStyleFunction((style, t) -> style.crossedOut(),        "cr", "crossed-out");
-        addStyleFunction((style, t) -> style.crossedOutOff(),     "cr-o", "crossed-out-off");
-        addStyleFunction((style, t) -> style.crossedOutDefault(), "cr-d", "crossed-out-default");
+        addStyleFunction(new NoArgumentStyleFunction(AttributedStyle::crossedOut),        "cr", "crossed-out");
+        addStyleFunction(new NoArgumentStyleFunction(AttributedStyle::crossedOutOff),     "cr-o", "crossed-out-off");
+        addStyleFunction(new NoArgumentStyleFunction(AttributedStyle::crossedOutDefault), "cr-d", "crossed-out-default");
 
-        addStyleFunction((style, t) -> style.hidden(),            "h", "hidden");
-        addStyleFunction((style, t) -> style.hiddenOff(),         "h-o", "hidden-off");
-        addStyleFunction((style, t) -> style.hiddenDefault(),     "h-d", "hidden-default");
+        addStyleFunction(new NoArgumentStyleFunction(AttributedStyle::hidden),            "h", "hidden");
+        addStyleFunction(new NoArgumentStyleFunction(AttributedStyle::hiddenOff),         "h-o", "hidden-off");
+        addStyleFunction(new NoArgumentStyleFunction(AttributedStyle::hiddenDefault),     "h-d", "hidden-default");
 
-        addStyleFunction((style, t) -> getColor(t).setFG(style),   "fg", "foreground");
-        addStyleFunction((style, t) -> style.foregroundOff(),     "fg-o", "foreground-off");
-        addStyleFunction((style, t) -> style.foregroundDefault(), "fg-d", "foreground-default");
+        addStyleFunction(new ColorStyleFunction((style, color) -> color.setFG(style)),    "fg", "foreground");
+        addStyleFunction(new NoArgumentStyleFunction(AttributedStyle::foregroundOff),     "fg-o", "foreground-off");
+        addStyleFunction(new NoArgumentStyleFunction(AttributedStyle::foregroundDefault), "fg-d", "foreground-default");
 
-        addStyleFunction((style, t) -> getColor(t).setBG(style),   "bg", "background");
-        addStyleFunction((style, t) -> style.backgroundOff(),     "bg-o", "background-off");
-        addStyleFunction((style, t) -> style.backgroundDefault(), "bg-d", "background-default");
+        addStyleFunction(new ColorStyleFunction((style, color) -> color.setBG(style)),    "bg", "background");
+        addStyleFunction(new NoArgumentStyleFunction(AttributedStyle::backgroundOff),     "bg-o", "background-off");
+        addStyleFunction(new NoArgumentStyleFunction(AttributedStyle::backgroundDefault), "bg-d", "background-default");
     }
 
     private void addStyleFunction(StyleFunction func, String... names) {
@@ -124,315 +163,150 @@ public class MapStyleReader {
         }
     }
 
-    public MapStyle read(Path file) throws IOException {
-        images.clear();
-        colorAliases.clear();
+    public FileMapStyle read(Path file) throws IOException {
         folder = file.getParent();
-
-        name = null;
-        author = null;
-        version = null;
-        styles = new HashMap<>();
 
         try {
             br = Files.newBufferedReader(file);
 
-            tokenizer = new Tokenizer(br);
-            while (tokenizer.hasNext() || tokenizer.nextLine()) {
-                parseCurrentLine();
+            String line;
+            while ((line = nextLine()) != null) {
+                if (!line.startsWith("#") && !line.isBlank()) {
+                    executeFunction(line);
+                }
             }
 
-            return new MapStyle(name, author, version, styles);
+            return new FileMapStyle(this);
         } finally {
             if (br != null) {
                 br.close();
             }
+
+            clear();
         }
     }
 
-    private void parseCurrentLine() throws IOException {
-         Token next = tokenizer.next();
+    private String nextLine() throws IOException {
+        line++;
+        return br.readLine();
+    }
 
-        if (next.getType() == TokenType.SECTION_START) {
-            String sectionName = nextToken(TokenType.WORD);
-            nextToken(TokenType.SECTION_END);
+    private void executeFunction(String line) throws IOException {
+        String[] args = line.split("\\s+");
+        Function function = functions.get(args[0]);
 
-            switch (sectionName) {
-                case "alias" -> parseAlias();
-                case "size" -> parseSize();
-                default -> throw error("Unknown section type: %s", sectionName);
+        if (function == null) {
+            throw error("No function named %s", args[0]);
+        }
+
+        function.execute(args);
+    }
+
+    private void addSampler(String name, FileMapStyle.Sampler sampler) throws IOException {
+        switch (name) {
+            case "player" -> {
+                addSamplerInternalName(Direction.UP.name(), sampler);
+                addSamplerInternalName(Direction.DOWN.name(), sampler);
+                addSamplerInternalName(Direction.LEFT.name(), sampler);
+                addSamplerInternalName(Direction.RIGHT.name(), sampler);
             }
-
-        } else if (next.getType() == TokenType.WORD) {
-            switch (next.getValue()) {
-                case "name" -> name = lastWord();
-                case "author" -> author = lastWord();
-                case "version" -> version = lastWord();
-                default -> throw error("Unknown key: %s", next.getValue());
-            }
+            case "player_up" ->  addSamplerInternalName(Direction.UP.name(), sampler);
+            case "player_down" -> addSamplerInternalName(Direction.DOWN.name(), sampler);
+            case "player_left" -> addSamplerInternalName(Direction.LEFT.name(), sampler);
+            case "player_right" -> addSamplerInternalName(Direction.RIGHT.name(), sampler);
+            default -> addSamplerInternalName(name, sampler);
         }
     }
 
-    private String nextToken(TokenType expectedType) throws IOException {
-        if (tokenizer.hasNext()) {
-            Token next = tokenizer.next();
+    protected List<FileMapStyle.Sampler> getSamplers(String name) {
+        List<FileMapStyle.Sampler> samplers = null;
 
-            if (next.getType() != expectedType) {
-                throw error("Expecting %s but was%s", TokenType.WORD, next.getType());
-            }
-
-            return next.getValue();
-        }
-
-        throw error("Expecting %s but was EOL", TokenType.WORD);
-    }
-
-    private String lastWord() throws IOException {
-        if (tokenizer.hasNext()) {
-            Token next = tokenizer.next();
-
-            if (next.getType() != TokenType.WORD) {
-                throw error("Expecting %s but was%s", TokenType.WORD, next.getType());
-            }
-
-            String word = next.getValue();
-
-            if (tokenizer.hasNext()) {
-                throw error("not EOL");
-            }
-
-            return word;
-        }
-
-        throw error("Expecting %s but was EOL", TokenType.WORD);
-    }
-
-    // ALIAS
-
-    private void parseAlias() throws IOException {
-        if (tokenizer.hasNext()) {
-            throw error("not EOL");
-        }
-
-        while (tokenizer.nextLine()) {
-            if (tokenizer.hasNext()) {
-                Token token = tokenizer.next();
-
-                if (token.getType() == TokenType.WORD) {
-
-                    String name = token.getValue();
-
-                    if (reservedColors.containsKey(name)) {
-                        throw error("reserved color: %s", name);
-                    }
-
-                    colorAliases.put(name, getColor(tokenizer));
-
-                } else {
-                    tokenizer.reset();
-                    break;
-                }
-            }
-        }
-    }
-
-    // SIZE
-
-    private void parseSize() throws IOException {
-        Map<Element, TileStyle> tileStyles = new HashMap<>();
-
-        int size = parseInt(lastWord());
-
-        while (tokenizer.nextLine()) {
-            nextToken(TokenType.SECTION_START);
-            String tile = nextToken(TokenType.WORD);
-            Element[] elements = getElements(tile);
-
-            if (elements == null) {
-                tokenizer.reset();
+        for (Map.Entry<String, List<FileMapStyle.Sampler>> s : this.samplers.entrySet()) {
+            if (s.getKey().equalsIgnoreCase(name)) {
+                samplers = s.getValue();
                 break;
             }
-
-            nextToken(TokenType.SECTION_END);
-
-            String styleType = nextToken(TokenType.WORD);
-            TileStyle mergeWith = null;
-            boolean floorTargetMerge = false;
-
-            if (tokenizer.hasNext()) {
-                if (!nextToken(TokenType.WORD).equals("merge")) {
-                    throw error("Expecting merge");
-                }
-
-                String last = lastWord();
-
-                if (last.equals("floor-target")) {
-                    floorTargetMerge = true;
-                } else {
-                    mergeWith = tileStyles.get(getElement(last));
-
-                    if (mergeWith == null) {
-                        throw error("No style named %s is loaded", last);
-                    }
-                }
-            }
-
-            TileStyle tileStyle;
-            if (styleType.equals("ansi")) {
-                tileStyle = parseAnsi(size);
-            } else if (styleType.equals("image")) {
-                tileStyle = parseImage(size);
-            } else {
-                throw error("Unknown style type: %s", styleType);
-            }
-
-            // do merge
-            if (floorTargetMerge) {
-                TileStyle floor = tileStyles.get(Element.FLOOR);
-                TileStyle target = tileStyles.get(Element.TARGET);
-
-                TileStyle floorMerged = floor.merge(tileStyle);
-                TileStyle targetMerged = target.merge(tileStyle);
-
-                for (Element e : elements) {
-                    if (e.name().contains("TARGET")) {
-                        tileStyles.put(e, targetMerged);
-                    } else {
-                        tileStyles.put(e, floorMerged);
-                    }
-                }
-            } else {
-                if (mergeWith != null) {
-                    tileStyle = mergeWith.merge(tileStyle);
-                }
-
-                for (Element e : elements) {
-                    tileStyles.put(e, tileStyle);
-                }
-            }
         }
 
-        if (tileStyles.size() != Element.values().length) {
-            throw error("Incomplete style for size: %d", size);
+        return samplers;
+    }
+
+    /**
+     * @param name name used by {@link FileMapStyle} ie Tile.name() or Direction.name()
+     */
+    private void addSamplerInternalName(String name, FileMapStyle.Sampler sampler) throws IOException {
+        List<FileMapStyle.Sampler> samplers = getSamplers(name);
+
+        if (samplers == null) {
+            throw error("No such sampler: %s");
         }
 
-        styles.put(size, tileStyles);
+        samplers.add(sampler);
     }
 
-    private Element[] getElements(String tile) {
-        return switch (tile) {
-            case "player" -> new Element[] {
-                    Element.PLAYER_FLOOR_RIGHT,
-                    Element.PLAYER_FLOOR_DOWN,
-                    Element.PLAYER_FLOOR_LEFT,
-                    Element.PLAYER_FLOOR_UP,
-                    Element.PLAYER_ON_TARGET_RIGHT,
-                    Element.PLAYER_ON_TARGET_DOWN,
-                    Element.PLAYER_ON_TARGET_LEFT,
-                    Element.PLAYER_ON_TARGET_UP};
-            case "player_down" -> new Element[] {Element.PLAYER_FLOOR_DOWN, Element.PLAYER_ON_TARGET_DOWN};
-            case "player_up" -> new Element[] {Element.PLAYER_FLOOR_UP, Element.PLAYER_ON_TARGET_UP};
-            case "player_left" -> new Element[] {Element.PLAYER_FLOOR_LEFT, Element.PLAYER_ON_TARGET_LEFT};
-            case "player_right" -> new Element[] {Element.PLAYER_FLOOR_RIGHT, Element.PLAYER_ON_TARGET_RIGHT};
-            case "player_on_target" -> new Element[] {
-                    Element.PLAYER_ON_TARGET_RIGHT,
-                    Element.PLAYER_ON_TARGET_DOWN,
-                    Element.PLAYER_ON_TARGET_LEFT,
-                    Element.PLAYER_ON_TARGET_UP};
-            case "player_floor" -> new Element[] {
-                    Element.PLAYER_FLOOR_RIGHT,
-                    Element.PLAYER_FLOOR_DOWN,
-                    Element.PLAYER_FLOOR_LEFT,
-                    Element.PLAYER_FLOOR_UP};
-            default -> {
-                Element e = getElement(tile);
-
-                if (e == null) {
-                    yield null;
-                } else {
-                    yield new Element[] {e};
-                }
-            }
-        };
-    }
-
-    private Element getElement(String tile) {
-        try {
-            return Element.valueOf(tile.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
-    }
-
-    // ANSI
-
-    private TileStyle parseAnsi(int size) throws IOException {
-        AnsiTokenizer tokenizer = new AnsiTokenizer(br);
-
+    private FileMapStyle.Sampler createAnsiSampler(int size) throws IOException {
         AttributedString[] strings = new AttributedString[size];
         AttributedStringBuilder asb = new AttributedStringBuilder();
 
         for (int i = 0; i < size; i++) {
-            if (!tokenizer.nextLine() || !tokenizer.hasNext()) {
-                throw error(tokenizer, "Incomplete style for size: %d", size);
+            String line = nextLine();
+
+            if (line == null) {
+                throw error("Ansi sampler not terminated. (need %d more line(s)", size - i);
             }
 
             asb.setLength(0);
 
-            while (tokenizer.hasNext()) {
-                Token next = tokenizer.next();
+            for (int j = 0; j < line.length(); j++) {
+                char c = line.charAt(j);
 
-                if (next.getType() == TokenType.WORD) {
-                    if (tokenizer.isInFunction()) {
-                        StyleFunction func = styleFunctions.get(next.getValue());
-
-                        if (func == null) {
-                            throw error(tokenizer, "Unknown function: %s", next.value);
-                        }
-
-                        asb.style(func.apply(asb.style(), tokenizer));
+                if (c == '\\') {
+                    if (j + 1 < line.length()) {
+                        asb.append(line.charAt(j + 1));
+                        j++;
                     } else {
-                        asb.append(next.getValue());
+                        throw error("Escape character doesn't escape any character");
                     }
+                } else if (c == '{') {
+                    j = executeStyleFunction(line, asb, j + 1);
+                } else {
+                    asb.append(c);
                 }
-            }
-
-            if (tokenizer.isInFunction()) {
-                throw error(tokenizer, "no end");
             }
 
             strings[i] = asb.toAttributedString();
         }
 
-        return new AnsiTile(size, strings);
+        return new FileMapStyle.AnsiSampler(size, strings);
     }
 
-    private Color getColor(LineByLineTokenizer tokenizer) throws IOException {
-        Token next = tokenizer.peek();
+    private int executeStyleFunction(String line, AttributedStringBuilder asb, int i) throws IOException {
+        int end = line.indexOf('}', i);
 
-        if (next == null || next.getType() != TokenType.WORD) {
-            throw error(tokenizer, "Invalid color");
-        }
-        tokenizer.next();
-
-        Color color = getColor(next.getValue());
-        if (color != null) {
-            return color;
+        if (end < 0) {
+            throw error("Style function without end");
         }
 
-        int red = parseInt(next.getValue());
+        String sub = line.substring(i, end);
 
-        if (!tokenizer.hasNext()) {
-            throw error(tokenizer, "Expecting green after red");
+        if (sub.isBlank()) {
+            return end;
         }
-        int green = parseInt(tokenizer.next().getValue());
 
-        if (!tokenizer.hasNext()) {
-            throw error(tokenizer, "Expecting blue after green");
+        String[] split = line.substring(i, end).split("\\s+");
+
+        int j = 0;
+        while (j < split.length) {
+            StyleFunction func = styleFunctions.get(split[j]);
+
+            if (func == null) {
+                throw error("No such style function: %s", split[j]);
+            }
+
+            j = func.execute(split, j + 1, asb);
         }
-        int blue = parseInt(tokenizer.next().getValue());
 
-        return new Color(red, green, blue);
+        return end;
     }
 
     private Color getColor(String name) {
@@ -445,31 +319,6 @@ public class MapStyleReader {
         }
     }
 
-    // IMAGE
-
-    private TileStyle parseImage(int size) throws IOException {
-        if (!tokenizer.nextLine()) {
-            throw error("Incomplete style for size: %d", size);
-        }
-
-        String imagePath = nextToken(TokenType.WORD);
-        int x = -1;
-        int y = -1;
-
-        if (tokenizer.hasNext()) {
-            x = parseInt(nextToken(TokenType.WORD));
-            y = parseInt(lastWord());
-        }
-
-        BufferedImage image = images.get(imagePath);
-        if (image == null) {
-            image = ImageIO.read(folder.resolve(imagePath).toFile());
-            images.put(imagePath, image);
-        }
-
-        return new ImageTile(size, image.getSubimage(x, y, size, size));
-    }
-
     private int parseInt(String str) throws IOException {
         try {
             return Integer.parseInt(str);
@@ -478,304 +327,308 @@ public class MapStyleReader {
         }
     }
 
+    private BufferedImage getImage(String path) throws IOException {
+        BufferedImage image = images.get(path);
+
+        if (image == null) {
+            image = ImageIO.read(folder.resolve(path).toFile());
+            images.put(path, image);
+        }
+
+        return image;
+    }
+
+    private void clear() {
+        images.clear();
+        colorAliases.clear();
+
+        for (List<FileMapStyle.Sampler> s : samplers.values()) {
+            s.clear();
+        }
+
+        folder = null;
+        name = null;
+        author = null;
+        version = null;
+    }
+
     private IOException error(String format, Object... args) {
-        return error(tokenizer, format, args);
+        return new IOException(format.formatted(args) + " (at line " + line + ")");
     }
 
     private IOException error(Throwable cause, String format, Object... args) {
-        return error(tokenizer, cause, format, args);
+        return new IOException(format.formatted(args) + " (at mine " + line + ")", cause);
     }
 
-    private IOException error(LineByLineTokenizer tokenizer, String format, Object... args) {
-        return new IOException(format.formatted(args) + " (at " + tokenizer.currentLine() + ")");
+
+    private abstract static class Function {
+
+        protected final String name;
+
+        public Function(String name) {
+            this.name = name;
+        }
+
+        /**
+         * @param args argument to the function, also include the command
+         * @throws IOException if an I/O error occurs
+         */
+        public abstract void execute(String[] args) throws IOException;
+
+        public String getName() {
+            return name;
+        }
     }
 
-    private IOException error(LineByLineTokenizer tokenizer, Throwable cause, String format, Object... args) {
-        return new IOException(format.formatted(args) + " (at " + tokenizer.currentLine() + ")", cause);
-    }
+    private abstract class SimpleSetter extends Function {
 
-    // TOKENIZERS
-
-    private static class AnsiTokenizer extends LineByLineTokenizer {
-
-        private int indent = -1;
-        private boolean inFunction = false;
-
-        public AnsiTokenizer(BufferedReader br) {
-            super(br);
+        public SimpleSetter(String name) {
+            super(name);
         }
 
         @Override
-        public boolean nextLine() throws IOException {
-            line = br.readLine();
-
-            if (line == null) {
-                return false;
+        public void execute(String[] args) throws IOException {
+            if (args.length == 2) {
+                set(args[1]);
             } else {
-                chars = line.toCharArray();
-
-                if (indent < 0) {
-                    indent = getIndent();
-                }
-
-                index = indent;
-
-                return true;
+                throw error("Invalid number of argument for %s: expected 1, got: %d", name, args.length - 1);
             }
         }
 
+        public abstract void set(String name);
+    }
+
+    private class Alias extends Function {
+
+        public Alias() {
+            super("alias");
+        }
+
         @Override
-        protected void fetchNext() {
-            if (inFunction) {
-                skipWhitespace();
-
-                if (index < chars.length) {
-                    char c = chars[index];
-
-                    if (c == ')') {
-                        next = new Token(TokenType.FUNC_END, ")");
-                        index++;
-                        inFunction = false;
-                    } else {
-                        next = new Token(TokenType.WORD, nextWord(')'));
-                    }
-                }
+        public void execute(String[] args) throws IOException {
+            if (args.length != 3 && args.length != 5) {
+                throw error("""
+                        Invalid use of alias, expected 2 or 4 arguments, got: %d.
+                        Prototype: alias NAME COLOR_INDEX or alias NAME RED GREEN BLUE
+                        """, args.length - 1);
             } else {
-                StringBuilder sb = new StringBuilder();
-                boolean escaped = false;
-                for (; index < chars.length; index++) {
-                    char c = chars[index];
+                String name = args[1];
 
-                    if (escaped) {
-                        escaped = false;
-                        sb.append(c);
-                    } else if (c == '\\') {
-                        escaped = true;
-                    } else if (c == '$' && index + 1 < chars.length && chars[index + 1] == '(') {
-                        if (sb.length() == 0) {
-                            next = new Token(TokenType.FUNC_START, "$(");
-                            index += 2;
-                            inFunction = true;
-                        }
+                if (reservedColors.containsKey(name)) {
+                    throw error("Reserved color: %s", name);
+                }
 
-                        break;
-                    } else {
-                        sb.append(c);
+                try {
+                    Integer.parseInt(args[1]);
+
+                    throw error("NAME cannot be a number");
+                } catch (NumberFormatException e) {
+                    // ignored
+                }
+
+                Color color;
+                if (args.length == 3) {
+                    color = getColor(args[2]);
+
+                    if (color == null) {
+                        throw error("No such color (alias): %s", args[2]);
                     }
-                }
-
-                if (sb.length() > 0) {
-                    next = new Token(TokenType.WORD, sb.toString());
-                }
-            }
-        }
-
-        protected int getIndent() {
-            int indent = 0;
-
-            for (; indent < chars.length; indent++) {
-                if (!Character.isWhitespace(chars[indent])) {
-                    break;
-                }
-            }
-
-            return indent;
-        }
-
-        @Override
-        public void reset() {
-            index = indent;
-        }
-
-        public boolean isInFunction() {
-            return inFunction;
-        }
-    }
-
-    private static class Tokenizer extends LineByLineTokenizer {
-
-        public Tokenizer(BufferedReader br) {
-            super(br);
-        }
-
-        @Override
-        protected void fetchNext() {
-            skipWhitespace();
-
-            if (index < chars.length) {
-                char c = chars[index];
-
-                if (c == '[') {
-                    next = new Token(TokenType.SECTION_START, "[");
-                    index++;
-                } else if (c == ']') {
-                    next = new Token(TokenType.SECTION_END, "]");
-                    index++;
-                } else if (c == '#') {
-                    index = chars.length;
-                    next = null;
                 } else {
-                    next = new Token(TokenType.WORD, nextWord(']'));
+                    color = new Color(parseInt(args[2]), parseInt(args[3]), parseInt(args[4]));
                 }
+
+                colorAliases.put(name, color);
             }
         }
     }
 
-    private static abstract class LineByLineTokenizer implements Iterator<Token> {
+    private class SetImage extends Function {
 
-        protected final BufferedReader br;
-
-        protected String line;
-        protected char[] chars;
-        protected int index;
-
-        protected Token next;
-
-        public LineByLineTokenizer(BufferedReader br) {
-            this.br = br;
-        }
-
-        public boolean nextLine() throws IOException {
-            line = "";
-
-            while (true) {
-                line = br.readLine();
-
-                if (line == null) {
-                    return false;
-                } else {
-                    chars = line.toCharArray();
-                    index = 0;
-
-                    for (; index < chars.length; index++) {
-                        char c = chars[index];
-
-                        if (c == '#') { // skip if the whole line is commented
-                            break;
-                        } else if (!Character.isWhitespace(c)) {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-
-        protected abstract void fetchNext();
-
-        protected void skipWhitespace() {
-            for (; index < chars.length; index++) {
-                if (!Character.isWhitespace(chars[index])) {
-                    break;
-                }
-            }
-        }
-
-        protected String nextWord(char... stopAt) {
-            StringBuilder sb = new StringBuilder();
-
-            char c;
-            boolean escaped = false;
-            for (; index < chars.length; index++) {
-                c = chars[index];
-
-                if (escaped) {
-                    escaped = false;
-                    sb.append(c);
-
-                } else if (c == '\\') {
-                    escaped = true;
-
-                } else if (contains(stopAt, c) || Character.isWhitespace(c)) {
-                    break;
-                } else {
-                    sb.append(c);
-                }
-            }
-
-            return sb.toString();
-        }
-
-        private boolean contains(char[] array, char c) {
-            for (char c2 : array) {
-                if (c2 == c) {
-                    return true;
-                }
-            }
-
-            return false;
+        public SetImage() {
+            super("set-image");
         }
 
         @Override
-        public boolean hasNext() {
-            if (line == null) {
-                return false;
+        public void execute(String[] args) throws IOException {
+            if (args.length != 6) {
+                throw error("""
+                        Invalid use of set-image, expected 5 arguments, got: %d.
+                        Prototype: set-image TILE/PLAYER_DIR SIZE PATH_TO_IMAGE X Y
+                        """, args.length - 1);
             }
 
-            if (next == null) {
-                fetchNext();
+            int size = parseInt(args[2]);
+            if (size <= 0) {
+                throw error("Zero or negative size: %d", size);
             }
 
-            return next != null;
+            BufferedImage image = getImage(args[3]);
+            int x = parseInt(args[4]);
+            int y = parseInt(args[5]);
+
+            FileMapStyle.Sampler sampler = new FileMapStyle.ImageSampler(image.getSubimage(x, y, size, size));
+            addSampler(args[1], sampler);
+        }
+    }
+
+    private class SetAnsi extends Function {
+
+        public SetAnsi() {
+            super("set-ansi");
         }
 
         @Override
-        public Token next() {
-            if (!hasNext()) {
-                throw new NoSuchElementException();
-            }
-            Token next = this.next;
-            this.next = null;
-
-            return next;
-        }
-
-        public void reset() {
-            index = 0;
-        }
-
-        public Token peek() {
-            if (!hasNext()) {
-                return null;
+        public void execute(String[] args) throws IOException {
+            if (args.length != 3) {
+                throw error("""
+                        Invalid use of set-ansi, expected 2 arguments, got: %d.
+                        Prototype: set-image TILE/PLAYER_DIR SIZE
+                        The SIZE following lines are used for the sampler
+                        """, args.length - 1);
             }
 
-            return next;
-        }
+            int size = parseInt(args[2]);
+            if (size <= 0) {
+                throw error("Zero or negative size: %d", size);
+            }
 
-        public String currentLine() {
-            return line;
-        }
-    }
-
-    private static class Token {
-
-        private final TokenType type;
-        private final String value;
-
-        public Token(TokenType type, String value) {
-            this.type = type;
-            this.value = value;
-        }
-
-        public TokenType getType() {
-            return type;
-        }
-
-        public String getValue() {
-            return value;
+            FileMapStyle.Sampler sampler = createAnsiSampler(size);
+            addSampler(args[1], sampler);
         }
     }
 
-    private enum TokenType {
-        SECTION_START,
-        SECTION_END,
-        WORD,
-        FUNC_START,
-        FUNC_END
+    private class Merge extends Function {
+
+        public Merge() {
+            super("merge");
+        }
+
+        @Override
+        public void execute(String[] args) throws IOException {
+            if (args.length != 4) {
+                throw error("""
+                        Invalid use of merge, expected 2 arguments, got: %d.
+                        Prototype: merge SIZE BACKGROUND FOREGROUND
+                        Draw FOREGROUND on BACKGROUND and put the result in FOREGROUND
+                        """, args.length - 1);
+            }
+
+            int size = parseInt(args[1]);
+            if (size <= 0) {
+                throw error("Zero or negative size: %d", size);
+            }
+
+            FileMapStyle.Sampler background = getSampler(args[2], size);
+            FileMapStyle.Sampler foreground = getSampler(args[3], size);
+
+            foreground = merge(background, foreground);
+
+            List<FileMapStyle.Sampler> s = getSamplers(args[3]);
+            for (int i = 0; i < s.size(); i++) {
+                FileMapStyle.Sampler old = s.get(i);
+
+                if (old.getSize() == size) {
+                    s.set(i, foreground);
+                }
+            }
+        }
+
+        private FileMapStyle.Sampler merge(FileMapStyle.Sampler a, FileMapStyle.Sampler b) {
+            int size = a.getSize();
+
+            AttributedString[] strings = new AttributedString[size];
+            AttributedStringBuilder asb = new AttributedStringBuilder();
+            StyledCharacter character = new StyledCharacter();
+
+            for (int y = 0; y < size; y++) {
+                asb.setLength(0);
+
+                for (int x = 0; x < size; x++) {
+                    a.fetch(x, y, character, false);
+                    b.fetch(x, y, character, true);
+
+                    character.appendTo(asb);
+                }
+
+                strings[y] = asb.toAttributedString();
+            }
+
+            return new FileMapStyle.AnsiSampler(size, strings);
+        }
+
+        private FileMapStyle.Sampler getSampler(String name, int size) throws IOException {
+            List<FileMapStyle.Sampler> samplers = getSamplers(name);
+
+            if (samplers == null) {
+                throw error("No sampler named %s loaded", name);
+            }
+
+            for (FileMapStyle.Sampler sampler : samplers) {
+                if (sampler.getSize() == size) {
+                    return sampler;
+                }
+            }
+
+            throw error("No sampler named %s with size %d loaded", name, size);
+        }
     }
+
+
+
+
 
     @FunctionalInterface
     private interface StyleFunction {
 
-        AttributedStyle apply(AttributedStyle current, LineByLineTokenizer tokenizer) throws IOException;
+        int execute(String[] args, int index, AttributedStringBuilder asb) throws IOException;
+    }
+
+    private static class NoArgumentStyleFunction implements StyleFunction {
+
+        private final java.util.function.Function<AttributedStyle, AttributedStyle> function;
+
+        public NoArgumentStyleFunction(java.util.function.Function<AttributedStyle, AttributedStyle> function) {
+            this.function = function;
+        }
+
+        @Override
+        public int execute(String[] args, int index, AttributedStringBuilder asb) {
+            asb.style(function.apply(asb.style()));
+            return index;
+        }
+    }
+
+    private class ColorStyleFunction implements StyleFunction {
+
+        private final BiFunction<AttributedStyle, Color, AttributedStyle> function;
+
+        public ColorStyleFunction(BiFunction<AttributedStyle, Color, AttributedStyle> function) {
+            this.function = function;
+        }
+
+        @Override
+        public int execute(String[] args, int i, AttributedStringBuilder asb) throws IOException {
+            int add;
+            Color color;
+            try {
+                int red = Integer.parseInt(args[i]);
+
+                color = new Color(red, parseInt(args[i + 1]), parseInt(args[i + 2]));
+                add = 3;
+            } catch (NumberFormatException e) {
+                // not a number, either an alias or a reserved color
+
+                color = getColor(args[i]);
+                if (color == null) {
+                    throw new IOException("No such color: " + args[i]);
+                }
+
+                add = 1;
+            }
+
+            asb.style(function.apply(asb.style(), color));
+
+            return i + add;
+        }
     }
 }

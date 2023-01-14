@@ -1,4 +1,4 @@
-package fr.valax.sokoshell.graphics.style2;
+package fr.valax.sokoshell.graphics.style;
 
 import fr.valax.sokoshell.graphics.Graphics;
 import fr.valax.sokoshell.graphics.Surface;

@@ -1,6 +1,5 @@
-package fr.valax.sokoshell.graphics.style2;
+package fr.valax.sokoshell.graphics.style;
 
-import fr.valax.sokoshell.graphics.style.Color;
 import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
 
@@ -84,7 +83,7 @@ public class StyledCharacter {
 
             this.c = fgChar;
         } else if (Character.isWhitespace(fgChar)) {
-            Color fgFgColor = Color.background(fgStyle);
+            Color fgFgColor = background(fgStyle);
 
             if (fgFgColor == null) {
                 this.style = bgStyle;
@@ -94,7 +93,7 @@ public class StyledCharacter {
                 this.c = fgChar;
             }
         } else { // none of them is whitespace
-            Color bgBgColor = Color.background(bgStyle);
+            Color bgBgColor = background(bgStyle);
 
             if (bgBgColor == null) {
                 this.style = fgStyle;

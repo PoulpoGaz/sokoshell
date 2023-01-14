@@ -2,8 +2,10 @@ package fr.valax.sokoshell;
 
 import fr.poulpogaz.json.JsonException;
 import fr.valax.args.CommandLine;
+import fr.valax.sokoshell.graphics.style.DefaultStyle;
 import fr.valax.sokoshell.graphics.style.MapRenderer;
 import fr.valax.sokoshell.graphics.style.MapStyle;
+import fr.valax.sokoshell.graphics.style.XSBStyle;
 import fr.valax.sokoshell.solver.*;
 import fr.valax.sokoshell.utils.Utils;
 import org.jline.reader.Candidate;
@@ -62,9 +64,11 @@ public class SokoShellHelper {
         addSolver(new AStarSolver());
 
 
-        addMapStyle(MapStyle.DEFAULT_STYLE);
-        renderer.setStyle(MapStyle.DEFAULT_STYLE);
-        exporter.setMapStyle(MapStyle.DEFAULT_STYLE);
+        DefaultStyle style = new DefaultStyle();
+        addMapStyle(style);
+        addMapStyle(new XSBStyle());
+        renderer.setStyle(style);
+        exporter.setMapStyle(style);
 
         taskList = new TaskList();
     }

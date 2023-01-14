@@ -2,8 +2,6 @@ package fr.valax.sokoshell.graphics.style;
 
 import fr.valax.sokoshell.graphics.Graphics;
 import fr.valax.sokoshell.graphics.Surface;
-import fr.valax.sokoshell.graphics.style2.DefaultStyle;
-import fr.valax.sokoshell.graphics.style2.MapRenderer;
 import fr.valax.sokoshell.solver.Direction;
 import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.solver.TestUtils;

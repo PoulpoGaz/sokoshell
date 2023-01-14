@@ -218,10 +218,10 @@ public class SolverReport {
     private IllegalStateException canFindPathException(Map map, State current, State next) {
         MapRenderer mr = SokoShellHelper.INSTANCE.getRenderer();
 
-        String map1 = mr.toString(map, map.getX(current.playerPos()), map.getY(current.playerPos()));
+        String map1 = mr.drawToString(map, map.getX(current.playerPos()), map.getY(current.playerPos())).toAnsi();
         map.removeStateCrates(current);
         map.addStateCrates(next);
-        String map2 = mr.toString(map, map.getX(next.playerPos()), map.getY(next.playerPos()));
+        String map2 = mr.drawToString(map, map.getX(next.playerPos()), map.getY(next.playerPos())).toString();
 
         return new IllegalStateException("""
                 Can't find path between two states:

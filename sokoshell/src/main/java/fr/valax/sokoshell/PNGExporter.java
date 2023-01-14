@@ -1,9 +1,6 @@
 package fr.valax.sokoshell;
 
-import fr.valax.sokoshell.graphics.style.AnsiTile;
-import fr.valax.sokoshell.graphics.style.ImageTile;
 import fr.valax.sokoshell.graphics.style.MapStyle;
-import fr.valax.sokoshell.graphics.style.TileStyle;
 import fr.valax.sokoshell.solver.Direction;
 import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.solver.Map;
@@ -14,6 +11,7 @@ import java.awt.image.BufferedImage;
 /**
  * Doesn't support ansi tile...
  */
+@Deprecated
 public class PNGExporter {
 
     private MapStyle mapStyle;
@@ -27,7 +25,7 @@ public class PNGExporter {
     }
 
     public BufferedImage asImage(Map map, int playerX, int playerY, Direction playerDir, int size) {
-        playerDir = playerDir == null ? Direction.DOWN : playerDir;
+        /*playerDir = playerDir == null ? Direction.DOWN : playerDir;
         size = mapStyle.findBestSize(size);
 
         int imgWidth = size * map.getWidth();
@@ -68,7 +66,9 @@ public class PNGExporter {
             g2d.dispose();
         }
 
-        return image;
+
+        return image;*/
+        return null;
     }
 
     public MapStyle getMapStyle() {
