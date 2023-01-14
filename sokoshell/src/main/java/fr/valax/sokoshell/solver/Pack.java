@@ -20,7 +20,7 @@ import java.util.zip.GZIPOutputStream;
 public final class Pack {
 
     /**
-     * Some pack doesn't have a name while it is required by {@link fr.valax.sokoshell.SokoShellHelper}.
+     * Some pack doesn't have a name while it is required by {@link fr.valax.sokoshell.SokoShell}.
      * So pack without a name as named as following: 'Unnamed[I]' where I is an integer which is increased
      * each time an unnamed pack is created. This 'I' is the variable below
      */

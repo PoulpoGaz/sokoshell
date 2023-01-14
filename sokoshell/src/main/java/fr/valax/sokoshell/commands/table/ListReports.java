@@ -35,7 +35,7 @@ public class ListReports extends TableCommand {
     @Override
     public int executeImpl(InputStream in, PrintStream out, PrintStream err) throws InvalidArgument {
         if (taskIndex != null) {
-            SolverTask task = helper.getTaskList().getTask(taskIndex);
+            SolverTask task = sokoshell().getTaskList().getTask(taskIndex);
 
             if (task == null) {
                 err.printf("Can't find task n°%d%n", taskIndex);
@@ -263,7 +263,7 @@ public class ListReports extends TableCommand {
     @Override
     public void complete(LineReader reader, String commandString, CommandLine.CommandSpec command, List<Candidate> candidates, CommandLine.OptionSpec option, String argument) {
         if (option != null && ArgsUtils.contains(option.getShortNames(), 'p')) {
-            helper.addPackCandidates(candidates);
+            sokoshell().addPackCandidates(candidates);
         }
     }
 }

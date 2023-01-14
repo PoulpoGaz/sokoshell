@@ -27,7 +27,7 @@ public class Source extends AbstractCommand {
             err.println("file required");
             return FAILURE;
         } else {
-            StartupScript script = new StartupScript(helper.getCli());
+            StartupScript script = new StartupScript(sokoshell().getCli());
 
             try {
                 script.run(vaArgs[0]);

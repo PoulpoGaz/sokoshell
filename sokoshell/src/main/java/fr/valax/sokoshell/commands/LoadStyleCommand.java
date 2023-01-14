@@ -71,13 +71,13 @@ public class LoadStyleCommand extends AbstractCommand {
             return;
         }
 
-        if (!helper.addMapStyle(style)) {
+        if (!sokoshell().addMapStyle(style)) {
             boolean answer = ScanUtils.yesNoQuestion(
                     "A map style with named %s already exists. Did you want to overwrite it?".formatted(style.getName()),
                     ScanUtils.DEFAULT_NO);
 
             if (answer) {
-                helper.addMapStyleReplace(style);
+                sokoshell().addMapStyleReplace(style);
             }
         }
     }

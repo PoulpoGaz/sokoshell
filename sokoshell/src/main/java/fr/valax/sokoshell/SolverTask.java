@@ -78,7 +78,7 @@ public class SolverTask {
                     tracker = getTracker();
                     t.setTacker(tracker);
 
-                    trackerFuture = SokoShellHelper.INSTANCE.getScheduledExecutor().scheduleWithFixedDelay(
+                    trackerFuture = SokoShell.INSTANCE.getScheduledExecutor().scheduleWithFixedDelay(
                             () -> tracker.updateStatistics(t),
                             1000, 1000, TimeUnit.MILLISECONDS);
                 } else {
@@ -86,7 +86,7 @@ public class SolverTask {
                 }
 
                 if (asynchronously) {
-                    SokoShellHelper.INSTANCE.getExecutor().submit(this::solve);
+                    SokoShell.INSTANCE.getExecutor().submit(this::solve);
                 } else {
                     solve = true;
                 }
@@ -124,7 +124,7 @@ public class SolverTask {
                 level.addSolverReport(solverReport);
                 solverReports.add(solverReport);
 
-                SokoShellHelper.INSTANCE.newNotification("Level %s of %s : %s (Task #%d)"
+                SokoShell.INSTANCE.newNotification("Level %s of %s : %s (Task #%d)"
                                 .formatted(level.getIndex() + 1,
                                         level.getPack().name(),
                                         solverReport.getStatus(),

@@ -1,6 +1,6 @@
 package fr.valax.sokoshell.graphics;
 
-import fr.valax.sokoshell.SokoShellHelper;
+import fr.valax.sokoshell.SokoShell;
 import org.jline.keymap.BindingReader;
 import org.jline.keymap.KeyMap;
 import org.jline.terminal.Attributes;
@@ -87,7 +87,7 @@ public class TerminalEngine implements AutoCloseable {
 
         Size lastSize = null;
 
-        readerFuture = SokoShellHelper.INSTANCE.getExecutor().submit(this::read);
+        readerFuture = SokoShell.INSTANCE.getExecutor().submit(this::read);
         while (running) {
             long now = System.nanoTime();
             delta += (double) (now - lastTime) / ns;
@@ -148,7 +148,7 @@ public class TerminalEngine implements AutoCloseable {
         running = true;
         tps = 0;
 
-        SokoShellHelper.INSTANCE.getNotificationHandler().suspendStatus();
+        SokoShell.INSTANCE.getNotificationHandler().suspendStatus();
 
         display = new Display(terminal, true);
         display.setDelayLineWrap(false);
@@ -328,7 +328,7 @@ public class TerminalEngine implements AutoCloseable {
         terminal.puts(InfoCmp.Capability.keypad_local);
         terminal.writer().flush();
 
-        SokoShellHelper.INSTANCE.getNotificationHandler().restoreStatus();
+        SokoShell.INSTANCE.getNotificationHandler().restoreStatus();
 
         readerFuture = null;
         reader = null;

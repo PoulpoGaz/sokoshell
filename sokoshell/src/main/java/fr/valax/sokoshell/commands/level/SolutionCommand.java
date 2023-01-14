@@ -1,7 +1,7 @@
 package fr.valax.sokoshell.commands.level;
 
 import fr.valax.args.api.Option;
-import fr.valax.sokoshell.SokoShellHelper;
+import fr.valax.sokoshell.SokoShell;
 import fr.valax.sokoshell.graphics.*;
 import fr.valax.sokoshell.graphics.layout.*;
 import fr.valax.sokoshell.solver.*;
@@ -64,7 +64,7 @@ public class SolutionCommand extends LevelCommand {
     private void showAnimator(SolverReport report) {
         SolutionAnimator animator = new SolutionAnimator(report);
 
-        try (TerminalEngine engine = new TerminalEngine(helper.getTerminal())) {
+        try (TerminalEngine engine = new TerminalEngine(sokoshell().getTerminal())) {
             Key.LEFT.bind(engine);
             Key.RIGHT.bind(engine);
             Key.DOWN.bind(engine);
@@ -178,7 +178,7 @@ public class SolutionCommand extends LevelCommand {
             try {
                 Level l = animator.getSolution().getLevel();
 
-                Path out = SokoShellHelper.INSTANCE
+                Path out = SokoShell.INSTANCE
                         .exportPNG(l.getPack(), l,
                                 animator.getMap(), animator.getPlayerX(), animator.getPlayerY(),
                                 animator.getLastMove(), 16);

@@ -17,9 +17,9 @@ public class ListStyle extends TableCommand {
 
     @Override
     protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
-        MapStyle selected = helper.getMapStyle();
+        MapStyle selected = sokoshell().getMapStyle();
 
-        List<MapStyle> mapStyles = helper.getMapStyles().stream()
+        List<MapStyle> mapStyles = sokoshell().getMapStyles().stream()
                 .sorted(Comparator.comparing(MapStyle::getName))
                 .toList();
 

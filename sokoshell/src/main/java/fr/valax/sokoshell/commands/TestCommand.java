@@ -37,7 +37,7 @@ public class TestCommand extends AbstractCommand {
 
     @Override
     protected int executeImpl(InputStream in, PrintStream out, PrintStream err) throws InvalidArgument {
-        try (TerminalEngine engine = new TerminalEngine(helper.getTerminal())) {
+        try (TerminalEngine engine = new TerminalEngine(sokoshell().getTerminal())) {
             initEngine(engine);
             engine.show();
         }

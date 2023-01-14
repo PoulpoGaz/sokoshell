@@ -29,7 +29,7 @@ public class NotificationHandler {
         notifications = new ArrayDeque<>();
 
         if (status != null) {
-            SokoShellHelper.INSTANCE.getScheduledExecutor()
+            SokoShell.INSTANCE.getScheduledExecutor()
                     .scheduleWithFixedDelay(this::updateStatus, 1, 1, TimeUnit.SECONDS);
         }
     }

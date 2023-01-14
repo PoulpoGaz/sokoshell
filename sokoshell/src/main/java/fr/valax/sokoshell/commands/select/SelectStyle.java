@@ -19,12 +19,12 @@ public class SelectStyle extends AbstractCommand {
 
     @Override
     protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
-        MapStyle mapStyle = helper.getMapStyle(style);
+        MapStyle mapStyle = sokoshell().getMapStyle(style);
 
         if (mapStyle == null) {
             err.printf("%s: no such map style%n", style);
         } else {
-            helper.setMapStyle(mapStyle);
+            sokoshell().setMapStyle(mapStyle);
         }
 
         return 0;
@@ -33,7 +33,7 @@ public class SelectStyle extends AbstractCommand {
     @Override
     public void complete(LineReader reader, String commandString, CommandLine.CommandSpec command, List<Candidate> candidates, CommandLine.OptionSpec option, String argument) {
         if (option != null && ArgsUtils.contains(option.getShortNames(), 's')) {
-            helper.addMapStyleCandidates(candidates);
+            sokoshell().addMapStyleCandidates(candidates);
         }
     }
 

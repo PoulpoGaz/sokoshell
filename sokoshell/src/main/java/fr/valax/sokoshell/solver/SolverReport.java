@@ -4,7 +4,7 @@ import fr.poulpogaz.json.IJsonReader;
 import fr.poulpogaz.json.JsonException;
 import fr.poulpogaz.json.JsonPrettyWriter;
 import fr.poulpogaz.json.JsonReader;
-import fr.valax.sokoshell.SokoShellHelper;
+import fr.valax.sokoshell.SokoShell;
 import fr.valax.sokoshell.graphics.style.MapRenderer;
 
 import java.io.IOException;
@@ -216,7 +216,7 @@ public class SolverReport {
      * @return an exception
      */
     private IllegalStateException canFindPathException(Map map, State current, State next) {
-        MapRenderer mr = SokoShellHelper.INSTANCE.getRenderer();
+        MapRenderer mr = SokoShell.INSTANCE.getRenderer();
 
         String map1 = mr.drawToString(map, map.getX(current.playerPos()), map.getY(current.playerPos())).toAnsi();
         map.removeStateCrates(current);

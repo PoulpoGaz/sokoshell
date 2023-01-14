@@ -1,6 +1,6 @@
 package fr.valax.sokoshell.commands.level;
 
-import fr.valax.sokoshell.SokoShellHelper;
+import fr.valax.sokoshell.SokoShell;
 import fr.valax.sokoshell.graphics.*;
 import fr.valax.sokoshell.graphics.layout.*;
 import fr.valax.sokoshell.solver.Direction;
@@ -24,7 +24,7 @@ public class PlayCommand extends LevelCommand {
 
         PlayCommand.GameController controller = new PlayCommand.GameController(l);
 
-        try (TerminalEngine engine = new TerminalEngine(helper.getTerminal())) {
+        try (TerminalEngine engine = new TerminalEngine(sokoshell().getTerminal())) {
             Key.LEFT.bind(engine);
             Key.RIGHT.bind(engine);
             Key.DOWN.bind(engine);
@@ -116,7 +116,7 @@ public class PlayCommand extends LevelCommand {
             }
 
             try {
-                Path out = SokoShellHelper.INSTANCE
+                Path out = SokoShell.INSTANCE
                         .exportPNG(level.getPack(), level,
                                 controller.getMap(), controller.getPlayerX(), controller.getPlayerY(),
                                 controller.getLastDir(), 16);

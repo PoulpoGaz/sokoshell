@@ -17,7 +17,7 @@ public class AutoSaveSolutionCommand extends AbstractCommand {
     @Override
     protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
         if (vaargs == null || vaargs.length == 0) {
-            if (helper.isAutoSaveSolution()) {
+            if (sokoshell().isAutoSaveSolution()) {
                 out.println("Auto save is enabled");
             } else {
                 out.println("Auto save is disabled");
@@ -26,7 +26,7 @@ public class AutoSaveSolutionCommand extends AbstractCommand {
         } else {
             String arg = vaargs[0];
 
-            helper.setAutoSaveSolution(arg.equalsIgnoreCase("y") || arg.equalsIgnoreCase("on"));
+            sokoshell().setAutoSaveSolution(arg.equalsIgnoreCase("y") || arg.equalsIgnoreCase("on"));
         }
 
         return 0;

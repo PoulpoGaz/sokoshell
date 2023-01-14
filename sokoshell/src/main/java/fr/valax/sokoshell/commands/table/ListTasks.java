@@ -63,7 +63,7 @@ public class ListTasks extends TableCommand {
         PrettyColumn<SolverTask> progress = new PrettyColumn<>("Progress");
         progress.setToString(this::progressToString);
 
-        for (SolverTask task : helper.getTaskList().getTasks()) {
+        for (SolverTask task : sokoshell().getTaskList().getTasks()) {
             if (accept(task, m)) {
                 status.add(task.getTaskStatus());
                 taskIndex.add(Alignment.RIGHT, task.getTaskIndex());
