@@ -21,7 +21,7 @@ public class MapComponent extends Component {
         if (map != null) {
             MapRenderer mr = SokoShellHelper.INSTANCE.getRenderer();
 
-            mr.drawCentered(g, 0, 0, getWidth(), getHeight(), map, playerX, playerY, playerDir);
+            mr.drawCenteredWithLegend(g, 0, 0, getWidth(), getHeight(), map, playerX, playerY, playerDir);
         }
     }
 

@@ -33,7 +33,7 @@ public class XSBStyle extends MapStyle {
             }
         }
 
-        g.drawRectangle(drawX, drawY, size, size);
+        g.fillRectangle(drawX, drawY, size, size);
     }
 
     @Override

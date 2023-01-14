@@ -35,7 +35,7 @@ public class GreedyHeuristicTest {
 
         map.initForSolver();
         map.addStateCrates(s);
-        mR.sysPrint(map, level.getPlayerX(), level.getPlayerY());
+        mR.print(map, level.getPlayerX(), level.getPlayerY());
 
         /*for (int i : s.cratesIndices()) {
             System.out.println(Arrays.toString(map.getAt(i).getTargets()));

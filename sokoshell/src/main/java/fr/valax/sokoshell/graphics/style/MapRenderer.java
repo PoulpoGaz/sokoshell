@@ -6,8 +6,10 @@ import fr.valax.sokoshell.solver.Direction;
 import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.solver.Map;
 import fr.valax.sokoshell.solver.TileInfo;
+import fr.valax.sokoshell.utils.Utils;
 import org.jline.terminal.Terminal;
 import org.jline.utils.AttributedString;
+import org.jline.utils.AttributedStyle;
 
 import java.io.PrintStream;
 import java.util.List;
@@ -100,28 +102,107 @@ public class MapRenderer {
                 s, map, playerX, playerY, playerDir);
     }
 
+    public void drawCenteredWithLegend(Graphics g,
+                                       int x, int y, int width, int height,
+                                       Map map, int playerX, int playerY, Direction playerDir) {
+        Objects.requireNonNull(style);
+
+        double yRatio = (double) (height - 1) / map.getHeight();
+        double xRatio = (double) (width - 1) / map.getWidth();
+
+        int s = (int) Math.min(xRatio, yRatio);
+
+        if (s <= 0) {
+            return;
+        }
+
+        s = style.findBestSize(s);
+        if (s < 0) {
+            return;
+        }
+
+        int w = s * map.getWidth();
+        int h = s * map.getHeight();
+
+        drawWithLegend(g, x + (width - 1 - w) / 2,
+                y + (height - 1 - h) / 2,
+                s, map, playerX, playerY, playerDir);
+    }
+
+
+
     public void draw(Graphics g,
                      int x, int y, int size,
                      Map map, int playerX, int playerY, Direction playerDir) {
         Objects.requireNonNull(style);
-
-        int s = style.findBestSize(size);
-
-        if (s < 0) {
-            s = size;
+        if (size <= 0) {
+            return;
         }
 
+        drawNoCheck(g, x, y, size, map, playerX, playerY, playerDir);
+    }
+
+    public void drawWithLegend(Graphics g,
+                                int x, int y, int size,
+                                Map map, int playerX, int playerY, Direction playerDir) {
+        Objects.requireNonNull(style);
+
+        g.getSurface().translate(x, y);
+
+
+        int xOffset = Utils.nDigit(map.getHeight());
+        int yOffset;
+        boolean verticalDraw; // of value on the x-axis
+
+        int maxLen = Utils.nDigit(map.getWidth());
+        if (maxLen > size) {
+            yOffset = maxLen;
+            verticalDraw = true;
+        } else {
+            yOffset = 1;
+            verticalDraw = false;
+        }
+
+        Surface s = g.getSurface();
+        for (int i = 0; i < map.getWidth(); i++) {
+            String str = Integer.toString(i + 1);
+
+            if (verticalDraw) {
+                int xDraw = xOffset + i * size + (size - 1) / 2;
+                int yDraw = yOffset - 1;
+                for (int j = str.length() - 1; j >= 0; j--) {
+                    s.draw(str.charAt(j), AttributedStyle.DEFAULT, xDraw, yDraw);
+                    yDraw--;
+                }
+            } else {
+                s.draw(str, xOffset + i * size + (size - str.length()) / 2, 0);
+            }
+        }
+
+        for (int i = 0; i < map.getHeight(); i++) {
+            String str = Integer.toString(i + 1);
+            s.draw(str, xOffset - str.length(), yOffset + i * size + (size - 1)  / 2);
+        }
+
+        drawNoCheck(g, xOffset, yOffset, size, map, playerX, playerY, playerDir);
+
+        g.getSurface().translate(-x, -y);
+    }
+
+
+    private void drawNoCheck(Graphics g, int x, int y, int size,
+                             Map map, int playerX, int playerY, Direction playerDir) {
         for (int y2 = 0; y2 < map.getHeight(); y2++) {
             for (int x2 = 0; x2 < map.getWidth(); x2++) {
                 boolean player = playerY == y2 && playerX == x2;
 
                 TileInfo tile = map.getAt(x2, y2);
-                int drawX = x2 * s + x;
-                int drawY = y2 * s + y;
+                int drawX = x2 * size + x;
+                int drawY = y2 * size + y;
                 if (player) {
-                    style.draw(g, tile, playerDir, drawX, drawY, s);
+                    style.draw(g, tile, playerDir, drawX, drawY, size);
                 } else {
-                    style.draw(g, tile, null, drawX, drawY, s);
+                    style.draw(g, tile, null, drawX, drawY, size);
                 }
             }
         }

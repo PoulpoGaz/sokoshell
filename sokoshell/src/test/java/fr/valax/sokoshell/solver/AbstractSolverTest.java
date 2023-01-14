@@ -21,13 +21,13 @@ public class AbstractSolverTest {
         map.removeStateCrates(level.getInitialState());
         MapRenderer mR = new MapRenderer();
         mR.setStyle(new MapStyleReader().read(Path.of("../styles/isekai/isekai.style")));
-        mR.setShowDeadTiles(true);
-        mR.sysPrint(level);
+        //mR.setShowDeadTiles(true);
+        mR.print(level);
         System.out.println("Computing dead positions...");
 
         map.computeFloors();
         map.computeDeadTiles();
-        mR.sysPrint(map, level.getPlayerX(), level.getPlayerY());
+        mR.print(map, level.getPlayerX(), level.getPlayerY());
 
         final int[] count = {0};
 
@@ -77,7 +77,7 @@ public class AbstractSolverTest {
 
         MapRenderer mr = new MapRenderer();
         mr.setStyle(new MapStyleReader().read(Path.of("../styles/isekai/isekai.style")));
-        mr.setShowDeadTiles(true);
+        //mr.setShowDeadTiles(true);
 
         BasicBruteforceSolver solver = BasicBruteforceSolver.newBFSSolver();
 
@@ -93,7 +93,7 @@ public class AbstractSolverTest {
 
         map.addStateCrates(myState);
 
-        mr.sysPrint(map, myState.playerPos() % map.getWidth(), myState.playerPos() / map.getWidth());
+        mr.print(map, myState.playerPos() % map.getWidth(), myState.playerPos() / map.getWidth());
         System.out.println(solver.checkFreezeDeadlock(map, myState));
     }
 
@@ -107,7 +107,7 @@ public class AbstractSolverTest {
 
         MapRenderer mr = new MapRenderer();
         mr.setStyle(new MapStyleReader().read(Path.of("../styles/isekai/isekai.style")));
-        mr.setShowDeadTiles(true);
+        //mr.setShowDeadTiles(true);
 
         BasicBruteforceSolver solver = BasicBruteforceSolver.newBFSSolver();
 
@@ -122,7 +122,7 @@ public class AbstractSolverTest {
         State myState = new State(33, new int[] {16, 18, 20, 22, 17, 32, 21, 29, 31, 43, 48, 122, 30, 61, 68, 83, 73, 74, 127, 150, 162, 139, 140, 172, 176, 151, 152, 158, 163, 177, 165, 166, 171, 179}, null);
         map.addStateCrates(myState);
 
-        mr.sysPrint(map, myState.playerPos() % map.getWidth(), myState.playerPos() / map.getWidth());
+        mr.print(map, myState.playerPos() % map.getWidth(), myState.playerPos() / map.getWidth());
         System.out.println(solver.checkFreezeDeadlock(map, myState));
     }
 }

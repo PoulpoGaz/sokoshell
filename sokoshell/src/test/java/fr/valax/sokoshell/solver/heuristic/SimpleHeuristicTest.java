@@ -25,7 +25,7 @@ public class SimpleHeuristicTest {
         mR.setStyle(new MapStyleReader().read(Path.of("../styles/isekai/isekai.style")));
 
         map.initForSolver();
-        mR.sysPrint(map, level.getPlayerX(), level.getPlayerY());
+        mR.print(map, level.getPlayerX(), level.getPlayerY());
 
         for (int y = 0; y < map.getHeight(); y++) {
             for (int x = 0; x < map.getWidth(); x++) {

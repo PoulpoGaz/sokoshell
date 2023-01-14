@@ -34,7 +34,7 @@ public class DefaultStyle extends MapStyle {
             }
         }
 
-        g.drawRectangle(drawX, drawY, size, size);
+        g.fillRectangle(drawX, drawY, size, size);
     }
 
     @Override
