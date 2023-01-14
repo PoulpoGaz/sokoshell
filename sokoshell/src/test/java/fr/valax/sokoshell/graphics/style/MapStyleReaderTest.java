@@ -4,7 +4,7 @@ import fr.valax.sokoshell.graphics.Graphics;
 import fr.valax.sokoshell.graphics.Surface;
 import fr.valax.sokoshell.solver.Direction;
 import fr.valax.sokoshell.solver.Level;
-import fr.valax.sokoshell.solver.TestUtils;
+import fr.valax.sokoshell.TestUtils;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -14,10 +14,10 @@ public class MapStyleReaderTest {
 
     @Test
     void test() throws IOException {
-        Level level = TestUtils.getLevel(Path.of("../levels/levels8xv/Original.8xv"));
+        Level level = TestUtils.getLevel(Path.of("levels8xv/Original.8xv"));
 
         MapRenderer mr = new MapRenderer();
-        MapStyle style = new MapStyleReader().read(Path.of("../styles/warehouse/warehouse.style2"));
+        MapStyle style = new MapStyleReader().read(Path.of("../styles/warehouse/warehouse.style"));
         mr.setStyle(style);
 
         Surface s = new Surface();

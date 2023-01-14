@@ -14,12 +14,12 @@ public class PackReaders {
 
     public static final Reader ISK_READER = new IsekaiReader();
     public static final Reader SLC_READER = new SLCReader();
-    public static final Reader SOK_READER = new SOKReader();
+    public static final Reader XSB_READER = new XSBReader();
 
     /**
      * Reads a {@link Pack} from the specified path. If the extension of the path is .8xv, it will
      * use the {@link IsekaiReader}, if it's .slc, the {@link SLCReader} will be used, otherwise
-     * it's the {@link SOKReader}.
+     * it's the {@link XSBReader}.
      * If there is next to the file a solution
      * file then the solution file will be read. A solution file is file with the same name
      * but ends with ".solution.json.gz"
@@ -36,7 +36,7 @@ public class PackReaders {
     /**
      * Reads a {@link Pack} from the specified path. If the extension of the path is .8xv, it will
      * use the {@link IsekaiReader}, if it's .slc, the {@link SLCReader} will be used, otherwise
-     * it's the {@link SOKReader}.
+     * it's the {@link XSBReader}.
      * If {@code loadSolution} is true and there is next to the file a solution file then the
      * solution file will be read. A solution file is file with the same name but ends with ".solution.json.gz"
      *
@@ -50,7 +50,7 @@ public class PackReaders {
         return switch (Utils.getExtension(path)) {
             case "8xv" -> ISK_READER.read(path, loadSolution);
             case "slc" -> SLC_READER.read(path, loadSolution);
-            default -> SOK_READER.read(path, loadSolution);
+            default -> XSB_READER.read(path, loadSolution);
         };
     }
 }

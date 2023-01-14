@@ -4,7 +4,7 @@ import fr.valax.sokoshell.graphics.Graphics;
 import fr.valax.sokoshell.graphics.Surface;
 import fr.valax.sokoshell.solver.Direction;
 import fr.valax.sokoshell.solver.Level;
-import fr.valax.sokoshell.solver.TestUtils;
+import fr.valax.sokoshell.TestUtils;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
@@ -13,7 +13,7 @@ public class MapRendererTest {
 
     @Test
     void draw() {
-        Level level = TestUtils.getLevel(Path.of("../levels/levels8xv/Original.8xv"));
+        Level level = TestUtils.getLevel(Path.of("levels8xv/Original.8xv"));
 
         MapRenderer mr = new MapRenderer();
         mr.setStyle(new DefaultStyle());
@@ -29,7 +29,7 @@ public class MapRendererTest {
 
     @Test
     void print() {
-        Level level = TestUtils.getLevel(Path.of("../levels/levels8xv/Original.8xv"));
+        Level level = TestUtils.getLevel(Path.of("levels8xv/Original.8xv"));
 
         MapRenderer mr = new MapRenderer();
         mr.setStyle(new DefaultStyle());
@@ -38,7 +38,7 @@ public class MapRendererTest {
 
     @Test
     void drawWithLegend() {
-        Level level = TestUtils.getSOKLevel("""
+        Level level = TestUtils.getLevel("""
                 ######
                 #. @ #
                 ###$ #
@@ -59,7 +59,7 @@ public class MapRendererTest {
 
     @Test
     void drawWithLegend2() {
-        Level level = TestUtils.getSOKLevel("""
+        Level level = TestUtils.getLevel("""
                 ######
                 #. @ #
                 ###$ #
@@ -80,7 +80,7 @@ public class MapRendererTest {
 
     @Test
     void drawWithLegend3() {
-        Level level = TestUtils.getSOKLevel("""
+        Level level = TestUtils.getLevel("""
                 #################
                 #. @           #
                 ###$  #        #
@@ -105,7 +105,7 @@ public class MapRendererTest {
 
     @Test
     void drawWithLegend4() {
-        Level level = TestUtils.getSOKLevel("""
+        Level level = TestUtils.getLevel("""
                 ################
                 #. @           #
                 ###$  #        #

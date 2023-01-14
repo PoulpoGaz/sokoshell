@@ -1,5 +1,6 @@
 package fr.valax.sokoshell.solver;
 
+import fr.valax.sokoshell.TestUtils;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
@@ -12,7 +13,7 @@ public class PathfinderTest {
 
     @Test
     void playerTest() {
-        Level level = TestUtils.getLevel(Path.of("../levels/levels8xv/Original.8xv"), 0);
+        Level level = TestUtils.getLevel(Path.of("levels8xv/Original.8xv"), 0);
 
         Map map = level.getMap();
 
@@ -33,7 +34,7 @@ public class PathfinderTest {
                 ######
                 """;
 
-        Level level = TestUtils.getSOKLevel(levelStr);
+        Level level = TestUtils.getLevel(levelStr);
         Map map = level.getMap();
         TileInfo start = map.getAt(0, 0);
 
@@ -45,7 +46,7 @@ public class PathfinderTest {
 
     @Test
     void crateTest() {
-        Level level = TestUtils.getLevel(Path.of("../levels/levels8xv/Original.8xv"), 0);
+        Level level = TestUtils.getLevel(Path.of("levels8xv/Original.8xv"), 0);
 
         Map map = level.getMap();
 
@@ -66,7 +67,7 @@ public class PathfinderTest {
                 ######
                 """;
 
-        Level level = TestUtils.getSOKLevel(levelStr);
+        Level level = TestUtils.getLevel(levelStr);
         Map map = level.getMap();
 
         assertThrows(IllegalArgumentException.class, () -> {
@@ -92,7 +93,7 @@ public class PathfinderTest {
 
     @Test
     void fullTest() {
-        Level level = TestUtils.getLevel(Path.of("../levels/levels8xv/Original.8xv"), 0);
+        Level level = TestUtils.getLevel(Path.of("levels8xv/Original.8xv"), 0);
 
         Map map = level.getMap();
 
@@ -121,7 +122,7 @@ public class PathfinderTest {
                 ######
                 """;
 
-        Level level = TestUtils.getSOKLevel(levelStr);
+        Level level = TestUtils.getLevel(levelStr);
         Map map = level.getMap();
 
         assertThrows(IllegalArgumentException.class, () -> {
@@ -131,7 +132,7 @@ public class PathfinderTest {
 
     @Test
     void test() {
-        Level level = TestUtils.getLevel(Path.of("../levels/levels8xv/Original.8xv"), 0);
+        Level level = TestUtils.getLevel(Path.of("levels8xv/Original.8xv"), 0);
 
         Map map = level.getMap();
 

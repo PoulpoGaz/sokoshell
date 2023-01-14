@@ -1,6 +1,7 @@
 package fr.valax.sokoshell.solver.heuristic;
 
 import fr.poulpogaz.json.JsonException;
+import fr.valax.sokoshell.TestUtils;
 import fr.valax.sokoshell.graphics.style.MapRenderer;
 import fr.valax.sokoshell.graphics.style.MapStyleReader;
 import fr.valax.sokoshell.readers.PackReaders;
@@ -24,14 +25,14 @@ public class GreedyHeuristicTest {
     void distancesTest() throws java.io.IOException, JsonException {
 
         //Pack pack = PackReaders.read(Path.of("../levels/TIPEex.8xv"), false);
-        Pack pack = PackReaders.read(Path.of("../levels/levels8xv/Original.8xv"), false);
+        Pack pack = TestUtils.getPack("levels8xv/Original.8xv");
 
         Level level = pack.getLevel(5);
         Map map = level.getMap();
         State s = level.getInitialState();
 
         MapRenderer mR = new MapRenderer();
-        mR.setStyle(new MapStyleReader().read(Path.of("../styles/isekai/isekai.style")));
+        mR.setStyle(TestUtils.getStyle(Path.of("isekai/isekai.style")));
 
         map.initForSolver();
         map.addStateCrates(s);

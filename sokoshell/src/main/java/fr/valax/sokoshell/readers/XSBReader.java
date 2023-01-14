@@ -19,7 +19,7 @@ import java.util.List;
 /**
  * Reads a file and try to find level in the format .xsb
  */
-public class SOKReader implements Reader {
+public class XSBReader implements Reader {
 
     private static final String SYMBOLS = "#@+$*. -_";
 

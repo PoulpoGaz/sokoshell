@@ -1,26 +1,22 @@
 package fr.valax.sokoshell.solver;
 
-import fr.poulpogaz.json.JsonException;
+import fr.valax.sokoshell.TestUtils;
 import fr.valax.sokoshell.graphics.style.MapRenderer;
-import fr.valax.sokoshell.graphics.style.MapStyleReader;
-import fr.valax.sokoshell.readers.PackReaders;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.nio.file.Path;
 
 public class AbstractSolverTest {
 
     @Test
-    void deadPositionsDetectionTest() throws IOException, JsonException {
-        Pack pack = PackReaders.read(Path.of("../levels/levels8xv/Aruba10.8xv"), false);
+    void deadPositionsDetectionTest() {
+        Level level = TestUtils.getLevel(Path.of("levels8xv/Aruba10.8xv"), 46 - 1);
 
-        Level level = pack.getLevel(46 - 1);
         Map map = level.getMap();
         map.removeStateCrates(level.getInitialState());
         MapRenderer mR = new MapRenderer();
-        mR.setStyle(new MapStyleReader().read(Path.of("../styles/isekai/isekai.style")));
+        mR.setStyle(TestUtils.getStyle(Path.of("isekai/isekai.style")));
         //mR.setShowDeadTiles(true);
         mR.print(level);
         System.out.println("Computing dead positions...");
@@ -42,9 +38,27 @@ public class AbstractSolverTest {
     }
 
     @Test
-    void freezeDeadlockTest() throws Exception {
-        Pack pack = PackReaders.SOK_READER
-                .read(AbstractSolverTest.class.getResourceAsStream("/freezeDeadlockTest.sok"));
+    void freezeDeadlockTest() {
+        Pack pack = TestUtils.getPack("""
+                ######
+                #@   #
+                #    #
+                #$  .#
+                ######
+                                
+                ######
+                #@   #
+                # $$ #
+                # $$ #
+                #....#
+                ######
+                                
+                #####
+                #*. #
+                #*$@#
+                #*  #
+                #####
+                """);
 
         Assertions.assertNotNull(pack);
         Assertions.assertNotNull(pack.levels());
@@ -68,20 +82,15 @@ public class AbstractSolverTest {
     }
 
     @Test
-    void freezeDeadlockTest2() throws Exception {
-        Pack pack = PackReaders.read(Path.of("../levels/levels8xv/Aruba10.8xv"), false);
-
-        Assertions.assertNotNull(pack);
-        Assertions.assertNotNull(pack.levels());
-        Assertions.assertNotEquals(0, pack.nLevels());
+    void freezeDeadlockTest2() {
+        Level level = TestUtils.getLevel(Path.of("levels8xv/Aruba10.8xv"), 46 - 1);
 
         MapRenderer mr = new MapRenderer();
-        mr.setStyle(new MapStyleReader().read(Path.of("../styles/isekai/isekai.style")));
+        mr.setStyle(TestUtils.getStyle(Path.of("isekai/isekai.style")));
         //mr.setShowDeadTiles(true);
 
         BasicBruteforceSolver solver = BasicBruteforceSolver.newBFSSolver();
 
-        Level level = pack.getLevel(46 - 1);
         Map map = level.getMap();
         State init = level.getInitialState();
 
@@ -98,20 +107,15 @@ public class AbstractSolverTest {
     }
 
     @Test
-    void freezeDeadlockTest3() throws JsonException, IOException {
-        Pack pack = PackReaders.read(Path.of("../levels/levels8xv/Original.8xv"), false);
-
-        Assertions.assertNotNull(pack);
-        Assertions.assertNotNull(pack.levels());
-        Assertions.assertNotEquals(0, pack.nLevels());
+    void freezeDeadlockTest3() {
+        Level level = TestUtils.getLevel(Path.of("levels8xv/Original.8xv"), 48 - 1);
 
         MapRenderer mr = new MapRenderer();
-        mr.setStyle(new MapStyleReader().read(Path.of("../styles/isekai/isekai.style")));
+        mr.setStyle(TestUtils.getStyle(Path.of("isekai/isekai.style")));
         //mr.setShowDeadTiles(true);
 
         BasicBruteforceSolver solver = BasicBruteforceSolver.newBFSSolver();
 
-        Level level = pack.getLevel(48 - 1);
         Map map = level.getMap();
         State init = level.getInitialState();
 
