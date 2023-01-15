@@ -1,9 +1,12 @@
 package fr.valax.sokoshell.graphics;
 
 import fr.valax.sokoshell.graphics.style.Color;
+import fr.valax.sokoshell.graphics.style.StyledCharacter;
 import org.jline.utils.AttributedCharSequence;
 import org.jline.utils.AttributedStyle;
 import org.jline.utils.WCWidth;
+
+import java.awt.*;
 
 public class GraphicsUtils {
 
@@ -100,5 +103,24 @@ public class GraphicsUtils {
         }
 
         return null;
+    }
+
+    public static void draw(Graphics2D g2d, StyledCharacter c, int x, int y, int charWidth, int charHeight) {
+        Color background = background(c.getStyle());
+
+        if (background != null) {
+            g2d.setColor(new java.awt.Color(background.getRed(), background.getBlue(), background.getBlue()));
+            g2d.fillRect(x, y, charWidth, charHeight);
+        }
+
+        Color foreground = foreground(c.getStyle());
+
+        if (foreground != null) {
+            g2d.setColor(new java.awt.Color(foreground.getRed(), foreground.getBlue(), foreground.getBlue()));
+        }
+        FontMetrics fm = g2d.getFontMetrics();
+        int yDraw = y + (charHeight - fm.getMaxDescent());
+
+        g2d.drawString(String.valueOf(c), x, yDraw);
     }
 }

@@ -5,6 +5,8 @@ import fr.valax.sokoshell.graphics.Graphics;
 import fr.valax.sokoshell.solver.Direction;
 import fr.valax.sokoshell.solver.TileInfo;
 
+import java.awt.*;
+
 import static org.jline.utils.AttributedStyle.*;
 
 public class XSBStyle extends MapStyle {
@@ -34,6 +36,11 @@ public class XSBStyle extends MapStyle {
         }
 
         g.fillRectangle(drawX, drawY, size, size);
+    }
+
+    @Override
+    public void draw(Graphics2D g2d, TileInfo tile, Direction playerDir, int drawX, int drawY, int size, int charWidth, int charHeight) {
+
     }
 
     @Override

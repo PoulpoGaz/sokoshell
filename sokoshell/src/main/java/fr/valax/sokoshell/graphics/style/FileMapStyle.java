@@ -1,15 +1,18 @@
 package fr.valax.sokoshell.graphics.style;
 
 import fr.valax.sokoshell.graphics.Graphics;
+import fr.valax.sokoshell.graphics.GraphicsUtils;
 import fr.valax.sokoshell.graphics.Surface;
 import fr.valax.sokoshell.solver.Direction;
 import fr.valax.sokoshell.solver.TileInfo;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.*;
+import java.util.List;
 
 /**
  * A map style loaded from a file
@@ -66,21 +69,42 @@ public class FileMapStyle extends MapStyle {
         drawSamplers(g.getSurface(), drawX, drawY, availableSizes[index], tileSampler, playerSampler);
     }
 
+    @Override
+    public void draw(Graphics2D g2d,
+                     TileInfo tile, Direction playerDir,
+                     int drawX, int drawY, int size, int charWidth, int charHeight) {
+        int index = findBestSizeIndex(size);
+
+        Sampler tileSampler = getSampler(tile, index);
+        Sampler playerSampler = getSampler(playerDir, index);
+
+        StyledCharacter out = new StyledCharacter();
+
+        for (int y = 0; y < size; y++) {
+            for (int x = 0; x < size; x++) {
+                fetch(x, y, out, tileSampler, playerSampler);
+                GraphicsUtils.draw(g2d, out, drawX + x * charWidth, drawY + y * charHeight, charWidth, charHeight);
+            }
+        }
+    }
+
     protected void drawSamplers(Surface s, int drawX, int drawY, int size, Sampler... samplers) {
         StyledCharacter out = new StyledCharacter();
 
         for (int y = 0; y < size; y++) {
             for (int x = 0; x < size; x++) {
-
-                boolean merge = false;
-                for (Sampler sampler : samplers) {
-                    if (sampler != null) {
-                        sampler.fetch(x, y, out, merge);
-                        merge = true;
-                    }
-                }
-
+                fetch(x, y, out, samplers);
                 s.draw(out.getChar(), out.getStyle(), drawX + x, drawY + y);
+            }
+        }
+    }
+
+    private void fetch(int x, int y, StyledCharacter out, Sampler... samplers) {
+        boolean merge = false;
+        for (Sampler sampler : samplers) {
+            if (sampler != null) {
+                sampler.fetch(x, y, out, merge);
+                merge = true;
             }
         }
     }

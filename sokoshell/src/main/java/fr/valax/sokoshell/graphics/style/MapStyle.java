@@ -2,9 +2,9 @@ package fr.valax.sokoshell.graphics.style;
 
 import fr.valax.sokoshell.graphics.Graphics;
 import fr.valax.sokoshell.solver.Direction;
-import fr.valax.sokoshell.solver.Map;
 import fr.valax.sokoshell.solver.TileInfo;
 
+import java.awt.*;
 import java.util.Objects;
 
 public abstract class MapStyle {
@@ -43,6 +43,25 @@ public abstract class MapStyle {
     public abstract void draw(Graphics g, TileInfo tile, Direction playerDir, int drawX, int drawY, int size);
 
     /**
+     * Draw the tile at ({@code drawX}; {@code drawY}) with the specified dimension with java 2D.
+     * If {@code playerDir} isn't {@code null}, it will also draw the player wit the specified
+     * direction. If the size isn't supported by the style, it will try to draw the tile, but
+     * it may produce weird results.
+     *
+     * @param g2d        graphics to draw with
+     * @param tile       the tile to draw
+     * @param playerDir  not null to draw the player of this direction
+     * @param drawX      draw x
+     * @param drawY      draw y
+     * @param size size
+     * @param charWidth  width of a char
+     * @param charHeight height of a char
+     */
+    public abstract void draw(Graphics2D g2d,
+                              TileInfo tile, Direction playerDir,
+                              int drawX, int drawY, int size, int charWidth, int charHeight);
+
+    /**
      * Finds the best size with respect to {@code size} ie finds the
      * nearest and smallest size to size that is correctly supported by
      * the style
@@ -54,7 +73,7 @@ public abstract class MapStyle {
 
     /**
      * Returns {@code true} if the size is supported by the style.
-     * An unsupported size can still be passed to {@link #draw(Graphics, Map, int, int, int, int, int)}
+     * An unsupported size can still be passed to {@link #draw(Graphics, TileInfo, Direction, int, int, int)}
      * but it may produce weird results.
      *
      * @param size size

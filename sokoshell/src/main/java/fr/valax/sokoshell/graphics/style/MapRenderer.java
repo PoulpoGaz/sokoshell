@@ -11,6 +11,10 @@ import org.jline.terminal.Terminal;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;
 
+import java.awt.*;
+import java.awt.font.FontRenderContext;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 import java.io.PrintStream;
 import java.util.List;
 import java.util.Objects;
@@ -207,6 +211,71 @@ public class MapRenderer {
             }
         }
     }
+
+
+
+
+
+    // ==== JAVA 2D ====
+
+    public BufferedImage createImage(int size, Map map, int playerX, int playerY, Direction playerDir) {
+        Objects.requireNonNull(style);
+
+        Font font = new Font("hack", Font.PLAIN, 12);
+
+        Rectangle2D max = font.getMaxCharBounds(new FontRenderContext(null, true, true));
+
+        int charWidth = (int) max.getWidth();
+        int charHeight = (int) max.getHeight();
+
+        BufferedImage image = new BufferedImage(map.getWidth() * size * charWidth,
+                map.getHeight() * size * charHeight,
+                BufferedImage.TYPE_INT_ARGB);
+
+        Graphics2D g2d = image.createGraphics();
+        try {
+            for (int y2 = 0; y2 < map.getHeight(); y2++) {
+                for (int x2 = 0; x2 < map.getWidth(); x2++) {
+                    boolean player = playerY == y2 && playerX == x2;
+
+                    TileInfo tile = map.getAt(x2, y2);
+                    int drawX = x2 * size * charWidth;
+                    int drawY = y2 * size * charHeight;
+                    if (player) {
+                        style.draw(g2d, tile, playerDir, drawX, drawY, size, charWidth, charHeight);
+                    } else {
+                        style.draw(g2d, tile, null, drawX, drawY, size, charWidth, charHeight);
+                    }
+                }
+            }
+
+        } finally {
+            g2d.dispose();
+        }
+
+        return image;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     public MapStyle getStyle() {
         return style;
