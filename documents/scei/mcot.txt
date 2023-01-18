@@ -1,0 +1,52 @@
+Positionnements thématiques* et mots-clés* (français et anglais)
+================================================================
+INFORMATIQUE (Informatique pratique)
+INFORMATIQUE (Informatique théorique)
+
+--> Sokoban (Sokoban)
+--> jeu vidéo de réflexion (puzzle video game)
+--> problème de recherche (search problem)
+--> émondage de graphe (graph pruning)
+--> heuristique (heuristic)
+
+IA
+A*
+
+planification
+
+théorie des graphes
+exploration de graphe
+
+(non)
+PSPACE-complet
+résolution
+solution
+
+Bibliographie commentée (au maximum 650 mots)
+=============================================
+
+
+
+Problématique retenue (au maximum 50 mots)
+==========================================
+
+Comment résoudre un niveau du jeu du Sokoban ?
+Comment ranger un entrepôt ?
+--> Quelles stratégies adopter pour trouver une solution le plus rapidement possible à un niveau de Sokoban ? <--
+
+Objectifs du TIPE (au maximum 100 mots)
+=======================================
+
+
+
+Liste de références bibliographiques (2 à 10 références)
+========================================================
+
+Auteur 1, Auteur 2… Nom du périodique, Titre de l'article Volume (Année), Pages…
+
+[1] Albert L. Zobrist, A New Hashing Method with Application for Game Playing, University of Wisconsin Technical Report (1970)
+[2] Timo Virkkala, Solving Sokoban, Master's Thesis, University of Helsinki (2011)
+[3] Nils Froleyks, Using an Algorithm Portfolio to Solve Sokoban, Bachelor Thesis, Karlsruhe Institute of Technology (2016)
+[4] A. Botea, M. Müller and J. Schaeffer, Using abstraction for planning in sokoban, Proceedings of the 3rd International Conference on Computers and Games, Springer, 2002
+
+[5] http://sokobano.de/en/index.php, consulté entre 2022 et 2023
