@@ -11,8 +11,8 @@ public class Pathfinder {
     private final AStar crateAStar = new AStarCrateOnly();
     private final AStar playerAStar = new AStarPlayerOnly();
 
-    private PriorityQueue<Node> queue;
-    private Set<Node> visited;
+    private final PriorityQueue<Node> queue;
+    private final Set<Node> visited;
 
     public Pathfinder() {
         queue = new PriorityQueue<>();
@@ -82,14 +82,32 @@ public class Pathfinder {
         }
     }
 
+    /**
+     * This A* is able to find a path that allow the player to move from an initial position to
+     * a destination and move a crate from another initial position to a destination.
+     *
+     * @return an A* that can find a path between a start position for the player, a start position for a crate
+     * and a destination for the player and the crate.
+     */
     public AStar getCratePlayerAStar() {
         return cratePlayerAStar;
     }
 
+    /**
+     * @return an A* that can find a path between a start position and a destination for the player
+     */
     public AStar getPlayerAStar() {
         return playerAStar;
     }
 
+    /**
+     * Let p, the position of the player.
+     * Let c, the position of a crate.
+     * let d, the destination o the crate.
+     * This A* is able to find a path that allow the player to move one crate to a destination.
+     *
+     * @return an A* that can find a path between a start position, a crate position and a destination for the crate
+     */
     public AStar getCrateAStar() {
         return crateAStar;
     }
@@ -98,8 +116,8 @@ public class Pathfinder {
     protected class AStarPlayerOnly extends AStar {
 
         @Override
-        protected Node initialNode(TileInfo playerStart, TileInfo playerDest, TileInfo crateStart, TileInfo crateDest) {
-            return Node.playerStartNode(playerStart);
+        protected Node initialNode() {
+            return new Node(null, 0, 0, playerStart, null, null);
         }
 
         @Override
@@ -108,15 +126,20 @@ public class Pathfinder {
             TileInfo adj = player.adjacent(dir);
 
             if (!adj.isSolid()) {
-                return parent.childPlayer(adj, Move.of(dir, false));
+                return child(parent, adj, null, Move.of(dir, false));
             }
 
             return null;
         }
 
         @Override
-        protected boolean isEndNode(Node node, TileInfo playerDest, TileInfo crateDest) {
-            return node.isEndNodePlayer(playerDest);
+        protected int heuristic(TileInfo newPlayer, TileInfo newCrate) {
+            return newPlayer.manhattanDistance(playerDest);
+        }
+
+        @Override
+        protected boolean isEndNode(Node node) {
+            return node.player.isAt(playerDest);
         }
     }
 
@@ -124,19 +147,20 @@ public class Pathfinder {
     protected class AStarCrateOnly extends AStar {
 
         @Override
-        protected void preInit(TileInfo playerStart, TileInfo playerDest, TileInfo crateStart, TileInfo crateDest) {
+        protected Node initialNode() {
+            return new Node(null, 0, 0, playerStart, crateStart, null);
+        }
+
+        @Override
+        protected void preInit() {
+            super.preInit();
             crateStart.removeCrate();
         }
 
         @Override
-        protected void postInit(TileInfo playerStart, TileInfo playerDest, TileInfo crateStart, TileInfo crateDest) {
-            super.postInit(playerStart, playerDest, crateStart, crateDest);
+        protected void postInit() {
+            super.postInit();
             crateStart.addCrate();
-        }
-
-        @Override
-        protected Node initialNode(TileInfo playerStart, TileInfo playerDest, TileInfo crateStart, TileInfo crateDest) {
-            return Node.startNode(playerStart, crateStart);
         }
 
         @Override
@@ -152,17 +176,39 @@ public class Pathfinder {
                     return null;
                 }
 
-                return parent.childCrate(adj, adjAdj, Move.of(dir, true));
+                return child(parent, adj, adjAdj, Move.of(dir, true));
             } else if (!adj.isSolid()) {
-                return parent.childCrate(adj, crate, Move.of(dir, false));
+                return child(parent, adj, crate, Move.of(dir, false));
             }
 
             return null;
         }
 
         @Override
-        protected boolean isEndNode(Node node, TileInfo playerDest, TileInfo crateDest) {
-            return node.isEndNodeCrate(crateDest);
+        protected int heuristic(TileInfo newPlayer, TileInfo newCrate) {
+            int h = newCrate.manhattanDistance(crateDest);
+
+            /* the player first need to move near the crate to push it
+               may not be optimal for level like this:
+
+                #########
+                #       #
+                # ##### #
+                # ##### #
+                # ##### #
+                 @$     # The player needs to do a detour to push the crate
+                # #######
+             */
+            if (newPlayer.manhattanDistance(newCrate) > 2) {
+                h += newPlayer.manhattanDistance(newCrate);
+            }
+
+            return h;
+        }
+
+        @Override
+        protected boolean isEndNode(Node node) {
+            return node.crate.isAt(crateDest);
         }
     }
 
@@ -170,47 +216,55 @@ public class Pathfinder {
     protected class AStarFull extends AStarCrateOnly {
 
         @Override
-        protected Node processMove(Node parent, Direction dir) {
-            TileInfo player = parent.player();
-            TileInfo crate = parent.crate();
-            TileInfo adj = player.adjacent(dir);
-
-            if (adj.isAt(crate)) {
-                TileInfo adjAdj = adj.adjacent(dir);
-
-                if (adjAdj.isSolid()) {
-                    return null;
+        protected int heuristic(TileInfo newPlayer, TileInfo newCrate) {
+            /*
+                Try to first move the player near the crate
+                Then push the crate to his destination
+                Finally moves the player to his destination
+             */
+            int remaining = newCrate.manhattanDistance(crateDest);
+            if (remaining == 0) {
+                remaining = newPlayer.manhattanDistance(playerDest);
+            } else {
+                if (newPlayer.manhattanDistance(newCrate) > 2) {
+                    remaining += newPlayer.manhattanDistance(newCrate);
                 }
-
-                return parent.child(adj, adjAdj, Move.of(dir, true));
-            } else if (!adj.isSolid()) {
-                return parent.child(adj, crate, Move.of(dir, false));
             }
 
-            return null;
+            return remaining;
         }
 
         @Override
-        protected boolean isEndNode(Node node, TileInfo playerDest, TileInfo crateDest) {
-            return node.isEndNode(playerDest, crateDest);
+        protected boolean isEndNode(Node node) {
+            return node.player.isAt(playerDest) && node.crate.isAt(crateDest);
         }
     }
 
 
-    protected abstract class AStar {
+    public abstract class AStar {
+
+        protected TileInfo playerStart;
+        protected TileInfo crateStart;
+        protected TileInfo playerDest;
+        protected TileInfo crateDest;
 
         public boolean hasPath(TileInfo playerStart, TileInfo playerDest, TileInfo crateStart, TileInfo crateDest) {
             return findPath(playerStart, playerDest, crateStart, crateDest) != null;
         }
 
         public Node findPath(TileInfo playerStart, TileInfo playerDest, TileInfo crateStart, TileInfo crateDest) {
-            Node n = initialNode(playerStart, playerDest, crateStart, crateDest);
+            this.playerStart = playerStart;
+            this.crateStart = crateStart;
+            this.playerDest = playerDest;
+            this.crateDest = crateDest;
 
-            if (isEndNode(n, playerDest, crateDest)) {
+            Node n = initialNode();
+
+            if (isEndNode(n)) {
                 return n;
             }
 
-            preInit(playerStart, playerDest, crateStart, crateDest);
+            preInit();
 
             queue.offer(n);
             visited.add(n);
@@ -222,8 +276,8 @@ public class Pathfinder {
                     Node child = processMove(node, direction);
 
                     if (child != null) {
-                        if (isEndNode(child, playerDest, crateDest)) {
-                            postInit(playerStart, playerDest, crateStart, crateDest);
+                        if (isEndNode(child)) {
+                            postInit();
                             return child;
                         }
 
@@ -234,73 +288,38 @@ public class Pathfinder {
                 }
             }
 
-            postInit(playerStart, playerDest, crateStart, crateDest);
+            postInit();
             return null;
         }
 
-        protected void preInit(TileInfo playerStart, TileInfo playerDest, TileInfo crateStart, TileInfo crateDest) {
+        protected void preInit() {
 
         }
 
-        protected void postInit(TileInfo playerStart, TileInfo playerDest, TileInfo crateStart, TileInfo crateDest) {
+        protected void postInit() {
             queue.clear();
             visited.clear();
         }
 
-        protected abstract Node initialNode(TileInfo playerStart, TileInfo playerDest, TileInfo crateStart, TileInfo crateDest);
+        protected Node child(Node parent, TileInfo newPlayer, TileInfo newCrate, Move move) {
+            return new Node(parent,
+                    parent.dist() + 1,
+                    parent.dist() + 1 + heuristic(newPlayer, newCrate),
+                    newPlayer, newCrate, move);
+        }
+
+        protected abstract Node initialNode();
 
         protected abstract Node processMove(Node parent, Direction dir);
 
-        protected abstract boolean isEndNode(Node node, TileInfo playerDest, TileInfo crateDest);
+        protected abstract int heuristic(TileInfo newPlayer, TileInfo newCrate);
+
+        protected abstract boolean isEndNode(Node node);
     }
 
     public record Node(Node parent,
-                       int cost, int heuristic,
+                       int dist, int heuristic,
                        TileInfo player, TileInfo crate, Move move) implements Comparable<Node> {
-
-        public static Node playerStartNode(TileInfo player) {
-            return new Node(null, 0, 0, player, null, null);
-        }
-
-        public static Node startNode(TileInfo player, TileInfo crate) {
-            return new Node(null, 0, 0, player, crate, null);
-        }
-
-        public boolean isEndNodePlayer(TileInfo playerDest) {
-            return playerDest.isAt(player);
-        }
-
-        public Node childPlayer(TileInfo newPlayer, Move move) {
-            int h = cost + 1 +
-                    newPlayer.manhattanDistance(player);
-
-            return new Node(this, cost + 1, h, newPlayer, null, move);
-        }
-
-
-        public boolean isEndNodeCrate(TileInfo crateDest) {
-            return crateDest.isAt(crate);
-        }
-
-        public Node childCrate(TileInfo newPlayer, TileInfo newCrate, Move move) {
-            int h = cost + 1 +
-                    newCrate.manhattanDistance(crate);
-
-            return new Node(this, cost + 1, h, newPlayer, newCrate, move);
-        }
-
-
-        public boolean isEndNode(TileInfo playerDest, TileInfo crateDest) {
-            return isEndNodePlayer(playerDest) && isEndNodeCrate(crateDest);
-        }
-
-        public Node child(TileInfo newPlayer, TileInfo newCrate, Move move) {
-            int h = cost + 1 +
-                    newCrate.manhattanDistance(crate) +
-                    newPlayer.manhattanDistance(player);
-
-            return new Node(this, cost + 1, h, newPlayer, newCrate, move);
-        }
 
         @Override
         public boolean equals(Object o) {
