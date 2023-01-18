@@ -1,6 +1,8 @@
 package fr.valax.sokoshell.solver;
 
 import fr.valax.sokoshell.TestUtils;
+import fr.valax.sokoshell.solver.pathfinder.PlayerAStar;
+import fr.valax.sokoshell.utils.PerformanceMeasurer;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
@@ -21,8 +23,22 @@ public class PathfinderTest {
     void aStarVsDijkstra() {
         Level level = TestUtils.getLevel(LABYRINTH);
         Map map = level.getMap();
-        System.out.println(PATHFINDER.hasPath(map.getAt(1, 1), map.getAt(74, 49), null, null));
-        System.out.println(dijkstra(map.getAt(1, 1), map.getAt(74, 49)));
+        PerformanceMeasurer pm = new PerformanceMeasurer();
+        PlayerAStar astar = new PlayerAStar(map);
+
+        for (int i = 0; i < 10_000; i++) {
+            pm.start("a*");
+            astar.hasPath(map.getAt(1, 1), map.getAt(74, 49), null, null);
+            pm.end("a*");
+        }
+
+        for (int i = 0; i < 10_000; i++) {
+            pm.start("dijkstra");
+            dijkstra(map.getAt(1, 1), map.getAt(74, 49));
+            pm.end("dijkstra");
+        }
+
+        System.out.println(pm);
 
         // A* visit 1128 nodes
         // dijkstra visit 1381 nodes
