@@ -25,7 +25,7 @@ shift $N
 
 # compile and run
 
-mvn compile
+/opt/maven/bin/mvn compile
 
 PATH_TO_PROJECT=$('pwd')
 

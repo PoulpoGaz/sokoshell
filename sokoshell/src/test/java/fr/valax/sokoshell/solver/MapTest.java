@@ -1,13 +1,15 @@
 package fr.valax.sokoshell.solver;
 
+import fr.poulpogaz.json.JsonException;
+import fr.valax.sokoshell.graphics.style.MapRenderer;
+import fr.valax.sokoshell.graphics.style.MapStyleReader;
+import fr.valax.sokoshell.readers.PackReaders;
+import fr.valax.sokoshell.solver.heuristic.SimpleHeuristic;
 import org.junit.jupiter.api.Test;
 import org.opentest4j.AssertionFailedError;
 
 import java.nio.file.Path;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -409,6 +411,29 @@ public class MapTest {
                     System.out.println(t.getX() + " - " + t.getY());
                 }
             }
+        }
+    }
+
+    @Test
+    void tileToTargetsDistancesTest() throws java.io.IOException, JsonException {
+
+        Pack pack = PackReaders.read(Path.of("../levels/TIPEex.8xv"), false);
+
+        Level level = pack.getLevel(0);
+        Map map = level.getMap();
+        MapRenderer mR = new MapRenderer();
+        mR.setStyle(new MapStyleReader().read(Path.of("../styles/isekai/isekai.style")));
+
+        map.removeStateCrates(level.getInitialState());
+        map.initForSolver();
+        mR.sysPrint(map, level.getPlayerX(), level.getPlayerY());
+
+        for (int y = 0; y < map.getHeight(); y++) {
+            for (int x = 0; x < map.getWidth(); x++) {
+                //System.out.printf("(%d,%d) : %s%n", x, y, Arrays.toString(map.getAt(x, y).getTargets()));
+                System.out.printf("%d", map.getAt(x, y).getNearestTarget().distance());
+            }
+            System.out.println();
         }
     }
 }

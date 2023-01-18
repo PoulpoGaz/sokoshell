@@ -198,7 +198,7 @@ public class Map {
         findTunnels();
         findRooms();
         tryComputePackingOrder();
-        computeTilesDistanceToTargets();
+        computeTileToTargetsDistances();
     }
 
     /**
@@ -680,7 +680,7 @@ public class Map {
         return true;
     }
 
-    private void computeTilesDistanceToTargets() {
+    private void computeTileToTargetsDistances() {
 
         List<Integer> targetIndices = new ArrayList<>();
 
@@ -707,7 +707,9 @@ public class Map {
                 for (int j = 0; j < targetIndices.size(); j++) {
 
                     final int targetIndex = targetIndices.get(j);
-                    final int d = t.manhattanDistance(getAt(targetIndex));
+                    final int d = (t.isFloor() || t.isTarget()
+                                   ? /*pathfinder.distanceBetween(t, getAt(targetIndex))*/t.manhattanDistance(getAt(targetIndex))
+                                   : 0);
 
                     if (d < minDistToTarget) {
                         minDistToTarget = d;
