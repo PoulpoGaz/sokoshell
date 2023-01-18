@@ -1,5 +1,6 @@
 package fr.valax.sokoshell.solver;
 
+import fr.valax.sokoshell.solver.collections.SolverCollection;
 import fr.valax.sokoshell.utils.SizeOf;
 
 import java.util.HashSet;

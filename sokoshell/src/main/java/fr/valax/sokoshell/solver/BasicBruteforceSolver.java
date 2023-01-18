@@ -1,5 +1,7 @@
 package fr.valax.sokoshell.solver;
 
+import fr.valax.sokoshell.solver.collections.SolverCollection;
+
 import java.util.ArrayDeque;
 
 /**

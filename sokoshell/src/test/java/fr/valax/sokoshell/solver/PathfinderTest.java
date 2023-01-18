@@ -4,12 +4,63 @@ import fr.valax.sokoshell.TestUtils;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
+import java.util.HashSet;
+import java.util.PriorityQueue;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class PathfinderTest {
 
+    /**
+     * Labyrinth made of 25x25 corridors (auto generated with dcode)
+     */
+    private static final String LABYRINTH;
     private static final Pathfinder PATHFINDER = new Pathfinder();
+
+    @Test
+    void aStarVsDijkstra() {
+        Level level = TestUtils.getLevel(LABYRINTH);
+        Map map = level.getMap();
+        System.out.println(PATHFINDER.hasPath(map.getAt(1, 1), map.getAt(74, 49), null, null));
+        System.out.println(dijkstra(map.getAt(1, 1), map.getAt(74, 49)));
+
+        // A* visit 1128 nodes
+        // dijkstra visit 1381 nodes
+    }
+
+    private int dijkstra(TileInfo from, TileInfo to) {
+        HashSet<Pathfinder.Node> visited = new HashSet<>();
+        PriorityQueue<Pathfinder.Node> toVisit = new PriorityQueue<>();
+
+        Pathfinder.Node initial = new Pathfinder.Node(null, 0, 0, from, null, null);
+        visited.add(initial);
+        toVisit.offer(initial);
+
+        loop:
+        while (!toVisit.isEmpty()) {
+            Pathfinder.Node node = toVisit.poll();
+
+            for (Direction direction : Direction.VALUES) {
+                TileInfo adj = node.player().adjacent(direction);
+
+                if (!adj.isSolid()) {
+                    if (adj.isAt(to)) {
+                        break loop;
+                    }
+
+                    Pathfinder.Node child = new Pathfinder.Node(node, node.dist() + 1, 0, adj, null, null);
+
+                    if (visited.add(child)) {
+                        toVisit.offer(child);
+                    }
+                }
+            }
+        }
+
+        return visited.size();
+    }
+
+
 
     @Test
     void playerTest() {
@@ -143,5 +194,62 @@ public class PathfinderTest {
                 .findPath(map.getAt(7, 4), map.getAt(5, 1), map.getAt(7, 3), map.getAt(7, 2));
         assertTrue(node.player().isAt(5, 1));
         assertTrue(node.crate().isAt(7, 2));
+    }
+
+
+    static {
+        LABYRINTH = """
+            ############################################################################
+            #@       #  #  #     #        #        #     #  #     #        #           #
+            ####  ####  #  ####  #  #  ####  ####  #  ####  #  ####  #######  #######  #
+            #  #                 #  #     #  #                 #  #  #     #  #        #
+            #  ##########  ####  ####  ####  ###################  #  #  #  #  #######  #
+            #  #           #  #        #  #     #     #  #     #  #  #  #     #        #
+            #  #######  ####  #  #  #  #  ####  ####  #  ####  #  #  #  #  ####  ####  #
+            #              #     #  #  #     #  #  #     #  #           #     #  #     #
+            #  #  #############  ##########  #  #  #  ####  ####  ######################
+            #  #        #        #     #              #        #           #           #
+            ####  ##########  ####  #############  #######  #  #  ####  #  #  ####  #  #
+            #        #  #                 #              #  #     #  #  #  #     #  #  #
+            #  #######  #######  ##########  #  #  #######  ####  #  ####  #######  #  #
+            #              #           #     #  #  #           #     #  #  #        #  #
+            ####  ####  ####  ####  ####  #  #######  #######  #######  #  ####  #  #  #
+            #  #  #  #  #     #  #  #  #  #     #  #     #              #  #  #  #  #  #
+            #  #  #  ##########  #  #  ####  ####  #######  #  ####  #######  ####  #  #
+            #           #  #     #     #              #  #  #  #  #  #              #  #
+            ####  #  #  #  #  #  #######  #  ##########  #  ####  ####  ####  #  #######
+            #     #  #  #     #        #  #  #           #           #  #     #        #
+            #######  ##########  ####  #  #  #  #######  #  ####  #######  ##########  #
+            #           #  #     #        #           #        #  #     #  #           #
+            #  ##########  ####  #  ################  #  ####  #  ####  #######  #######
+            #  #                 #     #  #           #  #     #        #     #  #     #
+            #  ####  #######  ####  #  #  ####  #  #######  #######  #  #  ####  ####  #
+            #           #  #     #  #     #  #  #     #  #     #     #  #  #  #        #
+            ####  #######  ####  #######  #  #  ####  #  #######  ####  #  #  ####  #  #
+            #  #  #  #  #  #        #  #     #  #        #  #     #  #  #        #  #  #
+            #  #  #  #  #  ##########  #  #  #######  ####  ####  #  ##########  #  #  #
+            #        #           #        #     #           #        #        #     #  #
+            ################  #######  #############  #  ####  ####  #  #  #######  #  #
+            #                       #              #  #  #        #  #  #        #  #  #
+            #######  ##########  ####  #  ##########  #######  #######  #  #  #######  #
+            #     #        #     #     #     #        #     #  #     #  #  #        #  #
+            ####  ####  #######  ###################  ####  #  #  #  ####  ####  ####  #
+            #           #  #     #           #        #  #     #  #        #     #     #
+            ####  ####  #  #  #  #  ##########  #  ####  #  #  ####  ####  ####  #  ####
+            #  #     #     #  #  #  #           #  #  #     #        #  #     #  #  #  #
+            #  ################  #  #  ####  #######  ####  ##########  ####  #  #  #  #
+            #        #                 #     #     #  #                    #  #        #
+            #  #  #  ####  #######  #  #  ####  ####  #############  ####  #  #  ####  #
+            #  #  #        #        #  #  #     #     #  #              #  #  #  #     #
+            #  ####  ####  #######  ##########  #  #  #  ####  ######################  #
+            #     #     #     #  #        #        #        #     #        #     #     #
+            #  #  #  #  #  #  #  #######  ####  ####  #######  #  #  #######  #  ####  #
+            #  #  #  #  #  #           #  #        #        #  #     #     #  #     #  #
+            ####  ####  #  #  ####  ####  #  ####  #  ##########  #  #  #  #######  #  #
+            #     #  #  #  #     #  #  #  #  #     #  #  #     #  #     #  #  #  #     #
+            #  #  #  ##########  ####  #######  #  #  #  #  #  ####  ####  #  #  ####  #
+            #  #        #                       #  #        #     #     #           #  #
+            ############################################################################
+            """;
     }
 }
