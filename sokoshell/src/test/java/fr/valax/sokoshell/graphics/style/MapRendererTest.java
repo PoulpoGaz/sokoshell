@@ -150,4 +150,23 @@ public class MapRendererTest {
         BufferedImage img = style.createImage(level.getMap(), level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
         ImageIO.write(img, "png", new File("out.png"));
     }
+
+    @Test
+    void createImageFileMapStyle() throws IOException {
+        Level level = TestUtils.getLevel("""
+                ################
+                #. @           #
+                ###$  #        #
+                ##*            #
+                ##      ##     #
+                ##   #         #
+                ##      #      #
+                ##   #*********#
+                ################
+                """);
+
+        MapStyle style = TestUtils.getStyle(Path.of("isekai/isekai.style"));
+        BufferedImage img = style.createImage(level.getMap(), level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
+        ImageIO.write(img, "png", new File("out2.png"));
+    }
 }

@@ -30,8 +30,10 @@ public class GraphicsUtils {
 
     static {
         Rectangle2D max = DEFAULT_FONT.getMaxCharBounds(new FontRenderContext(null, true, true));
-        CHAR_WIDTH = (int) max.getWidth();
-        CHAR_HEIGHT = (int) max.getHeight();
+        CHAR_WIDTH = (int) Math.ceil(max.getWidth());
+        CHAR_HEIGHT = (int) Math.ceil(max.getHeight());
+
+        System.out.println(DEFAULT_FONT.getStringBounds("o", new FontRenderContext(null, true, true)));
         System.out.println(CHAR_WIDTH + " - " + CHAR_HEIGHT);
     }
 

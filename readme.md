@@ -93,3 +93,9 @@ Styles are currently in development in branch poulpogaz. It will solve the follo
 * finding the cell at (x; y) is difficult. It will be possible to show x and y position on the top and the left
   of the map.
 * Exporting map to png only works for style that only uses image and define style of size 16.
+
+TODO:
+* remove PNGExport, old styles, integrate new style
+* finish pathfinder
+* add documentation
+* MapStyleReader: merging always produce an AnsiSampler. merging two ImageSampler should produce an ImageSampler

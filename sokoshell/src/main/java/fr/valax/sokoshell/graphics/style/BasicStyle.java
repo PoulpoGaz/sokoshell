@@ -110,6 +110,7 @@ public class BasicStyle extends MapStyle {
 
         Graphics2D g2d = img.createGraphics();
         try {
+            g2d.setFont(GraphicsUtils.DEFAULT_FONT);
             g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
             for (int y = 0; y < map.getHeight(); y++) {

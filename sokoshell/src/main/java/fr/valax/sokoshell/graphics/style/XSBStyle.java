@@ -11,6 +11,7 @@ import java.awt.image.BufferedImage;
 
 import static org.jline.utils.AttributedStyle.*;
 
+@Deprecated
 public class XSBStyle extends MapStyle {
 
     public XSBStyle() {

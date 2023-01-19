@@ -19,6 +19,7 @@ import java.io.PrintStream;
 import java.util.List;
 import java.util.Objects;
 
+@Deprecated
 public class MapRenderer {
 
     private MapStyle style;

@@ -4,11 +4,13 @@ import fr.valax.sokoshell.graphics.Graphics;
 import fr.valax.sokoshell.graphics.GraphicsUtils;
 import fr.valax.sokoshell.graphics.Surface;
 import fr.valax.sokoshell.solver.Direction;
+import fr.valax.sokoshell.solver.Tile;
 import fr.valax.sokoshell.solver.TileInfo;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;
 
 import java.awt.*;
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.*;
@@ -83,14 +85,79 @@ public class FileMapStyle extends MapStyle {
         for (int y = 0; y < size; y++) {
             for (int x = 0; x < size; x++) {
                 fetch(x, y, out, tileSampler, playerSampler);
-                // GraphicsUtils.draw(g2d, out, drawX + x * charWidth, drawY + y * charHeight, charWidth, charHeight);
+                GraphicsUtils.draw(g2d, out, drawX + x * charWidth, drawY + y * charHeight, charWidth, charHeight, Color.BLACK, Color.WHITE);
             }
         }
     }
 
     @Override
     public BufferedImage createImage(fr.valax.sokoshell.solver.Map map, int playerX, int playerY, Direction playerDir) {
-        return null;
+        int sizeIndex = availableSizes.length - 1;
+        int size = availableSizes[sizeIndex];
+
+        boolean image = true;
+        for (Sampler[] samplers : this.samplers.values()) {
+            if (samplers[sizeIndex] instanceof AnsiSampler) {
+                image = false;
+                break;
+            }
+        }
+
+        if (image) {
+            BufferedImage img = new BufferedImage(map.getWidth() * size, map.getHeight() * size, BufferedImage.TYPE_INT_ARGB);
+
+            Graphics2D g2d = img.createGraphics();
+            try {
+                for (int y = 0; y < map.getHeight(); y++) {
+                    for (int x = 0; x < map.getWidth(); x++) {
+                        TileInfo tile = map.getAt(x, y);
+
+                        ImageSampler tileSampler = (ImageSampler) getSampler(tile, sizeIndex);
+                        g2d.drawImage(tileSampler.image, x * size, y * size, null);
+
+                        if (x == playerX && y == playerY) {
+                            ImageSampler playerSampler = (ImageSampler) getSampler(playerDir, sizeIndex);
+                            g2d.drawImage(playerSampler.image, x * size, y * size, null);
+                        }
+                    }
+                }
+
+            } finally {
+                g2d.dispose();
+            }
+
+            return img;
+        } else {
+            BufferedImage img = new BufferedImage(
+                    map.getWidth() * GraphicsUtils.CHAR_WIDTH * size,
+                    map.getHeight() * GraphicsUtils.CHAR_HEIGHT * size,
+                    BufferedImage.TYPE_INT_ARGB);
+
+            Graphics2D g2d = img.createGraphics();
+            try {
+                g2d.setFont(GraphicsUtils.DEFAULT_FONT);
+                g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+
+                for (int y = 0; y < map.getHeight(); y++) {
+                    for (int x = 0; x < map.getWidth(); x++) {
+                        TileInfo tile = map.getAt(x, y);
+
+                        int drawX = x * size * GraphicsUtils.CHAR_WIDTH;
+                        int drawY = y * size * GraphicsUtils.CHAR_HEIGHT;
+                        if (playerX == x && playerY == y) {
+                            draw(g2d, tile, playerDir, drawX, drawY, size, GraphicsUtils.CHAR_WIDTH, GraphicsUtils.CHAR_HEIGHT);
+                        } else {
+                            draw(g2d, tile, null, drawX, drawY, size, GraphicsUtils.CHAR_WIDTH, GraphicsUtils.CHAR_HEIGHT);
+                        }
+                    }
+                }
+
+            } finally {
+                g2d.dispose();
+            }
+
+            return img;
+        }
     }
 
     protected void drawSamplers(Surface s, int drawX, int drawY, int size, Sampler... samplers) {
@@ -138,23 +205,26 @@ public class FileMapStyle extends MapStyle {
     }
 
     private int findBestSizeIndex(int size) {
-        int bestI = -1;
+        int minI = 0; // included
+        int maxI = availableSizes.length; // excluded
 
-        for (int i = 0; i < availableSizes.length; i++) {
+        while (maxI - minI > 1) {
+            int i = (maxI + minI) / 2;
 
             if (availableSizes[i] == size) {
                 return i;
-            } else if (availableSizes[i] < size) {
-                if (bestI < 0) {
-                    bestI = i;
-                } else if (availableSizes[i] > availableSizes[bestI]) {
-                    bestI = i;
+            } else if (availableSizes[i] > size) {
+                maxI = i;
+            } else {
+                if (i + 1 >= availableSizes.length || availableSizes[i + 1] > size) {
+                    return i;
                 }
-            }
 
+                minI = i;
+            }
         }
 
-        return bestI;
+        return minI;
     }
 
     @Override

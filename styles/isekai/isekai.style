@@ -178,7 +178,6 @@ set-image wall            8 tileset.png  16 52
 set-image crate           8 tileset.png  32 52
 set-image crate_on_target 8 tileset.png  48 52
 set-image target          8 tileset.png  64 52
-merge 8 floor target
 set-image player_left     8 tileset.png  80 52
 set-image player_right    8 tileset.png  96 52
 set-image player_down     8 tileset.png 112 52
@@ -190,7 +189,6 @@ set-image wall            10 tileset.png  16 42
 set-image crate           10 tileset.png  32 42
 set-image crate_on_target 10 tileset.png  48 42
 set-image target          10 tileset.png  64 42
-merge 10 floor target
 set-image player_left     10 tileset.png  80 42
 set-image player_right    10 tileset.png  96 42
 set-image player_down     10 tileset.png 112 42
@@ -202,7 +200,6 @@ set-image wall            12 tileset.png  16 30
 set-image crate           12 tileset.png  32 30
 set-image crate_on_target 12 tileset.png  48 30
 set-image target          12 tileset.png  64 30
-merge 12 floor target
 set-image player_left     12 tileset.png  80 30
 set-image player_right    12 tileset.png  96 30
 set-image player_down     12 tileset.png 112 30
@@ -214,7 +211,6 @@ set-image wall            14 tileset.png  16 16
 set-image crate           14 tileset.png  32 16
 set-image crate_on_target 14 tileset.png  48 16
 set-image target          14 tileset.png  64 16
-merge 14 floor target
 set-image player_left     14 tileset.png  80 16
 set-image player_right    14 tileset.png  96 16
 set-image player_down     14 tileset.png 112 16
@@ -226,7 +222,6 @@ set-image wall            16 tileset.png  16 0
 set-image crate           16 tileset.png  32 0
 set-image crate_on_target 16 tileset.png  48 0
 set-image target          16 tileset.png  64 0
-merge 16 floor target
 set-image player_left     16 tileset.png  80 0
 set-image player_right    16 tileset.png  96 0
 set-image player_down     16 tileset.png 112 0
