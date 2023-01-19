@@ -83,9 +83,14 @@ public class FileMapStyle extends MapStyle {
         for (int y = 0; y < size; y++) {
             for (int x = 0; x < size; x++) {
                 fetch(x, y, out, tileSampler, playerSampler);
-                GraphicsUtils.draw(g2d, out, drawX + x * charWidth, drawY + y * charHeight, charWidth, charHeight);
+                // GraphicsUtils.draw(g2d, out, drawX + x * charWidth, drawY + y * charHeight, charWidth, charHeight);
             }
         }
+    }
+
+    @Override
+    public BufferedImage createImage(fr.valax.sokoshell.solver.Map map, int playerX, int playerY, Direction playerDir) {
+        return null;
     }
 
     protected void drawSamplers(Surface s, int drawX, int drawY, int size, Sampler... samplers) {

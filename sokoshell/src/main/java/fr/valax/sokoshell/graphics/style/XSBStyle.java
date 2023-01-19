@@ -3,9 +3,11 @@ package fr.valax.sokoshell.graphics.style;
 import fr.valax.sokoshell.SokoShell;
 import fr.valax.sokoshell.graphics.Graphics;
 import fr.valax.sokoshell.solver.Direction;
+import fr.valax.sokoshell.solver.Map;
 import fr.valax.sokoshell.solver.TileInfo;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 
 import static org.jline.utils.AttributedStyle.*;
 
@@ -41,6 +43,11 @@ public class XSBStyle extends MapStyle {
     @Override
     public void draw(Graphics2D g2d, TileInfo tile, Direction playerDir, int drawX, int drawY, int size, int charWidth, int charHeight) {
 
+    }
+
+    @Override
+    public BufferedImage createImage(Map map, int playerX, int playerY, Direction playerDir) {
+        return null;
     }
 
     @Override

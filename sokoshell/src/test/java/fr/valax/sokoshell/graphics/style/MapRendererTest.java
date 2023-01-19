@@ -7,6 +7,10 @@ import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.TestUtils;
 import org.junit.jupiter.api.Test;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 
 public class MapRendererTest {
@@ -126,5 +130,24 @@ public class MapRendererTest {
         mr.drawWithLegend(new Graphics(s), 0, 0, 3, level.getMap(), level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
 
         s.print();
+    }
+
+    @Test
+    void createImage() throws IOException {
+        Level level = TestUtils.getLevel("""
+                ################
+                #. @           #
+                ###$  #        #
+                ##*            #
+                ##      ##     #
+                ##   #         #
+                ##      #      #
+                ##   #*********#
+                ################
+                """);
+
+        MapStyle style = BasicStyle.DEFAULT_STYLE;
+        BufferedImage img = style.createImage(level.getMap(), level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
+        ImageIO.write(img, "png", new File("out.png"));
     }
 }

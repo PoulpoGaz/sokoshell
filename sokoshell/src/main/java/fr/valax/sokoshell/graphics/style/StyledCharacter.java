@@ -10,9 +10,24 @@ public class StyledCharacter {
     private char c;
     private AttributedStyle style;
 
-    private int rgb = java.awt.Color.BLACK.getRGB();
-    private boolean color = true;
+    private int rgb;
+    private boolean color;
 
+    public StyledCharacter() {
+        rgb = java.awt.Color.BLACK.getRGB();
+        color = true;
+    }
+
+    public StyledCharacter(char c, AttributedStyle style) {
+        this.c = c;
+        this.style = style;
+        color = false;
+    }
+
+    public StyledCharacter(int rgb) {
+        this.rgb = rgb;
+        color = true;
+    }
 
     public void appendTo(AttributedStringBuilder asb) {
         if (color) {
