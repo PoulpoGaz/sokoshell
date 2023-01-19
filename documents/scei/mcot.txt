@@ -1,3 +1,35 @@
+Titre de votre sujet TIPE (20 mots maximum)
+===========================================
+Résolution de niveaux du Sokoban
+
+Quelle est votre motivation pour le choix du sujet? (50 mots maximum)
+=====================================================================
+
+Le Sokoban est un jeu où le joueur, dans un labyrinthe, doit pousser des caisses jusqu'à des objectifs. Malgré ces règles simples, résoudre un niveau peut être très difficile, pour un humain comme pour un programme. 
+Avec mon binôme, nous connaissions tous les deux ce jeu, et avons pensé que ce TIPE serait une bonne occasion de travailler sur ce sujet d'intérêt commun.
+
+
+En quoi votre étude s'inscrit-elle dans le thème de l'année ? (50 mots maximum)
+===============================================================================
+
+Le Sokoban s'inscrit dans le thème de l'année puisqu'il signifie <<gardien d'entrepôt>> et il y a des entrepots à proximité des villes afin d'assurer un débit maximal de colis!
+
+
+Bibliographie commentée (au maximum 650 mots)
+=============================================
+
+Problématique retenue (au maximum 50 mots)
+==========================================
+
+Comment résoudre un niveau du jeu du Sokoban ?
+Comment ranger un entrepôt ?
+--> Quelles stratégies adopter pour trouver une solution le plus rapidement possible à un niveau de Sokoban ? <--
+
+
+Objectifs du TIPE (au maximum 100 mots)
+=======================================
+
+
 Positionnements thématiques* et mots-clés* (français et anglais)
 ================================================================
 INFORMATIQUE (Informatique pratique)
@@ -22,24 +54,8 @@ PSPACE-complet
 résolution
 solution
 
-Bibliographie commentée (au maximum 650 mots)
-=============================================
 
-
-
-Problématique retenue (au maximum 50 mots)
-==========================================
-
-Comment résoudre un niveau du jeu du Sokoban ?
-Comment ranger un entrepôt ?
---> Quelles stratégies adopter pour trouver une solution le plus rapidement possible à un niveau de Sokoban ? <--
-
-Objectifs du TIPE (au maximum 100 mots)
-=======================================
-
-
-
-Liste de références bibliographiques (2 à 10 références)
+Liste de références bibliographiques (5 à 10 références)
 ========================================================
 
 Auteur 1, Auteur 2… Nom du périodique, Titre de l'article Volume (Année), Pages…
