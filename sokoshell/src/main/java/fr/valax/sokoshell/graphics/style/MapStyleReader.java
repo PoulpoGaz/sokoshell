@@ -7,6 +7,7 @@ import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -533,27 +534,42 @@ public class MapStyleReader {
             }
         }
 
-        private FileMapStyle.Sampler merge(FileMapStyle.Sampler a, FileMapStyle.Sampler b) {
-            int size = a.getSize();
+        private FileMapStyle.Sampler merge(FileMapStyle.Sampler background, FileMapStyle.Sampler foreground) {
+            int size = background.getSize();
 
-            AttributedString[] strings = new AttributedString[size];
-            AttributedStringBuilder asb = new AttributedStringBuilder();
-            StyledCharacter character = new StyledCharacter();
+            if (background instanceof FileMapStyle.ImageSampler bg &&
+                    foreground instanceof FileMapStyle.ImageSampler fg) {
+                BufferedImage out = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
 
-            for (int y = 0; y < size; y++) {
-                asb.setLength(0);
-
-                for (int x = 0; x < size; x++) {
-                    a.fetch(x, y, character, false);
-                    b.fetch(x, y, character, true);
-
-                    character.appendTo(asb);
+                Graphics2D g2d = out.createGraphics();
+                try {
+                    g2d.drawImage(bg.getImage(), 0, 0, null);
+                    g2d.drawImage(fg.getImage(), 0, 0, null);
+                } finally {
+                    g2d.dispose();
                 }
 
-                strings[y] = asb.toAttributedString();
-            }
+                return new FileMapStyle.ImageSampler(out);
+            } else {
+                AttributedString[] strings = new AttributedString[size];
+                AttributedStringBuilder asb = new AttributedStringBuilder();
+                StyledCharacter character = new StyledCharacter();
 
-            return new FileMapStyle.AnsiSampler(size, strings);
+                for (int y = 0; y < size; y++) {
+                    asb.setLength(0);
+
+                    for (int x = 0; x < size; x++) {
+                        background.fetch(x, y, character, false);
+                        foreground.fetch(x, y, character, true);
+
+                        character.appendTo(asb);
+                    }
+
+                    strings[y] = asb.toAttributedString();
+                }
+
+                return new FileMapStyle.AnsiSampler(size, strings);
+            }
         }
 
         private FileMapStyle.Sampler getSampler(String name, int size) throws IOException {

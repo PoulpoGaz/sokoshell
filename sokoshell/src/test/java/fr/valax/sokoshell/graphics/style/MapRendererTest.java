@@ -165,7 +165,7 @@ public class MapRendererTest {
                 ################
                 """);
 
-        MapStyle style = TestUtils.getStyle(Path.of("isekai/isekai.style"));
+        MapStyle style = TestUtils.getStyle(Path.of("warehouse/warehouse.style"));
         BufferedImage img = style.createImage(level.getMap(), level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
         ImageIO.write(img, "png", new File("out2.png"));
     }

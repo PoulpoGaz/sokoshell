@@ -271,6 +271,10 @@ public class FileMapStyle extends MapStyle {
         public int getSize() {
             return image.getWidth();
         }
+
+        public BufferedImage getImage() {
+            return image;
+        }
     }
 
 
