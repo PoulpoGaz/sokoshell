@@ -1,11 +1,10 @@
 package fr.valax.sokoshell.solver;
 
-import fr.poulpogaz.json.IJsonReader;
 import fr.poulpogaz.json.JsonException;
 import fr.poulpogaz.json.JsonPrettyWriter;
 import fr.poulpogaz.json.JsonReader;
 import fr.valax.sokoshell.SokoShell;
-import fr.valax.sokoshell.graphics.style.MapRenderer;
+import fr.valax.sokoshell.graphics.style.MapStyle;
 
 import java.io.IOException;
 import java.util.*;
@@ -216,12 +215,12 @@ public class SolverReport {
      * @return an exception
      */
     private IllegalStateException canFindPathException(Map map, State current, State next) {
-        MapRenderer mr = SokoShell.INSTANCE.getRenderer();
+        MapStyle style = SokoShell.INSTANCE.getMapStyle();
 
-        String map1 = mr.drawToString(map, map.getX(current.playerPos()), map.getY(current.playerPos())).toAnsi();
+        String map1 = style.drawToString(map, map.getX(current.playerPos()), map.getY(current.playerPos())).toAnsi();
         map.removeStateCrates(current);
         map.addStateCrates(next);
-        String map2 = mr.drawToString(map, map.getX(next.playerPos()), map.getY(next.playerPos())).toString();
+        String map2 = style.drawToString(map, map.getX(next.playerPos()), map.getY(next.playerPos())).toString();
 
         return new IllegalStateException("""
                 Can't find path between two states:

@@ -119,7 +119,7 @@ public class PlayCommand extends LevelCommand {
                 Path out = SokoShell.INSTANCE
                         .exportPNG(level.getPack(), level,
                                 controller.getMap(), controller.getPlayerX(), controller.getPlayerY(),
-                                controller.getLastDir(), 16);
+                                controller.getLastDir());
 
                 return out.toString();
             } catch (IOException e) {

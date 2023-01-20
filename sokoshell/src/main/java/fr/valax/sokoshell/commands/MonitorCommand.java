@@ -207,7 +207,7 @@ public class MonitorCommand extends AbstractCommand {
                 Path out = SokoShell.INSTANCE
                         .exportPNG(currentPack, currentLevel,
                                 mapComponent.getMap(), mapComponent.getPlayerX(), mapComponent.getPlayerY(),
-                                Direction.DOWN, 16);
+                                Direction.DOWN);
 
                 return out.toString();
             } catch (IOException e) {

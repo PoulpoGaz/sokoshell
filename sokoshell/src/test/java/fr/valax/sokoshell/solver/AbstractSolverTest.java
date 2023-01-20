@@ -1,7 +1,7 @@
 package fr.valax.sokoshell.solver;
 
 import fr.valax.sokoshell.TestUtils;
-import fr.valax.sokoshell.graphics.style.MapRenderer;
+import fr.valax.sokoshell.graphics.style.MapStyle;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -12,18 +12,17 @@ public class AbstractSolverTest {
     @Test
     void deadPositionsDetectionTest() {
         Level level = TestUtils.getLevel(Path.of("levels8xv/Aruba10.8xv"), 46 - 1);
+        MapStyle style = TestUtils.getStyle(Path.of("isekai/isekai.style"));
 
         Map map = level.getMap();
         map.removeStateCrates(level.getInitialState());
-        MapRenderer mR = new MapRenderer();
-        mR.setStyle(TestUtils.getStyle(Path.of("isekai/isekai.style")));
         //mR.setShowDeadTiles(true);
-        mR.print(level);
+        style.print(level);
         System.out.println("Computing dead positions...");
 
         map.computeFloors();
         map.computeDeadTiles();
-        mR.print(map, level.getPlayerX(), level.getPlayerY());
+        style.print(map, level.getPlayerX(), level.getPlayerY());
 
         final int[] count = {0};
 
@@ -84,9 +83,7 @@ public class AbstractSolverTest {
     @Test
     void freezeDeadlockTest2() {
         Level level = TestUtils.getLevel(Path.of("levels8xv/Aruba10.8xv"), 46 - 1);
-
-        MapRenderer mr = new MapRenderer();
-        mr.setStyle(TestUtils.getStyle(Path.of("isekai/isekai.style")));
+        MapStyle style = TestUtils.getStyle(Path.of("isekai/isekai.style"));
         //mr.setShowDeadTiles(true);
 
         BasicBruteforceSolver solver = BasicBruteforceSolver.newBFSSolver();
@@ -102,16 +99,14 @@ public class AbstractSolverTest {
 
         map.addStateCrates(myState);
 
-        mr.print(map, myState.playerPos() % map.getWidth(), myState.playerPos() / map.getWidth());
+        style.print(map, myState.playerPos() % map.getWidth(), myState.playerPos() / map.getWidth());
         System.out.println(solver.checkFreezeDeadlock(map, myState));
     }
 
     @Test
     void freezeDeadlockTest3() {
         Level level = TestUtils.getLevel(Path.of("levels8xv/Original.8xv"), 48 - 1);
-
-        MapRenderer mr = new MapRenderer();
-        mr.setStyle(TestUtils.getStyle(Path.of("isekai/isekai.style")));
+        MapStyle style = TestUtils.getStyle(Path.of("isekai/isekai.style"));
         //mr.setShowDeadTiles(true);
 
         BasicBruteforceSolver solver = BasicBruteforceSolver.newBFSSolver();
@@ -126,7 +121,7 @@ public class AbstractSolverTest {
         State myState = new State(33, new int[] {16, 18, 20, 22, 17, 32, 21, 29, 31, 43, 48, 122, 30, 61, 68, 83, 73, 74, 127, 150, 162, 139, 140, 172, 176, 151, 152, 158, 163, 177, 165, 166, 171, 179}, null);
         map.addStateCrates(myState);
 
-        mr.print(map, myState.playerPos() % map.getWidth(), myState.playerPos() / map.getWidth());
+        style.print(map, myState.playerPos() % map.getWidth(), myState.playerPos() / map.getWidth());
         System.out.println(solver.checkFreezeDeadlock(map, myState));
     }
 }

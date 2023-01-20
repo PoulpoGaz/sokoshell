@@ -181,7 +181,7 @@ public class SolutionCommand extends LevelCommand {
                 Path out = SokoShell.INSTANCE
                         .exportPNG(l.getPack(), l,
                                 animator.getMap(), animator.getPlayerX(), animator.getPlayerY(),
-                                animator.getLastMove(), 16);
+                                animator.getLastMove());
 
                 return out.toString();
             } catch (IOException e) {

@@ -95,7 +95,6 @@ Styles are currently in development in branch poulpogaz. It will solve the follo
 * Exporting map to png only works for style that only uses image and define style of size 16.
 
 TODO:
-* remove PNGExport, old styles, integrate new style
 * finish pathfinder
 * add documentation
-* MapStyleReader: merging always produce an AnsiSampler. merging two ImageSampler should produce an ImageSampler
+* notification, problems of synchronization when exiting program

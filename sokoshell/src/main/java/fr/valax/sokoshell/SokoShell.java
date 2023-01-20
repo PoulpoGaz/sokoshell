@@ -17,12 +17,9 @@ import fr.valax.sokoshell.commands.select.SelectPack;
 import fr.valax.sokoshell.commands.select.SelectStyle;
 import fr.valax.sokoshell.commands.table.*;
 import fr.valax.sokoshell.commands.unix.*;
-import fr.valax.sokoshell.graphics.style.DefaultStyle;
-import fr.valax.sokoshell.graphics.style.MapRenderer;
+import fr.valax.sokoshell.graphics.style.BasicStyle;
 import fr.valax.sokoshell.graphics.style.MapStyle;
-import fr.valax.sokoshell.graphics.style.XSBStyle;
 import fr.valax.sokoshell.solver.*;
-import fr.valax.sokoshell.solver.Map;
 import fr.valax.sokoshell.utils.Utils;
 import org.jline.reader.*;
 import org.jline.reader.impl.DefaultHighlighter;
@@ -96,15 +93,13 @@ public class SokoShell {
     private final java.util.Map<String, Pack> packs = new HashMap<>();
     private final java.util.Map<String, MapStyle> styles = new HashMap<>();
 
-    private final MapRenderer renderer = new MapRenderer();
-    private final PNGExporter exporter = new PNGExporter();
-
     private final TaskList taskList;
 
     private NotificationHandler notificationHandler;
 
     private Pack selectedPack = null;
     private int selectedLevel = -1;
+    private MapStyle selectedStyle;
 
     private boolean autoSaveSolution = false;
 
@@ -116,11 +111,8 @@ public class SokoShell {
         addSolver(BasicBruteforceSolver.newDFSSolver());
         addSolver(new AStarSolver());
 
-        DefaultStyle style = new DefaultStyle();
-        addMapStyle(style);
-        addMapStyle(new XSBStyle());
-        renderer.setStyle(style);
-        exporter.setMapStyle(style);
+        addMapStyle(BasicStyle.DEFAULT_STYLE);
+        addMapStyle(BasicStyle.XSB_STYLE);
 
         taskList = new TaskList();
     }
@@ -394,11 +386,10 @@ public class SokoShell {
     }
 
 
-    @Deprecated
     public Path exportPNG(Pack pack, Level level, fr.valax.sokoshell.solver.Map map,
-                          int playerX, int playerY, Direction playerDir, int size)
+                          int playerX, int playerY, Direction playerDir)
             throws IOException {
-        BufferedImage image = exporter.asImage(map, playerX, playerY, playerDir, size);
+        BufferedImage image = selectedStyle.createImage(map, playerX, playerY, playerDir);
 
         Path out;
         if (pack == null && level == null) {
@@ -520,7 +511,9 @@ public class SokoShell {
      * @return true if it was added
      */
     public boolean addMapStyle(MapStyle mapStyle) {
-        if (styles.containsKey(mapStyle.getName())) {
+        if (mapStyle == null) {
+            return false;
+        } else if (styles.containsKey(mapStyle.getName())) {
             return false;
         } else {
             styles.put(mapStyle.getName(), mapStyle);
@@ -534,11 +527,14 @@ public class SokoShell {
      * @param mapStyle the map style to add
      */
     public void addMapStyleReplace(MapStyle mapStyle) {
+        if (mapStyle == null) {
+            return;
+        }
+
         styles.put(mapStyle.getName(), mapStyle);
 
-        if (renderer.getStyle().getName().equals(mapStyle.getName())) {
-            renderer.setStyle(mapStyle);
-            exporter.setMapStyle(mapStyle);
+        if (selectedStyle.getName().equals(mapStyle.getName())) {
+            selectedStyle = mapStyle;
         }
     }
 
@@ -553,25 +549,16 @@ public class SokoShell {
     }
 
     public MapStyle getMapStyle() {
-        return renderer.getStyle();
+        return selectedStyle;
     }
 
     public void setMapStyle(MapStyle style) {
-        renderer.setStyle(style);
-        exporter.setMapStyle(style);
+        this.selectedStyle = Objects.requireNonNull(style);
     }
+
 
     public Collection<MapStyle> getMapStyles() {
         return styles.values();
-    }
-
-
-    public MapRenderer getRenderer() {
-        return renderer;
-    }
-
-    public PNGExporter getExporter() {
-        return exporter;
     }
 
     public ExecutorService getExecutor() {

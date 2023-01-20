@@ -26,7 +26,7 @@ public class BasicStyle extends MapStyle {
             new StyledCharacter('o', DEFAULT.background(RED)));
 
     public static final BasicStyle XSB_STYLE = new BasicStyle(
-            "default", SokoShell.NAME, SokoShell.VERSION,
+            "xsb", SokoShell.NAME, SokoShell.VERSION,
             new StyledCharacter(' ', DEFAULT),
             new StyledCharacter('#', DEFAULT),
             new StyledCharacter('$', DEFAULT),

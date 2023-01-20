@@ -1,7 +1,7 @@
 package fr.valax.sokoshell.graphics;
 
 import fr.valax.sokoshell.SokoShell;
-import fr.valax.sokoshell.graphics.style.MapRenderer;
+import fr.valax.sokoshell.graphics.style.MapStyle;
 import fr.valax.sokoshell.solver.Direction;
 import fr.valax.sokoshell.solver.Map;
 
@@ -19,9 +19,9 @@ public class MapComponent extends Component {
     @Override
     protected void drawComponent(Graphics g) {
         if (map != null) {
-            MapRenderer mr = SokoShell.INSTANCE.getRenderer();
+            MapStyle style = SokoShell.INSTANCE.getMapStyle();
 
-            mr.drawCenteredWithLegend(g, 0, 0, getWidth(), getHeight(), map, playerX, playerY, playerDir);
+            style.drawCenteredWithLegend(g, 0, 0, getWidth(), getHeight(), map, playerX, playerY, playerDir);
         }
     }
 

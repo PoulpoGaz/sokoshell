@@ -16,9 +16,7 @@ public class MapStyleReaderTest {
     void test() throws IOException {
         Level level = TestUtils.getLevel(Path.of("levels8xv/Original.8xv"));
 
-        MapRenderer mr = new MapRenderer();
         MapStyle style = new MapStyleReader().read(Path.of("../styles/warehouse/warehouse.style"));
-        mr.setStyle(style);
 
         Surface s = new Surface();
         s.resize(level.getWidth(), level.getHeight());
@@ -29,7 +27,7 @@ public class MapStyleReaderTest {
                 System.out.println("Size: " + i);
                 s.clear();
                 s.resize(level.getWidth() * i, level.getHeight() * i);
-                mr.draw(g, 0, 0, i, level.getMap(), level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
+                style.draw(g, i, level.getMap(), level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
                 s.print();
             }
         }
