@@ -24,7 +24,7 @@ public class FileMapStyle extends MapStyle {
     private final int[] availableSizes;
     private final Map<String, Sampler[]> samplers = new HashMap<>();
 
-    public FileMapStyle(MapStyleReader reader) throws IOException {
+    protected FileMapStyle(MapStyleReader reader) throws IOException {
         super(reader.name, reader.author, reader.version);
 
         int[] availableSizes = null;

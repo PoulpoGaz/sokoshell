@@ -17,18 +17,29 @@ import java.awt.image.BufferedImage;
 import java.io.PrintStream;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * A map style defines how to draw TileInfo on a {@link Surface} or with {@link Graphics2D}.
+ */
 public abstract class MapStyle {
 
-    private static int unnamedIndex = 0;
+    private static final AtomicInteger unnamedIndex = new AtomicInteger(0);
 
     protected final String name;
     protected final String author;
     protected final String version;
 
+    /**
+     * Creates a new style
+     * @param name name of the style or "Unnamed n°i" where is an integer
+     *             incremented each times this constructor is called
+     * @param author author of the style or "none"
+     * @param version version of the style or "0"
+     */
     public MapStyle(String name, String author, String version) {
         if (name == null) {
-            this.name = "Unnamed n°" + (++unnamedIndex);
+            this.name = "Unnamed n°" + unnamedIndex.incrementAndGet();
         } else {
             this.name = name;
         }
@@ -262,6 +273,16 @@ public abstract class MapStyle {
 
     // Full map drawing to an BufferedImage / Graphics2D (awt)
 
+    /**
+     * Creates an image and draw the map on. Implementations should choose
+     * the best dimension and are free to choose the font they want
+     *
+     * @param map the map to draw
+     * @param playerX player x
+     * @param playerY player y
+     * @param playerDir direction of the player
+     * @return an image with the map drawn on
+     */
     public abstract BufferedImage createImage(Map map, int playerX, int playerY, Direction playerDir);
 
     public void draw(Graphics2D g2d, int size,

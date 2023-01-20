@@ -13,6 +13,9 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.Objects;
 
+/**
+ * A style that map each tile, player and 'player on target' to a {@link StyledCharacter}
+ */
 public class BasicStyle extends MapStyle {
 
     public static final BasicStyle DEFAULT_STYLE = new BasicStyle(

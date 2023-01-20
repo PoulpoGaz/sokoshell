@@ -1,10 +1,15 @@
 package fr.valax.sokoshell.graphics.style;
 
+import fr.valax.sokoshell.graphics.Color;
 import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
 
 import static fr.valax.sokoshell.graphics.GraphicsUtils.*;
 
+/**
+ * A style character is a character with a {@link AttributedStyle}
+ * or an empty space with a color.
+ */
 public class StyledCharacter {
 
     private char c;
@@ -38,17 +43,36 @@ public class StyledCharacter {
     }
 
 
+    /**
+     * Sets this character as an empty space with a background color rgb
+     * @param rgb background color
+     */
     public void setRGB(int rgb) {
         this.rgb = 0xFF000000 | rgb; // remove alpha
         color = true;
     }
 
+    /**
+     * Sets this character as c with style {@code style}
+     * @param c character
+     * @param style style
+     */
     public void setAnsi(char c, AttributedStyle style) {
         this.c = c;
         this.style = style;
         color = false;
     }
 
+    /**
+     * Merge this character with an empty space with background color rgb.
+     * If rgb is completely transparent (alpha = 0) then this character isn't modified.
+     * If rgb is completely opaque (alpha = 255) then this character is set an empty
+     * space with background color rgb.
+     * Otherwise, it is as if a mask is drawn on the character: background color
+     * and foreground color are blended with rgb
+     *
+     * @param rgb background color
+     */
     public void mergeRGB(int rgb) {
         int alpha = (rgb >> 24) & 0xFF;
 
@@ -65,9 +89,9 @@ public class StyledCharacter {
             double a = alpha / 255d;
 
             if (color) {
-                int red = blend(a, getRed(this.rgb), r);
-                int green = blend(a, getGreen(this.rgb), g);
-                int blue = blend(a, getBlue(this.rgb), b);
+                int red = lerp(a, getRed(this.rgb), r);
+                int green = lerp(a, getGreen(this.rgb), g);
+                int blue = lerp(a, getBlue(this.rgb), b);
 
                 this.rgb = toRGB(red, green, blue);
             } else {
@@ -77,6 +101,12 @@ public class StyledCharacter {
         }
     }
 
+    /**
+     * Merge this character with a character with style fgStyle.
+     *
+     * @param fgChar foreground char
+     * @param fgStyle foreground style
+     */
     public void mergeAnsi(char fgChar, AttributedStyle fgStyle) {
         if (color) {
             mergeAnsi(' ', AttributedStyle.DEFAULT.backgroundRgb(rgb), fgChar, fgStyle);
@@ -132,7 +162,7 @@ public class StyledCharacter {
                 int g = (int) (fg >> (FG_COLOR_EXP + 8)) & 0xFF;
                 int b = (int) (fg >> FG_COLOR_EXP) & 0xFF;
 
-                style.foreground(blend(alpha, r, red), blend(alpha, g, green), blend(alpha, b, blue));
+                style.foreground(lerp(alpha, r, red), lerp(alpha, g, green), lerp(alpha, b, blue));
                 return;
             } else if ((fg & F_FOREGROUND_IND) != 0) {
                 int index = (int) (fg >> FG_COLOR_EXP) & 0xFF;
@@ -157,7 +187,7 @@ public class StyledCharacter {
                 int g = (int) (bg >> (BG_COLOR_EXP + 8)) & 0xFF;
                 int b = (int) (bg >> BG_COLOR_EXP) & 0xFF;
 
-                style.foreground(blend(alpha, r, red), blend(alpha, g, green), blend(alpha, b, blue));
+                style.foreground(lerp(alpha, r, red), lerp(alpha, g, green), lerp(alpha, b, blue));
                 return;
             } else if ((bg & F_BACKGROUND_IND) != 0) {
                 int index = (int) (bg >> BG_COLOR_EXP) & 0xFF;

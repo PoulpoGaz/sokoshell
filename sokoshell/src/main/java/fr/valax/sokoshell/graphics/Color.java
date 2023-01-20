@@ -1,9 +1,12 @@
-package fr.valax.sokoshell.graphics.style;
+package fr.valax.sokoshell.graphics;
 
 import org.jline.utils.AttributedStyle;
 
 import static org.jline.utils.AttributedStyle.*;
 
+/**
+ * A color either indexed or 24 bit.
+ */
 public class Color {
 
     private static final java.awt.Color BLACK_BRIGHT = java.awt.Color.BLACK.brighter();
@@ -34,6 +37,30 @@ public class Color {
         this.index = -1;
     }
 
+    /**
+     * Convert this color to the color object of AWT.
+     * If this color is indexed then color are transformed as follows:
+     * <pre>
+     *      BLACK            -> java.awt.Color.BLACK
+     *      RED              -> java.awt.Color.RED
+     *      GREEN            -> java.awt.Color.GREEN
+     *      YELLOW           -> java.awt.Color.YELLOW
+     *      BLUE             -> java.awt.Color.BLUE
+     *      MAGENTA          -> java.awt.Color.MAGENTA
+     *      CYAN             -> java.awt.Color.CYAN
+     *      WHITE            -> java.awt.Color.WHITE
+     *      BLACK + BRIGHT   -> java.awt.Color.BLACK_BRIGHT
+     *      RED + BRIGHT     -> java.awt.Color.RED_BRIGHT
+     *      GREEN + BRIGHT   -> java.awt.Color.GREEN_BRIGHT
+     *      YELLOW + BRIGHT  -> java.awt.Color.YELLOW_BRIGHT
+     *      BLUE + BRIGHT    -> java.awt.Color.BLUE_BRIGHT
+     *      MAGENTA + BRIGHT -> java.awt.Color.MAGENTA_BRIGHT
+     *      CYAN + BRIGHT    -> java.awt.Color.CYAN_BRIGHT
+     *      WHITE + BRIGHT   -> java.awt.Color.WHITE_BRIGHT
+     * </pre>
+     *
+     * @return convert this color to Color of AWT
+     */
     public java.awt.Color toAWT() {
         if (isIndexedColor()) {
             return switch (index) {
@@ -98,9 +125,5 @@ public class Color {
 
     public int getBlue() {
         return blue;
-    }
-
-    public java.awt.Color asAWTColor() {
-        return new java.awt.Color(red, green, blue);
     }
 }

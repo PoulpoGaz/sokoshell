@@ -1,5 +1,6 @@
 package fr.valax.sokoshell.graphics.style;
 
+import fr.valax.sokoshell.graphics.Color;
 import fr.valax.sokoshell.solver.Direction;
 import fr.valax.sokoshell.solver.Tile;
 import org.jline.utils.AttributedString;
@@ -21,6 +22,37 @@ import java.util.function.BiFunction;
 
 import static org.jline.utils.AttributedStyle.*;
 
+/**
+ * Read a style from a file.
+ *
+ * <h3>Format:</h3>
+ * The file is a succession of function. There is seven functions:
+ * <ul>
+ *     <li>name: one argument, the name of the style</li>
+ *     <li>author: one argument, the author of the style</li>
+ *     <li>version: one argument, the version of the style</li>
+ *     <li>
+ *         set-image: TILE/PLAYER_DIR SIZE PATH_TO_IMAGE X Y.
+ *         Defines that the tile or player will be drawn with an image
+ *         found at PATH_TO_IMAGE. The subimage at X, Y and with width and height SIZE
+ *         is then used.
+ *     </li>
+ *     <li>
+ *         set-ansi: TILE/PLAYER_DIR SIZE
+ *         The SIZE following line will be used by the map style to draw a tile of size SIZE.
+ *         You can define the style of a character by enclosing style function in curly bracket.
+ *         {@link #initStyleFunctions()}
+ *     </li>
+ *     <li>
+ *         alias: NAME COLOR_INDEX or alias NAME RED GREEN BLUE
+ *         Defines an alias for style functions
+ *     </li>
+ *     <li>
+ *         merge: SIZE BACKGROUND FOREGROUND
+ *         Draw FOREGROUND on BACKGROUND and put the result in FOREGROUND
+ *     </li>
+ * </ul>
+ */
 public class MapStyleReader {
 
     protected final Map<String, Function> functions = new HashMap<>();
@@ -108,7 +140,7 @@ public class MapStyleReader {
 
 
     private void initStyleFunctions() {
-        addStyleFunction(new NoArgumentStyleFunction((style) -> DEFAULT),                   "d", "default");
+        addStyleFunction(new NoArgumentStyleFunction((style) -> DEFAULT),                 "d", "default");
 
         addStyleFunction(new NoArgumentStyleFunction(AttributedStyle::bold),              "bo", "bold");
         addStyleFunction(new NoArgumentStyleFunction(AttributedStyle::boldOff),           "bo-o", "bold-off");
@@ -483,7 +515,7 @@ public class MapStyleReader {
             if (args.length != 3) {
                 throw error("""
                         Invalid use of set-ansi, expected 2 arguments, got: %d.
-                        Prototype: set-image TILE/PLAYER_DIR SIZE
+                        Prototype: set-ansi TILE/PLAYER_DIR SIZE
                         The SIZE following lines are used for the sampler
                         """, args.length - 1);
             }
