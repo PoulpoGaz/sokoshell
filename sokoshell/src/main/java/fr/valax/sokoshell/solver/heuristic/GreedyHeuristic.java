@@ -1,6 +1,6 @@
 package fr.valax.sokoshell.solver.heuristic;
 
-import fr.valax.sokoshell.solver.Map;
+import fr.valax.sokoshell.solver.Board;
 import fr.valax.sokoshell.solver.State;
 import fr.valax.sokoshell.solver.TileInfo;
 
@@ -11,9 +11,9 @@ public class GreedyHeuristic extends AbstractHeuristic {
 
     MinHeap cttHeap;
 
-    public GreedyHeuristic(Map map) {
-        super(map);
-        final int n = map.getTargetCount();
+    public GreedyHeuristic(Board board) {
+        super(board);
+        final int n = board.getTargetCount();
         cttHeap = new MinHeap(n * n);
     }
 
@@ -23,7 +23,7 @@ public class GreedyHeuristic extends AbstractHeuristic {
         int heuristic = 0;
 
         cttHeap.clear();
-        map.getMarkSystem().unmarkAll();
+        board.getMarkSystem().unmarkAll();
 
         for (int crateIndex : s.cratesIndices()) {
             mergeCrateTargets(crateIndex);
@@ -32,12 +32,12 @@ public class GreedyHeuristic extends AbstractHeuristic {
         while (!cttHeap.isEmpty()) {
             final CrateToTarget ctt = cttHeap.pop();
 
-            if (map.getAt(ctt.crateIndex).isMarked()
-             || map.getAt(ctt.target.index()).isMarked()) {
+            if (board.getAt(ctt.crateIndex).isMarked()
+             || board.getAt(ctt.target.index()).isMarked()) {
                 continue;
             }
-            map.getAt(ctt.crateIndex).mark();
-            map.getAt(ctt.target.index()).mark();
+            board.getAt(ctt.crateIndex).mark();
+            board.getAt(ctt.target.index()).mark();
 
             //System.out.printf("%s; ", ctt);
             heuristic += ctt.target.distance();
@@ -45,7 +45,7 @@ public class GreedyHeuristic extends AbstractHeuristic {
         //System.out.print(" -- ");
 
         for (int crateIndex : s.cratesIndices()) {
-            final TileInfo curCrate = map.getAt(crateIndex);
+            final TileInfo curCrate = board.getAt(crateIndex);
             if (!curCrate.isMarked()) {
                 //System.out.printf("%d; ", curCrate.getNearestTarget().distance());
                 heuristic += curCrate.getNearestTarget().distance();
@@ -57,9 +57,9 @@ public class GreedyHeuristic extends AbstractHeuristic {
     }
 
     public void mergeCrateTargets(int crateIndex) {
-        final TileInfo.TargetRemoteness[] crateTargets = map.getAt(crateIndex).getTargets();
+        final TileInfo.TargetRemoteness[] crateTargets = board.getAt(crateIndex).getTargets();
         for (final TileInfo.TargetRemoteness curTarget : crateTargets) {
-            if (map.getAt(curTarget.index()).isCrateOnTarget()) {
+            if (board.getAt(curTarget.index()).isCrateOnTarget()) {
                 continue;
             }
             cttHeap.add(crateIndex, curTarget);

@@ -3,9 +3,9 @@ package fr.valax.sokoshell.commands.level;
 import fr.valax.sokoshell.SokoShellHelper;
 import fr.valax.sokoshell.graphics.*;
 import fr.valax.sokoshell.graphics.layout.*;
+import fr.valax.sokoshell.solver.Board;
 import fr.valax.sokoshell.solver.Direction;
 import fr.valax.sokoshell.solver.Level;
-import fr.valax.sokoshell.solver.Map;
 import fr.valax.sokoshell.solver.Tile;
 
 import java.io.IOException;
@@ -170,7 +170,7 @@ public class PlayCommand extends LevelCommand {
     }
 
     public static class GameController {
-        private final Map map;
+        private final Board board;
         private int playerX;
         private int playerY;
         private int moves;
@@ -181,7 +181,7 @@ public class PlayCommand extends LevelCommand {
         private boolean mapCompleted = false;
 
         GameController(Level level) {
-            this.map = level.getMap();
+            this.board = level.getMap();
             this.playerX = level.getPlayerX();
             this.playerY = level.getPlayerY();
         }
@@ -191,17 +191,17 @@ public class PlayCommand extends LevelCommand {
             final int nextY = playerY + dir.dirY();
             lastDir = dir;
 
-            if (map.caseExists(nextX, nextY) && map.isTileEmpty(nextX, nextY)) {
+            if (board.caseExists(nextX, nextY) && board.isTileEmpty(nextX, nextY)) {
                 movePlayer(nextX, nextY);
             } else {
-                final Tile next = map.getAt(nextX, nextY).getTile();
+                final Tile next = board.getAt(nextX, nextY).getTile();
                 if (next == Tile.CRATE || next == Tile.CRATE_ON_TARGET) {
                     final int nextNextX = nextX + dir.dirX();
                     final int nextNextY = nextY + dir.dirY();
-                    if (map.caseExists(nextNextX, nextNextY) && map.isTileEmpty(nextNextX, nextNextY)) {
+                    if (board.caseExists(nextNextX, nextNextY) && board.isTileEmpty(nextNextX, nextNextY)) {
                         movePlayer(nextX, nextY);
                         moveCrate(nextX, nextY, nextNextX, nextNextY);
-                        if (map.isCompleted()) {
+                        if (board.isCompleted()) {
                             mapCompleted = true;
                         }
                     }
@@ -229,25 +229,25 @@ public class PlayCommand extends LevelCommand {
          */
         private void moveCrate(int x, int y, int nextX, int nextY) {
 
-            Tile curr = map.getAt(x, y).getTile();
-            Tile next = map.getAt(nextX, nextY).getTile();
+            Tile curr = board.getAt(x, y).getTile();
+            Tile next = board.getAt(nextX, nextY).getTile();
 
             switch (curr) {
-                case CRATE -> map.setAt(x, y, Tile.FLOOR);
-                case CRATE_ON_TARGET -> map.setAt(x, y, Tile.TARGET);
+                case CRATE -> board.setAt(x, y, Tile.FLOOR);
+                case CRATE_ON_TARGET -> board.setAt(x, y, Tile.TARGET);
             }
 
             if (curr.isCrate()) {
                 push++;
 
                 switch (next) {
-                    case FLOOR -> map.setAt(nextX, nextY, Tile.CRATE);
-                    case TARGET -> map.setAt(nextX, nextY, Tile.CRATE_ON_TARGET);
+                    case FLOOR -> board.setAt(nextX, nextY, Tile.CRATE);
+                    case TARGET -> board.setAt(nextX, nextY, Tile.CRATE_ON_TARGET);
                 }
             }
         }
 
-        public Map getMap() { return map; }
+        public Board getMap() { return board; }
 
         public int getPlayerX() { return playerX; }
         public int getPlayerY() { return playerY; }

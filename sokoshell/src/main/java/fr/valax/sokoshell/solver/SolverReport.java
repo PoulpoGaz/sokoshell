@@ -1,6 +1,5 @@
 package fr.valax.sokoshell.solver;
 
-import fr.poulpogaz.json.IJsonReader;
 import fr.poulpogaz.json.JsonException;
 import fr.poulpogaz.json.JsonPrettyWriter;
 import fr.poulpogaz.json.JsonReader;
@@ -136,30 +135,30 @@ public class SolverReport {
      */
     private List<Move> createFullSolution(List<State> states) {
         Level level = parameters.getLevel();
-        fr.valax.sokoshell.solver.Map map = level.getMap();
+        Board board = level.getMap();
 
         ArrayList<Move> path = new ArrayList<>();
         List<Move> temp = new ArrayList<>();
 
-        TileInfo player = map.getAt(level.getPlayerX(), level.getPlayerY());
+        TileInfo player = board.getAt(level.getPlayerX(), level.getPlayerY());
 
         Pathfinder pathfinder = new Pathfinder();
         for (int i = 0; i < states.size() - 1; i++) {
             State current = states.get(i);
 
             if (i != 0) {
-                map.addStateCrates(current);
+                board.addStateCrates(current);
             }
 
             State next = states.get(i + 1);
-            StateDiff diff = getStateDiff(map, current, next);
+            StateDiff diff = getStateDiff(board, current, next);
 
             Pathfinder.Node node = pathfinder.findPath(
                     player, null,
                     diff.crate(), diff.crateDest());
 
             if (node == null) {
-                throw canFindPathException(map, current, next);
+                throw canFindPathException(board, current, next);
             }
 
             player = node.player();
@@ -174,7 +173,7 @@ public class SolverReport {
             }
             temp.clear();
 
-            map.removeStateCrates(current);
+            board.removeStateCrates(current);
         }
 
         return path;
@@ -188,12 +187,12 @@ public class SolverReport {
      *     <li>new crate pos</li>
      * </ul>
      *
-     * @param map the map
+     * @param board the map
      * @param from the first state
      * @param to the second state
      * @return a {@link StateDiff}
      */
-    private StateDiff getStateDiff(fr.valax.sokoshell.solver.Map map, State from, State to) {
+    private StateDiff getStateDiff(Board board, State from, State to) {
         List<Integer> state1Crates = Arrays.stream(from.cratesIndices()).boxed().collect(Collectors.toList());
         List<Integer> state2Crates = Arrays.stream(to.cratesIndices()).boxed().collect(Collectors.toList());
 
@@ -202,26 +201,26 @@ public class SolverReport {
         state2Crates.removeAll(state1Copy);
 
         return new StateDiff(
-                map.getAt(to.playerPos()),
-                map.getAt(state1Crates.get(0)),  // original crate pos
-                map.getAt(state2Crates.get(0))); // where it goes
+                board.getAt(to.playerPos()),
+                board.getAt(state1Crates.get(0)),  // original crate pos
+                board.getAt(state2Crates.get(0))); // where it goes
     }
 
     /**
      * Create an exception indicating a path can't be found between two states.
      *
-     * @param map the map which must be in the same state as current
+     * @param board the map which must be in the same state as current
      * @param current the current state
      * @param next the next state
      * @return an exception
      */
-    private IllegalStateException canFindPathException(Map map, State current, State next) {
+    private IllegalStateException canFindPathException(Board board, State current, State next) {
         MapRenderer mr = SokoShellHelper.INSTANCE.getRenderer();
 
-        String map1 = mr.toString(map, map.getX(current.playerPos()), map.getY(current.playerPos()));
-        map.removeStateCrates(current);
-        map.addStateCrates(next);
-        String map2 = mr.toString(map, map.getX(next.playerPos()), map.getY(next.playerPos()));
+        String map1 = mr.toString(board, board.getX(current.playerPos()), board.getY(current.playerPos()));
+        board.removeStateCrates(current);
+        board.addStateCrates(next);
+        String map2 = mr.toString(board, board.getX(next.playerPos()), board.getY(next.playerPos()));
 
         return new IllegalStateException("""
                 Can't find path between two states:

@@ -19,11 +19,11 @@ public abstract class AbstractSolver implements Solver {
     }
 
     // http://www.sokobano.de/wiki/index.php?title=How_to_detect_deadlocks
-    protected boolean checkFreezeDeadlock(Map map, State state) {
+    protected boolean checkFreezeDeadlock(Board board, State state) {
         int[] crates = state.cratesIndices();
 
         for (int crate : crates) {
-            TileInfo info = map.getAt(crate);
+            TileInfo info = board.getAt(crate);
 
             if (info.isCrate() && checkFreezeDeadlock(info)) {
                 return true;

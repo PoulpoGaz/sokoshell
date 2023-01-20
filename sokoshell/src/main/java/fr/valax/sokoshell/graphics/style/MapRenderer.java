@@ -2,7 +2,7 @@ package fr.valax.sokoshell.graphics.style;
 
 import fr.valax.sokoshell.solver.Direction;
 import fr.valax.sokoshell.solver.Level;
-import fr.valax.sokoshell.solver.Map;
+import fr.valax.sokoshell.solver.Board;
 import fr.valax.sokoshell.solver.TileInfo;
 import org.jline.terminal.Terminal;
 import org.jline.utils.AttributedString;
@@ -34,8 +34,8 @@ public class MapRenderer {
         print(ps, level.getMap(), level.getPlayerX(), level.getPlayerY());
     }
 
-    public void print(PrintStream ps, Map map, int playerX, int playerY) {
-        for (AttributedString str : draw(map, playerX, playerY)) {
+    public void print(PrintStream ps, Board board, int playerX, int playerY) {
+        for (AttributedString str : draw(board, playerX, playerY)) {
             ps.println(str.toAnsi());
         }
     }
@@ -50,14 +50,14 @@ public class MapRenderer {
     }
 
 
-    public void sysPrint(Map map, int playerX, int playerY) {
-        for (AttributedString str : draw(map, playerX, playerY)) {
+    public void sysPrint(Board board, int playerX, int playerY) {
+        for (AttributedString str : draw(board, playerX, playerY)) {
             System.out.println(str.toAnsi());
         }
     }
 
-    public void print(Terminal terminal, Map map, int playerX, int playerY) {
-        for (AttributedString str : draw(map, playerX, playerY)) {
+    public void print(Terminal terminal, Board board, int playerX, int playerY) {
+        for (AttributedString str : draw(board, playerX, playerY)) {
             str.println(terminal);
         }
     }
@@ -72,30 +72,30 @@ public class MapRenderer {
         return draw(level.getMap(), level.getPlayerX(), level.getPlayerY());
     }
 
-    public String toString(Map map, int playerX, int playerY) {
-        return draw(map, playerX, playerY)
+    public String toString(Board board, int playerX, int playerY) {
+        return draw(board, playerX, playerY)
                 .stream()
                 .map(AttributedString::toAnsi)
                 .collect(Collectors.joining("\n"));
     }
 
-    public List<AttributedString> draw(Map map, int playerX, int playerY) {
+    public List<AttributedString> draw(Board board, int playerX, int playerY) {
         List<AttributedString> out = new ArrayList<>();
-        draw(map, playerX, playerY, out);
+        draw(board, playerX, playerY, out);
         return out;
     }
 
-    public void draw(Map map, int playerX, int playerY, List<AttributedString> out) {
+    public void draw(Board board, int playerX, int playerY, List<AttributedString> out) {
         if (style == null) {
             throw new IllegalStateException("Please, set style before");
         }
 
         AttributedStringBuilder builder = new AttributedStringBuilder();
-        for (int y = 0; y < map.getHeight(); y++) {
-            for (int x = 0; x < map.getWidth(); x++) {
+        for (int y = 0; y < board.getHeight(); y++) {
+            for (int x = 0; x < board.getWidth(); x++) {
                 boolean player = playerY == y && playerX == x;
 
-                TileInfo tile = map.getAt(x, y);
+                TileInfo tile = board.getAt(x, y);
 
                 TileStyle tileStyle = style.get(1, tile.getTile(), player ? Direction.DOWN : null);
                 if (showDeadTiles && tile.isDeadTile() && !tile.isWall()) {
@@ -114,19 +114,19 @@ public class MapRenderer {
 
     public void draw(fr.valax.sokoshell.graphics.Graphics g,
                      int x, int y, int width, int height,
-                     Map map, int playerX, int playerY, Direction playerDir) {
-        draw(g, x, y, width, height, map, playerX, playerY, playerDir, true);
+                     Board board, int playerX, int playerY, Direction playerDir) {
+        draw(g, x, y, width, height, board, playerX, playerY, playerDir, true);
     }
 
     public void draw(fr.valax.sokoshell.graphics.Graphics g,
                      int x, int y, int width, int height,
-                     Map map, int playerX, int playerY, Direction playerDir, boolean center) {
+                     Board board, int playerX, int playerY, Direction playerDir, boolean center) {
         if (style == null) {
             throw new IllegalStateException("Please, set style before");
         }
 
-        double yRatio = (double) height / map.getHeight();
-        double xRatio = (double) width / map.getWidth();
+        double yRatio = (double) height / board.getHeight();
+        double xRatio = (double) width / board.getWidth();
 
         int s = (int) Math.min(xRatio, yRatio);
 
@@ -137,20 +137,20 @@ public class MapRenderer {
         s = style.findBestSize(s);
 
         if (center) {
-            int w = s * map.getWidth();
-            int h = s * map.getHeight();
+            int w = s * board.getWidth();
+            int h = s * board.getHeight();
 
             draw(g, x + (width - w) / 2,
                     y + (height - h) / 2,
-                    s, map, playerX, playerY, playerDir);
+                    s, board, playerX, playerY, playerDir);
         } else {
-            draw(g, x, y, s, map, playerX, playerY, playerDir);
+            draw(g, x, y, s, board, playerX, playerY, playerDir);
         }
     }
 
     public void draw(fr.valax.sokoshell.graphics.Graphics g,
                      int x, int y, int size,
-                     Map map, int playerX, int playerY, Direction playerDir) {
+                     Board board, int playerX, int playerY, Direction playerDir) {
         if (style == null) {
             throw new IllegalStateException("Please, set style before");
         }
@@ -161,11 +161,11 @@ public class MapRenderer {
             s = size;
         }
 
-        for (int y2 = 0; y2 < map.getHeight(); y2++) {
-            for (int x2 = 0; x2 < map.getWidth(); x2++) {
+        for (int y2 = 0; y2 < board.getHeight(); y2++) {
+            for (int x2 = 0; x2 < board.getWidth(); x2++) {
                 boolean player = playerY == y2 && playerX == x2;
 
-                TileInfo tile = map.getAt(x2, y2);
+                TileInfo tile = board.getAt(x2, y2);
 
                 TileStyle tileStyle = style.get(s, tile.getTile(), player ? playerDir : null);
                 if (showDeadTiles && tile.isDeadTile() && !tile.isWall()) {

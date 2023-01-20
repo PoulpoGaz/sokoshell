@@ -14,7 +14,7 @@ public class AStarSolver extends BruteforceSolver<WeightedState> {
 
     @Override
     protected void createCollection() {
-        heuristic = new GreedyHeuristic(this.map);
+        heuristic = new GreedyHeuristic(this.board);
         toProcess = new SolverPriorityQueue();
     }
 
@@ -27,10 +27,10 @@ public class AStarSolver extends BruteforceSolver<WeightedState> {
 
     @Override
     protected void addState(int crateIndex, int crateX, int crateY, int crateDestX, int crateDestY) {
-        final int i = map.topLeftReachablePosition(crateX, crateY, crateDestX, crateDestY);
+        final int i = board.topLeftReachablePosition(crateX, crateY, crateDestX, crateDestY);
         // The new player position is the crate position
         WeightedState s = toProcess.cachedState().child(i, crateIndex,
-                                          crateDestY * map.getWidth() + crateDestX);
+                                          crateDestY * board.getWidth() + crateDestX);
         s.setHeuristic(heuristic.compute(s));
 
         if (processed.add(s)) {

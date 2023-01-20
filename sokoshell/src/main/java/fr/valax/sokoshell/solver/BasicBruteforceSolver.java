@@ -29,9 +29,9 @@ public abstract class BasicBruteforceSolver extends BruteforceSolver<State> {
 
     @Override
     protected void addState(int crateIndex, int crateX, int crateY, int crateDestX, int crateDestY) {
-        final int i = map.topLeftReachablePosition(crateX, crateY, crateDestX, crateDestY);
+        final int i = board.topLeftReachablePosition(crateX, crateY, crateDestX, crateDestY);
         // The new player position is the crate position
-        State s = toProcess.cachedState().child(i, crateIndex, crateDestY * map.getWidth() + crateDestX);
+        State s = toProcess.cachedState().child(i, crateIndex, crateDestY * board.getWidth() + crateDestX);
 
         if (processed.add(s)) {
             toProcess.addState(s);

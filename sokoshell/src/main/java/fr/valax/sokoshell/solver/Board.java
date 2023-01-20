@@ -8,10 +8,10 @@ import java.util.*;
 import java.util.function.Consumer;
 
 /**
- * Represents the Sokoban map.<br />
+ * Represents the Sokoban board.<br />
  * This is essentially a 2D-array of {@link TileInfo}, the indices being the y and x coordinates
  * (i.e. {@code content[y][x]} is the tile at (x;y)).<br />
- * This class also implements static and dynamic analysis of the Sokoban map:
+ * This class also implements static and dynamic analysis of the Sokoban board:
  * <ul>
  *     <li>Static</li>
  *     <ul>
@@ -27,7 +27,7 @@ import java.util.function.Consumer;
  * @author PoulpoGaz
  */
 @SuppressWarnings("ForLoopReplaceableByForEach")
-public class Map {
+public class Board {
 
     public static final int MINIMUM_WIDTH = 5;
     public static final int MINIMUM_HEIGHT = 5;
@@ -67,7 +67,7 @@ public class Map {
      * @param width map width
      * @param height map height
      */
-    public Map(Tile[][] content, int width, int height) {
+    public Board(Tile[][] content, int width, int height) {
         this.width = width;
         this.height = height;
 
@@ -88,7 +88,7 @@ public class Map {
      * @param other the map to copy
      */
     @SuppressWarnings("CopyConstructorMissesField")
-    public Map(Map other) {
+    public Board(Board other) {
         this.width = other.width;
         this.height = other.height;
         this.content = new TileInfo[height][width];
@@ -1094,7 +1094,7 @@ public class Map {
     /**
      * Creates a {@linkplain MarkSystem mark system} that apply the specified reset
      * consumer to every <strong>non-wall</strong> {@linkplain TileInfo tile info}
-     * that are in this {@linkplain  Map map}.
+     * that are in this {@linkplain  Board map}.
      *
      * @param reset the reset function
      * @return a new MarkSystem

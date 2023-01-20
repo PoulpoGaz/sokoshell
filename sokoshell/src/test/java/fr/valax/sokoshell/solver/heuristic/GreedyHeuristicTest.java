@@ -5,14 +5,13 @@ import fr.valax.sokoshell.graphics.style.MapRenderer;
 import fr.valax.sokoshell.graphics.style.MapStyleReader;
 import fr.valax.sokoshell.readers.PackReaders;
 import fr.valax.sokoshell.solver.Level;
-import fr.valax.sokoshell.solver.Map;
+import fr.valax.sokoshell.solver.Board;
 import fr.valax.sokoshell.solver.Pack;
 import fr.valax.sokoshell.solver.State;
 import fr.valax.sokoshell.utils.PerformanceMeasurer;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -26,15 +25,15 @@ public class GreedyHeuristicTest {
         Pack pack = PackReaders.read(Path.of("../levels/levels8xv/Original.8xv"), false);
 
         Level level = pack.getLevel(89);
-        Map map = level.getMap();
+        Board board = level.getMap();
         State s = level.getInitialState();
 
         MapRenderer mR = new MapRenderer();
         mR.setStyle(new MapStyleReader().read(Path.of("../styles/isekai/isekai.style")));
 
-        map.initForSolver();
-        map.addStateCrates(s);
-        mR.sysPrint(map, level.getPlayerX(), level.getPlayerY());
+        board.initForSolver();
+        board.addStateCrates(s);
+        mR.sysPrint(board, level.getPlayerX(), level.getPlayerY());
 
 
         GreedyHeuristic h;
@@ -42,7 +41,7 @@ public class GreedyHeuristicTest {
         int score = 0;
 
         final int MES_COUNT = 1000;
-        h = new GreedyHeuristic(map);
+        h = new GreedyHeuristic(board);
         for (int k = 0; k < MES_COUNT; k++) {
             pm.start("new");
             score = h.compute(level.getInitialState());

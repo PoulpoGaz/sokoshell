@@ -15,14 +15,14 @@ public class Level {
 
     // package private
     Pack pack;
-    private final Map map;
+    private final Board board;
     private final int playerPos;
     private final int index;
 
     private final List<SolverReport> solverReports;
 
-    public Level(Map map, int playerPos, int index) {
-        this.map = map;
+    public Level(Board board, int playerPos, int index) {
+        this.board = board;
         this.playerPos = playerPos;
         this.index = index;
 
@@ -42,8 +42,8 @@ public class Level {
      *
      * @return a copy of the map
      */
-    public Map getMap() {
-        return new Map(map);
+    public Board getMap() {
+        return new Board(board);
     }
 
     /**
@@ -52,7 +52,7 @@ public class Level {
      * @return the width of this level
      */
     public int getWidth() {
-        return map.getWidth();
+        return board.getWidth();
     }
 
     /**
@@ -61,7 +61,7 @@ public class Level {
      * @return the height of this level
      */
     public int getHeight() {
-        return map.getHeight();
+        return board.getHeight();
     }
 
     /**
@@ -92,7 +92,7 @@ public class Level {
 
         for (int y = 0; y < getHeight(); y++) {
             for (int x = 0; x < getWidth(); x++) {
-                if (map.getAt(x, y).anyCrate()) {
+                if (board.getAt(x, y).anyCrate()) {
                     cratesIndices.add(y * getWidth() + x);
                 }
             }
@@ -265,7 +265,7 @@ public class Level {
             }
 
             formatLevel();
-            Map m = new Map(map, width, height);
+            Board m = new Board(map, width, height);
 
             return new Level(m, playerY * width + playerX, index);
         }

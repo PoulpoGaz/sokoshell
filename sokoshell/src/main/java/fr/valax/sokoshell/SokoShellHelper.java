@@ -9,7 +9,6 @@ import fr.valax.sokoshell.utils.Utils;
 import org.jline.reader.Candidate;
 import org.jline.terminal.Terminal;
 import org.jline.utils.AttributedString;
-import org.jline.utils.Status;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -99,16 +98,16 @@ public class SokoShellHelper {
         return exportPNG(level.getPack(), level, level.getMap(), level.getPlayerX(), level.getPlayerY(), Direction.DOWN, size);
     }
 
-    public Path exportPNG(Pack pack, Level level, fr.valax.sokoshell.solver.Map map,
+    public Path exportPNG(Pack pack, Level level, Board board,
                           int playerX, int playerY, Direction playerDir)
             throws IOException {
-        return exportPNG(pack, level, map, playerX, playerY, playerDir, 16);
+        return exportPNG(pack, level, board, playerX, playerY, playerDir, 16);
     }
 
-    public Path exportPNG(Pack pack, Level level, fr.valax.sokoshell.solver.Map map,
+    public Path exportPNG(Pack pack, Level level, Board board,
                           int playerX, int playerY, Direction playerDir, int size)
             throws IOException {
-        BufferedImage image = exporter.asImage(map, playerX, playerY, playerDir, size);
+        BufferedImage image = exporter.asImage(board, playerX, playerY, playerDir, size);
 
         Path out;
         if (pack == null && level == null) {

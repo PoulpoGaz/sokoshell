@@ -22,7 +22,7 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
     protected SolverCollection<S> toProcess;
     protected final Set<State> processed = new HashSet<>();
 
-    protected Map map;
+    protected Board board;
 
     private boolean running = false;
     private boolean stopped = false;
@@ -84,9 +84,9 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
 
         int nState = initialState.cratesIndices().length;
 
-        map = level.getMap();
-        map.removeStateCrates(initialState);
-        map.initForSolver();
+        board = level.getMap();
+        board.removeStateCrates(initialState);
+        board.initForSolver();
 
         createCollection();
         processed.clear();
@@ -105,18 +105,18 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
             }
 
             S state = toProcess.peekAndCacheState();
-            map.addStateCratesAndAnalyse(state);
+            board.addStateCratesAndAnalyse(state);
 
-            if (map.isCompletedWith(state)) {
+            if (board.isCompletedWith(state)) {
                 finalState = state;
                 break;
             }
 
-            if (!checkFreezeDeadlock(map, state)) {
+            if (!checkFreezeDeadlock(board, state)) {
                 addChildrenStates();
             }
 
-            map.removeStateCratesAndReset(state);
+            board.removeStateCratesAndReset(state);
         }
 
         // END OF RESEARCH
@@ -128,7 +128,7 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
         // 'free' ram
         processed.clear();
         toProcess.clear();
-        map = null;
+        board = null;
 
         running = false;
 
@@ -149,19 +149,19 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
 
     private void addChildrenStates() {
         S state = toProcess.cachedState();
-        map.findReachableCases(state.playerPos());
+        board.findReachableCases(state.playerPos());
 
         int[] cratesIndices = state.cratesIndices();
         for (int crateIndex = 0; crateIndex < cratesIndices.length; crateIndex++) {
 
             int crate = cratesIndices[crateIndex];
-            int crateX = map.getX(crate);
-            int crateY = map.getY(crate);
+            int crateX = board.getX(crate);
+            int crateY = board.getY(crate);
 
-            TileInfo crateTile = map.getAt(crate);
+            TileInfo crateTile = board.getAt(crate);
 
             // check if the crate is already at his destination
-            if (map.isGoalRoomLevel() && crateTile.isInARoom()) {
+            if (board.isGoalRoomLevel() && crateTile.isInARoom()) {
                 Room r = crateTile.getRoom();
 
                 if (r.isGoalRoom() && r.getPackingOrderIndex() >= 0) {
@@ -171,7 +171,7 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
 
             Tunnel tunnel = crateTile.getTunnel();
             if (tunnel != null) {
-                addChildrenStatesInTunnel(crateIndex, map.getAt(crateX, crateY));
+                addChildrenStatesInTunnel(crateIndex, board.getAt(crateX, crateY));
             } else {
                 addChildrenStatesDefault(crateIndex, crateX, crateY);
             }
@@ -201,25 +201,25 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
 
             final int crateDestX = crateX + d.dirX();
             final int crateDestY = crateY + d.dirY();
-            if (!map.caseExists(crateDestX, crateDestY)
-                    || !map.isTileEmpty(crateDestX, crateDestY)) {
+            if (!board.caseExists(crateDestX, crateDestY)
+                    || !board.isTileEmpty(crateDestX, crateDestY)) {
                 continue; // The destination case is not empty
             }
 
-            if (map.getAt(crateDestX, crateDestY).isDeadTile()) {
+            if (board.getAt(crateDestX, crateDestY).isDeadTile()) {
                 continue; // Useless to push a crate on a dead position
             }
 
             final int playerX = crateX - d.dirX();
             final int playerY = crateY - d.dirY();
-            if (!map.caseExists(playerX, playerY)
-                    || !map.getAt(playerX, playerY).isReachable()
-                    || !map.isTileEmpty(playerX, playerY)) {
+            if (!board.caseExists(playerX, playerY)
+                    || !board.getAt(playerX, playerY).isReachable()
+                    || !board.isTileEmpty(playerX, playerY)) {
                 continue; // The player cannot reach the case to push the crate
             }
 
 
-            TileInfo dest = map.getAt(crateDestX, crateDestY);
+            TileInfo dest = board.getAt(crateDestX, crateDestY);
 
             // check for tunnel
             Tunnel tunnel = dest.getTunnel();
@@ -257,7 +257,7 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
 
     private void addStateCheckForGoalMacro(int crateIndex, int crateX, int crateY, TileInfo dest) {
         Room room = dest.getRoom();
-        if (room != null && map.isGoalRoomLevel() && room.getPackingOrderIndex() >= 0) {
+        if (room != null && board.isGoalRoomLevel() && room.getPackingOrderIndex() >= 0) {
             // goal macro!
             TileInfo newDest = room.getPackingOrder().get(room.getPackingOrderIndex());
 

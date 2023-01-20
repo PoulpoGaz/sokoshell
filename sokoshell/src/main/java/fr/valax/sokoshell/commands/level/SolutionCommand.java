@@ -288,7 +288,7 @@ public class SolutionCommand extends LevelCommand {
     public static class SolutionAnimator {
 
         private final SolverReport solution;
-        private Map map;
+        private Board board;
 
         private final List<Move> path;
         private int pathIndex;
@@ -303,7 +303,7 @@ public class SolutionCommand extends LevelCommand {
             this.solution = solution;
             Level level = solution.getParameters().getLevel();
 
-            this.map = level.getMap();
+            this.board = level.getMap();
             this.playerX = level.getPlayerX();
             this.playerY = level.getPlayerY();
 
@@ -331,20 +331,20 @@ public class SolutionCommand extends LevelCommand {
             int newX = x + dir.dirX();
             int newY = y + dir.dirY();
 
-            Tile curr = map.getAt(x, y).getTile();
-            Tile next = map.getAt(newX, newY).getTile();
+            Tile curr = board.getAt(x, y).getTile();
+            Tile next = board.getAt(newX, newY).getTile();
 
             switch (curr) {
-                case CRATE -> map.setAt(x, y, Tile.FLOOR);
-                case CRATE_ON_TARGET -> map.setAt(x, y, Tile.TARGET);
+                case CRATE -> board.setAt(x, y, Tile.FLOOR);
+                case CRATE_ON_TARGET -> board.setAt(x, y, Tile.TARGET);
             }
 
             if (curr.isCrate()) {
                 push++;
 
                 switch (next) {
-                    case FLOOR -> map.setAt(newX, newY, Tile.CRATE);
-                    case TARGET -> map.setAt(newX, newY, Tile.CRATE_ON_TARGET);
+                    case FLOOR -> board.setAt(newX, newY, Tile.CRATE);
+                    case TARGET -> board.setAt(newX, newY, Tile.CRATE_ON_TARGET);
                 }
             }
         }
@@ -367,16 +367,16 @@ public class SolutionCommand extends LevelCommand {
                 int crateX = playerX + dir.dirX();
                 int crateY = playerY + dir.dirY();
 
-                Tile crate = map.getAt(crateX, crateY).getTile();
+                Tile crate = board.getAt(crateX, crateY).getTile();
 
                 switch (crate) {
-                    case CRATE -> map.setAt(crateX, crateY, Tile.FLOOR);
-                    case CRATE_ON_TARGET -> map.setAt(crateX, crateY, Tile.TARGET);
+                    case CRATE -> board.setAt(crateX, crateY, Tile.FLOOR);
+                    case CRATE_ON_TARGET -> board.setAt(crateX, crateY, Tile.TARGET);
                 }
 
-                switch (map.getAt(playerX, playerY).getTile()) {
-                    case FLOOR -> map.setAt(playerX, playerY, Tile.CRATE);
-                    case TARGET -> map.setAt(playerX, playerY, Tile.CRATE_ON_TARGET);
+                switch (board.getAt(playerX, playerY).getTile()) {
+                    case FLOOR -> board.setAt(playerX, playerY, Tile.CRATE);
+                    case TARGET -> board.setAt(playerX, playerY, Tile.CRATE_ON_TARGET);
                 }
 
                 push--;
@@ -397,7 +397,7 @@ public class SolutionCommand extends LevelCommand {
                 playerX = level.getPlayerX();
                 playerY = level.getPlayerY();
 
-                map = level.getMap();
+                board = level.getMap();
             }
         }
 
@@ -405,8 +405,8 @@ public class SolutionCommand extends LevelCommand {
             return pathIndex > 0;
         }
 
-        public Map getMap() {
-            return map;
+        public Board getMap() {
+            return board;
         }
 
         public int getPlayerX() {

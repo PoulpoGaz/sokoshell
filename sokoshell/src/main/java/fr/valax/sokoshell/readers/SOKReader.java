@@ -1,8 +1,8 @@
 package fr.valax.sokoshell.readers;
 
 import fr.poulpogaz.json.JsonException;
+import fr.valax.sokoshell.solver.Board;
 import fr.valax.sokoshell.solver.Level;
-import fr.valax.sokoshell.solver.Map;
 import fr.valax.sokoshell.solver.Pack;
 import fr.valax.sokoshell.solver.Tile;
 import fr.valax.sokoshell.utils.Utils;
@@ -103,7 +103,7 @@ public class SOKReader implements Reader {
 
         height = lines.size();
 
-        if (width < Map.MINIMUM_WIDTH && height < Map.MINIMUM_HEIGHT) {
+        if (width < Board.MINIMUM_WIDTH && height < Board.MINIMUM_HEIGHT) {
             return null;
         }
 

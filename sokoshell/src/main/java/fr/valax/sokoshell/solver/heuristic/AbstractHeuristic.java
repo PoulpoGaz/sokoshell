@@ -1,6 +1,6 @@
 package fr.valax.sokoshell.solver.heuristic;
 
-import fr.valax.sokoshell.solver.Map;
+import fr.valax.sokoshell.solver.Board;
 
 /**
  * Base class for heuristic computing classes.
@@ -9,9 +9,9 @@ import fr.valax.sokoshell.solver.Map;
  */
 public abstract class AbstractHeuristic implements Heuristic {
 
-    protected final Map map;
+    protected final Board board;
 
-    public AbstractHeuristic(Map map) {
-        this.map = map;
+    public AbstractHeuristic(Board board) {
+        this.board = board;
     }
 }

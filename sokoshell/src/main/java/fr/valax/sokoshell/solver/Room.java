@@ -13,7 +13,7 @@ public class Room {
     private final List<Tunnel> tunnels = new ArrayList<>();
 
     /**
-     * Only computed is the level is a goal room level as defined by {@link Map#isGoalRoomLevel()}
+     * Only computed is the level is a goal room level as defined by {@link Board#isGoalRoomLevel()}
      */
     private List<TileInfo> packingOrder;
 

@@ -4,7 +4,6 @@ import fr.poulpogaz.json.JsonException;
 import fr.valax.sokoshell.graphics.style.MapRenderer;
 import fr.valax.sokoshell.graphics.style.MapStyleReader;
 import fr.valax.sokoshell.readers.PackReaders;
-import fr.valax.sokoshell.solver.heuristic.SimpleHeuristic;
 import org.junit.jupiter.api.Test;
 import org.opentest4j.AssertionFailedError;
 
@@ -13,17 +12,17 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class MapTest {
+public class BoardTest {
 
     @Test
     void topLeftReachablePositionTest() {
         Level level = TestUtils.getLevel(Path.of("../levels/levels8xv/Original.8xv"));
-        Map map = level.getMap();
+        Board board = level.getMap();
 
-        int i = map.topLeftReachablePosition(5, 7, 5, 6);
+        int i = board.topLeftReachablePosition(5, 7, 5, 6);
 
-        assertEquals(3, i % map.getWidth());
-        assertEquals(4, i / map.getWidth());
+        assertEquals(3, i % board.getWidth());
+        assertEquals(4, i / board.getWidth());
     }
 
     // ***************
@@ -44,12 +43,12 @@ public class MapTest {
         tunnelsSet.add(new TTunnel(12, 7, 13, 7,  11, 7, 14, 7,  false));
 
         Level level = TestUtils.getLevel(Path.of("../levels/levels8xv/Original.8xv"));
-        Map map = level.getMap();
-        map.removeStateCrates(level.getInitialState());
-        map.computeFloors();
-        map.findTunnels();
+        Board board = level.getMap();
+        board.removeStateCrates(level.getInitialState());
+        board.computeFloors();
+        board.findTunnels();
 
-        List<Tunnel> tunnels = map.getTunnels();
+        List<Tunnel> tunnels = board.getTunnels();
 
         for (Tunnel t : tunnels) {
             TileInfo s = t.getStart();
@@ -111,10 +110,10 @@ public class MapTest {
                 """;
 
         Level level = TestUtils.getSOKLevel(mapStr);
-        Map map = level.getMap();
-        map.initForSolver();
+        Board board = level.getMap();
+        board.initForSolver();
 
-        List<Tunnel> tunnels = map.getTunnels();
+        List<Tunnel> tunnels = board.getTunnels();
         assertEquals(1, tunnels.size());
 
         Tunnel t = tunnels.get(0);
@@ -146,7 +145,7 @@ public class MapTest {
         assertTrue(endOut.isAt(10, 2));
 
         for (int x = 3; x < 10; x++) {
-            TileInfo tile = map.getAt(x, 2);
+            TileInfo tile = board.getAt(x, 2);
             assertEquals(t, tile.getTunnel());
             assertNotNull(tile.getTunnelExit());
 
@@ -170,10 +169,10 @@ public class MapTest {
                 """;
 
         Level level = TestUtils.getSOKLevel(mapStr);
-        Map map = level.getMap();
-        map.initForSolver();
+        Board board = level.getMap();
+        board.initForSolver();
 
-        List<Tunnel> tunnels = map.getTunnels();
+        List<Tunnel> tunnels = board.getTunnels();
         assertEquals(1, tunnels.size());
 
         Tunnel t = tunnels.get(0);
@@ -204,15 +203,15 @@ public class MapTest {
         assertNotNull(endOut);
         assertTrue(endOut.isAt(3, 4));
 
-        assertTrue(equals(new Tunnel.Exit(null, null, null, startOut), map.getAt(4, 2).getTunnelExit()));
-        assertNull(map.getAt(4, 1).getTunnelExit());
-        assertNull(map.getAt(3, 1).getTunnelExit());
-        assertNull(map.getAt(2, 1).getTunnelExit());
-        assertNull(map.getAt(1, 1).getTunnelExit());
-        assertNull(map.getAt(1, 2).getTunnelExit());
-        assertNull(map.getAt(1, 3).getTunnelExit());
-        assertNull(map.getAt(1, 4).getTunnelExit());
-        assertTrue(equals(new Tunnel.Exit(null, null, endOut, null), map.getAt(2, 4).getTunnelExit()));
+        assertTrue(equals(new Tunnel.Exit(null, null, null, startOut), board.getAt(4, 2).getTunnelExit()));
+        assertNull(board.getAt(4, 1).getTunnelExit());
+        assertNull(board.getAt(3, 1).getTunnelExit());
+        assertNull(board.getAt(2, 1).getTunnelExit());
+        assertNull(board.getAt(1, 1).getTunnelExit());
+        assertNull(board.getAt(1, 2).getTunnelExit());
+        assertNull(board.getAt(1, 3).getTunnelExit());
+        assertNull(board.getAt(1, 4).getTunnelExit());
+        assertTrue(equals(new Tunnel.Exit(null, null, endOut, null), board.getAt(2, 4).getTunnelExit()));
 
     }
 
@@ -378,12 +377,12 @@ public class MapTest {
     @Test
     void packingOrderTest1() {
         Level level = TestUtils.getLevel(Path.of("../levels/levels8xv/Original.8xv"));
-        Map map = level.getMap();
-        map.removeStateCrates(level.getInitialState());
-        map.initForSolver();
+        Board board = level.getMap();
+        board.removeStateCrates(level.getInitialState());
+        board.initForSolver();
 
         Room room = null;
-        for (Room r : map.getRooms()) {
+        for (Room r : board.getRooms()) {
             if (r.isGoalRoom()) {
                 assertNull(room);
                 room = r;
@@ -400,11 +399,11 @@ public class MapTest {
     @Test
     void packingOrderTest2() {
         Level level = TestUtils.getLevel(Path.of("../levels/levels8xv/Original.8xv"), 10);
-        Map map = level.getMap();
-        map.removeStateCrates(level.getInitialState());
-        map.initForSolver();
+        Board board = level.getMap();
+        board.removeStateCrates(level.getInitialState());
+        board.initForSolver();
 
-        for (Room r : map.getRooms()) {
+        for (Room r : board.getRooms()) {
             if (r.isGoalRoom()) {
                 System.out.println("-");
                 for (TileInfo t : r.getPackingOrder()) {
@@ -420,18 +419,18 @@ public class MapTest {
         Pack pack = PackReaders.read(Path.of("../levels/TIPEex.8xv"), false);
 
         Level level = pack.getLevel(0);
-        Map map = level.getMap();
+        Board board = level.getMap();
         MapRenderer mR = new MapRenderer();
         mR.setStyle(new MapStyleReader().read(Path.of("../styles/isekai/isekai.style")));
 
-        map.removeStateCrates(level.getInitialState());
-        map.initForSolver();
-        mR.sysPrint(map, level.getPlayerX(), level.getPlayerY());
+        board.removeStateCrates(level.getInitialState());
+        board.initForSolver();
+        mR.sysPrint(board, level.getPlayerX(), level.getPlayerY());
 
-        for (int y = 0; y < map.getHeight(); y++) {
-            for (int x = 0; x < map.getWidth(); x++) {
+        for (int y = 0; y < board.getHeight(); y++) {
+            for (int x = 0; x < board.getWidth(); x++) {
                 //System.out.printf("(%d,%d) : %s%n", x, y, Arrays.toString(map.getAt(x, y).getTargets()));
-                System.out.printf("%d", map.getAt(x, y).getNearestTarget().distance());
+                System.out.printf("%d", board.getAt(x, y).getNearestTarget().distance());
             }
             System.out.println();
         }

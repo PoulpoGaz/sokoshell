@@ -3,12 +3,12 @@ package fr.valax.sokoshell.graphics;
 import fr.valax.sokoshell.SokoShellHelper;
 import fr.valax.sokoshell.graphics.style.MapRenderer;
 import fr.valax.sokoshell.solver.Direction;
-import fr.valax.sokoshell.solver.Map;
+import fr.valax.sokoshell.solver.Board;
 
 public class MapComponent extends Component {
 
     private Direction playerDir = Direction.DOWN;
-    private Map map;
+    private Board board;
     private int playerX;
     private int playerY;
 
@@ -18,20 +18,20 @@ public class MapComponent extends Component {
 
     @Override
     protected void drawComponent(Graphics g) {
-        if (map != null) {
+        if (board != null) {
             MapRenderer mr = SokoShellHelper.INSTANCE.getRenderer();
 
-            mr.draw(g, 0, 0, getWidth(), getHeight(), map, playerX, playerY, playerDir);
+            mr.draw(g, 0, 0, getWidth(), getHeight(), board, playerX, playerY, playerDir);
         }
     }
 
-    public Map getMap() {
-        return map;
+    public Board getMap() {
+        return board;
     }
 
-    public void setMap(Map map) {
-        if (map != this.map) {
-            this.map = map;
+    public void setMap(Board board) {
+        if (board != this.board) {
+            this.board = board;
             repaint();
         }
     }

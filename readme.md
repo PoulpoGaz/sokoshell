@@ -67,15 +67,13 @@ is the lack of deadlock detection.
 ### Map
 
 Problems: 
-* Level always returns a full copy, even if the caller doesn't need to modify the map.
-* There is no distinction between a solver map and a map. The solver map usually holds more information than the map.
+* Level always returns a full copy, even if the caller doesn't need to modify the board.
+* There is no distinction between a solver board and a board. The solver board usually holds more information than the board.
   This information aren't useful for PlayCommand and SolutionCommand
 * The new version of style will be able to draw dead tiles, rooms, etc. But, trackers don't return a Map.
-  Returning the map can be solution, but it will allow MonitorCommand to modify the map.
-* Map clashes will java.util.Map
+  Returning the board can be solution, but it will allow MonitorCommand to modify the board.
 
 Conclusion:
-* Map should be renamed (eg: Board).
 * Level should be able to remove an immutable view of a board, as well as a full copy.
 * Tracker should be able to return an immutable view of a solver board
 
@@ -91,5 +89,5 @@ Styles are currently in development in branch poulpogaz. It will solve the follo
 * impossibility of programmatically creating style.
 * style from file cannot define how to draw dead tiles, rooms, etc.
 * finding the cell at (x; y) is difficult. It will be possible to show x and y position on the top and the left
-  of the map.
-* Exporting map to png only works for style that only uses image and define style of size 16.
+  of the board.
+* Exporting board to png only works for style that only uses image and define style of size 16.

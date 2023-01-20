@@ -251,18 +251,18 @@ public class MonitorCommand extends AbstractCommand {
                 currentLevel = levels.get(index);
                 currentPack = currentLevel.getPack();
 
-                Map map = currentLevel.getMap();
+                Board board = currentLevel.getMap();
 
-                BigInteger n = estimateMaxNumberOfStates(map);
+                BigInteger n = estimateMaxNumberOfStates(board);
                 maxNumberOfStateLabel.setText(n.toString());
 
-                map.forEach(TileInfo::removeCrate);
+                board.forEach(TileInfo::removeCrate);
 
                 progressLabel.setText(index + "/" + task.getLevels().size());
                 levelLabel.setText(Integer.toString(currentLevel.getIndex() + 1));
                 packLabel.setText(currentPack.name());
 
-                mapComponent.setMap(map);
+                mapComponent.setMap(board);
                 mapComponent.setPlayerX(-1);
                 mapComponent.setPlayerY(-1);
             } else if (task.getTaskStatus() == TaskStatus.FINISHED) {
@@ -280,20 +280,20 @@ public class MonitorCommand extends AbstractCommand {
         }
 
         private void changeState(State newState) {
-            Map map = mapComponent.getMap();
-            if (map == null || newState == null) {
+            Board board = mapComponent.getMap();
+            if (board == null || newState == null) {
                 return;
             }
 
             if (currentState != null) {
-                map.safeRemoveStateCrates(currentState);
+                board.safeRemoveStateCrates(currentState);
             }
 
             this.currentState = newState;
-            map.safeAddStateCrates(newState);
+            board.safeAddStateCrates(newState);
 
-            int playerX = map.getX(currentState.playerPos());
-            int playerY = map.getY(currentState.playerPos());
+            int playerX = board.getX(currentState.playerPos());
+            int playerY = board.getY(currentState.playerPos());
 
             mapComponent.setPlayerX(playerX);
             mapComponent.setPlayerY(playerY);
@@ -309,17 +309,17 @@ public class MonitorCommand extends AbstractCommand {
          * <br>
          * (f c) counts the number of way to organize the crate (c) and the player ( + 1)<br>
          */
-        private BigInteger estimateMaxNumberOfStates(Map map) {
+        private BigInteger estimateMaxNumberOfStates(Board board) {
             int nCrate = 0;
             int nFloor = 0;
 
-            for (int y = 0; y < map.getHeight(); y++) {
-                for (int x = 0; x < map.getWidth(); x++) {
+            for (int y = 0; y < board.getHeight(); y++) {
+                for (int x = 0; x < board.getWidth(); x++) {
 
-                    if (map.getAt(x, y).anyCrate()) {
+                    if (board.getAt(x, y).anyCrate()) {
                         nCrate++;
                         nFloor++;
-                    } else if (!map.getAt(x, y).isSolid()) {
+                    } else if (!board.getAt(x, y).isSolid()) {
                         nFloor++;
                     }
                 }

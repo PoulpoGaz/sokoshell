@@ -42,7 +42,7 @@
  *         <td>OK</td>
  *     </tr>
  *     <tr>
- *         <td>{@link fr.valax.sokoshell.solver.Map}</td>
+ *         <td>{@link fr.valax.sokoshell.solver.Board}</td>
  *         <td>OK</td>
  *     </tr>
  *     <tr>

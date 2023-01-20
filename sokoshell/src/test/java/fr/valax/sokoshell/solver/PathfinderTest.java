@@ -19,9 +19,9 @@ public class PathfinderTest {
     @Test
     void aStarVsDijkstra() {
         Level level = TestUtils.getSOKLevel(LABYRINTH);
-        Map map = level.getMap();
-        System.out.println(PATHFINDER.hasPath(map.getAt(1, 1), map.getAt(74, 49), null, null));
-        System.out.println(dijkstra(map.getAt(1, 1), map.getAt(74, 49)));
+        Board board = level.getMap();
+        System.out.println(PATHFINDER.hasPath(board.getAt(1, 1), board.getAt(74, 49), null, null));
+        System.out.println(dijkstra(board.getAt(1, 1), board.getAt(74, 49)));
 
         // A* visit 1128 nodes
         // dijkstra visit 1381 nodes
@@ -65,14 +65,14 @@ public class PathfinderTest {
     void playerTest() {
         Level level = TestUtils.getLevel(Path.of("../levels/levels8xv/Original.8xv"), 0);
 
-        Map map = level.getMap();
+        Board board = level.getMap();
 
         boolean path = PATHFINDER.getPlayerAStar()
-                .hasPath(map.getAt(11, 8), map.getAt(17, 8), null, null);
+                .hasPath(board.getAt(11, 8), board.getAt(17, 8), null, null);
         assertTrue(path);
 
         path = PATHFINDER.getPlayerAStar()
-                .hasPath(map.getAt(11, 8), map.getAt(5, 2), null, null);
+                .hasPath(board.getAt(11, 8), board.getAt(5, 2), null, null);
         assertFalse(path);
     }
 
@@ -85,8 +85,8 @@ public class PathfinderTest {
                 """;
 
         Level level = TestUtils.getSOKLevel(levelStr);
-        Map map = level.getMap();
-        TileInfo start = map.getAt(0, 0);
+        Board board = level.getMap();
+        TileInfo start = board.getAt(0, 0);
 
         assertThrows(IllegalArgumentException.class, () -> PATHFINDER.hasPath(start, start, null, null));
         assertThrows(IllegalArgumentException.class, () -> PATHFINDER.hasPath(start, null, null, null));
@@ -98,14 +98,14 @@ public class PathfinderTest {
     void crateTest() {
         Level level = TestUtils.getLevel(Path.of("../levels/levels8xv/Original.8xv"), 0);
 
-        Map map = level.getMap();
+        Board board = level.getMap();
 
         boolean path = PATHFINDER.getCrateAStar()
-                .hasPath(map.getAt(4, 4), null, map.getAt(5, 7), map.getAt(17, 8));
+                .hasPath(board.getAt(4, 4), null, board.getAt(5, 7), board.getAt(17, 8));
         assertTrue(path);
 
         path = PATHFINDER.getCrateAStar()
-                .hasPath(map.getAt(4, 4), null, map.getAt(2, 7), map.getAt(17, 8));
+                .hasPath(board.getAt(4, 4), null, board.getAt(2, 7), board.getAt(17, 8));
         assertFalse(path);
     }
 
@@ -118,26 +118,26 @@ public class PathfinderTest {
                 """;
 
         Level level = TestUtils.getSOKLevel(levelStr);
-        Map map = level.getMap();
+        Board board = level.getMap();
 
         assertThrows(IllegalArgumentException.class, () -> {
-            PATHFINDER.hasPath(map.getAt(2, 1), null, map.getAt(1, 1), map.getAt(0, 0));
+            PATHFINDER.hasPath(board.getAt(2, 1), null, board.getAt(1, 1), board.getAt(0, 0));
         });
 
         assertThrows(IllegalArgumentException.class, () -> {
-            PATHFINDER.hasPath(map.getAt(2, 1), null, map.getAt(0, 0), map.getAt(1, 1));
+            PATHFINDER.hasPath(board.getAt(2, 1), null, board.getAt(0, 0), board.getAt(1, 1));
         });
 
         assertThrows(IllegalArgumentException.class, () -> {
-            PATHFINDER.hasPath(map.getAt(2, 1), null, map.getAt(2, 1), map.getAt(2, 1));
+            PATHFINDER.hasPath(board.getAt(2, 1), null, board.getAt(2, 1), board.getAt(2, 1));
         });
 
         assertThrows(NullPointerException.class, () -> {
-            PATHFINDER.hasPath(map.getAt(2, 1), null, map.getAt(2, 1), null);
+            PATHFINDER.hasPath(board.getAt(2, 1), null, board.getAt(2, 1), null);
         });
 
         assertThrows(NullPointerException.class, () -> {
-            PATHFINDER.hasPath(map.getAt(2, 1), null, null, map.getAt(1, 1));
+            PATHFINDER.hasPath(board.getAt(2, 1), null, null, board.getAt(1, 1));
         });
     }
 
@@ -145,22 +145,22 @@ public class PathfinderTest {
     void fullTest() {
         Level level = TestUtils.getLevel(Path.of("../levels/levels8xv/Original.8xv"), 0);
 
-        Map map = level.getMap();
+        Board board = level.getMap();
 
         boolean path = PATHFINDER.getCratePlayerAStar()
-                .hasPath(map.getAt(4, 4), map.getAt(4, 4), map.getAt(5, 7), map.getAt(17, 8));
+                .hasPath(board.getAt(4, 4), board.getAt(4, 4), board.getAt(5, 7), board.getAt(17, 8));
         assertTrue(path);
 
         path = PATHFINDER.getCratePlayerAStar()
-                .hasPath(map.getAt(4, 4), map.getAt(4, 4), map.getAt(2, 7), map.getAt(17, 8));
+                .hasPath(board.getAt(4, 4), board.getAt(4, 4), board.getAt(2, 7), board.getAt(17, 8));
         assertFalse(path);
 
         path = PATHFINDER.getCratePlayerAStar()
-                .hasPath(map.getAt(4, 4), map.getAt(5, 5), map.getAt(5, 7), map.getAt(17, 8));
+                .hasPath(board.getAt(4, 4), board.getAt(5, 5), board.getAt(5, 7), board.getAt(17, 8));
         assertTrue(path);
 
         path = PATHFINDER.getCratePlayerAStar()
-                .hasPath(map.getAt(4, 4), map.getAt(5, 3), map.getAt(5, 7), map.getAt(17, 8));
+                .hasPath(board.getAt(4, 4), board.getAt(5, 3), board.getAt(5, 7), board.getAt(17, 8));
         assertFalse(path);
     }
 
@@ -173,10 +173,10 @@ public class PathfinderTest {
                 """;
 
         Level level = TestUtils.getSOKLevel(levelStr);
-        Map map = level.getMap();
+        Board board = level.getMap();
 
         assertThrows(IllegalArgumentException.class, () -> {
-            PATHFINDER.hasPath(map.getAt(2, 1), map.getAt(0, 0), map.getAt(1, 1), map.getAt(2, 1));
+            PATHFINDER.hasPath(board.getAt(2, 1), board.getAt(0, 0), board.getAt(1, 1), board.getAt(2, 1));
         });
     }
 
@@ -184,13 +184,13 @@ public class PathfinderTest {
     void test() {
         Level level = TestUtils.getLevel(Path.of("../levels/levels8xv/Original.8xv"), 0);
 
-        Map map = level.getMap();
+        Board board = level.getMap();
 
-        map.getAt(6, 4).addCrate();
-        map.getAt(7, 4).removeCrate();
+        board.getAt(6, 4).addCrate();
+        board.getAt(7, 4).removeCrate();
 
         Pathfinder.Node node = PATHFINDER.getCratePlayerAStar()
-                .findPath(map.getAt(7, 4), map.getAt(5, 1), map.getAt(7, 3), map.getAt(7, 2));
+                .findPath(board.getAt(7, 4), board.getAt(5, 1), board.getAt(7, 3), board.getAt(7, 2));
         assertTrue(node.player().isAt(5, 1));
         assertTrue(node.crate().isAt(7, 2));
     }

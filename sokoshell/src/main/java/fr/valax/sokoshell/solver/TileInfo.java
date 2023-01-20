@@ -10,7 +10,7 @@ import java.util.Arrays;
  *     <li>
  *         Static information
  *         <ul>
- *             <li>the {@link Map}</li>
+ *             <li>the {@link Board}</li>
  *             <li>the position</li>
  *             <li>the {@link Tile}</li>
  *             <li>if tile is a 'dead tile'</li>
@@ -29,7 +29,7 @@ import java.util.Arrays;
  */
 public class TileInfo {
 
-    private final Map map;
+    private final Board board;
     private final int x;
     private final int y;
 
@@ -64,28 +64,28 @@ public class TileInfo {
     /**
      * Create a new TileInfo
      *
-     * @param map the map in which this TileInfo is
+     * @param board the map in which this TileInfo is
      * @param tile the tile
      * @param x the position on the x-axis in the map
      * @param y the position on the y-axis in the map
      */
-    public TileInfo(Map map, Tile tile, int x, int y) {
-        this.map = map;
+    public TileInfo(Board board, Tile tile, int x, int y) {
+        this.board = board;
         this.tile = tile;
         this.x = x;
         this.y = y;
-        this.reachable = map.getReachableMarkSystem().newMark();
-        this.mark = map.getMarkSystem().newMark();
+        this.reachable = board.getReachableMarkSystem().newMark();
+        this.mark = board.getMarkSystem().newMark();
     }
 
     /**
      * Copy a TileInfo to another map
      *
-     * @param map the map that will contain the copied TileInfo
+     * @param board the map that will contain the copied TileInfo
      * @return the copied TileInfo in the new map
      */
-    public TileInfo copyTo(Map map) {
-        TileInfo t = new TileInfo(map, tile, x, y);
+    public TileInfo copyTo(Board board) {
+        TileInfo t = new TileInfo(board, tile, x, y);
         t.set(this);
         return t;
     }
@@ -139,7 +139,7 @@ public class TileInfo {
      * the direction point outside the emap
      */
     public TileInfo adjacent(Direction dir) {
-        return map.getAt(x + dir.dirX(), y + dir.dirY());
+        return board.getAt(x + dir.dirX(), y + dir.dirY());
     }
 
     /**
@@ -148,7 +148,7 @@ public class TileInfo {
      * or {@code null} if the adjacent tile is outside the map
      */
     public TileInfo safeAdjacent(Direction dir) {
-        return map.safeGetAt(x + dir.dirX(), y + dir.dirY());
+        return board.safeGetAt(x + dir.dirX(), y + dir.dirY());
     }
 
     /**
@@ -253,7 +253,7 @@ public class TileInfo {
 
     /**
      * @return {@code true} if this tile is a dead tile
-     * @see Map#computeDeadTiles()
+     * @see Board#computeDeadTiles()
      */
     public boolean isDeadTile() {
         return deadTile;
@@ -261,7 +261,7 @@ public class TileInfo {
 
     /**
      * Sets this tile as a dead tile or not
-     * @see Map#computeDeadTiles() ()
+     * @see Board#computeDeadTiles() ()
      */
     public void setDeadTile(boolean deadTile) {
         this.deadTile = deadTile;
@@ -270,7 +270,7 @@ public class TileInfo {
 
     /**
      * @return {@code true} if this tile is reachable by the player.
-     * @see Map#findReachableCases(int)
+     * @see Board#findReachableCases(int)
      */
     public boolean isReachable() {
         return reachable.isMarked();
@@ -278,7 +278,7 @@ public class TileInfo {
 
     /**
      * Sets this tile as reachable or not by the player. It doesn't check if it's possible.
-     * @see Map#findReachableCases(int)
+     * @see Board#findReachableCases(int)
      */
     public void setReachable(boolean reachable) {
         this.reachable.setMarked(reachable);
@@ -289,8 +289,8 @@ public class TileInfo {
      *
      * @return the map in which this tile is
      */
-    public Map getMap() {
-        return map;
+    public Board getMap() {
+        return board;
     }
 
     /**
@@ -424,7 +424,7 @@ public class TileInfo {
     }
 
     public int positionHashCode() {
-        return y * map.getWidth() + x;
+        return y * board.getWidth() + x;
     }
 
 
