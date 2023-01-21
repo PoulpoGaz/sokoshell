@@ -79,12 +79,20 @@ public class PlayerAStar extends AbstractAStar {
             int i = toIndex(dest);
 
             Mark mark = marks[i];
+            Node node = nodes[i];
+
             if (mark.isMarked()) {
+                int heuristic = heuristic(dest);
+
+                if (parent.getDist() + heuristic < node.getHeuristic()) {
+                    node.setParent(parent);
+                    node.setHeuristic(parent.getDist() + heuristic);
+                    decreasePriority(node);
+                }
+
                 return null;
             }
             mark.mark();
-
-            Node node = nodes[i];
             node.set(parent, dest, null, heuristic(dest));
             return node;
         }

@@ -79,6 +79,13 @@ public abstract class AbstractAStar {
         return end;
     }
 
+    public void decreasePriority(Node node) {
+        // TODO: we do not have a fixed size binary heap that
+        //  can efficiently decrease priority (at least O(log n))
+        queue.remove(node); // takes O(n)...
+        queue.offer(node); // takes O(log n)
+    }
+
     /**
      * Init A*. Usually clear the queue. Called before the search
      */
