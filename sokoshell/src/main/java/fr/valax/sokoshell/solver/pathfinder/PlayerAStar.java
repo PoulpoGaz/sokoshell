@@ -3,11 +3,7 @@ package fr.valax.sokoshell.solver.pathfinder;
 import fr.valax.sokoshell.solver.Direction;
 import fr.valax.sokoshell.solver.Map;
 import fr.valax.sokoshell.solver.TileInfo;
-import fr.valax.sokoshell.solver.mark.AbstractMarkSystem;
-import fr.valax.sokoshell.solver.mark.Mark;
-import fr.valax.sokoshell.solver.mark.MarkSystem;
 
-import java.util.Comparator;
 import java.util.PriorityQueue;
 
 /**
@@ -17,32 +13,18 @@ import java.util.PriorityQueue;
 public class PlayerAStar extends AbstractAStar {
 
     private final int mapWidth;
-    private final MarkSystem system;
-    private final Mark[] marks;
+    private final AStarMarkSystem markSystem;
     private final Node[] nodes;
 
     public PlayerAStar(Map map) {
         super(new PriorityQueue<>(map.getWidth() * map.getHeight()));
         this.mapWidth = map.getWidth();
-        system = createMarkSystem();
-        marks = new Mark[map.getHeight() * map.getWidth()];
+        markSystem = new AStarMarkSystem(map.getWidth() * map.getHeight());
         nodes = new Node[map.getHeight() * map.getWidth()];
 
-        for (int i = 0; i < marks.length; i++) {
-            marks[i] = system.newMark();
+        for (int i = 0; i < nodes.length; i++) {
             nodes[i] = new Node();
         }
-    }
-
-    private MarkSystem createMarkSystem() {
-        return new AbstractMarkSystem() {
-            @Override
-            public void reset() {
-                for (Mark m : PlayerAStar.this.marks) {
-                    m.unmark();
-                }
-            }
-        };
     }
 
     private int toIndex(TileInfo player) {
@@ -51,7 +33,7 @@ public class PlayerAStar extends AbstractAStar {
 
     @Override
     protected void init() {
-        system.unmarkAll();
+        markSystem.unmarkAll();
         queue.clear();
     }
 
@@ -64,9 +46,8 @@ public class PlayerAStar extends AbstractAStar {
     protected Node initialNode() {
         int i = toIndex(playerStart);
 
-        marks[i].mark();
         Node init = nodes[i];
-        init.setInitial(playerStart, null, heuristic(playerDest));
+        init.setInitial(playerStart, null, heuristic(playerStart));
         return init;
     }
 
@@ -75,29 +56,35 @@ public class PlayerAStar extends AbstractAStar {
         TileInfo player = parent.getPlayer();
         TileInfo dest = player.adjacent(dir);
 
-        if (!dest.isSolid()) {
-            int i = toIndex(dest);
+        if (dest.isSolid()) {
+            return null;
+        }
 
-            Mark mark = marks[i];
-            Node node = nodes[i];
+        int i = toIndex(dest);
+        Node node = nodes[i];
 
-            if (mark.isMarked()) {
-                int heuristic = heuristic(dest);
-
-                if (parent.getDist() + heuristic < node.getHeuristic()) {
-                    node.setParent(parent);
-                    node.setHeuristic(parent.getDist() + heuristic);
-                    decreasePriority(node);
-                }
-
-                return null;
+        if (markSystem.isMarked(i) || markSystem.isVisited(i)) { // the node was added to the queue, therefore node.getExpectedDist() is valid
+            if (parent.getDist() + 1 + node.getHeuristic() < node.getExpectedDist()) {
+                node.changeParent(parent);
+                decreasePriority(node);
             }
-            mark.mark();
+
+            return null;
+        } else {
+            markSystem.mark(i);
             node.set(parent, dest, null, heuristic(dest));
             return node;
         }
+    }
 
-        return null;
+    @Override
+    protected void markVisited(Node node) {
+        markSystem.setVisited(toIndex(node.getPlayer()));
+    }
+
+    @Override
+    protected boolean isVisited(Node node) {
+        return markSystem.isVisited(toIndex(node.getPlayer()));
     }
 
     protected int heuristic(TileInfo newPlayer) {

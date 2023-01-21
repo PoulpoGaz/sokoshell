@@ -66,6 +66,10 @@ public abstract class AbstractAStar {
                 break;
             }
 
+            if (isVisited(node)) {
+                continue;
+            }
+
             for (Direction direction : Direction.VALUES) {
                 Node child = processMove(node, direction);
 
@@ -73,6 +77,8 @@ public abstract class AbstractAStar {
                     queue.offer(child);
                 }
             }
+
+            markVisited(node);
         }
 
         clean();
@@ -82,8 +88,9 @@ public abstract class AbstractAStar {
     public void decreasePriority(Node node) {
         // TODO: we do not have a fixed size binary heap that
         //  can efficiently decrease priority (at least O(log n))
-        queue.remove(node); // takes O(n)...
-        queue.offer(node); // takes O(log n)
+        if (queue.remove(node)) { // takes O(n)
+            queue.offer(node); // takes O(log n)
+        }
     }
 
     /**
@@ -97,8 +104,7 @@ public abstract class AbstractAStar {
     protected abstract void clean();
 
     /**
-     * Returns the initial node. Implementations must mark this node
-     * as visited
+     * Returns the initial node.
      * @return the initial node
      */
     protected abstract Node initialNode();
@@ -111,6 +117,10 @@ public abstract class AbstractAStar {
      * or if the node was already visited. Otherwise, returns child node
      */
     protected abstract Node processMove(Node parent, Direction dir);
+
+    protected abstract void markVisited(Node node);
+
+    protected abstract boolean isVisited(Node node);
 
     protected abstract boolean isEndNode(Node node);
 }

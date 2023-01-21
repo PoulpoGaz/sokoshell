@@ -14,6 +14,8 @@ public class Node implements Comparable<Node> {
     private TileInfo crate;
     private Move move;
 
+    private int expectedDist;
+
     public Node() {
     }
 
@@ -34,54 +36,45 @@ public class Node implements Comparable<Node> {
         this.heuristic = heuristic;
         this.player = player;
         this.crate = crate;
+
+        expectedDist = heuristic;
     }
 
     public void set(Node parent, TileInfo player, TileInfo crate, int heuristic) {
         this.parent = parent;
         this.dist = parent.dist + 1;
-        this.heuristic = dist + heuristic;
+        this.heuristic = heuristic;
         this.player = player;
         this.crate = crate;
+
+        expectedDist = dist + heuristic;
+    }
+
+    public void changeParent(Node newParent) {
+        this.parent = newParent;
+        this.dist = newParent.dist + 1;
+
+        expectedDist = dist + heuristic;
     }
 
     public Node getParent() {
         return parent;
     }
 
-    public void setParent(Node parent) {
-        this.parent = parent;
-    }
-
     public int getDist() {
         return dist;
-    }
-
-    public void setDist(int dist) {
-        this.dist = dist;
     }
 
     public int getHeuristic() {
         return heuristic;
     }
 
-    public void setHeuristic(int heuristic) {
-        this.heuristic = heuristic;
-    }
-
     public TileInfo getPlayer() {
         return player;
     }
 
-    public void setPlayer(TileInfo player) {
-        this.player = player;
-    }
-
     public TileInfo getCrate() {
         return crate;
-    }
-
-    public void setCrate(TileInfo crate) {
-        this.crate = crate;
     }
 
     public Move getMove() {
@@ -90,6 +83,10 @@ public class Node implements Comparable<Node> {
 
     public void setMove(Move move) {
         this.move = move;
+    }
+
+    public int getExpectedDist() {
+        return expectedDist;
     }
 
     @Override
@@ -110,7 +107,7 @@ public class Node implements Comparable<Node> {
 
     @Override
     public int compareTo(Node o) {
-        // compare in reverse order to prioritize minimal heuristic
-        return Integer.compare(o.heuristic, heuristic);
+        // compare in reverse order to prioritize minimal expected dist
+        return Integer.compare(expectedDist, o.expectedDist);
     }
 }

@@ -1,5 +1,6 @@
 package fr.valax.sokoshell.solver.pathfinder;
 
+import fr.valax.sokoshell.graphics.style.BasicStyle;
 import fr.valax.sokoshell.solver.*;
 import fr.valax.sokoshell.solver.mark.AbstractMarkSystem;
 import fr.valax.sokoshell.solver.mark.Mark;
@@ -12,24 +13,27 @@ import java.util.PriorityQueue;
  */
 public class CrateAStar extends AbstractAStar {
 
-    private final Map map;
-    private final int area;
+    private final int mapWidth;
 
     private final MarkSystem system;
-    private final Mark[] mark;
-    private final Node[] nodes;
+    // player, crate
+    private final Mark[][] mark;
+    private final Node[][] nodes;
 
     public CrateAStar(Map map) {
         super(new PriorityQueue<>(2 * map.getWidth() * map.getHeight()));
-        this.map = map;
-        this.area = map.getWidth() * map.getHeight();
-        system = createMarkSystem();
-        mark = new Mark[2 * area];
-        nodes = new Node[2 * area];
+        this.mapWidth = map.getWidth();
 
-        for (int i = 0; i < mark.length; i++) {
-            mark[i] = system.newMark();
-            nodes[i] = new Node();
+        int area = map.getWidth() * map.getHeight();
+        system = createMarkSystem();
+        mark = new Mark[area][area];
+        nodes = new Node[area][area];
+
+        for (int i = 0; i < area; i++) {
+            for (int j = 0; j < area; j++) {
+                mark[i][j] = system.newMark();
+                nodes[i][j] = new Node();
+            }
         }
     }
 
@@ -37,25 +41,17 @@ public class CrateAStar extends AbstractAStar {
         return new AbstractMarkSystem() {
             @Override
             public void reset() {
-                for (Mark m : CrateAStar.this.mark) {
-                    m.unmark();
+                for (Mark[] marks : CrateAStar.this.mark) {
+                    for (Mark m : marks) {
+                        m.unmark();
+                    }
                 }
             }
         };
     }
 
-    private int toIndex(TileInfo player, TileInfo crate) {
-        return player.getY() * map.getWidth() + player.getX()
-                + area +
-                crate.getY() * map.getWidth() + crate.getX();
-    }
-
-    private Node getNode(TileInfo player, TileInfo crate) {
-        return nodes[toIndex(player, crate)];
-    }
-
-    private Mark getMark(TileInfo player, TileInfo crate) {
-        return mark[toIndex(player, crate)];
+    private int toIndex(TileInfo tile) {
+        return tile.getY() * mapWidth + tile.getX();
     }
 
     @Override
@@ -72,11 +68,12 @@ public class CrateAStar extends AbstractAStar {
 
     @Override
     protected Node initialNode() {
-        int i = toIndex(playerStart, crateStart);
+        int i = toIndex(playerStart);
+        int j = toIndex(crateStart);
 
-        mark[i].mark();
-        Node init = nodes[i];
-        init.setInitial(playerStart, null, heuristic(playerDest, crateDest));
+        mark[i][j].mark();
+        Node init = nodes[i][j];
+        init.setInitial(playerStart, crateStart, heuristic(playerStart, crateStart));
         return init;
     }
 
@@ -98,17 +95,41 @@ public class CrateAStar extends AbstractAStar {
             return null;
         }
 
-        int i = toIndex(playerDest, crateDest);
-        Mark m = mark[i];
+        int i = toIndex(playerDest);
+        int j = toIndex(crateDest);
+        Mark m = mark[i][j];
+        Node node = nodes[i][j];
+
         if (m.isMarked()) {
+            if (parent.getDist() + 1 + node.getHeuristic() < node.getExpectedDist()) {
+                crateDest.addCrate();
+                BasicStyle.XSB_STYLE.print(crate.getMap(), playerDest.getX(), playerDest.getY());
+                crateDest.removeCrate();
+                System.out.println("Updating distance from " + node.getDist() + " to " + (parent.getDist() + 1));
+                node.changeParent(parent);
+                decreasePriority(node);
+            }
+
             return null;
         }
         m.mark();
+        node.set(parent, playerDest, crateDest, heuristic(playerDest, crateDest));
+        crateDest.addCrate();
+        BasicStyle.XSB_STYLE.print(crate.getMap(), playerDest.getX(), playerDest.getY());
+        crateDest.removeCrate();
+        System.out.println("Dist = " + node.getDist() + "; heuristic = " + node.getHeuristic());
 
-        Node n = nodes[i];
-        n.set(parent, playerDest, crateDest, heuristic(playerDest, crateDest));
+        return node;
+    }
 
-        return n;
+    @Override
+    protected void markVisited(Node node) {
+
+    }
+
+    @Override
+    protected boolean isVisited(Node node) {
+        return false;
     }
 
     @Override
@@ -117,23 +138,23 @@ public class CrateAStar extends AbstractAStar {
     }
 
     protected int heuristic(TileInfo newPlayer, TileInfo newCrate) {
-        int h = newCrate.manhattanDistance(crateDest);
+        //int h = newCrate.manhattanDistance(crateDest);
 
-            /* the player first need to move near the crate to push it
-               may not be optimal for level like this:
+        /* the player first need to move near the crate to push it
+           may not be optimal for level like this:
 
-                #########
-                #       #
-                # ##### #
-                # ##### #
-                # ##### #
-                 @$     # The player needs to do a detour to push the crate
-                # #######
-             */
-        if (newPlayer.manhattanDistance(newCrate) > 2) {
+            #########
+            #       #
+            # ##### #
+            # ##### #
+            # ##### #
+             @$     # The player needs to do a detour to push the crate
+            # #######
+         */
+        /*if (newPlayer.manhattanDistance(newCrate) > 1) {
             h += newPlayer.manhattanDistance(newCrate);
-        }
+        }*/
 
-        return h;
+        return 0;
     }
 }
