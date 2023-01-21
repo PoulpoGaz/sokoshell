@@ -6,14 +6,18 @@ import fr.valax.sokoshell.solver.TileInfo;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class PathfinderUtils {
 
     public static void check(int playerX, int playerY, int crateX, int crateY,
                              //int playerDestX, int playerDestY, int crateDestX, int crateDestY,
                              Node end, Direction... solution) {
+        assertNotNull(end);
+
         List<Node> nodes = new ArrayList<>();
         Node temp = end;
         while (temp != null) {
@@ -21,8 +25,7 @@ public class PathfinderUtils {
             temp = temp.getParent();
         }
         Collections.reverse(nodes);
-
-        // assertEquals(nodes.size(), solution.length);
+        assertEquals(solution.length + 1, nodes.size());
 
         boolean crate = crateX >= 0 && crateY >= 0;
         for (int i = 0; i < nodes.size() - 1; i++) {

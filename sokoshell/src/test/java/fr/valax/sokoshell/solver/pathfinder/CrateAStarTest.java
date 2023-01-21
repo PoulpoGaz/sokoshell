@@ -4,15 +4,11 @@ import fr.valax.sokoshell.TestUtils;
 import fr.valax.sokoshell.solver.Direction;
 import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.solver.Map;
-import fr.valax.sokoshell.solver.TileInfo;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.spi.ToolProvider;
 
 import static fr.valax.sokoshell.solver.Direction.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CrateAStarTest {
 
@@ -37,42 +33,60 @@ public class CrateAStarTest {
         CrateAStar aStar = new CrateAStar(map);
         Node end = aStar.findPath(map.getAt(1, 1), null, map.getAt(2, 3), map.getAt(4, 4));
 
-        List<Node> nodes = new ArrayList<>();
-        Node temp = end;
-        while (temp != null) {
-            nodes.add(temp);
-            temp = temp.getParent();
-        }
-        Collections.reverse(nodes);
+        // 482 dijkstra
+        // 269 A*
+        PathfinderUtils.check(1, 1, 2, 3, end, solution);
+    }
 
-        // assertEquals(nodes.size(), solution.length);
+    @Test
+    void multipleCrates() {
+        Direction[] solution = new Direction[] {
+                DOWN, DOWN, DOWN, RIGHT, UP, LEFT, UP, RIGHT, RIGHT, RIGHT,
+                UP, RIGHT, DOWN, DOWN, UP, RIGHT, RIGHT, RIGHT, DOWN, DOWN,
+                LEFT, LEFT, LEFT
+        };
 
-        int playerX = 1;
-        int playerY = 1;
-        int crateX = 2;
-        int crateY = 3;
+        Level level = TestUtils.getLevel("""
+                ##########
+                #@       #
+                #        #
+                # $$$ $$ #
+                #  $.    #
+                ##########
+                """);
 
-        for (int i = 0; i < nodes.size(); i++) {
-            Node node = nodes.get(i);
+        Map map = level.getMap();
+        CrateAStar aStar = new CrateAStar(map);
+        Node end = aStar.findPath(map.getAt(1, 1), null, map.getAt(2, 3), map.getAt(4, 4));
 
-            TileInfo p = node.getPlayer();
-            TileInfo c = node.getCrate();
+        PathfinderUtils.check(1, 1, 2, 3, end, solution);
+    }
 
-            String errorMessage = "At %d. Player expected to be at (%d; %d) but was at (%d; %d). Crate expected to be at (%d; %d) but was at (%d; %d)"
-                    .formatted(i, playerX, playerY, p.getX(), p.getY(), crateX, crateY, c.getX(), c.getY());
+    @Test
+    void simple2() {
+        Direction[] solution = new Direction[] {
+                RIGHT, RIGHT, RIGHT, RIGHT, RIGHT, RIGHT, RIGHT, RIGHT, RIGHT, RIGHT, RIGHT, RIGHT, RIGHT, RIGHT, RIGHT,
+                DOWN, DOWN, DOWN, DOWN, RIGHT, DOWN, LEFT, LEFT, LEFT, LEFT, LEFT, LEFT, LEFT, LEFT, LEFT, LEFT, LEFT,
+                LEFT, LEFT, LEFT, LEFT
+        };
 
-            assertEquals(p.getX(), playerX, errorMessage);
-            assertEquals(p.getY(), playerY, errorMessage);
-            assertEquals(c.getX(), crateX, errorMessage);
-            assertEquals(c.getY(), crateY, errorMessage);
+        Level level = TestUtils.getLevel("""
+                ###################
+                #@                #
+                #               $ #
+                #                 #
+                #                 #
+                #                 #
+                #                 #
+                ###################
+                """);
 
-            playerX += solution[i].dirX();
-            playerY += solution[i].dirY();
+        Map map = level.getMap();
+        CrateAStar aStar = new CrateAStar(map);
+        Node end = aStar.findPath(map.getAt(1, 1), null, map.getAt(16, 2), map.getAt(1, 6));
 
-            if (playerX == crateX && playerY == crateY) {
-                crateX += solution[i].dirX();
-                crateY += solution[i].dirY();
-            }
-        }
+        // 6997 dijkstra
+        // 52 A*
+        PathfinderUtils.check(1, 1, 16, 2, end, solution);
     }
 }

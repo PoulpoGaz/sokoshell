@@ -57,6 +57,7 @@ public abstract class AbstractAStar {
         Node n = initialNode();
         queue.offer(n);
 
+        int c = 0;
         Node end = null;
         while (!queue.isEmpty()) {
             Node node = queue.poll();
@@ -79,7 +80,9 @@ public abstract class AbstractAStar {
             }
 
             markVisited(node);
+            c++;
         }
+        System.out.println(c);
 
         clean();
         return end;
