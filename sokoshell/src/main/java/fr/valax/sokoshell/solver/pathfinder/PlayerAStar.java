@@ -7,6 +7,7 @@ import fr.valax.sokoshell.solver.mark.AbstractMarkSystem;
 import fr.valax.sokoshell.solver.mark.Mark;
 import fr.valax.sokoshell.solver.mark.MarkSystem;
 
+import java.util.Comparator;
 import java.util.PriorityQueue;
 
 /**
@@ -15,21 +16,21 @@ import java.util.PriorityQueue;
  */
 public class PlayerAStar extends AbstractAStar {
 
+    private final int mapWidth;
     private final MarkSystem system;
-    private final Mark[][] mark;
-    private final Node[][] nodes;
+    private final Mark[] marks;
+    private final Node[] nodes;
 
     public PlayerAStar(Map map) {
         super(new PriorityQueue<>(map.getWidth() * map.getHeight()));
+        this.mapWidth = map.getWidth();
         system = createMarkSystem();
-        mark = new Mark[map.getHeight()][map.getWidth()];
-        nodes = new Node[map.getHeight()][map.getWidth()];
+        marks = new Mark[map.getHeight() * map.getWidth()];
+        nodes = new Node[map.getHeight() * map.getWidth()];
 
-        for (int y = 0; y < map.getHeight(); y++) {
-            for (int x = 0; x < map.getWidth(); x++) {
-                mark[y][x] = system.newMark();
-                nodes[y][x] = new Node();
-            }
+        for (int i = 0; i < marks.length; i++) {
+            marks[i] = system.newMark();
+            nodes[i] = new Node();
         }
     }
 
@@ -37,17 +38,19 @@ public class PlayerAStar extends AbstractAStar {
         return new AbstractMarkSystem() {
             @Override
             public void reset() {
-                for (Mark[] marks : PlayerAStar.this.mark) {
-                    for (Mark m : marks) {
-                        m.unmark();
-                    }
+                for (Mark m : PlayerAStar.this.marks) {
+                    m.unmark();
                 }
             }
         };
     }
 
+    private int toIndex(TileInfo player) {
+        return player.getY() * mapWidth + player.getX();
+    }
+
     @Override
-    protected void clear() {
+    protected void init() {
         system.unmarkAll();
         queue.clear();
     }
@@ -59,19 +62,12 @@ public class PlayerAStar extends AbstractAStar {
 
     @Override
     protected Node initialNode() {
-        Node init = nodes[playerStart.getY()][playerStart.getX()];
+        int i = toIndex(playerStart);
+
+        marks[i].mark();
+        Node init = nodes[i];
         init.setInitial(playerStart, null, heuristic(playerDest));
         return init;
-    }
-
-    @Override
-    protected void addNode(Node node) {
-        TileInfo p = node.getPlayer();
-
-        if (!mark[p.getY()][p.getX()].isMarked()) {
-            mark[p.getY()][p.getX()].mark();
-            queue.offer(node);
-        }
     }
 
     @Override
@@ -80,7 +76,15 @@ public class PlayerAStar extends AbstractAStar {
         TileInfo dest = player.adjacent(dir);
 
         if (!dest.isSolid()) {
-            Node node = nodes[dest.getY()][dest.getX()];
+            int i = toIndex(dest);
+
+            Mark mark = marks[i];
+            if (mark.isMarked()) {
+                return null;
+            }
+            mark.mark();
+
+            Node node = nodes[i];
             node.set(parent, dest, null, heuristic(dest));
             return node;
         }

@@ -39,7 +39,7 @@ public class Node implements Comparable<Node> {
     public void set(Node parent, TileInfo player, TileInfo crate, int heuristic) {
         this.parent = parent;
         this.dist = parent.dist + 1;
-        this.heuristic = heuristic;
+        this.heuristic = dist + heuristic;
         this.player = player;
         this.crate = crate;
     }
@@ -110,6 +110,7 @@ public class Node implements Comparable<Node> {
 
     @Override
     public int compareTo(Node o) {
-        return Integer.compare(heuristic, o.heuristic);
+        // compare in reverse order to prioritize minimal heuristic
+        return Integer.compare(o.heuristic, heuristic);
     }
 }

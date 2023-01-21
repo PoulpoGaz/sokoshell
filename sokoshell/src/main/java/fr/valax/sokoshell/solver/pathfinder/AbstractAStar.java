@@ -31,7 +31,7 @@ public abstract class AbstractAStar {
         }
 
         Node current = end;
-        while (end.getParent() != null) {
+        while (current.getParent() != null) {
             Node last = current.getParent();
 
             TileInfo lastPlayer = last.getPlayer();
@@ -53,30 +53,24 @@ public abstract class AbstractAStar {
         this.playerDest = playerDest;
         this.crateDest = crateDest;
 
+        init();
         Node n = initialNode();
-
-        if (isEndNode(n)) {
-            return n;
-        }
-
-        clear();
-        addNode(n);
+        queue.offer(n);
 
         Node end = null;
-        loop:
         while (!queue.isEmpty()) {
             Node node = queue.poll();
+
+            if (isEndNode(node)) {
+                end = node;
+                break;
+            }
 
             for (Direction direction : Direction.VALUES) {
                 Node child = processMove(node, direction);
 
                 if (child != null) {
-                    if (isEndNode(child)) {
-                        end = child;
-                        break loop;
-                    }
-
-                    addNode(child);
+                    queue.offer(child);
                 }
             }
         }
@@ -86,19 +80,29 @@ public abstract class AbstractAStar {
     }
 
     /**
-     * Clear the queue. Called before the search
+     * Init A*. Usually clear the queue. Called before the search
      */
-    protected abstract void clear();
+    protected abstract void init();
 
     /**
      * Clean the object. Called at the end of the search
      */
     protected abstract void clean();
 
+    /**
+     * Returns the initial node. Implementations must mark this node
+     * as visited
+     * @return the initial node
+     */
     protected abstract Node initialNode();
 
-    protected abstract void addNode(Node node);
-
+    /**
+     *
+     * @param parent parent node
+     * @param dir direction taken player
+     * @return {@code null} if the player cannot move in the specified direction
+     * or if the node was already visited. Otherwise, returns child node
+     */
     protected abstract Node processMove(Node parent, Direction dir);
 
     protected abstract boolean isEndNode(Node node);

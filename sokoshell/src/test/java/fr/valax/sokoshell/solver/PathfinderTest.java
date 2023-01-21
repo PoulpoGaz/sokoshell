@@ -28,7 +28,8 @@ public class PathfinderTest {
 
         for (int i = 0; i < 10_000; i++) {
             pm.start("a*");
-            astar.hasPath(map.getAt(1, 1), map.getAt(74, 49), null, null);
+            System.out.println(i);
+            assertTrue(astar.hasPath(map.getAt(1, 1), map.getAt(74, 49), null, null));
             pm.end("a*");
         }
 
