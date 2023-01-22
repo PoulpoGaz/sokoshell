@@ -8,6 +8,12 @@ Quelle est votre motivation pour le choix du sujet? (50 mots maximum)
 Le Sokoban est un jeu (de réflexion) que j'ai découvert en apprenant à programmer. Depuis, il me fascine par sa difficulté mais ses règles simples.
 Mon binôme connaissant aussi le jeu, nous avons pensé que serait une bonne occasion de travailler sur ce sujet d'intérêt commun.
 
+Depuis que j'ai découvert le Sokoban, un jeu de réflexion japonais, dans un tutoriel de programmation, il me fascine par sa difficulté malgré ses
+règles simples. Mon binôme connaissant aussi ce jeu, nous avons pensé que ce TIPE serait une bonne occasion de travailler sur ce sujet
+d'intérêt commun.
+
+Mon binôme et moi-même avons découvert le Sokoban indépendamment dans le même tutoriel de programmation. Il nous fascine tous les deux par sa
+difficulté malgré ses règles simples. Ainsi, nous avons pensé que ce TIPE serait une bonne occasion de travailler sur ce sujet d'intérêt commun.
 
 <small>
 	Le Sokoban est un jeu où le joueur, dans un labyrinthe, doit pousser des caisses jusqu'à des objectifs. Malgré ces règles simples, résoudre un niveau peut être très difficile, pour un humain comme pour un programme.
@@ -18,7 +24,11 @@ Mon binôme connaissant aussi le jeu, nous avons pensé que serait une bonne occ
 En quoi votre étude s'inscrit-elle dans le thème de l'année ? (50 mots maximum)
 ===============================================================================
 
-Le Sokoban, (du Japonais | littéralement) «gardien d'entrepôt», consiste à pousser des caisses jusqu'à des objectifs dans un labyrinthe en deux dimensions.
+Le Sokoban, littéralement « gardien d'entrepôt », consiste à pousser des caisses sur des objectifs dans un labyrinthe.
+On simule ainsi la gestion d'un entrepôt ou un problème de livraison de colis (en assimilant le labyrinthe à une ville), deux enjeux importants
+dans les villes où les livraisons sont nombreuses.
+
+Le Sokoban, (du Japonais | littéralement) « gardien d'entrepôt », consiste à pousser des caisses jusqu'à des objectifs dans un labyrinthe en deux dimensions.
 La résolution de Sokoban peut s'appliquer à plusieurs domaines ...
 
 <small>
@@ -56,24 +66,23 @@ Positionnements thématiques* et mots-clés* (français et anglais)
 
 INFORMATIQUE
 
---> Sokoban (Sokoban)
---> jeu vidéo de réflexion (puzzle video game)
---> problème de recherche (search problem)
---> émondage de graphe (graph pruning)
---> heuristique (heuristic)
+* Sokoban (Sokoban)
+* jeu vidéo de réflexion (puzzle video game)
+* problème de recherche (search problem)
+* émondage de graphe (graph pruning)
+* heuristique (heuristic)
 
+<small>
 IA
 A*
-
 planification
-
 théorie des graphes
 exploration de graphe
-
 (non)
 PSPACE-complet
 résolution
 solution
+</small>
 
 
 Liste de références bibliographiques (5 à 10 références)
