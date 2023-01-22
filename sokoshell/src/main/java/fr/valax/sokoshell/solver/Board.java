@@ -425,6 +425,20 @@ public class Board {
                 tunnels.add(tunnel);
             }
         });
+
+        for (int i = 0; i < tunnels.size(); i++) {
+            Tunnel t = tunnels.get(i);
+
+            if (t.getStartOut() == null || t.getEndOut() == null) {
+                t.setOneway(true);
+            } else {
+                t.getStart().addCrate();
+                findReachableCases(t.getStartOut());
+                t.getStart().removeCrate();
+
+                t.setOneway(!t.getEndOut().isReachable());
+            }
+        }
     }
 
     /**
@@ -784,8 +798,12 @@ public class Board {
      * @param playerPos The indic of the case on which the player currently is.
      */
     protected void findReachableCases(int playerPos) {
+        findReachableCases(getAt(playerPos));
+    }
+
+    protected void findReachableCases(TileInfo tile) {
         reachableMarkSystem.unmarkAll();
-        findReachableCases_aux(getAt(playerPos));
+        findReachableCases_aux(tile);
     }
 
     private void findReachableCases_aux(TileInfo tile) {

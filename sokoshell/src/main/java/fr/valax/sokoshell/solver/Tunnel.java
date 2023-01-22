@@ -29,6 +29,7 @@ public class Tunnel {
 
     // true if the tunnel can only be taken by the player
     private boolean playerOnlyTunnel;
+    private boolean isOneway;
 
 
     // DYNAMIC
@@ -137,6 +138,14 @@ public class Tunnel {
 
     public void setCrateInside(boolean crateInside) {
         this.crateInside = crateInside;
+    }
+
+    public boolean isOneway() {
+        return isOneway;
+    }
+
+    public void setOneway(boolean oneway) {
+        isOneway = oneway;
     }
 
     /**

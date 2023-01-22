@@ -233,9 +233,12 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
                 // ie the crate can't be pushed to the other extremities of the tunnel
                 // however, sometimes (boxxle 24) it is useful to push the crate inside
                 // the tunnel. That's why the second addState is done (after this if)
+                // and only if this tunnel isn't oneway
                 if (!tunnel.isPlayerOnlyTunnel()) {
+                    TileInfo crate = board.getAt(crateX, crateY);
                     TileInfo newDest = null;
-                    if (dest == tunnel.getStart()) {
+
+                    if (crate == tunnel.getStartOut()) {
                         if (tunnel.getEndOut() != null && !tunnel.getEndOut().anyCrate()) {
                             newDest = tunnel.getEndOut();
                         }
@@ -248,6 +251,10 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
                     if (newDest != null && !newDest.isDeadTile()) {
                         addStateCheckForGoalMacro(crateIndex, crateX, crateY, newDest);
                     }
+                }
+
+                if (tunnel.isOneway()) {
+                    continue;
                 }
             }
 

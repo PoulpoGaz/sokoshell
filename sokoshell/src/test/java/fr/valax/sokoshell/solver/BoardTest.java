@@ -33,15 +33,15 @@ public class BoardTest {
     @Test
     void findTunnelTest() {
         Set<TTunnel> tunnelsSet = new HashSet<>();
-        tunnelsSet.add(new TTunnel(4, 4, 3, 5,    5, 4, 3, 6,    true));
-        tunnelsSet.add(new TTunnel(5, 5, 5, 6,    5, 4, 5, 7,    false));
-        tunnelsSet.add(new TTunnel(8, 4, 8, 6,    7, 4, 8, 7,    true));
-        tunnelsSet.add(new TTunnel(4, 7, 4, 7,    3, 7, 5, 7,    false));
-        tunnelsSet.add(new TTunnel(6, 7, 7, 7,    5, 7, 8, 7,    false));
-        tunnelsSet.add(new TTunnel(5, 8, 9, 8,    5, 7, 9, 7,    true));
-        tunnelsSet.add(new TTunnel(10, 7, 10, 7,  9, 7, 11, 7,   false));
-        tunnelsSet.add(new TTunnel(11, 8, 11, 8,  11, 7, -1, -1, false));
-        tunnelsSet.add(new TTunnel(12, 7, 13, 7,  11, 7, 14, 7,  false));
+        tunnelsSet.add(new TTunnel(4, 4, 3, 5,    5, 4, 3, 6,    true,  false));
+        tunnelsSet.add(new TTunnel(5, 5, 5, 6,    5, 4, 5, 7,    false, false));
+        tunnelsSet.add(new TTunnel(8, 4, 8, 6,    7, 4, 8, 7,    true,  false));
+        tunnelsSet.add(new TTunnel(4, 7, 4, 7,    3, 7, 5, 7,    false, false));
+        tunnelsSet.add(new TTunnel(6, 7, 7, 7,    5, 7, 8, 7,    false, false));
+        tunnelsSet.add(new TTunnel(5, 8, 9, 8,    5, 7, 9, 7,    true,  false));
+        tunnelsSet.add(new TTunnel(10, 7, 10, 7,  9, 7, 11, 7,   false, true));
+        tunnelsSet.add(new TTunnel(11, 8, 11, 8,  11, 7, -1, -1, false, true));
+        tunnelsSet.add(new TTunnel(12, 7, 13, 7,  11, 7, 14, 7,  false, true));
 
         Level level = TestUtils.getLevel(Path.of("levels8xv/Original.8xv"));
         Board board = level.getMap();
@@ -59,8 +59,10 @@ public class BoardTest {
 
             TTunnel arr1 = new TTunnel(s.getX(), s.getY(), e.getX(), e.getY());
             arr1.setOnlyPlayer(t.isPlayerOnlyTunnel());
+            arr1.setOneWay(t.isOneway());
             TTunnel arr2 = new TTunnel(e.getX(), e.getY(), s.getX(), s.getY());
             arr2.setOnlyPlayer(t.isPlayerOnlyTunnel());
+            arr2.setOneWay(t.isOneway());
 
             if (so != null) {
                 arr1.setStartOutX(so.getX());
@@ -236,6 +238,7 @@ public class BoardTest {
         private int endOutX;
         private int endOutY;
         private boolean onlyPlayer;
+        private boolean oneWay;
 
         public TTunnel(int startX, int startY, int endX, int endY) {
             this.startX = startX;
@@ -244,7 +247,7 @@ public class BoardTest {
             this.endY = endY;
         }
 
-        private TTunnel(int startX, int startY, int endX, int endY, int startOutX, int startOutY, int endOutX, int endOutY, boolean onlyPlayer) {
+        private TTunnel(int startX, int startY, int endX, int endY, int startOutX, int startOutY, int endOutX, int endOutY, boolean onlyPlayer, boolean oneWay) {
             this.startX = startX;
             this.startY = startY;
             this.endX = endX;
@@ -254,6 +257,7 @@ public class BoardTest {
             this.endOutX = endOutX;
             this.endOutY = endOutY;
             this.onlyPlayer = onlyPlayer;
+            this.oneWay = oneWay;
         }
 
         public int startX() {
@@ -328,6 +332,14 @@ public class BoardTest {
             this.onlyPlayer = onlyPlayer;
         }
 
+        public boolean oneWay() {
+            return oneWay;
+        }
+
+        public void setOneWay(boolean oneWay) {
+            this.oneWay = oneWay;
+        }
+
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
@@ -341,7 +353,8 @@ public class BoardTest {
             if (startOutY != tTunnel.startOutY) return false;
             if (endOutX != tTunnel.endOutX) return false;
             if (endOutY != tTunnel.endOutY) return false;
-            return onlyPlayer == tTunnel.onlyPlayer;
+            if (onlyPlayer != tTunnel.onlyPlayer) return false;
+            return oneWay == tTunnel.oneWay;
         }
 
         @Override
@@ -355,18 +368,16 @@ public class BoardTest {
             result = 31 * result + endOutX;
             result = 31 * result + endOutY;
             result = 31 * result + (onlyPlayer ? 1 : 0);
+            result = 31 * result + (oneWay ? 1 : 0);
             return result;
         }
 
         @Override
         public String toString() {
-            return "(%d; %d) - (%d; %d) --> (%d; %d) - (%d; %d). only player? %s"
-                    .formatted(startOutX, startOutY, startX, startY, endX, endY, endOutX, endOutY, onlyPlayer);
+            return "(%d; %d) - (%d; %d) --> (%d; %d) - (%d; %d). only player? %s. one way? %s"
+                    .formatted(startOutX, startOutY, startX, startY, endX, endY, endOutX, endOutY, onlyPlayer, oneWay);
         }
     }
-
-
-
 
 
 
