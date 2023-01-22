@@ -6,7 +6,6 @@ import fr.valax.sokoshell.solver.TileInfo;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -14,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public class PathfinderUtils {
 
     public static void check(int playerX, int playerY, int crateX, int crateY,
-                             //int playerDestX, int playerDestY, int crateDestX, int crateDestY,
+                             int playerDestX, int playerDestY, int crateDestX, int crateDestY,
                              Node end, Direction... solution) {
         assertNotNull(end);
 
@@ -35,14 +34,14 @@ public class PathfinderUtils {
             TileInfo c = node.getCrate();
 
             String errorMessage = "At %d. Player expected to be at (%d; %d) but was at (%d; %d). "
-                    .formatted(i, playerX, playerY, p.getX(), p.getY());
+                    .formatted(i - 1, playerX, playerY, p.getX(), p.getY());
 
             assertEquals(p.getX(), playerX, errorMessage);
             assertEquals(p.getY(), playerY, errorMessage);
 
             if (crate) {
                 errorMessage = "At %d. Crate expected to be at (%d; %d) but was at (%d; %d)"
-                        .formatted(i, crateX, crateY, c.getX(), c.getY());
+                        .formatted(i - 1, crateX, crateY, c.getX(), c.getY());
 
                 assertEquals(c.getX(), crateX, errorMessage);
                 assertEquals(c.getY(), crateY, errorMessage);
@@ -55,6 +54,14 @@ public class PathfinderUtils {
                 crateX += solution[i].dirX();
                 crateY += solution[i].dirY();
             }
+        }
+
+        assertEquals(playerDestX, playerX);
+        assertEquals(playerDestY, playerY);
+
+        if (crate) {
+            assertEquals(crateDestX, crateX);
+            assertEquals(crateDestY, crateY);
         }
     }
 }

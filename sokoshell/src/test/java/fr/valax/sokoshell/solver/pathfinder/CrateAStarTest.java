@@ -6,8 +6,6 @@ import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.solver.Map;
 import org.junit.jupiter.api.Test;
 
-import java.util.spi.ToolProvider;
-
 import static fr.valax.sokoshell.solver.Direction.*;
 
 public class CrateAStarTest {
@@ -35,7 +33,7 @@ public class CrateAStarTest {
 
         // 482 dijkstra
         // 269 A*
-        PathfinderUtils.check(1, 1, 2, 3, end, solution);
+        PathfinderUtils.check(1, 1, 2, 3, 5, 4, 4, 4, end, solution);
     }
 
     @Test
@@ -59,7 +57,7 @@ public class CrateAStarTest {
         CrateAStar aStar = new CrateAStar(map);
         Node end = aStar.findPath(map.getAt(1, 1), null, map.getAt(2, 3), map.getAt(4, 4));
 
-        PathfinderUtils.check(1, 1, 2, 3, end, solution);
+        PathfinderUtils.check(1, 1, 2, 3, 5, 4, 4, 4, end, solution);
     }
 
     @Test
@@ -87,6 +85,6 @@ public class CrateAStarTest {
 
         // 6997 dijkstra
         // 52 A*
-        PathfinderUtils.check(1, 1, 16, 2, end, solution);
+        PathfinderUtils.check(1, 1, 16, 2, 2, 6, 1, 6, end, solution);
     }
 }

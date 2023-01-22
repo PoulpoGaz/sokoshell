@@ -1,8 +1,8 @@
 package fr.valax.sokoshell.solver.pathfinder;
 
-import fr.valax.sokoshell.graphics.style.BasicStyle;
-import fr.valax.sokoshell.solver.*;
-import fr.valax.sokoshell.solver.mark.MarkSystem;
+import fr.valax.sokoshell.solver.Direction;
+import fr.valax.sokoshell.solver.Map;
+import fr.valax.sokoshell.solver.TileInfo;
 
 import java.util.PriorityQueue;
 

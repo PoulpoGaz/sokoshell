@@ -35,7 +35,7 @@ public class PlayerAStarTest {
         // 21 nodes A*
         // 23 nodes dijkstra
         Node node = aStar.findPath(map.getAt(1, 1), map.getAt(6, 5), null, null);
-        PathfinderUtils.check(1, 1, -1, -1, node, solution);
+        PathfinderUtils.check(1, 1, -1, -1, 6, 5, -1, -1, node, solution);
     }
 
     @Test
