@@ -1,9 +1,7 @@
 package fr.valax.sokoshell.solver.heuristic;
 
-import fr.poulpogaz.json.JsonException;
-import fr.valax.sokoshell.graphics.style.MapRenderer;
-import fr.valax.sokoshell.graphics.style.MapStyleReader;
-import fr.valax.sokoshell.readers.PackReaders;
+import fr.valax.sokoshell.TestUtils;
+import fr.valax.sokoshell.graphics.style.BoardStyle;
 import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.solver.Board;
 import fr.valax.sokoshell.solver.Pack;
@@ -13,27 +11,23 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 public class GreedyHeuristicTest {
 
     @Test
-    void distancesTest() throws java.io.IOException, JsonException {
+    void distancesTest() {
 
         //Pack pack = PackReaders.read(Path.of("../levels/TIPEex.8xv"), false);
-        Pack pack = PackReaders.read(Path.of("../levels/levels8xv/Original.8xv"), false);
+        Pack pack = TestUtils.getPack(Path.of("levels8xv/Original.8xv"));
+        BoardStyle style = TestUtils.getStyle(Path.of("isekai/isekai.style"));
 
         Level level = pack.getLevel(89);
         Board board = level.getMap();
         State s = level.getInitialState();
 
-        MapRenderer mR = new MapRenderer();
-        mR.setStyle(new MapStyleReader().read(Path.of("../styles/isekai/isekai.style")));
 
         board.initForSolver();
         board.addStateCrates(s);
-        mR.sysPrint(board, level.getPlayerX(), level.getPlayerY());
+        style.print(board, level.getPlayerX(), level.getPlayerY());
 
 
         GreedyHeuristic h;

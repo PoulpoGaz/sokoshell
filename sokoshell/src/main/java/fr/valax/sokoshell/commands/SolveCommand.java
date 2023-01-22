@@ -5,16 +5,18 @@ import fr.valax.args.api.Command;
 import fr.valax.args.api.Option;
 import fr.valax.args.api.VaArgs;
 import fr.valax.args.utils.ArgsUtils;
-import fr.valax.sokoshell.SokoShellHelper;
+import fr.valax.sokoshell.SokoShell;
 import fr.valax.sokoshell.SolverTask;
 import fr.valax.sokoshell.TaskList;
 import fr.valax.sokoshell.TaskStatus;
-import fr.valax.sokoshell.solver.*;
+import fr.valax.sokoshell.solver.Level;
+import fr.valax.sokoshell.solver.Pack;
+import fr.valax.sokoshell.solver.Solver;
+import fr.valax.sokoshell.solver.SolverParameter;
 import org.jline.reader.Candidate;
 import org.jline.reader.LineReader;
 
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.*;
 
@@ -58,7 +60,7 @@ public class SolveCommand extends AbstractCommand {
             return SUCCESS;
         }
 
-        Solver solver = helper.getSolver(this.solver);
+        Solver solver = sokoshell().getSolver(this.solver);
         if (solver == null) {
             err.printf("No such solver: %s%n", this.solver);
             return FAILURE;
@@ -134,7 +136,7 @@ public class SolveCommand extends AbstractCommand {
 
     private SolverTask newTask(Solver solver, List<SolverParameter> params, List<Level> levels, String packRequest) {
         SolverTask task = new SolverTask(solver, params, levels, packRequest, nullSafeToString(this.levels));
-        TaskList list = helper.getTaskList();
+        TaskList list = sokoshell().getTaskList();
 
         if (toTheTop) {
             list.offerTask(task, 0);
@@ -149,7 +151,7 @@ public class SolveCommand extends AbstractCommand {
 
     private String formatPackRequest() {
         if (packs == null) {
-            Pack pack = helper.getSelectedPack();
+            Pack pack = sokoshell().getSelectedPack();
 
             if (pack == null) {
                 return "";
@@ -188,7 +190,7 @@ public class SolveCommand extends AbstractCommand {
         usage.add("");
         usage.add("Solver parameters:");
 
-        for (Solver solver : helper.getSolvers().values()) {
+        for (Solver solver : sokoshell().getSolvers().values()) {
             usage.add(solver.getName() + ":");
 
             for (SolverParameter param : solver.getParameters()) {
@@ -212,9 +214,9 @@ public class SolveCommand extends AbstractCommand {
                          String argument) {
         if (option != null) {
             if (ArgsUtils.contains(option.getShortNames(), 'p')) {
-                helper.addPackCandidates(candidates);
+                sokoshell().addPackCandidates(candidates);
             } else if (ArgsUtils.contains(option.getShortNames(), 's')) {
-                Set<String> solvers = SokoShellHelper.INSTANCE.getSolvers().keySet();
+                Set<String> solvers = SokoShell.INSTANCE.getSolvers().keySet();
 
                 for (String solver : solvers) {
                     candidates.add(new Candidate(solver));
@@ -231,9 +233,9 @@ public class SolveCommand extends AbstractCommand {
                     return;
                 }
 
-                solver = helper.getSolver(args.get(0));
+                solver = sokoshell().getSolver(args.get(0));
             } else {
-                solver = helper.getSolver(Solver.BFS);
+                solver = sokoshell().getSolver(Solver.BFS);
             }
 
             if (solver != null) {

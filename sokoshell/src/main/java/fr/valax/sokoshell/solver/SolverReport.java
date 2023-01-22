@@ -3,8 +3,10 @@ package fr.valax.sokoshell.solver;
 import fr.poulpogaz.json.JsonException;
 import fr.poulpogaz.json.JsonPrettyWriter;
 import fr.poulpogaz.json.JsonReader;
-import fr.valax.sokoshell.SokoShellHelper;
-import fr.valax.sokoshell.graphics.style.MapRenderer;
+import fr.valax.sokoshell.SokoShell;
+import fr.valax.sokoshell.graphics.style.BoardStyle;
+import fr.valax.sokoshell.solver.pathfinder.CrateAStar;
+import fr.valax.sokoshell.solver.pathfinder.Node;
 
 import java.io.IOException;
 import java.util.*;
@@ -142,7 +144,7 @@ public class SolverReport {
 
         TileInfo player = board.getAt(level.getPlayerX(), level.getPlayerY());
 
-        Pathfinder pathfinder = new Pathfinder();
+        CrateAStar aStar = new CrateAStar(board);
         for (int i = 0; i < states.size() - 1; i++) {
             State current = states.get(i);
 
@@ -153,7 +155,7 @@ public class SolverReport {
             State next = states.get(i + 1);
             StateDiff diff = getStateDiff(board, current, next);
 
-            Pathfinder.Node node = pathfinder.findPath(
+            Node node = aStar.findPathAndComputeMoves(
                     player, null,
                     diff.crate(), diff.crateDest());
 
@@ -161,10 +163,10 @@ public class SolverReport {
                 throw canFindPathException(board, current, next);
             }
 
-            player = node.player();
-            while (node.parent() != null) {
-                temp.add(node.move());
-                node = node.parent();
+            player = node.getPlayer();
+            while (node.getParent() != null) {
+                temp.add(node.getMove());
+                node = node.getParent();
             }
 
             path.ensureCapacity(path.size() + temp.size());
@@ -209,18 +211,18 @@ public class SolverReport {
     /**
      * Create an exception indicating a path can't be found between two states.
      *
-     * @param board the map which must be in the same state as current
+     * @param board the board which must be in the same state as current
      * @param current the current state
      * @param next the next state
      * @return an exception
      */
     private IllegalStateException canFindPathException(Board board, State current, State next) {
-        MapRenderer mr = SokoShellHelper.INSTANCE.getRenderer();
+        BoardStyle style = SokoShell.INSTANCE.getBoardStyle();
 
-        String map1 = mr.toString(board, board.getX(current.playerPos()), board.getY(current.playerPos()));
+        String map1 = style.drawToString(board, board.getX(current.playerPos()), board.getY(current.playerPos())).toAnsi();
         board.removeStateCrates(current);
         board.addStateCrates(next);
-        String map2 = mr.toString(board, board.getX(next.playerPos()), board.getY(next.playerPos()));
+        String map2 = style.drawToString(board, board.getX(next.playerPos()), board.getY(next.playerPos())).toString();
 
         return new IllegalStateException("""
                 Can't find path between two states:

@@ -203,7 +203,7 @@ public class Graphics {
                     int drawX = x + cx;
                     int drawY = y + cy;
 
-                    surface.set(paint.at(cx, cy, box), drawX, drawY);
+                    surface.draw(paint.at(cx, cy, box), drawX, drawY);
                 }
 
             }
@@ -229,11 +229,15 @@ public class Graphics {
                     int drawX = x + cx;
                     int drawY = y + cy;
 
-                    surface.set(paint.at(cx, cy, box), drawX, drawY);
+                    surface.draw(paint.at(cx, cy, box), drawX, drawY);
                 }
 
             }
         }
+    }
+
+    public void drawImage(BufferedImage image, int x, int y) {
+        drawImage(image, 0, 0, image.getWidth(), image.getHeight(), x, y);
     }
 
     /**
@@ -244,15 +248,15 @@ public class Graphics {
      * @param x x
      * @param y y
      */
-    public void drawImage(BufferedImage image, int x, int y) {
-        int endX = Math.min(image.getWidth() + x, surface.getWidth());
-        int endY = Math.min(image.getHeight() + y, surface.getHeight());
+    public void drawImage(BufferedImage image, int subX, int subY, int subWidth, int subHeight, int x, int y) {
+        int endX = Math.min(subWidth + x, surface.getWidth());
+        int endY = Math.min(subHeight + y, surface.getHeight());
 
-        int yImg = 0;
+        int yImg = subY;
 
         for (int y2 = y; y2 < endY; y2++, yImg++) {
 
-            int xImg = 0;
+            int xImg = subX;
             for (int x2 = x; x2 < endX; x2++, xImg++) {
 
                 int rgb = image.getRGB(xImg, yImg);
@@ -265,7 +269,7 @@ public class Graphics {
                 int green = (rgb >> 8) & 0xFF;
                 int blue = rgb & 0xFF;
 
-                surface.set(' ', AttributedStyle.DEFAULT.background(red, green, blue),
+                surface.draw(' ', AttributedStyle.DEFAULT.background(red, green, blue),
                         x2,
                         y2);
             }

@@ -3,8 +3,14 @@ package fr.valax.sokoshell.solver;
 import fr.valax.interval.IntWrapper;
 import fr.valax.sokoshell.solver.mark.AbstractMarkSystem;
 import fr.valax.sokoshell.solver.mark.MarkSystem;
+import fr.valax.sokoshell.solver.pathfinder.CrateAStar;
+import fr.valax.sokoshell.solver.pathfinder.CratePlayerAStar;
+import fr.valax.sokoshell.solver.pathfinder.PlayerAStar;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -57,7 +63,9 @@ public class Board {
      */
     private boolean isGoalRoomLevel;
 
-    private Pathfinder pathfinder;
+    private PlayerAStar playerAStar;
+    private CrateAStar crateAStar;
+    private CratePlayerAStar cratePlayerAStar;
 
     /**
      * Creates a Map with the specified width, height and tiles
@@ -191,7 +199,9 @@ public class Board {
      * @see Tunnel
      */
     public void initForSolver() {
-        pathfinder = new Pathfinder();
+        playerAStar = new PlayerAStar(this);
+        crateAStar = new CrateAStar(this);
+        cratePlayerAStar = new CratePlayerAStar(this);
 
         computeFloors();
         computeDeadTiles();
@@ -641,7 +651,7 @@ public class Board {
                 crate.removeCrate();
                 inRoom.addCrate();
 
-                if (pathfinder.getCrateAStar().hasPath(entrance, null, inRoom, crate)) {
+                if (crateAStar.hasPath(entrance, null, inRoom, crate)) {
                     accessibleCrates.remove(i);
                     i--;
                     crate.unmark();
@@ -679,6 +689,45 @@ public class Board {
 
         return true;
     }
+
+    /**
+     * Find accessible crates using bfs from lastFrontier.
+     *
+     * @param lastFrontier starting point of the bfs
+     * @param newFrontier a non-null list that will contain the next tile info to visit
+     * @param out a list that will contain accessible crates
+     */
+    private void findAccessibleCrates(List<TileInfo> lastFrontier, List<TileInfo> newFrontier, List<TileInfo> out) {
+        newFrontier.clear();
+
+        for (int i = 0; i < lastFrontier.size(); i++) {
+            TileInfo tile = lastFrontier.get(i);
+
+            if (!tile.isMarked()) {
+                tile.mark();
+                if (tile.anyCrate()) {
+                    out.add(tile);
+                } else {
+                    for (Direction dir : Direction.VALUES) {
+                        TileInfo adj = tile.adjacent(dir);
+
+                        if (!adj.isMarked() && !adj.isWall()) {
+                            newFrontier.add(adj);
+                        }
+                    }
+                }
+            }
+        }
+
+        if (!newFrontier.isEmpty()) {
+            findAccessibleCrates(newFrontier, lastFrontier, out);
+        } else {
+            lastFrontier.clear();
+        }
+    }
+
+
+
 
     private void computeTileToTargetsDistances() {
 
@@ -721,42 +770,6 @@ public class Board {
                 Arrays.sort(getAt(x, y).getTargets());
                 getAt(x, y).setNearestTarget(new TileInfo.TargetRemoteness(minDistToTargetIndex, minDistToTarget));
             }
-        }
-    }
-
-    /**
-     * Find accessible crates using bfs from lastFrontier.
-     *
-     * @param lastFrontier starting point of the bfs
-     * @param newFrontier a non-null list that will contain the next tile info to visit
-     * @param out a list that will contain accessible crates
-     */
-    private void findAccessibleCrates(List<TileInfo> lastFrontier, List<TileInfo> newFrontier, List<TileInfo> out) {
-        newFrontier.clear();
-
-        for (int i = 0; i < lastFrontier.size(); i++) {
-            TileInfo tile = lastFrontier.get(i);
-
-            if (!tile.isMarked()) {
-                tile.mark();
-                if (tile.anyCrate()) {
-                    out.add(tile);
-                } else {
-                    for (Direction dir : Direction.VALUES) {
-                        TileInfo adj = tile.adjacent(dir);
-
-                        if (!adj.isMarked() && !adj.isWall()) {
-                            newFrontier.add(adj);
-                        }
-                    }
-                }
-            }
-        }
-
-        if (!newFrontier.isEmpty()) {
-            findAccessibleCrates(newFrontier, lastFrontier, out);
-        } else {
-            lastFrontier.clear();
         }
     }
 

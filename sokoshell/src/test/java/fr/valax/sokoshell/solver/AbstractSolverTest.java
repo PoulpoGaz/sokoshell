@@ -1,33 +1,28 @@
 package fr.valax.sokoshell.solver;
 
-import fr.poulpogaz.json.JsonException;
-import fr.valax.sokoshell.graphics.style.MapRenderer;
-import fr.valax.sokoshell.graphics.style.MapStyleReader;
-import fr.valax.sokoshell.readers.PackReaders;
+import fr.valax.sokoshell.TestUtils;
+import fr.valax.sokoshell.graphics.style.BoardStyle;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.nio.file.Path;
 
 public class AbstractSolverTest {
 
     @Test
-    void deadPositionsDetectionTest() throws IOException, JsonException {
-        Pack pack = PackReaders.read(Path.of("../levels/levels8xv/Aruba10.8xv"), false);
+    void deadPositionsDetectionTest() {
+        Level level = TestUtils.getLevel(Path.of("levels8xv/Aruba10.8xv"), 46 - 1);
+        BoardStyle style = TestUtils.getStyle(Path.of("isekai/isekai.style"));
 
-        Level level = pack.getLevel(46 - 1);
         Board board = level.getMap();
         board.removeStateCrates(level.getInitialState());
-        MapRenderer mR = new MapRenderer();
-        mR.setStyle(new MapStyleReader().read(Path.of("../styles/isekai/isekai.style")));
-        mR.setShowDeadTiles(true);
-        mR.sysPrint(level);
+        //mR.setShowDeadTiles(true);
+        style.print(level);
         System.out.println("Computing dead positions...");
 
         board.computeFloors();
         board.computeDeadTiles();
-        mR.sysPrint(board, level.getPlayerX(), level.getPlayerY());
+        style.print(board, level.getPlayerX(), level.getPlayerY());
 
         final int[] count = {0};
 
@@ -42,9 +37,27 @@ public class AbstractSolverTest {
     }
 
     @Test
-    void freezeDeadlockTest() throws Exception {
-        Pack pack = PackReaders.SOK_READER
-                .read(AbstractSolverTest.class.getResourceAsStream("/freezeDeadlockTest.sok"));
+    void freezeDeadlockTest() {
+        Pack pack = TestUtils.getPack("""
+                ######
+                #@   #
+                #    #
+                #$  .#
+                ######
+                                
+                ######
+                #@   #
+                # $$ #
+                # $$ #
+                #....#
+                ######
+                                
+                #####
+                #*. #
+                #*$@#
+                #*  #
+                #####
+                """);
 
         Assertions.assertNotNull(pack);
         Assertions.assertNotNull(pack.levels());
@@ -68,20 +81,13 @@ public class AbstractSolverTest {
     }
 
     @Test
-    void freezeDeadlockTest2() throws Exception {
-        Pack pack = PackReaders.read(Path.of("../levels/levels8xv/Aruba10.8xv"), false);
-
-        Assertions.assertNotNull(pack);
-        Assertions.assertNotNull(pack.levels());
-        Assertions.assertNotEquals(0, pack.nLevels());
-
-        MapRenderer mr = new MapRenderer();
-        mr.setStyle(new MapStyleReader().read(Path.of("../styles/isekai/isekai.style")));
-        mr.setShowDeadTiles(true);
+    void freezeDeadlockTest2() {
+        Level level = TestUtils.getLevel(Path.of("levels8xv/Aruba10.8xv"), 46 - 1);
+        BoardStyle style = TestUtils.getStyle(Path.of("isekai/isekai.style"));
+        //mr.setShowDeadTiles(true);
 
         BasicBruteforceSolver solver = BasicBruteforceSolver.newBFSSolver();
 
-        Level level = pack.getLevel(46 - 1);
         Board board = level.getMap();
         State init = level.getInitialState();
 
@@ -93,25 +99,18 @@ public class AbstractSolverTest {
 
         board.addStateCrates(myState);
 
-        mr.sysPrint(board, myState.playerPos() % board.getWidth(), myState.playerPos() / board.getWidth());
+        style.print(board, myState.playerPos() % board.getWidth(), myState.playerPos() / board.getWidth());
         System.out.println(solver.checkFreezeDeadlock(board, myState));
     }
 
     @Test
-    void freezeDeadlockTest3() throws JsonException, IOException {
-        Pack pack = PackReaders.read(Path.of("../levels/levels8xv/Original.8xv"), false);
-
-        Assertions.assertNotNull(pack);
-        Assertions.assertNotNull(pack.levels());
-        Assertions.assertNotEquals(0, pack.nLevels());
-
-        MapRenderer mr = new MapRenderer();
-        mr.setStyle(new MapStyleReader().read(Path.of("../styles/isekai/isekai.style")));
-        mr.setShowDeadTiles(true);
+    void freezeDeadlockTest3() {
+        Level level = TestUtils.getLevel(Path.of("levels8xv/Original.8xv"), 48 - 1);
+        BoardStyle style = TestUtils.getStyle(Path.of("isekai/isekai.style"));
+        //mr.setShowDeadTiles(true);
 
         BasicBruteforceSolver solver = BasicBruteforceSolver.newBFSSolver();
 
-        Level level = pack.getLevel(48 - 1);
         Board board = level.getMap();
         State init = level.getInitialState();
 
@@ -122,7 +121,7 @@ public class AbstractSolverTest {
         State myState = new State(33, new int[] {16, 18, 20, 22, 17, 32, 21, 29, 31, 43, 48, 122, 30, 61, 68, 83, 73, 74, 127, 150, 162, 139, 140, 172, 176, 151, 152, 158, 163, 177, 165, 166, 171, 179}, null);
         board.addStateCrates(myState);
 
-        mr.sysPrint(board, myState.playerPos() % board.getWidth(), myState.playerPos() / board.getWidth());
+        style.print(board, myState.playerPos() % board.getWidth(), myState.playerPos() / board.getWidth());
         System.out.println(solver.checkFreezeDeadlock(board, myState));
     }
 }

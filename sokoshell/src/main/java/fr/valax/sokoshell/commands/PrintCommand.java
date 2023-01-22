@@ -67,20 +67,20 @@ public class PrintCommand extends AbstractCommand {
                 out.printf("<===== Level n°%d =====>%n", l.getIndex() + 1);
 
                 if (maximize) {
-                    Size s = helper.getTerminal().getSize();
+                    Size s = sokoshell().getTerminal().getSize();
 
                     Surface surface = new Surface();
                     surface.resize(s.getColumns(), s.getRows());
                     Graphics g = new Graphics(surface);
-                    helper.getRenderer().draw(g, 0, 0, s.getColumns(), s.getRows(), l.getMap(), l.getPlayerX(), l.getPlayerY(), playerDir);
-                    surface.drawBuffer(out);
+                    sokoshell().getBoardStyle().drawCentered(g, 0, 0, s.getColumns(), s.getRows(), l.getMap(), l.getPlayerX(), l.getPlayerY(), playerDir);
+                    surface.print(out);
                 } else {
-                    helper.getRenderer().print(out, l);
+                    sokoshell().getBoardStyle().print(out, l);
                 }
 
                 if (export) {
                     try {
-                        helper.exportPNG(l.getPack(), l, l.getMap(), l.getPlayerX(), l.getPlayerY(), playerDir, 16);
+                        sokoshell().exportPNG(l.getPack(), l, l.getMap(), l.getPlayerX(), l.getPlayerY(), playerDir);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -124,7 +124,7 @@ public class PrintCommand extends AbstractCommand {
     public void complete(LineReader reader, String commandString, CommandLine.CommandSpec command, List<Candidate> candidates, CommandLine.OptionSpec option, String argument) {
         if (option != null) {
             if (ArgsUtils.contains(option.getShortNames(), 'p')) {
-                helper.addPackCandidates(candidates);
+                sokoshell().addPackCandidates(candidates);
             } else if (ArgsUtils.contains(option.getShortNames(), 'd')) {
                 candidates.add(new Candidate("left"));
                 candidates.add(new Candidate("right"));

@@ -19,15 +19,15 @@ public class SelectPack extends AbstractCommand {
     @Override
     protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
         if (pack.length == 0) {
-            helper.selectPack(null);
+            sokoshell().selectPack(null);
         } else {
-            Pack pack = helper.getPack(this.pack[0]);
+            Pack pack = sokoshell().getPack(this.pack[0]);
 
             if (pack == null) {
                 err.printf("No pack named %s%n", this.pack[0]);
                 return FAILURE;
             } else {
-                helper.selectPack(pack);
+                sokoshell().selectPack(pack);
             }
         }
 
@@ -52,7 +52,7 @@ public class SelectPack extends AbstractCommand {
     @Override
     public void complete(LineReader reader, String commandString, CommandLine.CommandSpec command, List<Candidate> candidates, CommandLine.OptionSpec option, String argument) {
         if (option == null) {
-            helper.addPackCandidates(candidates);
+            sokoshell().addPackCandidates(candidates);
         }
     }
 }

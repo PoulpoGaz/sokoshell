@@ -1,13 +1,13 @@
 package fr.valax.sokoshell.commands;
 
-import fr.valax.sokoshell.graphics.*;
 import fr.valax.sokoshell.graphics.Button;
 import fr.valax.sokoshell.graphics.Component;
 import fr.valax.sokoshell.graphics.Graphics;
 import fr.valax.sokoshell.graphics.Label;
-import fr.valax.sokoshell.graphics.layout.*;
+import fr.valax.sokoshell.graphics.*;
 import fr.valax.sokoshell.graphics.layout.BorderLayout;
 import fr.valax.sokoshell.graphics.layout.GridLayout;
+import fr.valax.sokoshell.graphics.layout.*;
 import org.jline.terminal.MouseEvent;
 import org.jline.terminal.Terminal;
 import org.jline.utils.AttributedString;
@@ -37,7 +37,7 @@ public class TestCommand extends AbstractCommand {
 
     @Override
     protected int executeImpl(InputStream in, PrintStream out, PrintStream err) throws InvalidArgument {
-        try (TerminalEngine engine = new TerminalEngine(helper.getTerminal())) {
+        try (TerminalEngine engine = new TerminalEngine(sokoshell().getTerminal())) {
             initEngine(engine);
             engine.show();
         }
@@ -228,9 +228,9 @@ public class TestCommand extends AbstractCommand {
             for (int y = 0; y < getHeight(); y++) {
                 for (int x = 0; x < getWidth(); x++) {
                     if (filled[y][x]) {
-                        s.set(FILLED, x, y);
+                        s.draw(FILLED, x, y);
                     } else {
-                        s.set(NOT_FILLED, x, y);
+                        s.draw(NOT_FILLED, x, y);
                     }
                 }
             }

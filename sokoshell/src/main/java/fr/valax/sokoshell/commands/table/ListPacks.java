@@ -14,7 +14,7 @@ public class ListPacks extends TableCommand {
 
     @Override
     protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
-        List<Pack> packs = helper.getPacks().stream()
+        List<Pack> packs = sokoshell().getPacks().stream()
                 .sorted(Comparator.comparing(Pack::name))
                 .toList();
 

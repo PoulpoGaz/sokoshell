@@ -1,7 +1,7 @@
 package fr.valax.sokoshell;
 
 import fr.valax.sokoshell.utils.Utils;
-import org.jline.terminal.Terminal;
+import org.jline.reader.impl.LineReaderImpl;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.Status;
@@ -16,21 +16,23 @@ public class NotificationHandler {
 
     private static final int MAX_NOTIFICATION = 100;
 
-    private final Terminal terminal;
+    private static final SokoShell SOKOSHELL = SokoShell.INSTANCE;
+
+    private final LineReaderImpl lineReader;
     private final Status status;
     private final ArrayDeque<Notification> notifications;
     private boolean suspend = false;
 
 
-    public NotificationHandler(Terminal terminal) {
-        this.terminal = Objects.requireNonNull(terminal);
-        this.status = Status.getStatus(terminal);
+    public NotificationHandler(LineReaderImpl reader) {
+        this.lineReader = Objects.requireNonNull(reader);
+        this.status = Status.getStatus(reader.getTerminal());
 
         notifications = new ArrayDeque<>();
 
-        if (status != null) {
-            SokoShellHelper.INSTANCE.getScheduledExecutor()
-                    .scheduleWithFixedDelay(this::updateStatus, 1, 1, TimeUnit.SECONDS);
+        if (status != null && !SOKOSHELL.isShutdown()) {
+            SOKOSHELL.getScheduledExecutor()
+                    .scheduleWithFixedDelay(this::updateStatus, 0, 1, TimeUnit.MINUTES);
         }
     }
 
@@ -49,11 +51,15 @@ public class NotificationHandler {
     }
 
     public void updateStatus() {
-        if (status == null || suspend) {
+        if (status == null || suspend || SOKOSHELL.isShutdown()) {
             return;
         }
 
         if (notifications.isEmpty()) {
+            if (status.size() == 0) {
+                return;
+            }
+
             status.clear();
             status.reset();
         } else {
@@ -67,11 +73,13 @@ public class NotificationHandler {
             if (diff < 60_000) {
                 asb.append(" (moments ago)");
             } else {
-                asb.append(" (").append(Utils.prettyDate(diff)).append(" ago)");
+                asb.append(" (").append(Utils.prettyDate(diff, true)).append(" ago)");
             }
 
             status.update(List.of(asb.toAttributedString()));
         }
+
+        lineReader.redisplay();
     }
 
     public void suspendStatus() {

@@ -74,11 +74,11 @@ public class BasicBorder implements Border {
      */
     private void drawCorner(Surface s, int x, int y, boolean a, boolean b, char corner1, char corner2, char corner3) {
         if (a && b) {
-            s.set(corner3, AttributedStyle.DEFAULT, x, y);
+            s.draw(corner3, AttributedStyle.DEFAULT, x, y);
         } else if (a) {
-            s.set(corner1, AttributedStyle.DEFAULT, x, y);
+            s.draw(corner1, AttributedStyle.DEFAULT, x, y);
         } else if (b) {
-            s.set(corner2, AttributedStyle.DEFAULT, x, y);
+            s.draw(corner2, AttributedStyle.DEFAULT, x, y);
         }
     }
 

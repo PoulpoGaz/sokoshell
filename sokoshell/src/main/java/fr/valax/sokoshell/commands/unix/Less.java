@@ -2,7 +2,7 @@ package fr.valax.sokoshell.commands.unix;
 
 import fr.valax.args.api.Option;
 import fr.valax.args.api.VaArgs;
-import fr.valax.sokoshell.SokoShellHelper;
+import fr.valax.sokoshell.SokoShell;
 import fr.valax.sokoshell.commands.AbstractCommand;
 import org.jline.builtins.Commands;
 
@@ -72,7 +72,7 @@ public class Less extends AbstractCommand {
         String[] options = getOptions(in);
 
         try {
-            Commands.less(SokoShellHelper.INSTANCE.getTerminal(),
+            Commands.less(SokoShell.INSTANCE.getTerminal(),
                     in, out, err,
                     Path.of(""), options);
         } catch (Exception e) {

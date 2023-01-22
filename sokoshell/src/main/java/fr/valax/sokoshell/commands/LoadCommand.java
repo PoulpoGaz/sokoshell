@@ -66,17 +66,17 @@ public class LoadCommand extends AbstractCommand {
             return;
         }
 
-        if (!helper.addPack(pack)) {
+        if (!sokoshell().addPack(pack)) {
             boolean answer = ScanUtils.yesNoQuestion(
                     "A pack with named %s already exists. Did you want to overwrite it?".formatted(pack.name()),
                     ScanUtils.DEFAULT_NO);
 
             if (answer) {
-                helper.addPackReplace(pack);
-                helper.selectPack(pack);
+                sokoshell().addPackReplace(pack);
+                sokoshell().selectPack(pack);
             }
         } else {
-            helper.selectPack(pack);
+            sokoshell().selectPack(pack);
         }
     }
 

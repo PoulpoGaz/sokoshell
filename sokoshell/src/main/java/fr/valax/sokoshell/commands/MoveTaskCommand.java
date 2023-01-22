@@ -21,9 +21,8 @@ public class MoveTaskCommand extends AbstractCommand {
 
     @Override
     protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
-        TaskList list = helper.getTaskList();
-
-        synchronized (list) {
+        TaskList list;
+        synchronized (list = sokoshell().getTaskList()) {
             SolverTask task = list.getTask(taskIndex);
 
             if (task == null) {

@@ -3,8 +3,8 @@ package fr.valax.sokoshell.commands;
 import fr.valax.args.CommandLine;
 import fr.valax.args.api.VaArgs;
 import fr.valax.args.jline.FileNameCompleter;
-import fr.valax.sokoshell.graphics.style.MapStyle;
-import fr.valax.sokoshell.graphics.style.MapStyleReader;
+import fr.valax.sokoshell.graphics.style.BoardStyle;
+import fr.valax.sokoshell.graphics.style.BoardStyleReader;
 import fr.valax.sokoshell.utils.PathGlobIterator;
 import fr.valax.sokoshell.utils.ScanUtils;
 import fr.valax.sokoshell.utils.Utils;
@@ -23,7 +23,7 @@ public class LoadStyleCommand extends AbstractCommand {
     @VaArgs
     private String[] input;
 
-    private final MapStyleReader reader = new MapStyleReader();
+    private final BoardStyleReader reader = new BoardStyleReader();
 
     @Override
     public int executeImpl(InputStream in, PrintStream out, PrintStream err) {
@@ -44,12 +44,12 @@ public class LoadStyleCommand extends AbstractCommand {
                 }
 
                 if (!loaded) {
-                    out.println("No map style loaded");
+                    out.println("No board style loaded");
                 }
 
             } catch (IOException e) {
                 e.printStackTrace(err);
-                err.println("Failed to load map styles");
+                err.println("Failed to load board styles");
 
                 return FAILURE;
             }
@@ -61,23 +61,23 @@ public class LoadStyleCommand extends AbstractCommand {
     private void load(Path input, PrintStream out, PrintStream err) {
         out.println("Loading " + input);
 
-        MapStyle style;
+        BoardStyle style;
         try {
             style = reader.read(input);
         } catch (IOException e) {
             e.printStackTrace(err);
-            err.println("Failed to read map style at " + input);
+            err.println("Failed to read board style at " + input);
 
             return;
         }
 
-        if (!helper.addMapStyle(style)) {
+        if (!sokoshell().addBoardStyle(style)) {
             boolean answer = ScanUtils.yesNoQuestion(
-                    "A map style with named %s already exists. Did you want to overwrite it?".formatted(style.getName()),
+                    "A board style with named %s already exists. Did you want to overwrite it?".formatted(style.getName()),
                     ScanUtils.DEFAULT_NO);
 
             if (answer) {
-                helper.addMapStyleReplace(style);
+                sokoshell().addBoardStyleReplace(style);
             }
         }
     }
@@ -96,7 +96,7 @@ public class LoadStyleCommand extends AbstractCommand {
 
     @Override
     public String getShortDescription() {
-        return "Load a map style (.style)";
+        return "Load a board style (.style)";
     }
 
     @Override

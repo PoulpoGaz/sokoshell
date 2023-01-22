@@ -1,6 +1,6 @@
 package fr.valax.sokoshell.commands;
 
-import fr.valax.sokoshell.SokoShellHelper;
+import fr.valax.sokoshell.SokoShell;
 import fr.valax.sokoshell.SolverTask;
 import fr.valax.sokoshell.TaskStatus;
 import fr.valax.sokoshell.graphics.*;
@@ -19,7 +19,7 @@ public class MonitorCommand extends AbstractCommand {
 
     @Override
     protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
-        SolverTask runningTask = helper.getTaskList().getRunningTask();
+        SolverTask runningTask = sokoshell().getTaskList().getRunningTask();
 
         if (runningTask == null) {
             err.println("No task are running");
@@ -28,7 +28,7 @@ public class MonitorCommand extends AbstractCommand {
 
 
         Exception ex = null;
-        try (TerminalEngine engine = new TerminalEngine(helper.getTerminal())) {
+        try (TerminalEngine engine = new TerminalEngine(sokoshell().getTerminal())) {
             initEngine(engine, runningTask);
             try {
                 engine.show();
@@ -204,10 +204,10 @@ public class MonitorCommand extends AbstractCommand {
             }
 
             try {
-                Path out = SokoShellHelper.INSTANCE
+                Path out = SokoShell.INSTANCE
                         .exportPNG(currentPack, currentLevel,
                                 mapComponent.getMap(), mapComponent.getPlayerX(), mapComponent.getPlayerY(),
-                                Direction.DOWN, 16);
+                                Direction.DOWN);
 
                 return out.toString();
             } catch (IOException e) {

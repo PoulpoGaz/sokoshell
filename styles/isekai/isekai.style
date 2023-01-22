@@ -2,305 +2,227 @@ name Isekai
 author PoulpoGaz
 version 1.0
 
+# ALIAS
+alias cratebg 96 70 49
+alias cratefg 153 112 78
 
-[alias]
-    cratebg 96 70 49
-    cratefg 153 112 78
+alias crate_targetbg 182 61 0
+alias crate_targetfg 182 165 0
 
-    crate_targetbg 182 61 0
-    crate_targetfg 182 165 0
+alias floor1 47 132 55
+alias floor2 45 121 50
+alias floor3 37 112 44
 
-    floor1 47 132 55
-    floor2 45 121 50
-    floor3 37 112 44
+alias wallbg 106 111 106
+alias wallfg 13 14 13
 
-    wallbg 106 111 106
-    wallfg 13 14 13
 
 
-[size] 1
-    [floor] ansi
-        $(bg floor1) $()
+# ==== SIZE 1 ====
+set-ansi floor 1
+{bg floor1} {}
 
-    [wall] ansi
-        $(bg wallbg) $()
+set-ansi wall 1
+{bg wallbg} {}
 
-    [target] ansi
-        $(bg red) $()
-
-    [crate] ansi
-        $(bg cratebg fg cratefg) $()
+set-ansi target 1
+{bg red} {}
 
-    [crate_on_target] ansi
-        $(bg crate_targetbg fg crate_targetfg in) $()
-
-    [player] ansi merge floor-target
-        $(fg black)o
-
-
-[size] 2
-    [floor] ansi
-        $(bg floor1) $(bg floor2) $()
-         $(bg floor1) $()
-
-    [wall] ansi
-        $(bg wallbg fg wallfg)┴┬
-        ┬┴
-
-    [target] ansi
-        $(bg red)  $()
-          $()
-
-    [crate] ansi
-        $(bg cratebg fg cratefg)▛▜
-        ▙▟
-
-    [crate_on_target] ansi
-        $(bg crate_targetbg fg crate_targetfg)▛▜
-        ▙▟
-
-    [player] ansi merge floor-target
-        $(fg black)┌┐
-        └┘
-
-[size] 3
-    [floor] ansi
-        $(bg floor1) $(bg floor2) $(bg floor1) $()
-         $(bg floor2)  $()
-         $(bg floor3) $(bg floor1) $()
-
-    [wall] ansi
-        $(bg wallbg fg wallfg)┴┬┴
-        ─┼─
-        ┬┴┬
-
-    [target] ansi
-        $(bg red fg black blink) ▼ $()
-        ▶ ◀
-         ▲ $()
-
-    [crate] ansi
-        $(bg cratebg fg cratefg)▛▀▜
-        ▌ ▐
-        ▙▄▟
-
-    [crate_on_target] ansi
-        $(bg crate_targetbg fg crate_targetfg)▛▀▜
-        ▌ ▐
-        ▙▄▟
-
-    [player_up] ansi merge floor-target
-        $(fg black) ◯ $()
-        ─┼─
-        ╱ ╲
-
-    [player_down] ansi merge floor-target
-        $(fg black) ◯ $()
-        ─┼─
-        ╱ ╲
-
-    [player_left] ansi merge floor-target
-        $(fg black) ◯ $()
-        ─┤ $()
-         │ $()
-
-    [player_right] ansi merge floor-target
-        $(fg black) ◯ $()
-         ├─$()
-         │ $()
-
-
-[size] 4
-    [floor] ansi
-        $(bg floor1) $(bg floor2) $(bg floor1)  $()
-         $(bg floor2)  $(bg floor3) $()
-         $(bg floor3) $(bg floor1)  $()
-          $(bg floor2) $(bg floor3) $()
-
-    [wall] ansi
-        $(bg wallbg fg wallfg)┴┬┴┬
-         │ │
-        ┬┴┬┴
-        │ │ $()
+set-ansi crate 1
+{bg cratebg fg cratefg} {}
 
-    [target] ansi
-        $(bg red fg black blink)⬊  ⬋
-            $()
-            $()
-        ⬈  ⬉
+set-ansi crate_on_target 1
+{bg crate_targetbg fg crate_targetfg in} {}
 
-    [crate] ansi
-        $(bg cratebg fg cratefg)▛▀▀▜
-        ▌▗▖▐
-        ▌▝▘▐
-        ▙▄▄▟
+set-ansi player 1
+{fg black}o
 
-    [crate_on_target] ansi
-        $(bg crate_targetbg fg crate_targetfg)▛▀▀▜
-        ▌▗▖▐
-        ▌▝▘▐
-        ▙▄▄▟
 
-    [player_up] ansi merge floor-target
-        $(fg black) ◯  $()
-        ─┼─ $()
-         │  $()
-        ╱ ╲ $()
 
-    [player_down] ansi merge floor-target
-        $(fg black) ◯  $()
-        ─┼─ $()
-         │  $()
-        ╱ ╲ $()
+# ==== SIZE 2 ====
+set-ansi floor 2
+{bg floor1} {bg floor2} {}
+ {bg floor1} {}
 
-    [player_left] ansi merge floor-target
-        $(fg black) ◯  $()
-        ─┤  $()
-         │  $()
-         │  $()
+set-ansi wall 2
+{bg wallbg fg wallfg}┴┬
+┬┴
 
-    [player_right] ansi merge floor-target
-        $(fg black)  ◯ $()
-          ├─$()
-          │ $()
-          │ $()
+set-ansi target 2
+{bg red}  {}
+  {}
 
-[size] 8
-    [floor] image
-        tileset.png 0 52
+set-ansi crate 2
+{bg cratebg fg cratefg}▛▜
+▙▟
 
-    [wall] image
-        tileset.png 16 52
+set-ansi crate_on_target 2
+{bg crate_targetbg fg crate_targetfg}▛▜
+▙▟
 
-    [crate] image
-        tileset.png 32 52
+set-ansi player 2
+{fg black}┌┐
+└┘
 
-    [crate_on_target] image
-        tileset.png 48 52
 
-    [target] image
-        tileset.png 64 52
 
-    [player_left] image merge floor-target
-        tileset.png 80 52
+# ==== SIZE 3 ====
+set-ansi floor 3
+{bg floor1} {bg floor2} {bg floor1} {}
+ {bg floor2}  {}
+ {bg floor3} {bg floor1} {}
 
-    [player_right] image merge floor-target
-        tileset.png 96 52
+set-ansi wall 3
+{bg wallbg fg wallfg}┴┬┴
+─┼─
+┬┴┬
 
-    [player_down] image merge floor-target
-        tileset.png 112 52
+set-ansi target 3
+{bg red fg black blink} ▼ {}
+▶ ◀
+ ▲ {}
 
-    [player_up] image merge floor-target
-        tileset.png 128 52
+set-ansi crate 3
+{bg cratebg fg cratefg}▛▀▜
+▌ ▐
+▙▄▟
 
-[size] 10
-    [floor] image
-        tileset.png 0 42
-
-    [wall] image
-        tileset.png 16 42
-
-    [crate] image
-        tileset.png 32 42
-
-    [crate_on_target] image
-        tileset.png 48 42
-
-    [target] image
-        tileset.png 64 42
-
-    [player_left] image merge floor-target
-        tileset.png 80 42
-
-    [player_right] image merge floor-target
-        tileset.png 96 42
-
-    [player_down] image merge floor-target
-        tileset.png 112 42
-
-    [player_up] image merge floor-target
-        tileset.png 128 42
-
-[size] 12
-    [floor] image
-        tileset.png 0 30
-
-    [wall] image
-        tileset.png 16 30
-
-    [crate] image
-        tileset.png 32 30
-
-    [crate_on_target] image
-        tileset.png 48 30
-
-    [target] image
-        tileset.png 64 30
-
-    [player_left] image merge floor-target
-        tileset.png 80 30
-
-    [player_right] image merge floor-target
-        tileset.png 96 30
-
-    [player_down] image merge floor-target
-        tileset.png 112 30
-
-    [player_up] image merge floor-target
-        tileset.png 128 30
-
-[size] 14
-    [floor] image
-        tileset.png 0 16
-
-    [wall] image
-        tileset.png 16 16
-
-    [crate] image
-        tileset.png 32 16
-
-    [crate_on_target] image
-        tileset.png 48 16
-
-    [target] image
-        tileset.png 64 16
-
-    [player_left] image merge floor-target
-        tileset.png 80 16
-
-    [player_right] image merge floor-target
-        tileset.png 96 16
-
-    [player_down] image merge floor-target
-        tileset.png 112 16
-
-    [player_up] image merge floor-target
-        tileset.png 128 16
-
-[size] 16
-    [floor] image
-        tileset.png 0 0
-
-    [wall] image
-        tileset.png 16 0
-
-    [crate] image
-        tileset.png 32 0
-
-    [crate_on_target] image
-        tileset.png 48 0
-
-    [target] image
-        tileset.png 64 0
-
-    [player_left] image merge floor-target
-        tileset.png 80 0
-
-    [player_right] image merge floor-target
-        tileset.png 96 0
-
-    [player_down] image merge floor-target
-        tileset.png 112 0
-
-    [player_up] image merge floor-target
-        tileset.png 128 0
+set-ansi crate_on_target 3
+{bg crate_targetbg fg crate_targetfg}▛▀▜
+▌ ▐
+▙▄▟
+
+set-ansi player_up 3
+{fg black} ◯ {}
+─┼─
+╱ ╲
+
+set-ansi player_down 3
+{fg black} ◯ {}
+─┼─
+╱ ╲
+
+set-ansi player_left 3
+{fg black} ◯ {}
+─┤ {}
+ │ {}
+
+set-ansi player_right 3
+{fg black} ◯ {}
+ ├─{}
+ │ {}
+
+
+
+
+# ==== SIZE 4 ====
+set-ansi floor 4
+{bg floor1} {bg floor2} {bg floor1}  {}
+ {bg floor2}  {bg floor3} {}
+ {bg floor3} {bg floor1}  {}
+  {bg floor2} {bg floor3} {}
+
+set-ansi wall 4
+{bg wallbg fg wallfg}┴┬┴┬
+ │ │
+┬┴┬┴
+│ │ {}
+
+set-ansi target 4
+{bg red fg black blink}⬊  ⬋
+    {}
+    {}
+⬈  ⬉
+
+set-ansi crate 4
+{bg cratebg fg cratefg}▛▀▀▜
+▌▗▖▐
+▌▝▘▐
+▙▄▄▟
+
+set-ansi crate_on_target 4
+{bg crate_targetbg fg crate_targetfg}▛▀▀▜
+▌▗▖▐
+▌▝▘▐
+▙▄▄▟
+
+set-ansi player_up 4
+{fg black} ◯  {}
+─┼─ {}
+ │  {}
+╱ ╲ {}
+
+set-ansi player_down 4
+{fg black} ◯  {}
+─┼─ {}
+ │  {}
+╱ ╲ {}
+
+set-ansi player_left 4
+{fg black} ◯  {}
+─┤  {}
+ │  {}
+ │  {}
+
+set-ansi player_right 4
+{fg black}  ◯ {}
+  ├─{}
+  │ {}
+  │ {}
+
+
+
+# ==== SIZE 8 ====
+set-image floor           8 tileset.png   0 52
+set-image wall            8 tileset.png  16 52
+set-image crate           8 tileset.png  32 52
+set-image crate_on_target 8 tileset.png  48 52
+set-image target          8 tileset.png  64 52
+set-image player_left     8 tileset.png  80 52
+set-image player_right    8 tileset.png  96 52
+set-image player_down     8 tileset.png 112 52
+set-image player_up       8 tileset.png 128 52
+
+# ==== SIZE 10 ====
+set-image floor           10 tileset.png   0 42
+set-image wall            10 tileset.png  16 42
+set-image crate           10 tileset.png  32 42
+set-image crate_on_target 10 tileset.png  48 42
+set-image target          10 tileset.png  64 42
+set-image player_left     10 tileset.png  80 42
+set-image player_right    10 tileset.png  96 42
+set-image player_down     10 tileset.png 112 42
+set-image player_up       10 tileset.png 128 42
+
+# ==== SIZE 12 ====
+set-image floor           12 tileset.png   0 30
+set-image wall            12 tileset.png  16 30
+set-image crate           12 tileset.png  32 30
+set-image crate_on_target 12 tileset.png  48 30
+set-image target          12 tileset.png  64 30
+set-image player_left     12 tileset.png  80 30
+set-image player_right    12 tileset.png  96 30
+set-image player_down     12 tileset.png 112 30
+set-image player_up       12 tileset.png 128 30
+
+# ==== SIZE 14 ====
+set-image floor           14 tileset.png   0 16
+set-image wall            14 tileset.png  16 16
+set-image crate           14 tileset.png  32 16
+set-image crate_on_target 14 tileset.png  48 16
+set-image target          14 tileset.png  64 16
+set-image player_left     14 tileset.png  80 16
+set-image player_right    14 tileset.png  96 16
+set-image player_down     14 tileset.png 112 16
+set-image player_up       14 tileset.png 128 16
+
+# ==== SIZE 16 ====
+set-image floor           16 tileset.png   0 0
+set-image wall            16 tileset.png  16 0
+set-image crate           16 tileset.png  32 0
+set-image crate_on_target 16 tileset.png  48 0
+set-image target          16 tileset.png  64 0
+set-image player_left     16 tileset.png  80 0
+set-image player_right    16 tileset.png  96 0
+set-image player_down     16 tileset.png 112 0
+set-image player_up       16 tileset.png 128 0

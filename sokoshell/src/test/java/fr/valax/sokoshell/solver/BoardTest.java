@@ -1,14 +1,15 @@
 package fr.valax.sokoshell.solver;
 
-import fr.poulpogaz.json.JsonException;
-import fr.valax.sokoshell.graphics.style.MapRenderer;
-import fr.valax.sokoshell.graphics.style.MapStyleReader;
-import fr.valax.sokoshell.readers.PackReaders;
+import fr.valax.sokoshell.TestUtils;
+import fr.valax.sokoshell.graphics.style.BoardStyle;
 import org.junit.jupiter.api.Test;
 import org.opentest4j.AssertionFailedError;
 
 import java.nio.file.Path;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -42,7 +43,7 @@ public class BoardTest {
         tunnelsSet.add(new TTunnel(11, 8, 11, 8,  11, 7, -1, -1, false));
         tunnelsSet.add(new TTunnel(12, 7, 13, 7,  11, 7, 14, 7,  false));
 
-        Level level = TestUtils.getLevel(Path.of("../levels/levels8xv/Original.8xv"));
+        Level level = TestUtils.getLevel(Path.of("levels8xv/Original.8xv"));
         Board board = level.getMap();
         board.removeStateCrates(level.getInitialState());
         board.computeFloors();
@@ -109,7 +110,7 @@ public class BoardTest {
                 #############
                 """;
 
-        Level level = TestUtils.getSOKLevel(mapStr);
+        Level level = TestUtils.getLevel(mapStr);
         Board board = level.getMap();
         board.initForSolver();
 
@@ -168,7 +169,7 @@ public class BoardTest {
                 ######
                 """;
 
-        Level level = TestUtils.getSOKLevel(mapStr);
+        Level level = TestUtils.getLevel(mapStr);
         Board board = level.getMap();
         board.initForSolver();
 
@@ -376,7 +377,7 @@ public class BoardTest {
 
     @Test
     void packingOrderTest1() {
-        Level level = TestUtils.getLevel(Path.of("../levels/levels8xv/Original.8xv"));
+        Level level = TestUtils.getLevel(Path.of("levels8xv/Original.8xv"));
         Board board = level.getMap();
         board.removeStateCrates(level.getInitialState());
         board.initForSolver();
@@ -398,7 +399,7 @@ public class BoardTest {
 
     @Test
     void packingOrderTest2() {
-        Level level = TestUtils.getLevel(Path.of("../levels/levels8xv/Original.8xv"), 10);
+        Level level = TestUtils.getLevel(Path.of("levels8xv/Original.8xv"), 10);
         Board board = level.getMap();
         board.removeStateCrates(level.getInitialState());
         board.initForSolver();
@@ -414,18 +415,15 @@ public class BoardTest {
     }
 
     @Test
-    void tileToTargetsDistancesTest() throws java.io.IOException, JsonException {
+    void tileToTargetsDistancesTest() {
+        Level level = TestUtils.getLevel(Path.of("TIPEex.8xv"), 0);
+        BoardStyle style = TestUtils.getStyle(Path.of("isekai/isekai.style"));
 
-        Pack pack = PackReaders.read(Path.of("../levels/TIPEex.8xv"), false);
-
-        Level level = pack.getLevel(0);
         Board board = level.getMap();
-        MapRenderer mR = new MapRenderer();
-        mR.setStyle(new MapStyleReader().read(Path.of("../styles/isekai/isekai.style")));
 
         board.removeStateCrates(level.getInitialState());
         board.initForSolver();
-        mR.sysPrint(board, level.getPlayerX(), level.getPlayerY());
+        style.print(board, level.getPlayerX(), level.getPlayerY());
 
         for (int y = 0; y < board.getHeight(); y++) {
             for (int x = 0; x < board.getWidth(); x++) {

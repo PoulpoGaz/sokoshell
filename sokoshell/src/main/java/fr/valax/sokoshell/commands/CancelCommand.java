@@ -18,9 +18,9 @@ public class CancelCommand extends AbstractCommand {
 
     @Override
     protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
-        TaskList list = helper.getTaskList();
+        TaskList list;
 
-        synchronized (list) {
+        synchronized (list = sokoshell().getTaskList()) {
             if (all) {
                 list.stopAll();
             } else if (taskIndex == null) {

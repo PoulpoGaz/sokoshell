@@ -1,6 +1,6 @@
 package fr.valax.sokoshell.commands.table;
 
-import fr.valax.sokoshell.graphics.style.MapStyle;
+import fr.valax.sokoshell.graphics.style.BoardStyle;
 import fr.valax.sokoshell.utils.PrettyColumn;
 import fr.valax.sokoshell.utils.PrettyTable;
 import fr.valax.sokoshell.utils.Utils;
@@ -17,10 +17,10 @@ public class ListStyle extends TableCommand {
 
     @Override
     protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
-        MapStyle selected = helper.getMapStyle();
+        BoardStyle selected = sokoshell().getBoardStyle();
 
-        List<MapStyle> mapStyles = helper.getMapStyles().stream()
-                .sorted(Comparator.comparing(MapStyle::getName))
+        List<BoardStyle> boardStyles = sokoshell().getBoardStyles().stream()
+                .sorted(Comparator.comparing(BoardStyle::getName))
                 .toList();
 
         PrettyTable table = new PrettyTable();
@@ -32,7 +32,7 @@ public class ListStyle extends TableCommand {
         PrettyColumn<String> author = new PrettyColumn<>("author");
         PrettyColumn<String> version = new PrettyColumn<>("version");
 
-        for (MapStyle style : mapStyles) {
+        for (BoardStyle style : boardStyles) {
             if (selected == style) {
                 name.add(new AttributedString("* " +style.getName() + " *" , BOLD));
             } else {

@@ -1,5 +1,6 @@
 package fr.valax.sokoshell.solver;
 
+import fr.valax.sokoshell.TestUtils;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -16,7 +17,7 @@ public class LevelTest {
                  ##
                 """;
 
-        Level l = TestUtils.getSOKLevel(level);
+        Level l = TestUtils.getLevel(level);
         Board board = l.getMap();
 
         assertEquals(Tile.WALL, board.getAt(0, 0).getTile());
@@ -55,7 +56,7 @@ public class LevelTest {
                  ##
                 """;
 
-        Level l = TestUtils.getSOKLevel(level);
+        Level l = TestUtils.getLevel(level);
         Board board = l.getMap();
 
         assertEquals(Tile.WALL, board.getAt(0, 0).getTile());
@@ -104,7 +105,7 @@ public class LevelTest {
                 ##
                 """;
 
-        Level l = TestUtils.getSOKLevel(level);
+        Level l = TestUtils.getLevel(level);
         Board board = l.getMap();
 
         assertEquals(7, board.getWidth());

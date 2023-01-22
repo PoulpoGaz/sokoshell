@@ -3,7 +3,7 @@ package fr.valax.sokoshell.commands;
 import fr.valax.args.jline.JLineCommand;
 import fr.valax.interval.Set;
 import fr.valax.interval.*;
-import fr.valax.sokoshell.SokoShellHelper;
+import fr.valax.sokoshell.SokoShell;
 import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.solver.Pack;
 import fr.valax.sokoshell.utils.GlobIterator;
@@ -74,8 +74,11 @@ public abstract class AbstractCommand implements JLineCommand {
     }
 
 
-    protected final SokoShellHelper helper = SokoShellHelper.INSTANCE;
     protected final SetParser parser = new SetParser();
+
+    protected SokoShell sokoshell() {
+        return SokoShell.INSTANCE;
+    }
 
     @Override
     public int execute(InputStream in, PrintStream out, PrintStream err) {
@@ -98,7 +101,7 @@ public abstract class AbstractCommand implements JLineCommand {
      */
     protected Pack getPack(String name) throws InvalidArgument {
         if (name == null) {
-            Pack selected = helper.getSelectedPack();
+            Pack selected = sokoshell().getSelectedPack();
 
             if (selected == null) {
                 throw new InvalidArgument("No pack selected");
@@ -106,7 +109,7 @@ public abstract class AbstractCommand implements JLineCommand {
 
             return selected;
         } else {
-            Pack pack = helper.getPack(name);
+            Pack pack = sokoshell().getPack(name);
 
             if (pack == null) {
                 throw new InvalidArgument("No pack named" + name +  " exists");
@@ -123,10 +126,10 @@ public abstract class AbstractCommand implements JLineCommand {
      */
     protected Collection<Pack> getPacks(String... glob) {
         if (deepNull(glob)) {
-            Pack selected = helper.getSelectedPack();
+            Pack selected = sokoshell().getSelectedPack();
 
             if (selected == null) {
-                return helper.getPacks();
+                return sokoshell().getPacks();
             }
 
             return List.of(selected);
@@ -135,14 +138,14 @@ public abstract class AbstractCommand implements JLineCommand {
 
             for (String g : glob) {
                 if (g == null) {
-                    Pack selected = helper.getSelectedPack();
+                    Pack selected = sokoshell().getSelectedPack();
 
                     if (selected != null) {
                         packs.add(selected);
                     }
 
                 } else {
-                    GlobIterator<Pack> it = new GlobIterator<>(g, helper.getPacks(), Pack::name);
+                    GlobIterator<Pack> it = new GlobIterator<>(g, sokoshell().getPacks(), Pack::name);
 
                     while (it.hasNext()) {
                         packs.add(it.next());
@@ -183,8 +186,8 @@ public abstract class AbstractCommand implements JLineCommand {
      */
     protected Level getLevel(Pack pack, Integer index) throws InvalidArgument {
         if (index == null) {
-            Pack selectedPack = helper.getSelectedPack();
-            int i = helper.getSelectedLevelIndex();
+            Pack selectedPack = sokoshell().getSelectedPack();
+            int i = sokoshell().getSelectedLevelIndex();
 
             if (i < 0) {
                 throw new InvalidArgument("No level selected");
@@ -242,7 +245,7 @@ public abstract class AbstractCommand implements JLineCommand {
                 throw new InvalidArgument(e);
             }
         } else {
-            int i = helper.getSelectedLevelIndex();
+            int i = sokoshell().getSelectedLevelIndex();
 
             if (i < 0) {
                 return Interval.all();

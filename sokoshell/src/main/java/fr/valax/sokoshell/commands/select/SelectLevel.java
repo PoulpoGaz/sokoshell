@@ -14,9 +14,9 @@ public class SelectLevel extends AbstractCommand {
     @Override
     protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
         if (level.length == 0) {
-            helper.selectLevel(-1);
+            sokoshell().selectLevel(-1);
         } else {
-            helper.selectLevel(level[0] - 1);
+            sokoshell().selectLevel(level[0] - 1);
         }
 
         return SUCCESS;

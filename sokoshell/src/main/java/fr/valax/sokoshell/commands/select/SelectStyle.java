@@ -4,7 +4,7 @@ import fr.valax.args.CommandLine;
 import fr.valax.args.api.Option;
 import fr.valax.args.utils.ArgsUtils;
 import fr.valax.sokoshell.commands.AbstractCommand;
-import fr.valax.sokoshell.graphics.style.MapStyle;
+import fr.valax.sokoshell.graphics.style.BoardStyle;
 import org.jline.reader.Candidate;
 import org.jline.reader.LineReader;
 
@@ -19,12 +19,12 @@ public class SelectStyle extends AbstractCommand {
 
     @Override
     protected int executeImpl(InputStream in, PrintStream out, PrintStream err) {
-        MapStyle mapStyle = helper.getMapStyle(style);
+        BoardStyle boardStyle = sokoshell().getBoardStyle(style);
 
-        if (mapStyle == null) {
+        if (boardStyle == null) {
             err.printf("%s: no such map style%n", style);
         } else {
-            helper.setMapStyle(mapStyle);
+            sokoshell().setBoardStyle(boardStyle);
         }
 
         return 0;
@@ -33,7 +33,7 @@ public class SelectStyle extends AbstractCommand {
     @Override
     public void complete(LineReader reader, String commandString, CommandLine.CommandSpec command, List<Candidate> candidates, CommandLine.OptionSpec option, String argument) {
         if (option != null && ArgsUtils.contains(option.getShortNames(), 's')) {
-            helper.addMapStyleCandidates(candidates);
+            sokoshell().addBoardStyleCandidates(candidates);
         }
     }
 
