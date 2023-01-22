@@ -1,11 +1,16 @@
 package fr.valax.sokoshell.solver.pathfinder;
 
+import fr.valax.sokoshell.solver.TileInfo;
 import fr.valax.sokoshell.solver.mark.Mark;
 import fr.valax.sokoshell.solver.mark.MarkSystem;
 
 /**
  * A mark is visited, if it is equal to the global mark.
  * A mark is marked, if it is equal to the global mark minus one.
+ * It is used because, in A*, I need to know when I first encounter
+ * a node (mark) and when I poll a node from the PriorityQueue (visited).
+ * A node which isn't marked has a wrong expected dist, inherited from a previous
+ * call to {@link AbstractAStar#findPath(TileInfo, TileInfo, TileInfo, TileInfo)}
  */
 public class AStarMarkSystem implements MarkSystem {
 

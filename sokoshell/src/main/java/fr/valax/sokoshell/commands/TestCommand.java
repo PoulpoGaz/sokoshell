@@ -1,13 +1,13 @@
 package fr.valax.sokoshell.commands;
 
-import fr.valax.sokoshell.graphics.*;
 import fr.valax.sokoshell.graphics.Button;
 import fr.valax.sokoshell.graphics.Component;
 import fr.valax.sokoshell.graphics.Graphics;
 import fr.valax.sokoshell.graphics.Label;
-import fr.valax.sokoshell.graphics.layout.*;
+import fr.valax.sokoshell.graphics.*;
 import fr.valax.sokoshell.graphics.layout.BorderLayout;
 import fr.valax.sokoshell.graphics.layout.GridLayout;
+import fr.valax.sokoshell.graphics.layout.*;
 import org.jline.terminal.MouseEvent;
 import org.jline.terminal.Terminal;
 import org.jline.utils.AttributedString;

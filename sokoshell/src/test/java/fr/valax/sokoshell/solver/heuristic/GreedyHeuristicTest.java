@@ -1,6 +1,5 @@
 package fr.valax.sokoshell.solver.heuristic;
 
-import fr.poulpogaz.json.JsonException;
 import fr.valax.sokoshell.TestUtils;
 import fr.valax.sokoshell.graphics.style.MapStyle;
 import fr.valax.sokoshell.solver.Level;

@@ -5,6 +5,8 @@ import fr.poulpogaz.json.JsonPrettyWriter;
 import fr.poulpogaz.json.JsonReader;
 import fr.valax.sokoshell.SokoShell;
 import fr.valax.sokoshell.graphics.style.MapStyle;
+import fr.valax.sokoshell.solver.pathfinder.CrateAStar;
+import fr.valax.sokoshell.solver.pathfinder.Node;
 
 import java.io.IOException;
 import java.util.*;
@@ -142,7 +144,7 @@ public class SolverReport {
 
         TileInfo player = map.getAt(level.getPlayerX(), level.getPlayerY());
 
-        Pathfinder pathfinder = new Pathfinder();
+        CrateAStar aStar = new CrateAStar(map);
         for (int i = 0; i < states.size() - 1; i++) {
             State current = states.get(i);
 
@@ -153,7 +155,7 @@ public class SolverReport {
             State next = states.get(i + 1);
             StateDiff diff = getStateDiff(map, current, next);
 
-            Pathfinder.Node node = pathfinder.findPath(
+            Node node = aStar.findPathAndComputeMoves(
                     player, null,
                     diff.crate(), diff.crateDest());
 
@@ -161,10 +163,10 @@ public class SolverReport {
                 throw canFindPathException(map, current, next);
             }
 
-            player = node.player();
-            while (node.parent() != null) {
-                temp.add(node.move());
-                node = node.parent();
+            player = node.getPlayer();
+            while (node.getParent() != null) {
+                temp.add(node.getMove());
+                node = node.getParent();
             }
 
             path.ensureCapacity(path.size() + temp.size());

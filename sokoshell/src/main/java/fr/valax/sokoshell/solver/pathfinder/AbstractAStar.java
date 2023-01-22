@@ -6,6 +6,9 @@ import fr.valax.sokoshell.solver.TileInfo;
 
 import java.util.PriorityQueue;
 
+/**
+ * Abstract implementation of A*.
+ */
 public abstract class AbstractAStar {
 
     protected TileInfo playerStart;
@@ -19,12 +22,21 @@ public abstract class AbstractAStar {
         this.queue = queue;
     }
 
+    /**
+     * @return true if path exists
+     * @see #findPath(TileInfo, TileInfo, TileInfo, TileInfo)
+     */
     public boolean hasPath(TileInfo playerStart, TileInfo playerDest, TileInfo crateStart, TileInfo crateDest) {
-        return getEndNode(playerStart, playerDest, crateStart, crateDest) != null;
+        return findPath(playerStart, playerDest, crateStart, crateDest) != null;
     }
 
-    public Node findPath(TileInfo playerStart, TileInfo playerDest, TileInfo crateStart, TileInfo crateDest) {
-        Node end = getEndNode(playerStart, playerDest, crateStart, crateDest);
+    /**
+     * It also computes the move field in {@link Node}
+     *
+     * @see #findPath(TileInfo, TileInfo, TileInfo, TileInfo)
+     */
+    public Node findPathAndComputeMoves(TileInfo playerStart, TileInfo playerDest, TileInfo crateStart, TileInfo crateDest) {
+        Node end = findPath(playerStart, playerDest, crateStart, crateDest);
 
         if (end == null) {
             return null;
@@ -47,7 +59,18 @@ public abstract class AbstractAStar {
         return end;
     }
 
-    public Node getEndNode(TileInfo playerStart, TileInfo playerDest, TileInfo crateStart, TileInfo crateDest) {
+    /**
+     * Find a path between (playerStart, crateStart) and (playerDest, crateDest).
+     * The returned node may be cached by the implementation. Therefore, if you
+     * want to keep the path in memory, you need to copy the path.
+     *
+     * @param playerStart player start
+     * @param playerDest player dest
+     * @param crateStart crate start
+     * @param crateDest crate dest
+     * @return the shortest path as a linked list in reverse.
+     */
+    public Node findPath(TileInfo playerStart, TileInfo playerDest, TileInfo crateStart, TileInfo crateDest) {
         this.playerStart = playerStart;
         this.crateStart = crateStart;
         this.playerDest = playerDest;
@@ -57,7 +80,7 @@ public abstract class AbstractAStar {
         Node n = initialNode();
         queue.offer(n);
 
-        int c = 0;
+        // int c = 0;
         Node end = null;
         while (!queue.isEmpty()) {
             Node node = queue.poll();
@@ -80,14 +103,18 @@ public abstract class AbstractAStar {
             }
 
             markVisited(node);
-            c++;
+            // c++;
         }
-        System.out.println(c);
+        // System.out.println(c);
 
         clean();
         return end;
     }
 
+    /**
+     * Decrease the priority of the node in the queue if and only if it is in the queue
+     * @param node node
+     */
     public void decreasePriority(Node node) {
         // TODO: we do not have a fixed size binary heap that
         //  can efficiently decrease priority (at least O(log n))
@@ -121,9 +148,21 @@ public abstract class AbstractAStar {
      */
     protected abstract Node processMove(Node parent, Direction dir);
 
+    /**
+     * Mark the node as visited
+     * @param node node
+     */
     protected abstract void markVisited(Node node);
 
+    /**
+     * @param node node
+     * @return {@code true} if the node is visited
+     */
     protected abstract boolean isVisited(Node node);
 
+    /**
+     * @param node node
+     * @return {@code true} if this node represents the solution
+     */
     protected abstract boolean isEndNode(Node node);
 }

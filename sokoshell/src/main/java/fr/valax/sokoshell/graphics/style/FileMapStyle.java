@@ -4,17 +4,15 @@ import fr.valax.sokoshell.graphics.Graphics;
 import fr.valax.sokoshell.graphics.GraphicsUtils;
 import fr.valax.sokoshell.graphics.Surface;
 import fr.valax.sokoshell.solver.Direction;
-import fr.valax.sokoshell.solver.Tile;
 import fr.valax.sokoshell.solver.TileInfo;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;
 
 import java.awt.*;
-import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 
 /**
  * A map style loaded from a file

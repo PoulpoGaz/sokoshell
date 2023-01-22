@@ -2,7 +2,10 @@ package fr.valax.sokoshell.graphics;
 
 import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
-import org.jline.utils.*;
+import org.jline.utils.AttributedString;
+import org.jline.utils.AttributedStringBuilder;
+import org.jline.utils.AttributedStyle;
+import org.jline.utils.Display;
 
 import java.awt.*;
 import java.io.PrintStream;

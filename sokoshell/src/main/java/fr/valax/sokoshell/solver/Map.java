@@ -3,8 +3,14 @@ package fr.valax.sokoshell.solver;
 import fr.valax.interval.IntWrapper;
 import fr.valax.sokoshell.solver.mark.AbstractMarkSystem;
 import fr.valax.sokoshell.solver.mark.MarkSystem;
+import fr.valax.sokoshell.solver.pathfinder.CrateAStar;
+import fr.valax.sokoshell.solver.pathfinder.CratePlayerAStar;
+import fr.valax.sokoshell.solver.pathfinder.PlayerAStar;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -57,7 +63,9 @@ public class Map {
      */
     private boolean isGoalRoomLevel;
 
-    private Pathfinder pathfinder;
+    private PlayerAStar playerAStar;
+    private CrateAStar crateAStar;
+    private CratePlayerAStar cratePlayerAStar;
 
     /**
      * Creates a Map with the specified width, height and tiles
@@ -191,7 +199,9 @@ public class Map {
      * @see Tunnel
      */
     public void initForSolver() {
-        pathfinder = new Pathfinder();
+        playerAStar = new PlayerAStar(this);
+        crateAStar = new CrateAStar(this);
+        cratePlayerAStar = new CratePlayerAStar(this);
 
         computeFloors();
         computeDeadTiles();
@@ -641,7 +651,7 @@ public class Map {
                 crate.removeCrate();
                 inRoom.addCrate();
 
-                if (pathfinder.getCrateAStar().hasPath(entrance, null, inRoom, crate)) {
+                if (crateAStar.hasPath(entrance, null, inRoom, crate)) {
                     accessibleCrates.remove(i);
                     i--;
                     crate.unmark();

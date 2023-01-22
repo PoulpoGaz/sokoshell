@@ -9,7 +9,10 @@ import fr.valax.sokoshell.SokoShell;
 import fr.valax.sokoshell.SolverTask;
 import fr.valax.sokoshell.TaskList;
 import fr.valax.sokoshell.TaskStatus;
-import fr.valax.sokoshell.solver.*;
+import fr.valax.sokoshell.solver.Level;
+import fr.valax.sokoshell.solver.Pack;
+import fr.valax.sokoshell.solver.Solver;
+import fr.valax.sokoshell.solver.SolverParameter;
 import org.jline.reader.Candidate;
 import org.jline.reader.LineReader;
 

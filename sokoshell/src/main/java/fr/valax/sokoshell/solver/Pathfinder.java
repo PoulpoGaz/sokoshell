@@ -1,6 +1,9 @@
 package fr.valax.sokoshell.solver;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.PriorityQueue;
+import java.util.Set;
 
 /**
  * This class uses A* algorithm to find a path in a map.

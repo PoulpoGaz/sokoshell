@@ -5,6 +5,9 @@ import fr.valax.sokoshell.solver.TileInfo;
 
 import java.util.Objects;
 
+/**
+ * A node in A*
+ */
 public class Node implements Comparable<Node> {
 
     private Node parent;

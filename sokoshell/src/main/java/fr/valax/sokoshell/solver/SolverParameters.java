@@ -3,13 +3,11 @@ package fr.valax.sokoshell.solver;
 import fr.poulpogaz.json.IJsonReader;
 import fr.poulpogaz.json.IJsonWriter;
 import fr.poulpogaz.json.JsonException;
-import fr.poulpogaz.json.JsonToken;
-import fr.poulpogaz.json.utils.Pair;
 import fr.valax.sokoshell.SokoShell;
 
 import java.io.IOException;
-import java.util.*;
 import java.util.Map;
+import java.util.*;
 
 /**
  * Contains the level to solve, the type of the solver and various others parameters that are contained in a Map

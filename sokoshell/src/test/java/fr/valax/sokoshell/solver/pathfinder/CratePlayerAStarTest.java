@@ -6,8 +6,11 @@ import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.solver.Map;
 import org.junit.jupiter.api.Test;
 
+import java.nio.file.Path;
+
 import static fr.valax.sokoshell.solver.Direction.*;
-import static fr.valax.sokoshell.solver.Direction.LEFT;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CratePlayerAStarTest {
 
@@ -31,7 +34,7 @@ public class CratePlayerAStarTest {
 
         Map map = level.getMap();
         CratePlayerAStar aStar = new CratePlayerAStar(map);
-        Node end = aStar.findPath(map.getAt(1, 1), map.getAt(1, 1), map.getAt(2, 3), map.getAt(4, 4));
+        Node end = aStar.findPathAndComputeMoves(map.getAt(1, 1), map.getAt(1, 1), map.getAt(2, 3), map.getAt(4, 4));
 
         // 516 dijkstra
         // 336 A*
@@ -61,10 +64,22 @@ public class CratePlayerAStarTest {
 
         Map map = level.getMap();
         CratePlayerAStar aStar = new CratePlayerAStar(map);
-        Node end = aStar.findPath(map.getAt(1, 1), map.getAt(17, 1), map.getAt(16, 2), map.getAt(1, 6));
+        Node end = aStar.findPathAndComputeMoves(map.getAt(1, 1), map.getAt(17, 1), map.getAt(16, 2), map.getAt(1, 6));
 
         // 9998 dijkstra
         // 133 A*
         PathfinderUtils.check(1, 1, 16, 2, 17, 1, 1, 6, end, solution);
+    }
+
+    @Test
+    void originalAndExtra() {
+        Level level = TestUtils.getLevel(Path.of("levels8xv/Original.8xv"), 0);
+        Map map = level.getMap();
+        CratePlayerAStar aStar = new CratePlayerAStar(map);
+
+        assertTrue(aStar.hasPath(map.getAt(4, 4), map.getAt(4, 4), map.getAt(5, 7), map.getAt(17, 8)));
+        assertFalse(aStar.hasPath(map.getAt(4, 4), map.getAt(4, 4), map.getAt(2, 7), map.getAt(17, 8)));
+        assertTrue(aStar.hasPath(map.getAt(4, 4), map.getAt(5, 5), map.getAt(5, 7), map.getAt(17, 8)));
+        assertFalse(aStar.hasPath(map.getAt(4, 4), map.getAt(5, 3), map.getAt(5, 7), map.getAt(17, 8)));
     }
 }

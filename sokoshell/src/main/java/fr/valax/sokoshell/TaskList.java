@@ -1,7 +1,5 @@
 package fr.valax.sokoshell;
 
-import org.jline.utils.AttributedString;
-
 import java.util.*;
 
 /**

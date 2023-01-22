@@ -2,8 +2,6 @@ package fr.valax.sokoshell.solver.collections;
 
 import fr.valax.sokoshell.solver.WeightedState;
 
-import java.util.*;
-
 /**
  * Priority queue of dynamic capacity. The priority are in <strong>ASCENDANT</strong> order, i.e. the element returned
  * by {@link SolverPriorityQueue#popState()} with the <strong>LOWEST</strong> priority.

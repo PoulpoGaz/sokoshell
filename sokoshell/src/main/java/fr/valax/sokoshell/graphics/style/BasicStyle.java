@@ -6,12 +6,12 @@ import fr.valax.sokoshell.graphics.GraphicsUtils;
 import fr.valax.sokoshell.solver.Direction;
 import fr.valax.sokoshell.solver.Map;
 import fr.valax.sokoshell.solver.TileInfo;
-import static org.jline.utils.AttributedStyle.*;
 
-import java.awt.Color;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.Objects;
+
+import static org.jline.utils.AttributedStyle.*;
 
 /**
  * A style that map each tile, player and 'player on target' to a {@link StyledCharacter}
