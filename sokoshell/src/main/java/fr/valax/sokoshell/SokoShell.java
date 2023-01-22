@@ -103,6 +103,8 @@ public class SokoShell {
 
     private boolean autoSaveSolution = false;
 
+    private boolean isShutdown;
+
 
     private SokoShell() {
         cli = createCommandLine();
@@ -249,6 +251,8 @@ public class SokoShell {
      * Also print goodbye message
      */
     private void shutdown() {
+        isShutdown = true;
+
         taskList.stopAll();
         executor.shutdown();
         scheduledExecutor.shutdown();
@@ -591,5 +595,9 @@ public class SokoShell {
 
     public CommandLine getCli() {
         return cli;
+    }
+
+    public boolean isShutdown() {
+        return isShutdown;
     }
 }

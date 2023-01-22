@@ -16,6 +16,8 @@ public class NotificationHandler {
 
     private static final int MAX_NOTIFICATION = 100;
 
+    private static final SokoShell SOKOSHELL = SokoShell.INSTANCE;
+
     private final LineReaderImpl lineReader;
     private final Status status;
     private final ArrayDeque<Notification> notifications;
@@ -28,8 +30,8 @@ public class NotificationHandler {
 
         notifications = new ArrayDeque<>();
 
-        if (status != null) {
-            SokoShell.INSTANCE.getScheduledExecutor()
+        if (status != null && !SOKOSHELL.isShutdown()) {
+            SOKOSHELL.getScheduledExecutor()
                     .scheduleWithFixedDelay(this::updateStatus, 0, 1, TimeUnit.MINUTES);
         }
     }
@@ -49,7 +51,7 @@ public class NotificationHandler {
     }
 
     public void updateStatus() {
-        if (status == null || suspend) {
+        if (status == null || suspend || SOKOSHELL.isShutdown()) {
             return;
         }
 
