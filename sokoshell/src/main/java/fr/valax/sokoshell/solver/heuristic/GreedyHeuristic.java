@@ -9,124 +9,155 @@ import fr.valax.sokoshell.solver.TileInfo;
  */
 public class GreedyHeuristic extends AbstractHeuristic {
 
-    MinHeap cttHeap;
+    private final LinkedList list;
 
     public GreedyHeuristic(Board board) {
         super(board);
         final int n = board.getTargetCount();
-        cttHeap = new MinHeap(n * n);
+
+        list = new LinkedList(n);
     }
 
     @Override
     public int compute(State s) {
-
         int heuristic = 0;
 
-        cttHeap.clear();
         board.getMarkSystem().unmarkAll();
 
-        for (int crateIndex : s.cratesIndices()) {
-            mergeCrateTargets(crateIndex);
-        }
+        int n = 0;
+        for (int crate : s.cratesIndices()) {
+            TileInfo tile = board.getAt(crate);
 
-        while (!cttHeap.isEmpty()) {
-            final CrateToTarget ctt = cttHeap.pop();
+            if (tile.isCrateOnTarget()) {
+                tile.mark();
+            } else {
+                list.add(tile);
 
-            if (board.getAt(ctt.crateIndex).isMarked()
-             || board.getAt(ctt.target.index()).isMarked()) {
-                continue;
-            }
-            board.getAt(ctt.crateIndex).mark();
-            board.getAt(ctt.target.index()).mark();
-
-            //System.out.printf("%s; ", ctt);
-            heuristic += ctt.target.distance();
-        }
-        //System.out.print(" -- ");
-
-        for (int crateIndex : s.cratesIndices()) {
-            final TileInfo curCrate = board.getAt(crateIndex);
-            if (!curCrate.isMarked()) {
-                //System.out.printf("%d; ", curCrate.getNearestTarget().distance());
-                heuristic += curCrate.getNearestTarget().distance();
+                n++;
             }
         }
-        //System.out.println();
+
+
+        for (int i = 0; i < n; i++) {
+            Node minNode = list.getHead();
+            TileInfo.TargetRemoteness minDist = minNode.getNearestNotAttributedTarget();
+
+            Node node = minNode.nextNode();
+            while (node != null) {
+                TileInfo.TargetRemoteness nearest = node.getNearestNotAttributedTarget();
+
+                if (nearest.distance() < minDist.distance()) {
+                    minNode = node;
+                    minDist = nearest;
+                }
+
+                node = node.nextNode();
+            }
+
+            board.getAt(minDist.index()).mark();
+            minNode.getCrate().mark();
+            heuristic += minDist.distance();
+
+            minNode.remove();
+        }
 
         return heuristic;
     }
 
-    public void mergeCrateTargets(int crateIndex) {
-        final TileInfo.TargetRemoteness[] crateTargets = board.getAt(crateIndex).getTargets();
-        for (final TileInfo.TargetRemoteness curTarget : crateTargets) {
-            if (board.getAt(curTarget.index()).isCrateOnTarget()) {
-                continue;
-            }
-            cttHeap.add(crateIndex, curTarget);
-        }
-    }
+    private static class LinkedList {
 
-    @Override
-    public String toString() {
-        return "GreedyHeuristic[" + cttHeap.size() + " ctt: " + cttHeap.toString() + "]";
-    }
+        private final Node[] nodeCache;
+        private int size = 0;
 
-    static class CrateToTarget implements Comparable<CrateToTarget> {
+        private Node head;
 
-        private int crateIndex;
-        private TileInfo.TargetRemoteness target;
+        public LinkedList(int size) {
+            nodeCache = new Node[size];
 
-        CrateToTarget() {
-            set(-1, null);
-        }
-
-        CrateToTarget(int crateIndex, TileInfo.TargetRemoteness target) {
-            set(crateIndex, target);
-        }
-
-        @Override
-        public int compareTo(CrateToTarget other) {
-            return this.target.compareTo(other.target);
-        }
-
-        @Override
-        public String toString() {
-            return "CTT[d=" + target.distance() + ", " + crateIndex + " -> " + target.index() + "]";
-        }
-
-        public void set(int crateIndex, TileInfo.TargetRemoteness target) {
-            this.crateIndex = crateIndex;
-            this.target = target;
-        }
-
-        public int crateIndex() {
-            return crateIndex;
-        }
-
-        public TileInfo.TargetRemoteness target() {
-            return target;
-        }
-    }
-
-    private static class MinHeap extends fr.valax.sokoshell.solver.collections.MinHeap<CrateToTarget> {
-
-        public MinHeap(int capacity) {
-            super(capacity);
-            for (int i = 0; i < capacity; i++) {
-                nodes.get(i).setContent(new CrateToTarget());
+            for (int i = 0; i < size; i++) {
+                nodeCache[i] = new Node(this);
             }
         }
 
-        public void add(int crateIndex, TileInfo.TargetRemoteness target) {
-            nodes.get(currentSize).content().set(crateIndex, target);
-            nodes.get(currentSize).setPriority(target.distance());
-            moveNodeUp(currentSize);
-            currentSize++;
+        public void add(TileInfo crate) {
+            Node newHead = nodeCache[size];
+            newHead.set(crate);
+
+            if (head != null) {
+                newHead.next = head;
+                head.previous = newHead;
+            }
+            head = newHead;
+
+            size++;
         }
 
-        @Override
-        public String toString() {
-            return nodes.toString();
+        public void remove(Node node) {
+            if (node == head) {
+                head = node.next;
+
+                if (head != null) {
+                    head.previous = null;
+                }
+            } else {
+                node.previous.next = node.next;
+
+                if (node.next != null) {
+                    node.next.previous = node.previous;
+                }
+            }
+
+            size--;
+        }
+
+        public Node getHead() {
+            return head;
+        }
+    }
+
+    private static class Node {
+
+        private final LinkedList list;
+        private TileInfo crate;
+
+        private Node previous;
+        private Node next;
+
+        /**
+         * Index in crate's target remoteness
+         */
+        private int index = 0;
+
+        public Node(LinkedList list) {
+            this.list = list;
+        }
+
+        public void set(TileInfo tile) {
+            crate = tile;
+            index = 0;
+        }
+
+        public void remove() {
+            list.remove(this);
+        }
+
+        public Node nextNode() {
+            return next;
+        }
+
+        public TileInfo getCrate() {
+            return crate;
+        }
+
+        public TileInfo.TargetRemoteness getNearestNotAttributedTarget() {
+            TileInfo.TargetRemoteness[] remoteness = crate.getTargets();
+
+            Board b = crate.getMap();
+            while (b.getAt(remoteness[index].index()).isMarked()) {
+                index++;
+            }
+
+            return remoteness[index];
         }
     }
 }

@@ -771,7 +771,7 @@ public class Board {
 
                     final int targetIndex = targetIndices.get(j);
                     final int d = (t.isFloor() || t.isTarget()
-                                   ? /*pathfinder.distanceBetween(t, getAt(targetIndex))*/t.manhattanDistance(getAt(targetIndex))
+                                   ? playerAStar.findPath(t, getAt(targetIndex), null, null).getDist() //t.manhattanDistance(getAt(targetIndex))
                                    : 0);
 
                     if (d < minDistToTarget) {

@@ -24,18 +24,17 @@ public class GreedyHeuristicTest {
         Board board = level.getMap();
         State s = level.getInitialState();
 
-
+        board.removeStateCrates(s);
         board.initForSolver();
         board.addStateCrates(s);
         style.print(board, level.getPlayerX(), level.getPlayerY());
 
 
-        GreedyHeuristic h;
+        GreedyHeuristic h = new GreedyHeuristic(board);
         PerformanceMeasurer pm = new PerformanceMeasurer();
         int score = 0;
 
-        final int MES_COUNT = 1000;
-        h = new GreedyHeuristic(board);
+        final int MES_COUNT = 100_000;
         for (int k = 0; k < MES_COUNT; k++) {
             pm.start("new");
             score = h.compute(level.getInitialState());
