@@ -1,5 +1,10 @@
 package fr.valax.sokoshell.solver;
 
+import fr.valax.sokoshell.solver.board.Direction;
+import fr.valax.sokoshell.solver.board.MutableBoard;
+import fr.valax.sokoshell.solver.board.tiles.MutableTileInfo;
+import fr.valax.sokoshell.solver.board.tiles.Tile;
+
 /**
  * May be removed in the future
  * @author darth-mole
@@ -19,11 +24,11 @@ public abstract class AbstractSolver implements Solver {
     }
 
     // http://www.sokobano.de/wiki/index.php?title=How_to_detect_deadlocks
-    protected boolean checkFreezeDeadlock(Board board, State state) {
+    protected boolean checkFreezeDeadlock(MutableBoard board, State state) {
         int[] crates = state.cratesIndices();
 
         for (int crate : crates) {
-            TileInfo info = board.getAt(crate);
+            MutableTileInfo info = board.getAt(crate);
 
             if (info.isCrate() && checkFreezeDeadlock(info)) {
                 return true;
@@ -34,16 +39,16 @@ public abstract class AbstractSolver implements Solver {
     }
 
 
-    private boolean checkFreezeDeadlock(TileInfo crate) {
+    private boolean checkFreezeDeadlock(MutableTileInfo crate) {
         return checkAxisFreezeDeadlock(crate, Direction.LEFT) &&
                 checkAxisFreezeDeadlock(crate, Direction.UP);
     }
 
-    private boolean checkAxisFreezeDeadlock(TileInfo current, Direction axis) {
+    private boolean checkAxisFreezeDeadlock(MutableTileInfo current, Direction axis) {
         boolean deadlock = false;
 
-        TileInfo left = current.safeAdjacent(axis);
-        TileInfo right = current.safeAdjacent(axis.negate());
+        MutableTileInfo left = current.safeAdjacent(axis);
+        MutableTileInfo right = current.safeAdjacent(axis.negate());
 
         if ((left != null && left.isWall()) || (right != null && right.isWall())) { // rule 1
             deadlock = true;

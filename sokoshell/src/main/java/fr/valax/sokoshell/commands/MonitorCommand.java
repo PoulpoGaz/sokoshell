@@ -6,6 +6,10 @@ import fr.valax.sokoshell.TaskStatus;
 import fr.valax.sokoshell.graphics.*;
 import fr.valax.sokoshell.graphics.layout.*;
 import fr.valax.sokoshell.solver.*;
+import fr.valax.sokoshell.solver.board.Direction;
+import fr.valax.sokoshell.solver.board.IBoard;
+import fr.valax.sokoshell.solver.board.MutableBoard;
+import fr.valax.sokoshell.solver.board.tiles.MutableTileInfo;
 import fr.valax.sokoshell.utils.Utils;
 
 import java.io.IOException;
@@ -199,14 +203,14 @@ public class MonitorCommand extends AbstractCommand {
         }
 
         private String export() {
-            if (mapComponent.getMap() == null) {
+            if (mapComponent.getBoard() == null) {
                 return null;
             }
 
             try {
                 Path out = SokoShell.INSTANCE
                         .exportPNG(currentPack, currentLevel,
-                                mapComponent.getMap(), mapComponent.getPlayerX(), mapComponent.getPlayerY(),
+                                mapComponent.getBoard(), mapComponent.getPlayerX(), mapComponent.getPlayerY(),
                                 Direction.DOWN);
 
                 return out.toString();
@@ -251,18 +255,18 @@ public class MonitorCommand extends AbstractCommand {
                 currentLevel = levels.get(index);
                 currentPack = currentLevel.getPack();
 
-                Board board = currentLevel.getMap();
+                MutableBoard board = new MutableBoard(currentLevel.getBoard());
 
                 BigInteger n = estimateMaxNumberOfStates(board);
                 maxNumberOfStateLabel.setText(n.toString());
 
-                board.forEach(TileInfo::removeCrate);
+                board.forEach(MutableTileInfo::removeCrate);
 
                 progressLabel.setText(index + "/" + task.getLevels().size());
                 levelLabel.setText(Integer.toString(currentLevel.getIndex() + 1));
                 packLabel.setText(currentPack.name());
 
-                mapComponent.setMap(board);
+                mapComponent.setBoard(board);
                 mapComponent.setPlayerX(-1);
                 mapComponent.setPlayerY(-1);
             } else if (task.getTaskStatus() == TaskStatus.FINISHED) {
@@ -270,7 +274,7 @@ public class MonitorCommand extends AbstractCommand {
             } else {
                 currentLevel = null;
                 currentPack = null;
-                mapComponent.setMap(null);
+                mapComponent.setBoard(null);
 
                 progressLabel.setText("?/" + task.getLevels().size());
                 levelLabel.setText("?");
@@ -280,7 +284,7 @@ public class MonitorCommand extends AbstractCommand {
         }
 
         private void changeState(State newState) {
-            Board board = mapComponent.getMap();
+            MutableBoard board = new MutableBoard(mapComponent.getBoard());
             if (board == null || newState == null) {
                 return;
             }
@@ -309,7 +313,7 @@ public class MonitorCommand extends AbstractCommand {
          * <br>
          * (f c) counts the number of way to organize the crate (c) and the player ( + 1)<br>
          */
-        private BigInteger estimateMaxNumberOfStates(Board board) {
+        private BigInteger estimateMaxNumberOfStates(IBoard<?> board) {
             int nCrate = 0;
             int nFloor = 0;
 

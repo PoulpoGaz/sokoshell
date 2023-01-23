@@ -5,6 +5,9 @@ import fr.poulpogaz.json.JsonPrettyWriter;
 import fr.poulpogaz.json.JsonReader;
 import fr.valax.sokoshell.SokoShell;
 import fr.valax.sokoshell.graphics.style.BoardStyle;
+import fr.valax.sokoshell.solver.board.Move;
+import fr.valax.sokoshell.solver.board.MutableBoard;
+import fr.valax.sokoshell.solver.board.tiles.MutableTileInfo;
 import fr.valax.sokoshell.solver.pathfinder.CrateAStar;
 import fr.valax.sokoshell.solver.pathfinder.Node;
 
@@ -137,12 +140,12 @@ public class SolverReport {
      */
     private List<Move> createFullSolution(List<State> states) {
         Level level = parameters.getLevel();
-        Board board = level.getMap();
+        MutableBoard board = new MutableBoard(level.getBoard());
 
         ArrayList<Move> path = new ArrayList<>();
         List<Move> temp = new ArrayList<>();
 
-        TileInfo player = board.getAt(level.getPlayerX(), level.getPlayerY());
+        MutableTileInfo player = board.getAt(level.getPlayerX(), level.getPlayerY());
 
         CrateAStar aStar = new CrateAStar(board);
         for (int i = 0; i < states.size() - 1; i++) {
@@ -160,7 +163,7 @@ public class SolverReport {
                     diff.crate(), diff.crateDest());
 
             if (node == null) {
-                throw canFindPathException(board, current, next);
+                throw cannotFindPathException(board, current, next);
             }
 
             player = node.getPlayer();
@@ -194,7 +197,7 @@ public class SolverReport {
      * @param to the second state
      * @return a {@link StateDiff}
      */
-    private StateDiff getStateDiff(Board board, State from, State to) {
+    private StateDiff getStateDiff(MutableBoard board, State from, State to) {
         List<Integer> state1Crates = Arrays.stream(from.cratesIndices()).boxed().collect(Collectors.toList());
         List<Integer> state2Crates = Arrays.stream(to.cratesIndices()).boxed().collect(Collectors.toList());
 
@@ -216,7 +219,7 @@ public class SolverReport {
      * @param next the next state
      * @return an exception
      */
-    private IllegalStateException canFindPathException(Board board, State current, State next) {
+    private IllegalStateException cannotFindPathException(MutableBoard board, State current, State next) {
         BoardStyle style = SokoShell.INSTANCE.getBoardStyle();
 
         String map1 = style.drawToString(board, board.getX(current.playerPos()), board.getY(current.playerPos())).toAnsi();
@@ -411,5 +414,5 @@ public class SolverReport {
      * @param crate old crate position
      * @param crateDest crate destination
      */
-    private record StateDiff(TileInfo playerDest, TileInfo crate, TileInfo crateDest) {}
+    private record StateDiff(MutableTileInfo playerDest, MutableTileInfo crate, MutableTileInfo crateDest) {}
 }

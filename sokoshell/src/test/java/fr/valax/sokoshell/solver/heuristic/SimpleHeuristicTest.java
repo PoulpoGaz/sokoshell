@@ -2,9 +2,9 @@ package fr.valax.sokoshell.solver.heuristic;
 
 import fr.valax.sokoshell.TestUtils;
 import fr.valax.sokoshell.graphics.style.BoardStyle;
-import fr.valax.sokoshell.solver.Board;
 import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.solver.Pack;
+import fr.valax.sokoshell.solver.board.MutableBoard;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
@@ -18,7 +18,7 @@ public class SimpleHeuristicTest {
         BoardStyle style = TestUtils.getStyle(Path.of("isekai/isekai.style"));
 
         Level level = pack.getLevel(0);
-        Board board = level.getMap();
+        MutableBoard board = new MutableBoard(level.getBoard());
 
         board.initForSolver();
         style.print(board, level.getPlayerX(), level.getPlayerY());

@@ -1,7 +1,8 @@
 package fr.valax.sokoshell.solver.pathfinder;
 
-import fr.valax.sokoshell.solver.Direction;
-import fr.valax.sokoshell.solver.TileInfo;
+import fr.valax.sokoshell.solver.board.Direction;
+import fr.valax.sokoshell.solver.board.tiles.ITileInfo;
+import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,8 +31,8 @@ public class PathfinderUtils {
         for (int i = 0; i < nodes.size() - 1; i++) {
             Node node = nodes.get(i);
 
-            TileInfo p = node.getPlayer();
-            TileInfo c = node.getCrate();
+            ITileInfo<?, ?> p = node.getPlayer();
+            ITileInfo<?, ?> c = node.getCrate();
 
             String errorMessage = "At %d. Player expected to be at (%d; %d) but was at (%d; %d). "
                     .formatted(i - 1, playerX, playerY, p.getX(), p.getY());

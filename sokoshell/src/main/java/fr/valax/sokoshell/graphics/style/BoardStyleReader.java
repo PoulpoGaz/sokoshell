@@ -1,8 +1,8 @@
 package fr.valax.sokoshell.graphics.style;
 
 import fr.valax.sokoshell.graphics.Color;
-import fr.valax.sokoshell.solver.Direction;
-import fr.valax.sokoshell.solver.Tile;
+import fr.valax.sokoshell.solver.board.Direction;
+import fr.valax.sokoshell.solver.board.tiles.Tile;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;

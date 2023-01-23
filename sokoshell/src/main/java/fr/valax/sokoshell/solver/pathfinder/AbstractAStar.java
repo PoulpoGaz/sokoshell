@@ -1,8 +1,8 @@
 package fr.valax.sokoshell.solver.pathfinder;
 
-import fr.valax.sokoshell.solver.Direction;
-import fr.valax.sokoshell.solver.Move;
-import fr.valax.sokoshell.solver.TileInfo;
+import fr.valax.sokoshell.solver.board.Direction;
+import fr.valax.sokoshell.solver.board.Move;
+import fr.valax.sokoshell.solver.board.tiles.MutableTileInfo;
 
 import java.util.PriorityQueue;
 
@@ -11,10 +11,10 @@ import java.util.PriorityQueue;
  */
 public abstract class AbstractAStar {
 
-    protected TileInfo playerStart;
-    protected TileInfo crateStart;
-    protected TileInfo playerDest;
-    protected TileInfo crateDest;
+    protected MutableTileInfo playerStart;
+    protected MutableTileInfo crateStart;
+    protected MutableTileInfo playerDest;
+    protected MutableTileInfo crateDest;
 
     protected final PriorityQueue<Node> queue;
 
@@ -24,18 +24,18 @@ public abstract class AbstractAStar {
 
     /**
      * @return true if path exists
-     * @see #findPath(TileInfo, TileInfo, TileInfo, TileInfo)
+     * @see #findPath(MutableTileInfo, MutableTileInfo, MutableTileInfo, MutableTileInfo)
      */
-    public boolean hasPath(TileInfo playerStart, TileInfo playerDest, TileInfo crateStart, TileInfo crateDest) {
+    public boolean hasPath(MutableTileInfo playerStart, MutableTileInfo playerDest, MutableTileInfo crateStart, MutableTileInfo crateDest) {
         return findPath(playerStart, playerDest, crateStart, crateDest) != null;
     }
 
     /**
      * It also computes the move field in {@link Node}
      *
-     * @see #findPath(TileInfo, TileInfo, TileInfo, TileInfo)
+     * @see #findPath(MutableTileInfo, MutableTileInfo, MutableTileInfo, MutableTileInfo)
      */
-    public Node findPathAndComputeMoves(TileInfo playerStart, TileInfo playerDest, TileInfo crateStart, TileInfo crateDest) {
+    public Node findPathAndComputeMoves(MutableTileInfo playerStart, MutableTileInfo playerDest, MutableTileInfo crateStart, MutableTileInfo crateDest) {
         Node end = findPath(playerStart, playerDest, crateStart, crateDest);
 
         if (end == null) {
@@ -46,8 +46,8 @@ public abstract class AbstractAStar {
         while (current.getParent() != null) {
             Node last = current.getParent();
 
-            TileInfo lastPlayer = last.getPlayer();
-            TileInfo currPlayer = current.getPlayer();
+            MutableTileInfo lastPlayer = last.getPlayer();
+            MutableTileInfo currPlayer = current.getPlayer();
             Direction dir = Direction.of(currPlayer.getX() - lastPlayer.getX(), currPlayer.getY() - lastPlayer.getY());
 
             boolean moved = crateStart != null && !current.getCrate().isAt(last.getCrate());
@@ -70,7 +70,7 @@ public abstract class AbstractAStar {
      * @param crateDest crate dest
      * @return the shortest path as a linked list in reverse.
      */
-    public Node findPath(TileInfo playerStart, TileInfo playerDest, TileInfo crateStart, TileInfo crateDest) {
+    public Node findPath(MutableTileInfo playerStart, MutableTileInfo playerDest, MutableTileInfo crateStart, MutableTileInfo crateDest) {
         this.playerStart = playerStart;
         this.crateStart = crateStart;
         this.playerDest = playerDest;

@@ -1,5 +1,10 @@
 package fr.valax.sokoshell.solver;
 
+import fr.valax.sokoshell.solver.board.Direction;
+import fr.valax.sokoshell.solver.board.MutableBoard;
+import fr.valax.sokoshell.solver.board.Room;
+import fr.valax.sokoshell.solver.board.Tunnel;
+import fr.valax.sokoshell.solver.board.tiles.MutableTileInfo;
 import fr.valax.sokoshell.solver.collections.SolverCollection;
 import fr.valax.sokoshell.utils.SizeOf;
 
@@ -22,7 +27,7 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
     protected SolverCollection<S> toProcess;
     protected final Set<State> processed = new HashSet<>();
 
-    protected Board board;
+    protected MutableBoard board;
 
     private boolean running = false;
     private boolean stopped = false;
@@ -79,12 +84,14 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
 
         Level level = params.getLevel();
 
+        State.initZobristValues(level.getWidth() * level.getHeight());
+
         final State initialState = level.getInitialState();
         State finalState = null;
 
         int nState = initialState.cratesIndices().length;
 
-        board = level.getMap();
+        board = new MutableBoard(level.getBoard());
         board.removeStateCrates(initialState);
         board.initForSolver();
 
@@ -158,7 +165,7 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
             int crateX = board.getX(crate);
             int crateY = board.getY(crate);
 
-            TileInfo crateTile = board.getAt(crate);
+            MutableTileInfo crateTile = board.getAt(crate);
 
             // check if the crate is already at his destination
             if (board.isGoalRoomLevel() && crateTile.isInARoom()) {
@@ -178,16 +185,16 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
         }
     }
 
-    private void addChildrenStatesInTunnel(int crateIndex, TileInfo crate) {
+    private void addChildrenStatesInTunnel(int crateIndex, MutableTileInfo crate) {
         // the crate is in a tunnel. two possibilities: move to tunnel.startOut or tunnel.endOut
         // this part of the code assume that there is no other crate in the tunnel.
         // normally, this is impossible...
 
         for (Direction pushDir : Direction.VALUES) {
-            TileInfo player = crate.adjacent(pushDir.negate());
+            MutableTileInfo player = crate.adjacent(pushDir.negate());
 
             if (player.isReachable()) {
-                TileInfo dest = crate.getTunnelExit().getExit(pushDir);
+                MutableTileInfo dest = crate.getTunnelExit().getExit(pushDir);
 
                 if (dest != null && !dest.isSolid()) {
                     addStateCheckForGoalMacro(crateIndex, crate.getX(), crate.getY(), dest);
@@ -219,7 +226,7 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
             }
 
 
-            TileInfo dest = board.getAt(crateDestX, crateDestY);
+            MutableTileInfo dest = board.getAt(crateDestX, crateDestY);
 
             // check for tunnel
             Tunnel tunnel = dest.getTunnel();
@@ -235,8 +242,8 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
                 // the tunnel. That's why the second addState is done (after this if)
                 // and only if this tunnel isn't oneway
                 if (!tunnel.isPlayerOnlyTunnel()) {
-                    TileInfo crate = board.getAt(crateX, crateY);
-                    TileInfo newDest = null;
+                    MutableTileInfo crate = board.getAt(crateX, crateY);
+                    MutableTileInfo newDest = null;
 
                     if (crate == tunnel.getStartOut()) {
                         if (tunnel.getEndOut() != null && !tunnel.getEndOut().anyCrate()) {
@@ -262,11 +269,11 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
         }
     }
 
-    private void addStateCheckForGoalMacro(int crateIndex, int crateX, int crateY, TileInfo dest) {
+    private void addStateCheckForGoalMacro(int crateIndex, int crateX, int crateY, MutableTileInfo dest) {
         Room room = dest.getRoom();
         if (room != null && board.isGoalRoomLevel() && room.getPackingOrderIndex() >= 0) {
             // goal macro!
-            TileInfo newDest = room.getPackingOrder().get(room.getPackingOrderIndex());
+            MutableTileInfo newDest = room.getPackingOrder().get(room.getPackingOrderIndex());
 
             addState(crateIndex, crateX, crateY, newDest.getX(), newDest.getY());
         } else {

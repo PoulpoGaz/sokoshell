@@ -1,8 +1,8 @@
 package fr.valax.sokoshell.solver.pathfinder;
 
-import fr.valax.sokoshell.solver.Board;
-import fr.valax.sokoshell.solver.Direction;
-import fr.valax.sokoshell.solver.TileInfo;
+import fr.valax.sokoshell.solver.board.Direction;
+import fr.valax.sokoshell.solver.board.MutableBoard;
+import fr.valax.sokoshell.solver.board.tiles.MutableTileInfo;
 
 import java.util.PriorityQueue;
 
@@ -16,7 +16,7 @@ public class PlayerAStar extends AbstractAStar {
     private final AStarMarkSystem markSystem;
     private final Node[] nodes;
 
-    public PlayerAStar(Board board) {
+    public PlayerAStar(MutableBoard board) {
         super(new PriorityQueue<>(board.getWidth() * board.getHeight()));
         this.mapWidth = board.getWidth();
         markSystem = new AStarMarkSystem(board.getWidth() * board.getHeight());
@@ -27,7 +27,7 @@ public class PlayerAStar extends AbstractAStar {
         }
     }
 
-    private int toIndex(TileInfo player) {
+    private int toIndex(MutableTileInfo player) {
         return player.getY() * mapWidth + player.getX();
     }
 
@@ -53,8 +53,8 @@ public class PlayerAStar extends AbstractAStar {
 
     @Override
     protected Node processMove(Node parent, Direction dir) {
-        TileInfo player = parent.getPlayer();
-        TileInfo dest = player.adjacent(dir);
+        MutableTileInfo player = parent.getPlayer();
+        MutableTileInfo dest = player.adjacent(dir);
 
         if (dest.isSolid()) {
             return null;
@@ -87,7 +87,7 @@ public class PlayerAStar extends AbstractAStar {
         return markSystem.isVisited(toIndex(node.getPlayer()));
     }
 
-    protected int heuristic(TileInfo newPlayer) {
+    protected int heuristic(MutableTileInfo newPlayer) {
         return newPlayer.manhattanDistance(playerDest);
     }
 

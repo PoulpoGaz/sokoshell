@@ -3,9 +3,9 @@ package fr.valax.sokoshell.graphics.style;
 import fr.valax.sokoshell.graphics.Graphics;
 import fr.valax.sokoshell.graphics.GraphicsUtils;
 import fr.valax.sokoshell.graphics.Surface;
-import fr.valax.sokoshell.solver.Board;
-import fr.valax.sokoshell.solver.Direction;
-import fr.valax.sokoshell.solver.TileInfo;
+import fr.valax.sokoshell.solver.board.Direction;
+import fr.valax.sokoshell.solver.board.IBoard;
+import fr.valax.sokoshell.solver.board.tiles.ITileInfo;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;
 
@@ -61,7 +61,7 @@ public class FileBoardStyle extends BoardStyle {
     }
 
     @Override
-    public void draw(Graphics g, TileInfo tile, Direction playerDir, int drawX, int drawY, int size) {
+    public void draw(Graphics g, ITileInfo<?, ?> tile, Direction playerDir, int drawX, int drawY, int size) {
         int index = findBestSizeIndex(size);
 
         Sampler tileSampler = getSampler(tile, index);
@@ -72,7 +72,7 @@ public class FileBoardStyle extends BoardStyle {
 
     @Override
     public void draw(Graphics2D g2d,
-                     TileInfo tile, Direction playerDir,
+                     ITileInfo<?, ?> tile, Direction playerDir,
                      int drawX, int drawY, int size, int charWidth, int charHeight) {
         int index = findBestSizeIndex(size);
 
@@ -90,7 +90,7 @@ public class FileBoardStyle extends BoardStyle {
     }
 
     @Override
-    public BufferedImage createImage(Board board, int playerX, int playerY, Direction playerDir) {
+    public BufferedImage createImage(IBoard<?> board, int playerX, int playerY, Direction playerDir) {
         int sizeIndex = availableSizes.length - 1;
         int size = availableSizes[sizeIndex];
 
@@ -109,7 +109,7 @@ public class FileBoardStyle extends BoardStyle {
             try {
                 for (int y = 0; y < board.getHeight(); y++) {
                     for (int x = 0; x < board.getWidth(); x++) {
-                        TileInfo tile = board.getAt(x, y);
+                        ITileInfo<?, ?> tile = board.getAt(x, y);
 
                         ImageSampler tileSampler = (ImageSampler) getSampler(tile, sizeIndex);
                         g2d.drawImage(tileSampler.image, x * size, y * size, null);
@@ -139,7 +139,7 @@ public class FileBoardStyle extends BoardStyle {
 
                 for (int y = 0; y < board.getHeight(); y++) {
                     for (int x = 0; x < board.getWidth(); x++) {
-                        TileInfo tile = board.getAt(x, y);
+                        ITileInfo<?, ?> tile = board.getAt(x, y);
 
                         int drawX = x * size * GraphicsUtils.CHAR_WIDTH;
                         int drawY = y * size * GraphicsUtils.CHAR_HEIGHT;
@@ -180,7 +180,7 @@ public class FileBoardStyle extends BoardStyle {
         }
     }
 
-    protected Sampler getSampler(TileInfo tile, int sizeIndex) {
+    protected Sampler getSampler(ITileInfo<?, ?> tile, int sizeIndex) {
         return samplers.get(tile.getTile().name())[sizeIndex];
     }
 

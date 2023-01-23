@@ -1,4 +1,6 @@
-package fr.valax.sokoshell.solver;
+package fr.valax.sokoshell.solver.board;
+
+import fr.valax.sokoshell.solver.board.tiles.MutableTileInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,15 +9,15 @@ public class Room {
 
     private boolean goalRoom;
 
-    private final List<TileInfo> tiles = new ArrayList<>();
-    private final List<TileInfo> targets = new ArrayList<>();
+    private final List<MutableTileInfo> tiles = new ArrayList<>();
+    private final List<MutableTileInfo> targets = new ArrayList<>();
 
     private final List<Tunnel> tunnels = new ArrayList<>();
 
     /**
-     * Only computed is the level is a goal room level as defined by {@link Board#isGoalRoomLevel()}
+     * Only computed is the level is a goal room level as defined by {@link SolverBoard#isGoalRoomLevel()}
      */
-    private List<TileInfo> packingOrder;
+    private List<MutableTileInfo> packingOrder;
 
     // dynamic
     // the index in packingOrder of the position of the next crate that will be pushed inside the room
@@ -26,7 +28,7 @@ public class Room {
     public Room() {
     }
 
-    public void addTile(TileInfo tile) {
+    public void addTile(MutableTileInfo tile) {
         tiles.add(tile);
 
         if (tile.isTarget()) {
@@ -35,11 +37,11 @@ public class Room {
     }
 
 
-    public List<TileInfo> getTiles() {
+    public List<MutableTileInfo> getTiles() {
         return tiles;
     }
 
-    public List<TileInfo> getTargets() {
+    public List<MutableTileInfo> getTargets() {
         return targets;
     }
 
@@ -61,15 +63,15 @@ public class Room {
         this.goalRoom = goalRoom;
     }
 
-    public List<TileInfo> getPackingOrder() {
+    public List<MutableTileInfo> getPackingOrder() {
         return packingOrder;
     }
 
-    public void setPackingOrder(List<TileInfo> packingOrder) {
+    public void setPackingOrder(List<MutableTileInfo> packingOrder) {
         this.packingOrder = packingOrder;
     }
 
-    public boolean isInPackingOrder(TileInfo tile) {
+    public boolean isInPackingOrder(MutableTileInfo tile) {
         return packingOrder != null && packingOrder.contains(tile);
     }
 

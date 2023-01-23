@@ -2,6 +2,9 @@ package fr.valax.sokoshell.solver;
 
 import fr.poulpogaz.json.JsonException;
 import fr.poulpogaz.json.JsonPrettyWriter;
+import fr.valax.sokoshell.solver.board.Board;
+import fr.valax.sokoshell.solver.board.Direction;
+import fr.valax.sokoshell.solver.board.tiles.Tile;
 import fr.valax.sokoshell.utils.BuilderException;
 
 import java.io.IOException;
@@ -38,12 +41,12 @@ public class Level {
     }
 
     /**
-     * Returns a copy of the map
+     * Returns the (immutable) board
      *
-     * @return a copy of the map
+     * @return the (immutable) board
      */
-    public Board getMap() {
-        return new Board(board);
+    public Board getBoard() {
+        return board;
     }
 
     /**

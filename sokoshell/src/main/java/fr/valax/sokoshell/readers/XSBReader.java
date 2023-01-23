@@ -1,10 +1,10 @@
 package fr.valax.sokoshell.readers;
 
 import fr.poulpogaz.json.JsonException;
-import fr.valax.sokoshell.solver.Board;
 import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.solver.Pack;
-import fr.valax.sokoshell.solver.Tile;
+import fr.valax.sokoshell.solver.board.IBoard;
+import fr.valax.sokoshell.solver.board.tiles.Tile;
 import fr.valax.sokoshell.utils.Utils;
 
 import java.io.BufferedReader;
@@ -103,7 +103,7 @@ public class XSBReader implements Reader {
 
         height = lines.size();
 
-        if (width < Board.MINIMUM_WIDTH && height < Board.MINIMUM_HEIGHT) {
+        if (width < IBoard.MINIMUM_WIDTH && height < IBoard.MINIMUM_HEIGHT) {
             return null;
         }
 

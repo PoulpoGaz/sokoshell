@@ -1,6 +1,6 @@
 package fr.valax.sokoshell.solver.heuristic;
 
-import fr.valax.sokoshell.solver.Board;
+import fr.valax.sokoshell.solver.board.MutableBoard;
 
 /**
  * Base class for heuristic computing classes.
@@ -9,9 +9,9 @@ import fr.valax.sokoshell.solver.Board;
  */
 public abstract class AbstractHeuristic implements Heuristic {
 
-    protected final Board board;
+    protected final MutableBoard board;
 
-    public AbstractHeuristic(Board board) {
+    public AbstractHeuristic(MutableBoard board) {
         this.board = board;
     }
 }

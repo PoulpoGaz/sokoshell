@@ -1,4 +1,4 @@
-package fr.valax.sokoshell.solver;
+package fr.valax.sokoshell.solver.board;
 
 /**
  * A small but super useful enumeration. Contains all direction: {@link Direction#LEFT}, {@link Direction#UP},

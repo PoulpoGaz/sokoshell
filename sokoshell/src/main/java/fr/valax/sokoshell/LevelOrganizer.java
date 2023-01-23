@@ -2,9 +2,9 @@ package fr.valax.sokoshell;
 
 import fr.poulpogaz.json.JsonException;
 import fr.valax.sokoshell.readers.PackReaders;
-import fr.valax.sokoshell.solver.Board;
 import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.solver.Pack;
+import fr.valax.sokoshell.solver.board.Board;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -89,8 +89,8 @@ public class LevelOrganizer {
             return false;
         }
 
-        Board board1 = level1.getMap();
-        Board board2 = level2.getMap();
+        Board board1 = level1.getBoard();
+        Board board2 = level2.getBoard();
         for (int y = 0; y < board1.getHeight(); y++) {
             for (int x = 0; x < board1.getWidth(); x++) {
                 if (board1.getAt(x, y).getTile() != board2.getAt(x, y).getTile()) {

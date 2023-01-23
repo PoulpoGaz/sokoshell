@@ -1,8 +1,9 @@
 package fr.valax.sokoshell.solver.heuristic;
 
-import fr.valax.sokoshell.solver.Board;
 import fr.valax.sokoshell.solver.State;
-import fr.valax.sokoshell.solver.TileInfo;
+import fr.valax.sokoshell.solver.board.MutableBoard;
+import fr.valax.sokoshell.solver.board.tiles.ITileInfo;
+import fr.valax.sokoshell.solver.board.tiles.MutableTileInfo;
 
 /**
  * According to <a href="http://sokobano.de/wiki/index.php?title=Solver#Greedy_approach">this article</a>
@@ -11,7 +12,7 @@ public class GreedyHeuristic extends AbstractHeuristic {
 
     MinHeap cttHeap;
 
-    public GreedyHeuristic(Board board) {
+    public GreedyHeuristic(MutableBoard board) {
         super(board);
         final int n = board.getTargetCount();
         cttHeap = new MinHeap(n * n);
@@ -45,7 +46,7 @@ public class GreedyHeuristic extends AbstractHeuristic {
         //System.out.print(" -- ");
 
         for (int crateIndex : s.cratesIndices()) {
-            final TileInfo curCrate = board.getAt(crateIndex);
+            final MutableTileInfo curCrate = board.getAt(crateIndex);
             if (!curCrate.isMarked()) {
                 //System.out.printf("%d; ", curCrate.getNearestTarget().distance());
                 heuristic += curCrate.getNearestTarget().distance();
@@ -57,8 +58,8 @@ public class GreedyHeuristic extends AbstractHeuristic {
     }
 
     public void mergeCrateTargets(int crateIndex) {
-        final TileInfo.TargetRemoteness[] crateTargets = board.getAt(crateIndex).getTargets();
-        for (final TileInfo.TargetRemoteness curTarget : crateTargets) {
+        final MutableTileInfo.TargetRemoteness[] crateTargets = board.getAt(crateIndex).getTargets();
+        for (final MutableTileInfo.TargetRemoteness curTarget : crateTargets) {
             if (board.getAt(curTarget.index()).isCrateOnTarget()) {
                 continue;
             }
@@ -74,13 +75,13 @@ public class GreedyHeuristic extends AbstractHeuristic {
     static class CrateToTarget implements Comparable<CrateToTarget> {
 
         private int crateIndex;
-        private TileInfo.TargetRemoteness target;
+        private ITileInfo.TargetRemoteness target;
 
         CrateToTarget() {
             set(-1, null);
         }
 
-        CrateToTarget(int crateIndex, TileInfo.TargetRemoteness target) {
+        CrateToTarget(int crateIndex, ITileInfo.TargetRemoteness target) {
             set(crateIndex, target);
         }
 
@@ -94,7 +95,7 @@ public class GreedyHeuristic extends AbstractHeuristic {
             return "CTT[d=" + target.distance() + ", " + crateIndex + " -> " + target.index() + "]";
         }
 
-        public void set(int crateIndex, TileInfo.TargetRemoteness target) {
+        public void set(int crateIndex, ITileInfo.TargetRemoteness target) {
             this.crateIndex = crateIndex;
             this.target = target;
         }
@@ -103,7 +104,7 @@ public class GreedyHeuristic extends AbstractHeuristic {
             return crateIndex;
         }
 
-        public TileInfo.TargetRemoteness target() {
+        public ITileInfo.TargetRemoteness target() {
             return target;
         }
     }
@@ -117,7 +118,7 @@ public class GreedyHeuristic extends AbstractHeuristic {
             }
         }
 
-        public void add(int crateIndex, TileInfo.TargetRemoteness target) {
+        public void add(int crateIndex, MutableTileInfo.TargetRemoteness target) {
             nodes.get(currentSize).content().set(crateIndex, target);
             nodes.get(currentSize).setPriority(target.distance());
             moveNodeUp(currentSize);

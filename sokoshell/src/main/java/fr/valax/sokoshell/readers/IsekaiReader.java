@@ -2,7 +2,8 @@ package fr.valax.sokoshell.readers;
 
 import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.solver.Pack;
-import fr.valax.sokoshell.solver.Tile;
+import fr.valax.sokoshell.solver.board.tiles.Tile;
+import static fr.valax.sokoshell.solver.board.tiles.Tile.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -10,8 +11,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-
-import static fr.valax.sokoshell.solver.Tile.*;
 
 /**
  * Reads a pack from the

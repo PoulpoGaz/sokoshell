@@ -1,5 +1,8 @@
 package fr.valax.sokoshell.solver.mark;
 
+import fr.valax.sokoshell.solver.board.mark.HeavyweightMarkSystem;
+import fr.valax.sokoshell.solver.board.mark.Mark;
+import fr.valax.sokoshell.solver.board.mark.MarkSystem;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

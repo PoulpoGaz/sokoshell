@@ -1,4 +1,4 @@
-package fr.valax.sokoshell.solver;
+package fr.valax.sokoshell.solver.board;
 
 /**
  * An enumeration representing a move or a push in a solution. The {@code moveCrate} flag is needed to go back

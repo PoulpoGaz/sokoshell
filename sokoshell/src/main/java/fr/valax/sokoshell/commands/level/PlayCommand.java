@@ -3,10 +3,10 @@ package fr.valax.sokoshell.commands.level;
 import fr.valax.sokoshell.SokoShell;
 import fr.valax.sokoshell.graphics.*;
 import fr.valax.sokoshell.graphics.layout.*;
-import fr.valax.sokoshell.solver.Board;
-import fr.valax.sokoshell.solver.Direction;
 import fr.valax.sokoshell.solver.Level;
-import fr.valax.sokoshell.solver.Tile;
+import fr.valax.sokoshell.solver.board.Direction;
+import fr.valax.sokoshell.solver.board.MutableBoard;
+import fr.valax.sokoshell.solver.board.tiles.Tile;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -74,7 +74,7 @@ public class PlayCommand extends LevelCommand {
             pushesLabel.setHorizAlign(Label.WEST);
 
             mapComponent = new MapComponent();
-            mapComponent.setMap(controller.getMap());
+            mapComponent.setBoard(controller.getBoard());
             updateComponents();
 
 
@@ -111,14 +111,14 @@ public class PlayCommand extends LevelCommand {
         }
 
         private String export() {
-            if (mapComponent.getMap() == null) {
+            if (mapComponent.getBoard() == null) {
                 return null;
             }
 
             try {
                 Path out = SokoShell.INSTANCE
                         .exportPNG(level.getPack(), level,
-                                controller.getMap(), controller.getPlayerX(), controller.getPlayerY(),
+                                controller.getBoard(), controller.getPlayerX(), controller.getPlayerY(),
                                 controller.getLastDir());
 
                 return out.toString();
@@ -170,7 +170,7 @@ public class PlayCommand extends LevelCommand {
     }
 
     public static class GameController {
-        private final Board board;
+        private final MutableBoard board;
         private int playerX;
         private int playerY;
         private int moves;
@@ -181,7 +181,7 @@ public class PlayCommand extends LevelCommand {
         private boolean mapCompleted = false;
 
         GameController(Level level) {
-            this.board = level.getMap();
+            this.board = new MutableBoard(level.getBoard());
             this.playerX = level.getPlayerX();
             this.playerY = level.getPlayerY();
         }
@@ -247,7 +247,7 @@ public class PlayCommand extends LevelCommand {
             }
         }
 
-        public Board getMap() { return board; }
+        public MutableBoard getBoard() { return board; }
 
         public int getPlayerX() { return playerX; }
         public int getPlayerY() { return playerY; }

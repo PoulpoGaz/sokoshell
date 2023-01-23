@@ -2,6 +2,11 @@ package fr.valax.sokoshell.solver;
 
 import fr.valax.sokoshell.TestUtils;
 import fr.valax.sokoshell.graphics.style.BoardStyle;
+import fr.valax.sokoshell.solver.board.MutableBoard;
+import fr.valax.sokoshell.solver.board.Room;
+import fr.valax.sokoshell.solver.board.Tunnel;
+import fr.valax.sokoshell.solver.board.tiles.ITileInfo;
+import fr.valax.sokoshell.solver.board.tiles.MutableTileInfo;
 import org.junit.jupiter.api.Test;
 import org.opentest4j.AssertionFailedError;
 
@@ -18,7 +23,7 @@ public class BoardTest {
     @Test
     void topLeftReachablePositionTest() {
         Level level = TestUtils.getLevel(Path.of("../levels/levels8xv/Original.8xv"));
-        Board board = level.getMap();
+        MutableBoard board = new MutableBoard(level.getBoard());
 
         int i = board.topLeftReachablePosition(5, 7, 5, 6);
 
@@ -44,7 +49,7 @@ public class BoardTest {
         tunnelsSet.add(new TTunnel(12, 7, 13, 7,  11, 7, 14, 7,  false, true));
 
         Level level = TestUtils.getLevel(Path.of("levels8xv/Original.8xv"));
-        Board board = level.getMap();
+        MutableBoard board = new MutableBoard(level.getBoard());
         board.removeStateCrates(level.getInitialState());
         board.computeFloors();
         board.findTunnels();
@@ -52,10 +57,10 @@ public class BoardTest {
         List<Tunnel> tunnels = board.getTunnels();
 
         for (Tunnel t : tunnels) {
-            TileInfo s = t.getStart();
-            TileInfo e = t.getEnd();
-            TileInfo so = t.getStartOut();
-            TileInfo eo = t.getEndOut();
+            MutableTileInfo s = t.getStart();
+            MutableTileInfo e = t.getEnd();
+            MutableTileInfo so = t.getStartOut();
+            MutableTileInfo eo = t.getEndOut();
 
             TTunnel arr1 = new TTunnel(s.getX(), s.getY(), e.getX(), e.getY());
             arr1.setOnlyPlayer(t.isPlayerOnlyTunnel());
@@ -113,7 +118,7 @@ public class BoardTest {
                 """;
 
         Level level = TestUtils.getLevel(mapStr);
-        Board board = level.getMap();
+        MutableBoard board = new MutableBoard(level.getBoard());
         board.initForSolver();
 
         List<Tunnel> tunnels = board.getTunnels();
@@ -122,10 +127,10 @@ public class BoardTest {
         Tunnel t = tunnels.get(0);
         assertFalse(t.isPlayerOnlyTunnel());
 
-        TileInfo start;
-        TileInfo startOut;
-        TileInfo end;
-        TileInfo endOut;
+        MutableTileInfo start;
+        MutableTileInfo startOut;
+        MutableTileInfo end;
+        MutableTileInfo endOut;
 
         if (t.getStart().isAt(3, 2)) {
             start = t.getStart();
@@ -148,7 +153,7 @@ public class BoardTest {
         assertTrue(endOut.isAt(10, 2));
 
         for (int x = 3; x < 10; x++) {
-            TileInfo tile = board.getAt(x, 2);
+            MutableTileInfo tile = board.getAt(x, 2);
             assertEquals(t, tile.getTunnel());
             assertNotNull(tile.getTunnelExit());
 
@@ -172,7 +177,7 @@ public class BoardTest {
                 """;
 
         Level level = TestUtils.getLevel(mapStr);
-        Board board = level.getMap();
+        MutableBoard board = new MutableBoard(level.getBoard());
         board.initForSolver();
 
         List<Tunnel> tunnels = board.getTunnels();
@@ -181,10 +186,10 @@ public class BoardTest {
         Tunnel t = tunnels.get(0);
         assertTrue(t.isPlayerOnlyTunnel());
 
-        TileInfo start;
-        TileInfo startOut;
-        TileInfo end;
-        TileInfo endOut;
+        MutableTileInfo start;
+        MutableTileInfo startOut;
+        MutableTileInfo end;
+        MutableTileInfo endOut;
 
         if (t.getStart().isAt(4, 2)) {
             start = t.getStart();
@@ -389,7 +394,7 @@ public class BoardTest {
     @Test
     void packingOrderTest1() {
         Level level = TestUtils.getLevel(Path.of("levels8xv/Original.8xv"));
-        Board board = level.getMap();
+        MutableBoard board = new MutableBoard(level.getBoard());
         board.removeStateCrates(level.getInitialState());
         board.initForSolver();
 
@@ -403,7 +408,7 @@ public class BoardTest {
 
         assertNotNull(room);
         assertNotNull(room.getPackingOrder());
-        for (TileInfo t : room.getPackingOrder()) {
+        for (MutableTileInfo t : room.getPackingOrder()) {
             System.out.println(t.getX() + " - " + t.getY());
         }
     }
@@ -411,14 +416,14 @@ public class BoardTest {
     @Test
     void packingOrderTest2() {
         Level level = TestUtils.getLevel(Path.of("levels8xv/Original.8xv"), 10);
-        Board board = level.getMap();
+        MutableBoard board = new MutableBoard(level.getBoard());
         board.removeStateCrates(level.getInitialState());
         board.initForSolver();
 
         for (Room r : board.getRooms()) {
             if (r.isGoalRoom()) {
                 System.out.println("-");
-                for (TileInfo t : r.getPackingOrder()) {
+                for (MutableTileInfo t : r.getPackingOrder()) {
                     System.out.println(t.getX() + " - " + t.getY());
                 }
             }
@@ -430,7 +435,7 @@ public class BoardTest {
         Level level = TestUtils.getLevel(Path.of("TIPEex.8xv"), 0);
         BoardStyle style = TestUtils.getStyle(Path.of("isekai/isekai.style"));
 
-        Board board = level.getMap();
+        MutableBoard board = new MutableBoard(level.getBoard());
 
         board.removeStateCrates(level.getInitialState());
         board.initForSolver();

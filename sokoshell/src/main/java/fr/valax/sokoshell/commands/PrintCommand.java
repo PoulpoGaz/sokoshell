@@ -6,9 +6,9 @@ import fr.valax.args.utils.ArgsUtils;
 import fr.valax.interval.Set;
 import fr.valax.sokoshell.graphics.Graphics;
 import fr.valax.sokoshell.graphics.Surface;
-import fr.valax.sokoshell.solver.Direction;
 import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.solver.Pack;
+import fr.valax.sokoshell.solver.board.Direction;
 import org.jline.reader.Candidate;
 import org.jline.reader.LineReader;
 import org.jline.terminal.Size;
@@ -72,7 +72,7 @@ public class PrintCommand extends AbstractCommand {
                     Surface surface = new Surface();
                     surface.resize(s.getColumns(), s.getRows());
                     Graphics g = new Graphics(surface);
-                    sokoshell().getBoardStyle().drawCentered(g, 0, 0, s.getColumns(), s.getRows(), l.getMap(), l.getPlayerX(), l.getPlayerY(), playerDir);
+                    sokoshell().getBoardStyle().drawCentered(g, 0, 0, s.getColumns(), s.getRows(), l.getBoard(), l.getPlayerX(), l.getPlayerY(), playerDir);
                     surface.print(out);
                 } else {
                     sokoshell().getBoardStyle().print(out, l);
@@ -80,7 +80,7 @@ public class PrintCommand extends AbstractCommand {
 
                 if (export) {
                     try {
-                        sokoshell().exportPNG(l.getPack(), l, l.getMap(), l.getPlayerX(), l.getPlayerY(), playerDir);
+                        sokoshell().exportPNG(l.getPack(), l, l.getBoard(), l.getPlayerX(), l.getPlayerY(), playerDir);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }

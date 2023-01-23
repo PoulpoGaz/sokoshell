@@ -1,4 +1,6 @@
-package fr.valax.sokoshell.solver;
+package fr.valax.sokoshell.solver.board;
+
+import fr.valax.sokoshell.solver.board.tiles.MutableTileInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,14 +19,14 @@ public class Tunnel {
 
     // STATIC
 
-    private TileInfo start;
-    private TileInfo end;
+    private MutableTileInfo start;
+    private MutableTileInfo end;
 
     // the tile outside the tunnel adjacent to start
-    private TileInfo startOut;
+    private MutableTileInfo startOut;
 
     // the tile outside the tunnel adjacent to end
-    private TileInfo endOut;
+    private MutableTileInfo endOut;
     private final List<Room> rooms = new ArrayList<>();
 
     // true if the tunnel can only be taken by the player
@@ -49,12 +51,12 @@ public class Tunnel {
         }
     }
 
-    private void create(TileInfo tile, Direction startDir, TileInfo startOut) {
-        TileInfo t = tile;
+    private void create(MutableTileInfo tile, Direction startDir, MutableTileInfo startOut) {
+        MutableTileInfo t = tile;
 
         Direction nextDir = startDir.negate();
         while (true) {
-            TileInfo next = t.adjacent(nextDir);
+            MutableTileInfo next = t.adjacent(nextDir);
 
             if (next.isWall() || t.getTunnel() != this) {
                 break;
@@ -66,7 +68,7 @@ public class Tunnel {
         }
     }
 
-    private void setExit(TileInfo tile, Direction dir, TileInfo out) {
+    private void setExit(MutableTileInfo tile, Direction dir, MutableTileInfo out) {
         if (dir != null) {
             Exit exit = tile.getTunnelExit();
 
@@ -92,35 +94,35 @@ public class Tunnel {
         return rooms;
     }
 
-    public TileInfo getStart() {
+    public MutableTileInfo getStart() {
         return start;
     }
 
-    public void setStart(TileInfo start) {
+    public void setStart(MutableTileInfo start) {
         this.start = start;
     }
 
-    public TileInfo getEnd() {
+    public MutableTileInfo getEnd() {
         return end;
     }
 
-    public void setEnd(TileInfo end) {
+    public void setEnd(MutableTileInfo end) {
         this.end = end;
     }
 
-    public TileInfo getStartOut() {
+    public MutableTileInfo getStartOut() {
         return startOut;
     }
 
-    public void setStartOut(TileInfo startOut) {
+    public void setStartOut(MutableTileInfo startOut) {
         this.startOut = startOut;
     }
 
-    public TileInfo getEndOut() {
+    public MutableTileInfo getEndOut() {
         return endOut;
     }
 
-    public void setEndOut(TileInfo endOut) {
+    public void setEndOut(MutableTileInfo endOut) {
         this.endOut = endOut;
     }
 
@@ -157,22 +159,22 @@ public class Tunnel {
      */
     public static class Exit {
 
-        private TileInfo leftExit;
-        private TileInfo upExit;
-        private TileInfo rightExit;
-        private TileInfo downExit;
+        private MutableTileInfo leftExit;
+        private MutableTileInfo upExit;
+        private MutableTileInfo rightExit;
+        private MutableTileInfo downExit;
 
         public Exit() {
         }
 
-        public Exit(TileInfo leftExit, TileInfo upExit, TileInfo rightExit, TileInfo downExit) {
+        public Exit(MutableTileInfo leftExit, MutableTileInfo upExit, MutableTileInfo rightExit, MutableTileInfo downExit) {
             this.leftExit = leftExit;
             this.upExit = upExit;
             this.rightExit = rightExit;
             this.downExit = downExit;
         }
 
-        public TileInfo getExit(Direction dir) {
+        public MutableTileInfo getExit(Direction dir) {
             return switch (dir) {
                 case LEFT -> leftExit;
                 case UP -> upExit;
@@ -181,35 +183,35 @@ public class Tunnel {
             };
         }
 
-        public TileInfo getLeftExit() {
+        public MutableTileInfo getLeftExit() {
             return leftExit;
         }
 
-        private void setLeftExit(TileInfo leftExit) {
+        private void setLeftExit(MutableTileInfo leftExit) {
             this.leftExit = leftExit;
         }
 
-        public TileInfo getUpExit() {
+        public MutableTileInfo getUpExit() {
             return upExit;
         }
 
-        private void setUpExit(TileInfo upExit) {
+        private void setUpExit(MutableTileInfo upExit) {
             this.upExit = upExit;
         }
 
-        public TileInfo getRightExit() {
+        public MutableTileInfo getRightExit() {
             return rightExit;
         }
 
-        private void setRightExit(TileInfo rightExit) {
+        private void setRightExit(MutableTileInfo rightExit) {
             this.rightExit = rightExit;
         }
 
-        public TileInfo getDownExit() {
+        public MutableTileInfo getDownExit() {
             return downExit;
         }
 
-        private void setDownExit(TileInfo downExit) {
+        private void setDownExit(MutableTileInfo downExit) {
             this.downExit = downExit;
         }
     }

@@ -1,16 +1,16 @@
 package fr.valax.sokoshell.solver.pathfinder;
 
 import fr.valax.sokoshell.TestUtils;
-import fr.valax.sokoshell.solver.Board;
-import fr.valax.sokoshell.solver.Direction;
 import fr.valax.sokoshell.solver.Level;
-import fr.valax.sokoshell.solver.TileInfo;
+import fr.valax.sokoshell.solver.board.Direction;
+import static fr.valax.sokoshell.solver.board.Direction.*;
+
+import fr.valax.sokoshell.solver.board.MutableBoard;
+import fr.valax.sokoshell.solver.board.tiles.MutableTileInfo;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
 
-import static fr.valax.sokoshell.solver.Direction.DOWN;
-import static fr.valax.sokoshell.solver.Direction.RIGHT;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class PlayerAStarTest {
@@ -32,7 +32,7 @@ public class PlayerAStarTest {
                 ########
                 """);
 
-        Board board = level.getMap();
+        MutableBoard board = new MutableBoard(level.getBoard());
         PlayerAStar aStar = new PlayerAStar(board);
 
         // 21 nodes A*
@@ -45,7 +45,7 @@ public class PlayerAStarTest {
     void complex() {
         Level level = TestUtils.getLevel(LABYRINTH);
 
-        Board board = level.getMap();
+        MutableBoard board = new MutableBoard(level.getBoard());
         PlayerAStar aStar = new PlayerAStar(board);
 
         // 181 nodes A*
@@ -57,7 +57,7 @@ public class PlayerAStarTest {
         int x = 28;
         int y = 14;
         while (node.getParent() != null) {
-            TileInfo old = node.getParent().getPlayer();
+            MutableTileInfo old = node.getParent().getPlayer();
 
             assertTrue(((old.getX() - x == 0 && Math.abs(old.getY() - y) == 1) // player can only move on the y-axis
                     || (old.getY() - y == 0 && Math.abs(old.getX() - x) == 1)) && // or the x-axis
@@ -77,7 +77,7 @@ public class PlayerAStarTest {
     void originalAndExtraTest() {
         Level level = TestUtils.getLevel(Path.of("levels8xv/Original.8xv"), 0);
 
-        Board board = level.getMap();
+        MutableBoard board = new MutableBoard(level.getBoard());
         PlayerAStar aStar = new PlayerAStar(board);
 
         assertTrue(aStar.hasPath(board.getAt(11, 8), board.getAt(17, 8), null, null));

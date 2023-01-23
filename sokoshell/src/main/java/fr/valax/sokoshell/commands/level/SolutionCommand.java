@@ -5,6 +5,10 @@ import fr.valax.sokoshell.SokoShell;
 import fr.valax.sokoshell.graphics.*;
 import fr.valax.sokoshell.graphics.layout.*;
 import fr.valax.sokoshell.solver.*;
+import fr.valax.sokoshell.solver.board.Direction;
+import fr.valax.sokoshell.solver.board.Move;
+import fr.valax.sokoshell.solver.board.MutableBoard;
+import fr.valax.sokoshell.solver.board.tiles.Tile;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -129,7 +133,7 @@ public class SolutionCommand extends LevelCommand {
             speedLabel.setHorizAlign(Label.WEST);
 
             mapComponent = new MapComponent();
-            mapComponent.setMap(animator.getMap());
+            mapComponent.setBoard(animator.getBoard());
             mapComponent.setPlayerX(animator.getPlayerX());
             mapComponent.setPlayerY(animator.getPlayerY());
 
@@ -171,7 +175,7 @@ public class SolutionCommand extends LevelCommand {
         }
 
         private String export() {
-            if (mapComponent.getMap() == null) {
+            if (mapComponent.getBoard() == null) {
                 return null;
             }
 
@@ -180,7 +184,7 @@ public class SolutionCommand extends LevelCommand {
 
                 Path out = SokoShell.INSTANCE
                         .exportPNG(l.getPack(), l,
-                                animator.getMap(), animator.getPlayerX(), animator.getPlayerY(),
+                                animator.getBoard(), animator.getPlayerX(), animator.getPlayerY(),
                                 animator.getLastMove());
 
                 return out.toString();
@@ -288,7 +292,7 @@ public class SolutionCommand extends LevelCommand {
     public static class SolutionAnimator {
 
         private final SolverReport solution;
-        private Board board;
+        private MutableBoard board;
 
         private final List<Move> path;
         private int pathIndex;
@@ -303,7 +307,7 @@ public class SolutionCommand extends LevelCommand {
             this.solution = solution;
             Level level = solution.getParameters().getLevel();
 
-            this.board = level.getMap();
+            this.board = new MutableBoard(level.getBoard());
             this.playerX = level.getPlayerX();
             this.playerY = level.getPlayerY();
 
@@ -397,7 +401,7 @@ public class SolutionCommand extends LevelCommand {
                 playerX = level.getPlayerX();
                 playerY = level.getPlayerY();
 
-                board = level.getMap();
+                board = new MutableBoard(level.getBoard());
             }
         }
 
@@ -405,7 +409,7 @@ public class SolutionCommand extends LevelCommand {
             return pathIndex > 0;
         }
 
-        public Board getMap() {
+        public MutableBoard getBoard() {
             return board;
         }
 

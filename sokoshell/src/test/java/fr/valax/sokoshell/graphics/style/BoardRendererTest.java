@@ -3,8 +3,8 @@ package fr.valax.sokoshell.graphics.style;
 import fr.valax.sokoshell.TestUtils;
 import fr.valax.sokoshell.graphics.Graphics;
 import fr.valax.sokoshell.graphics.Surface;
-import fr.valax.sokoshell.solver.Direction;
 import fr.valax.sokoshell.solver.Level;
+import fr.valax.sokoshell.solver.board.Direction;
 import org.junit.jupiter.api.Test;
 
 import javax.imageio.ImageIO;
@@ -24,7 +24,7 @@ public class BoardRendererTest {
         Surface s = new Surface();
         s.resize(level.getWidth(), level.getHeight());
 
-        style.draw(new Graphics(s), 1, level.getMap(), level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
+        style.draw(new Graphics(s), 1, level.getBoard(), level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
 
         s.print();
     }
@@ -52,7 +52,7 @@ public class BoardRendererTest {
         Surface s = new Surface();
         s.resize(level.getWidth() + 1, level.getHeight() + 1);
 
-        style.drawWithLegend(new Graphics(s), 1, level.getMap(), level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
+        style.drawWithLegend(new Graphics(s), 1, level.getBoard(), level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
 
         s.print();
     }
@@ -72,7 +72,7 @@ public class BoardRendererTest {
         Surface s = new Surface();
         s.resize(level.getWidth() * 3 + 1, level.getHeight() * 3 + 1);
 
-        style.drawWithLegend(new Graphics(s), 3, level.getMap(), level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
+        style.drawWithLegend(new Graphics(s), 3, level.getBoard(), level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
 
         s.print();
     }
@@ -96,7 +96,7 @@ public class BoardRendererTest {
         Surface s = new Surface();
         s.resize(level.getWidth() + 1, level.getHeight() + 2);
 
-        style.drawWithLegend(new Graphics(s), 1, level.getMap(), level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
+        style.drawWithLegend(new Graphics(s), 1, level.getBoard(), level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
 
         s.print();
     }
@@ -120,7 +120,7 @@ public class BoardRendererTest {
         Surface s = new Surface();
         s.resize(level.getWidth() * 3 + 1, level.getHeight() * 3 + 1);
 
-        style.drawWithLegend(new Graphics(s), 3, level.getMap(), level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
+        style.drawWithLegend(new Graphics(s), 3, level.getBoard(), level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
 
         s.print();
     }
@@ -140,7 +140,7 @@ public class BoardRendererTest {
                 """);
 
         BoardStyle style = BasicStyle.DEFAULT_STYLE;
-        BufferedImage img = style.createImage(level.getMap(), level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
+        BufferedImage img = style.createImage(level.getBoard(), level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
         ImageIO.write(img, "png", new File("out.png"));
     }
 
@@ -159,7 +159,7 @@ public class BoardRendererTest {
                 """);
 
         BoardStyle style = TestUtils.getStyle(Path.of("warehouse/warehouse.style"));
-        BufferedImage img = style.createImage(level.getMap(), level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
+        BufferedImage img = style.createImage(level.getBoard(), level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
         ImageIO.write(img, "png", new File("out2.png"));
     }
 }
