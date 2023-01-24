@@ -97,7 +97,7 @@ public class MonitorCommand extends AbstractCommand {
         private final Label levelLabel = new Label();
         private final Label maxNumberOfStateLabel = new Label();
 
-        private MapComponent mapComponent;
+        private BoardComponent boardComponent;
 
         public Monitor(SolverTask task) {
             this.task = task;
@@ -119,11 +119,11 @@ public class MonitorCommand extends AbstractCommand {
 
             Component top = createTopComponent();
             Component bottom = createBotComponent();
-            mapComponent = new MapComponent();
+            boardComponent = new BoardComponent();
 
             add(top, BorderLayout.NORTH);
             add(bottom, BorderLayout.SOUTH);
-            add(mapComponent, BorderLayout.CENTER);
+            add(boardComponent, BorderLayout.CENTER);
         }
 
         private Component createTopComponent() {
@@ -203,14 +203,14 @@ public class MonitorCommand extends AbstractCommand {
         }
 
         private String export() {
-            if (mapComponent.getBoard() == null) {
+            if (boardComponent.getBoard() == null) {
                 return null;
             }
 
             try {
                 Path out = SokoShell.INSTANCE
                         .exportPNG(currentPack, currentLevel,
-                                mapComponent.getBoard(), mapComponent.getPlayerX(), mapComponent.getPlayerY(),
+                                boardComponent.getBoard(), boardComponent.getPlayerX(), boardComponent.getPlayerY(),
                                 Direction.DOWN);
 
                 return out.toString();
@@ -266,15 +266,15 @@ public class MonitorCommand extends AbstractCommand {
                 levelLabel.setText(Integer.toString(currentLevel.getIndex() + 1));
                 packLabel.setText(currentPack.name());
 
-                mapComponent.setBoard(board);
-                mapComponent.setPlayerX(-1);
-                mapComponent.setPlayerY(-1);
+                boardComponent.setBoard(board);
+                boardComponent.setPlayerX(-1);
+                boardComponent.setPlayerY(-1);
             } else if (task.getTaskStatus() == TaskStatus.FINISHED) {
                 progressLabel.setText("Done!");
             } else {
                 currentLevel = null;
                 currentPack = null;
-                mapComponent.setBoard(null);
+                boardComponent.setBoard(null);
 
                 progressLabel.setText("?/" + task.getLevels().size());
                 levelLabel.setText("?");
@@ -284,7 +284,7 @@ public class MonitorCommand extends AbstractCommand {
         }
 
         private void changeState(State newState) {
-            MutableBoard board = new MutableBoard(mapComponent.getBoard());
+            MutableBoard board = boardComponent.getBoard();
             if (board == null || newState == null) {
                 return;
             }
@@ -299,9 +299,9 @@ public class MonitorCommand extends AbstractCommand {
             int playerX = board.getX(currentState.playerPos());
             int playerY = board.getY(currentState.playerPos());
 
-            mapComponent.setPlayerX(playerX);
-            mapComponent.setPlayerY(playerY);
-            mapComponent.repaint();
+            boardComponent.setPlayerX(playerX);
+            boardComponent.setPlayerY(playerY);
+            boardComponent.repaint();
         }
 
         /**

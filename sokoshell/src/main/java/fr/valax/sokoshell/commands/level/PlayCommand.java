@@ -58,7 +58,7 @@ public class PlayCommand extends LevelCommand {
         private Label movesLabel;
         private Label pushesLabel;
 
-        private MapComponent mapComponent;
+        private BoardComponent boardComponent;
 
         public PlayComponent(Level level, GameController controller) {
             this.level = level;
@@ -73,8 +73,8 @@ public class PlayCommand extends LevelCommand {
             pushesLabel = new Label();
             pushesLabel.setHorizAlign(Label.WEST);
 
-            mapComponent = new MapComponent();
-            mapComponent.setBoard(controller.getBoard());
+            boardComponent = new BoardComponent();
+            boardComponent.setBoard(controller.getBoard());
             updateComponents();
 
 
@@ -107,11 +107,11 @@ public class PlayCommand extends LevelCommand {
 
             setLayout(new BorderLayout());
             add(bot, BorderLayout.SOUTH);
-            add(mapComponent, BorderLayout.CENTER);
+            add(boardComponent, BorderLayout.CENTER);
         }
 
         private String export() {
-            if (mapComponent.getBoard() == null) {
+            if (boardComponent.getBoard() == null) {
                 return null;
             }
 
@@ -162,10 +162,10 @@ public class PlayCommand extends LevelCommand {
             movesLabel.setText(Integer.toString(controller.getMoveCount()));
             pushesLabel.setText(Integer.toString(controller.getPushCount()));
 
-            mapComponent.setPlayerX(controller.getPlayerX());
-            mapComponent.setPlayerY(controller.getPlayerY());
-            mapComponent.setPlayerDir(controller.getLastDir());
-            mapComponent.repaint();
+            boardComponent.setPlayerX(controller.getPlayerX());
+            boardComponent.setPlayerY(controller.getPlayerY());
+            boardComponent.setPlayerDir(controller.getLastDir());
+            boardComponent.repaint();
         }
     }
 

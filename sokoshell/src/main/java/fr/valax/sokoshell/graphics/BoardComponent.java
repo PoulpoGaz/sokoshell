@@ -2,18 +2,18 @@ package fr.valax.sokoshell.graphics;
 
 import fr.valax.sokoshell.SokoShell;
 import fr.valax.sokoshell.graphics.style.BoardStyle;
-import fr.valax.sokoshell.solver.board.Board;
 import fr.valax.sokoshell.solver.board.Direction;
 import fr.valax.sokoshell.solver.board.IBoard;
+import fr.valax.sokoshell.solver.board.MutableBoard;
 
-public class MapComponent extends Component {
+public class BoardComponent extends Component {
 
     private Direction playerDir = Direction.DOWN;
-    private IBoard<?> board;
+    private MutableBoard board;
     private int playerX;
     private int playerY;
 
-    public MapComponent() {
+    public BoardComponent() {
 
     }
 
@@ -26,11 +26,11 @@ public class MapComponent extends Component {
         }
     }
 
-    public IBoard<?> getBoard() {
+    public MutableBoard getBoard() {
         return board;
     }
 
-    public void setBoard(IBoard<?> board) {
+    public void setBoard(MutableBoard board) {
         if (board != this.board) {
             this.board = board;
             repaint();

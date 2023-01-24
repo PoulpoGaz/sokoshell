@@ -91,13 +91,13 @@ public interface ITileInfo<T extends GenericTileInfo<T, B>, B extends GenericBoa
 
     /**
      * @return {@code true} if this tile is a dead tile
-     * @see SolverBoard#computeDeadTiles()
+     * @see MutableBoard#computeDeadTiles()
      */
     boolean isDeadTile();
 
     /**
      * @return {@code true} if this tile is reachable by the player.
-     * @see SolverBoard#findReachableCases(int)
+     * @see MutableBoard#findReachableCases(int)
      */
     boolean isReachable();
 

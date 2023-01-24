@@ -115,7 +115,7 @@ public class SolutionCommand extends LevelCommand {
         private Label pushesLabel;
         private Label speedLabel;
 
-        private MapComponent mapComponent;
+        private BoardComponent boardComponent;
 
         public SolutionComponent(SolutionAnimator animator) {
             this.animator = animator;
@@ -132,10 +132,10 @@ public class SolutionCommand extends LevelCommand {
             speedLabel = new Label();
             speedLabel.setHorizAlign(Label.WEST);
 
-            mapComponent = new MapComponent();
-            mapComponent.setBoard(animator.getBoard());
-            mapComponent.setPlayerX(animator.getPlayerX());
-            mapComponent.setPlayerY(animator.getPlayerY());
+            boardComponent = new BoardComponent();
+            boardComponent.setBoard(animator.getBoard());
+            boardComponent.setPlayerX(animator.getPlayerX());
+            boardComponent.setPlayerY(animator.getPlayerY());
 
             updateComponents();
 
@@ -171,11 +171,11 @@ public class SolutionCommand extends LevelCommand {
 
             setLayout(new BorderLayout());
             add(bot, BorderLayout.SOUTH);
-            add(mapComponent, BorderLayout.CENTER);
+            add(boardComponent, BorderLayout.CENTER);
         }
 
         private String export() {
-            if (mapComponent.getBoard() == null) {
+            if (boardComponent.getBoard() == null) {
                 return null;
             }
 
@@ -282,10 +282,10 @@ public class SolutionCommand extends LevelCommand {
             pushesLabel.setText("%d/%d".formatted(animator.getPushCount(), animator.numberOfPushes()));
             speedLabel.setText(Integer.toString(speed));
 
-            mapComponent.setPlayerX(animator.getPlayerX());
-            mapComponent.setPlayerY(animator.getPlayerY());
-            mapComponent.setPlayerDir(animator.getLastMove());
-            mapComponent.repaint();
+            boardComponent.setPlayerX(animator.getPlayerX());
+            boardComponent.setPlayerY(animator.getPlayerY());
+            boardComponent.setPlayerDir(animator.getLastMove());
+            boardComponent.repaint();
         }
     }
 
