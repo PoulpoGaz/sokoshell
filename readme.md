@@ -64,6 +64,14 @@ Possible solutions:
 But everything isn't dark. A* greedy can almost solve Original & Extra level 4. For this level the problem
 is the lack of deadlock detection.
 
+23/01/2023: the problem is now solved. Algorithm is now in O(n²).
+27/01/2023: possible upgrade: introduce push-distance from tile A to target B
+Push distance is defined as the minimum number of moves (including pushes) need by
+the player to move the crate at A to target at B. Therefore, the push-distance can
+be +infinity if the player can't push the crate. The main problem with this method
+is the last crate may be associated only with a non-accessible target...
+=> require perfect cost matching in a bipartite graph algorithm
+
 ### Map
 
 Problems: 
@@ -92,5 +100,18 @@ Styles are currently in development in branch poulpogaz. It will solve the follo
   of the board.
 * Exporting board to png only works for style that only uses image and define style of size 16.
 
-TODO:
-* add documentation
+27/01/2023: solved, just forgot to add createImageWithLegend
+
+### Goal Packing Order
+
+Problems:
+* Only for rooms with one entrance.
+* Can't creat packing order if intermediate packing is needed
+
+Solutions:
+* Room may have multiple entrance but only one that accept crate (not isPlayerOnlyTunnel)
+* Generate all possibilities and store in a tree
+
+### Reachable tiles
+
+possible optimization: https://en.wikipedia.org/wiki/Flood_fill
