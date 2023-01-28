@@ -5,51 +5,30 @@ Résolution de niveaux du Sokoban
 Quelle est votre motivation pour le choix du sujet? (50 mots maximum)
 =====================================================================
 
-Le Sokoban est un jeu (de réflexion) que j'ai découvert en apprenant à programmer. Depuis, il me fascine par sa difficulté mais ses règles simples.
-Mon binôme connaissant aussi le jeu, nous avons pensé que serait une bonne occasion de travailler sur ce sujet d'intérêt commun.
+Depuis que j'ai découvert le Sokoban, un jeu de réflexion japonais, dans un tutoriel de programmation, il me fascine par sa difficulté malgré ses règles simples. Mon binôme connaissant aussi ce jeu, nous avons pensé que ce TIPE serait une bonne occasion de travailler sur ce sujet d'intérêt commun.
 
-Depuis que j'ai découvert le Sokoban, un jeu de réflexion japonais, dans un tutoriel de programmation, il me fascine par sa difficulté malgré ses
-règles simples. Mon binôme connaissant aussi ce jeu, nous avons pensé que ce TIPE serait une bonne occasion de travailler sur ce sujet
-d'intérêt commun.
-
-Mon binôme et moi-même avons découvert le Sokoban indépendamment dans le même tutoriel de programmation. Il nous fascine tous les deux par sa
-difficulté malgré ses règles simples. Ainsi, nous avons pensé que ce TIPE serait une bonne occasion de travailler sur ce sujet d'intérêt commun.
-
+J'ai découvert le Sokoban dans le même tutoriel de programmation que mon binôme. Ce jeu nous fascine tous les deux par le contraste entre la simplicité de ses règles et sa difficulté. Nous avons donc pensé que ce TIPE serait une bonne occasion de travailler sur ce sujet d'intérêt commun.
 
 En quoi votre étude s'inscrit-elle dans le thème de l'année ? (50 mots maximum)
 ===============================================================================
 
-Le Sokoban, littéralement « gardien d'entrepôt », consiste à pousser des caisses sur des objectifs dans un labyrinthe.
-On simule ainsi la gestion d'un entrepôt ou un problème de livraison de colis (en assimilant le labyrinthe à une ville), deux enjeux importants
-dans les villes où les livraisons sont nombreuses.
+Le Sokoban, littéralement « gardien d'entrepôt », consiste à pousser des caisses sur des objectifs dans un labyrinthe. On simule ainsi la gestion d'un entrepôt ou un problème de livraison de colis (en assimilant le labyrinthe à une ville), deux enjeux importants dans les villes où les livraisons sont nombreuses.
 
 Bibliographie commentée (au maximum 650 mots)
 =============================================
 
-  Le Sokoban est un jeu vidéo inventé en 1981 par Hiroyuki Imabayashi consistant à déplacer des
-caisses vers des cibles dans un labyrinthe en deux dimensions. Le joueur est astreint à se
-déplacer selon les quatre directions (nord, sud, est, ouest). Il ne peut bouger qu'une
-seule caisse à la fois et ne peut pas les tirer. Ces règles simples en font un jeu populaire,
-bien que difficile. [timo]
-  En effet, il a été démontré que la résolution d'un Sokoban est NP-difficile et PSPACE-complet. [portfolio]
-Timo Virkkala [_] explique que la difficulté du Sokoban provient de la très grande profondeur de l'arbre des
-possibilités ainsi que du facteur de branchement qui peut aller jusqu'à 100. Ainsi, on se concentrera sur la recherche
-d'une solution et non sur son optimalité (pb de recherche). La notion de solution optimale est d'ailleurs ambigüe dans
-le Sokoban, selon qu'on parle du nombre de déplacements du joueur ou du nombre de poussées de caisses.
-  En 1999, (auteurs) présentent Rolling Stone le premier solveur de Sokoban, dans un article qui introduit les bases des concepts de 
-résolution : détection de configurations qui rendent le jeu insolvable (deadlocks), calcul d'une heuristique pour guider
-la recherche, [1 ..., ajouter 1 ?] C'est aussi dans cet article qu'est introduit l'ensemble de 90 niveaux qui sert depuis
-de référence pour tester les performances des solveurs [_].
-  Les solveurs postérieurs à Rolling Stone ont essayé différentes approches, tel Powerplan qui voit le Sokoban comme un
-graphe abstrait de tunnels et de salles [_]. Le premier solveur capable de résoudre l'ensemble des 90 niveaux, appelé 
-FESS, est présenté en 2020 par (auteurs) [_]. Il introduit notamment [2 ...].
- On trouve différentes stratégies aidant à la résolution dans la littérature. (time master thesis) donne plusieurs
-moyens de détecter les deadlocks, en [3 ...]. Différentes heuristiques sont présentées sur sokobano.de, ainsi que leur 
-méthode de calcul, qui se base sur la distance entre les caisses et les objectifs. Enfin, un article de A. L. Zobrist [_]
-propose une fonction de hachage efficace pour pouvoir stocker les configurations de jeu déjà visitées lors de la 
+Le Sokoban est un jeu vidéo inventé en 1981 par Hiroyuki Imabayashi consistant à déplacer des caisses vers des cibles dans un labyrinthe en deux dimensions. Le joueur est astreint à se déplacer selon les quatre directions (nord, sud, est, ouest). Il ne peut bouger qu'une seule caisse à la fois et ne peut pas les tirer. Ces règles simples en font un jeu populaire, bien que difficile. [timo]
+
+En effet, il a été démontré que la résolution d'un Sokoban est NP-difficile et PSPACE-complet [portfolio]. Timo Virkkala [_] explique que la difficulté du Sokoban provient de la très grande profondeur de l'arbre des possibilités ainsi que du facteur de branchement qui peut aller jusqu'à 100. Ainsi, on se concentrera sur la recherche d'une solution et non sur son optimalité (pb de recherche). La notion de solution optimale est d'ailleurs ambigüe dans le Sokoban, selon qu'on parle du nombre de déplacements du joueur ou du nombre de poussées de caisses.
+
+En 1999, (auteurs) présentent Rolling Stone, le premier solveur de Sokoban, dans un article qui introduit les bases des concepts de résolution : détection de configurations qui rendent le jeu insolvable (deadlocks), calcul d'une heuristique pour guider la recherche, [1 ..., ajouter 1 ?] C'est aussi dans cet article qu'est introduit l'ensemble de 90 niveaux qui sert depuis de référence pour tester les performances des solveurs [_].
+
+Les solveurs postérieurs à Rolling Stone ont essayé différentes approches, tel Powerplan qui voit le Sokoban comme un graphe abstrait de tunnels et de salles [_]. Le premier solveur capable de résoudre l'ensemble des 90 niveaux, appelé FESS, est présenté en 2020 par (auteurs) [_]. Il introduit notamment [2 ...].
+
+On trouve différentes stratégies aidant à la résolution dans la littérature. (time master thesis) donne plusieurs moyens de détecter les deadlocks, en [3 ...]. Différentes heuristiques sont présentées sur sokobano.de, ainsi que leur méthode de calcul, qui se base sur la distance entre les caisses et les objectifs. Enfin, un article de A. L. Zobrist [_] propose une fonction de hachage efficace pour pouvoir stocker les configurations de jeu déjà visitées lors de la
 recherche.
-  Cependant, peu d'articles indiquent comment mettre ces idées en œuvre. Implémenter ces algorithmes de manière efficace
-sera donc un des enjeux de ce TIPE.
+
+Cependant, peu d'articles indiquent comment mettre ces idées en œuvre. Implémenter ces algorithmes de manière efficace sera donc un des enjeux de ce TIPE.
 
 * [1 ...]
 * [2 ...]
@@ -77,12 +56,6 @@ Problématique retenue (au maximum 50 mots)
 
 Quelles stratégies adopter pour trouver une solution le plus rapidement possible à un niveau de Sokoban ?
 
-<small>
-	Comment résoudre un niveau du jeu du Sokoban ?
-	Comment ranger un entrepôt ?
-</small>
-
-
 Objectifs du TIPE (au maximum 100 mots)
 =======================================
 
@@ -91,39 +64,17 @@ Objectifs du TIPE (au maximum 100 mots)
 3. Implémenter cet algorithme et ces stratégies en Java.
 4. Effectuer des tests de performances sur des ensembles de niveaux pour comparer notre solveur à ceux qui existent déjà.
 
-<small>
-
-1. Programmer un algorithme simple, mais lent permettant de résoudre le problème.
-2. Analyser les différents niveaux afin de trouver des stratégies.
-3. Implémenter ces stratégies afin de réduire le temps d'exécution.
-
-1. Programmer un algorithme de recherche exhaustive par force brute (bruteforce), lent, pour résoudre les niveaux simples. 
-réduire le nombre de possibilités à explorer (émonder le graphe de recherche) 
-</small>
-
-
 Positionnements thématiques* et mots-clés* (français et anglais)
 ================================================================
 
-INFORMATIQUE
+INFORMATIQUE (Informatique pratique)
+INFORMATIQUE (Informatique Théorique)
 
-* Sokoban (Sokoban)
-* jeu vidéo de réflexion (puzzle video game)
-* problème de recherche (search problem)
-* émondage de graphe (graph pruning)
-* heuristique (heuristic)
-
-<small>
-    IA
-    A*
-    planification
-    théorie des graphes
-    exploration de graphe
-    (non)
-    PSPACE-complet
-    résolution
-    solution
-</small>
+* Jeu vidéo de réflexion (puzzle video game)
+* Problème de recherche (Search problem)
+* PSPACE-complet (PSPACE-complete)
+* Émondage de graphe (Graph pruning)
+* Heuristique (Heuristic)
 
 
 Liste de références bibliographiques (5 à 10 références)
