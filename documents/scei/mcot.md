@@ -7,7 +7,7 @@ Quelle est votre motivation pour le choix du sujet? (50 mots maximum)
 
 Depuis que j'ai découvert le Sokoban, un jeu de réflexion japonais, dans un tutoriel de programmation, il me fascine par sa difficulté malgré ses règles simples. Mon binôme connaissant aussi ce jeu, nous avons pensé que ce TIPE serait une bonne occasion de travailler sur ce sujet d'intérêt commun.
 
-J'ai découvert le Sokoban dans le même tutoriel de programmation que mon binôme. Ce jeu nous fascine tous les deux par le contraste entre la simplicité de ses règles et sa difficulté. Nous avons donc pensé que ce TIPE serait une bonne occasion de travailler sur ce sujet d'intérêt commun.
+J'ai découvert le Sokoban, un jeu de réflexion japonais, dans le même tutoriel de programmation que mon binôme. Ce jeu nous fascine tous les deux par sa difficulté malgré ses règles simples. Nous avons donc pensé que ce TIPE serait une bonne occasion de travailler sur ce sujet d'intérêt commun.
 
 En quoi votre étude s'inscrit-elle dans le thème de l'année ? (50 mots maximum)
 ===============================================================================
