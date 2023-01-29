@@ -9,6 +9,17 @@ import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 import java.util.List;
 import java.util.function.Consumer;
 
+/**
+ * Immutable implementation of {@link Board}.
+ *
+ * This class extends {@link GenericBoard}. It internally uses {@link ImmutableTileInfo} to store the board content
+ * in {@link GenericBoard#content}. As it is immutable, it implements the setters methods always throws a
+ * {@link UnsupportedOperationException} when such a method is called.
+ *
+ * @see Board
+ * @see GenericBoard
+ * @see TileInfo
+ */
 public class ImmutableBoard extends GenericBoard {
 
     public ImmutableBoard(Tile[][] content, int width, int height) {

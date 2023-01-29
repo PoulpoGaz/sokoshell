@@ -3,7 +3,14 @@ package fr.valax.sokoshell.solver.board.tiles;
 import fr.valax.sokoshell.solver.board.Board;
 import fr.valax.sokoshell.solver.board.Direction;
 
-public abstract class GenericTileInfo implements TileInfo {
+/**
+ * A {@code package-private} class meant to be use as a base class for {@link TileInfo} implementations.
+ * It defines all the basic properties and their corresponding getters
+ * (position, tile, board, etc.)
+ *
+ * @see TileInfo
+ */
+abstract class GenericTileInfo implements TileInfo {
 
     protected final Board board;
 
