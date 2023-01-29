@@ -24,7 +24,7 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
     protected SolverCollection<S> toProcess;
     protected final Set<State> processed = new HashSet<>();
 
-    protected Board board;
+    protected MutableBoard board;
 
     private boolean running = false;
     private boolean stopped = false;
@@ -340,7 +340,20 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
 
     @Override
     public State currentState() {
-        return toProcess.cachedState();
+        if (toProcess != null) {
+            return toProcess.cachedState();
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public Board getBoardAsReadonlyView() {
+        if (board != null) {
+            return board.asReadOnlyView();
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -358,7 +371,7 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
     public int currentQueueSize() {
         if (timeStart < 0) {
             return -1;
-        } else if (timeEnd < 0) {
+        } else if (timeEnd < 0 && toProcess != null) {
             return toProcess.size();
         } else {
             return queueSize;

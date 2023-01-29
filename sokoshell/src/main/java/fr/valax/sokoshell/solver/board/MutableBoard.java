@@ -5,6 +5,7 @@ import fr.valax.sokoshell.solver.State;
 import fr.valax.sokoshell.solver.board.mark.AbstractMarkSystem;
 import fr.valax.sokoshell.solver.board.mark.Mark;
 import fr.valax.sokoshell.solver.board.mark.MarkSystem;
+import fr.valax.sokoshell.solver.board.tiles.ImmutableTileInfo;
 import fr.valax.sokoshell.solver.board.tiles.MutableTileInfo;
 import fr.valax.sokoshell.solver.board.tiles.Tile;
 import fr.valax.sokoshell.solver.board.tiles.TileInfo;
@@ -12,10 +13,7 @@ import fr.valax.sokoshell.solver.pathfinder.CrateAStar;
 import fr.valax.sokoshell.solver.pathfinder.CratePlayerAStar;
 import fr.valax.sokoshell.solver.pathfinder.PlayerAStar;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 
 
@@ -32,7 +30,7 @@ import java.util.function.Consumer;
 @SuppressWarnings("ForLoopReplaceableByForEach")
 public class MutableBoard extends GenericBoard {
 
-    protected  final MarkSystem markSystem = newMarkSystem(TileInfo::unmark);
+    private final MarkSystem markSystem = newMarkSystem(TileInfo::unmark);
     private final MarkSystem reachableMarkSystem = newMarkSystem((t) -> t.setReachable(false));
 
     private int targetCount;
@@ -54,6 +52,7 @@ public class MutableBoard extends GenericBoard {
     private CrateAStar crateAStar;
     private CratePlayerAStar cratePlayerAStar;
 
+    private BoardView readOnlyView;
 
     /**
      * Creates a SolverBoard with the specified width, height and tiles
@@ -850,7 +849,13 @@ public class MutableBoard extends GenericBoard {
     // * GETTERS / SETTERS *
     // *********************
 
+    public BoardView asReadOnlyView() {
+        if (readOnlyView == null) {
+            readOnlyView = new BoardView();
+        }
 
+        return readOnlyView;
+    }
 
     /**
      * Returns the number of target i.e. tiles on which a crate has to be pushed to solve the level on the board
@@ -921,5 +926,240 @@ public class MutableBoard extends GenericBoard {
                 forEachNotWall(reset);
             }
         };
+    }
+
+    protected class BoardView implements Board {
+
+        private final TileInfo[][] tiles;
+
+        public BoardView() {
+            tiles = new TileInfo[height][width];
+
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    tiles[y][x] = new TileView(MutableBoard.this.content[y][x]);
+                }
+            }
+        }
+
+        @Override
+        public int getWidth() {
+            return MutableBoard.this.getWidth();
+        }
+
+        @Override
+        public int getHeight() {
+            return MutableBoard.this.getHeight();
+        }
+
+        @Override
+        public int getTargetCount() {
+            return MutableBoard.this.getTargetCount();
+        }
+
+        @Override
+        public int getY(int index) {
+            return MutableBoard.this.getY(index);
+        }
+
+        @Override
+        public int getX(int index) {
+            return MutableBoard.this.getX(index);
+        }
+
+        @Override
+        public int getIndex(int x, int y) {
+            return MutableBoard.this.getIndex(x, y);
+        }
+
+        @Override
+        public TileInfo getAt(int index) {
+            return getAt(getX(index), getY(index));
+        }
+
+        @Override
+        public TileInfo getAt(int x, int y) {
+            return tiles[y][x];
+        }
+
+        @Override
+        public List<Tunnel> getTunnels() {
+            return null;
+        }
+
+        @Override
+        public List<Room> getRooms() {
+            return null;
+        }
+
+        @Override
+        public boolean isGoalRoomLevel() {
+            return MutableBoard.this.isGoalRoomLevel();
+        }
+
+        @Override
+        public MarkSystem getMarkSystem() {
+            return null;
+        }
+
+        @Override
+        public MarkSystem getReachableMarkSystem() {
+            return null;
+        }
+
+        @Override
+        public void forEach(Consumer<TileInfo> consumer) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void setAt(int index, Tile tile) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void setAt(int x, int y, Tile tile) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void addStateCrates(State state) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void removeStateCrates(State state) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void safeAddStateCrates(State state) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void safeRemoveStateCrates(State state) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void initForSolver() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void computeFloors() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void forEachNotWall(Consumer<TileInfo> consumer) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void addStateCratesAndAnalyse(State state) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void removeStateCratesAndReset(State state) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void computeDeadTiles() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void findTunnels() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void findRooms() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void tryComputePackingOrder() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void findReachableCases(int playerPos) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public int topLeftReachablePosition(int crateToMoveX, int crateToMoveY, int destX, int destY) {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    protected class TileView extends ImmutableTileInfo {
+
+        private final TileInfo tile;
+
+        public TileView(TileInfo tile) {
+            super(tile);
+            this.tile = tile;
+        }
+
+        @Override
+        public boolean isDeadTile() {
+            return tile.isDeadTile();
+        }
+
+        @Override
+        public boolean isReachable() {
+            return tile.isReachable();
+        }
+
+        @Override
+        public Tunnel getTunnel() {
+            return null;
+        }
+
+        @Override
+        public Tunnel.Exit getTunnelExit() {
+            return null;
+        }
+
+        @Override
+        public boolean isInATunnel() {
+            return tile.isInATunnel();
+        }
+
+        @Override
+        public Room getRoom() {
+            return null;
+        }
+
+        @Override
+        public boolean isInARoom() {
+            return tile.isInARoom();
+        }
+
+        @Override
+        public boolean isMarked() {
+            return tile.isMarked();
+        }
+
+        @Override
+        public String toString() {
+            return tile.toString();
+        }
+
+        @Override
+        public TargetRemoteness getNearestTarget() {
+            return tile.getNearestTarget();
+        }
+
+        @Override
+        public TargetRemoteness[] getTargets() {
+            return null;
+        }
     }
 }

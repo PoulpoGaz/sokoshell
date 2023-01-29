@@ -1,5 +1,7 @@
 package fr.valax.sokoshell.solver;
 
+import fr.valax.sokoshell.solver.board.Board;
+
 /**
  * A solver that implements this interface allows
  * other objects to get information about the current
@@ -40,6 +42,11 @@ public interface Trackable extends Solver {
      * @return the state the solver is processing. It may return null
      */
     State currentState();
+
+    /**
+     * @return the board as a read-only view
+     */
+    Board getBoardAsReadonlyView();
 
     /**
      * Set the {@link Tracker} that is tracking this trackable

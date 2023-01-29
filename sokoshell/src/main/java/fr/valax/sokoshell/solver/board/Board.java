@@ -102,7 +102,16 @@ public interface Board {
      * @see #getX(int)
      * @see #getY(int)
      */
-    TileInfo safeGetAt(int index);
+    default TileInfo safeGetAt(int index) {
+        int x = getX(index);
+        int y = getY(index);
+
+        if (caseExists(x, y)) {
+            return getAt(x, y);
+        } else {
+            return null;
+        }
+    }
 
     /**
      * Returns the {@link TileInfo} at the specific position
@@ -125,12 +134,13 @@ public interface Board {
      * @see #getX(int)
      * @see #getY(int)
      */
-    TileInfo safeGetAt(int x, int y);
-
-    /**
-     * Returns the tile next to the tile at (x, y) according to dir
-     */
-    TileInfo safeGetAt(int x, int y, Direction dir);
+    default TileInfo safeGetAt(int x, int y) {
+        if (caseExists(x, y)) {
+            return getAt(x, y);
+        } else {
+            return null;
+        }
+    }
 
     /**
      * Tells whether the case at (x,y) exists or not (i.e. if the case is in the board)
@@ -139,7 +149,9 @@ public interface Board {
      * @param y y-coordinate
      * @return {@code true} if the case exists, {@code false} otherwise
      */
-    boolean caseExists(int x, int y);
+    default boolean caseExists(int x, int y) {
+        return (0 <= x && x < getWidth()) && (0 <= y && y < getHeight());
+    }
 
     /**
      * Same than caseExists(x, y) but with an index
@@ -148,7 +160,9 @@ public interface Board {
      * @return {@code true} if the case exists, {@code false} otherwise
      * @see #caseExists(int, int)
      */
-    boolean caseExists(int index);
+    default boolean caseExists(int index) {
+        return caseExists(getX(index), getY(index));
+    }
 
     /**
      * Tells whether the tile at the given coordinates is empty or not.
@@ -157,7 +171,10 @@ public interface Board {
      * @param y y coordinate of the case
      * @return {@code true} if empty, {@code false} otherwise
      */
-    boolean isTileEmpty(int x, int y);
+    default boolean isTileEmpty(int x, int y) {
+        TileInfo t = getAt(x, y);
+        return !t.isSolid();
+    }
 
     /**
      * Checks if the board is solved (i.e. all the crates are on a target).<br />
@@ -165,14 +182,30 @@ public interface Board {
      *
      * @return {@code true} if the board is completed, false otherwise
      */
-    boolean isCompletedWith(State s);
+    default boolean isCompletedWith(State s) {
+        for (int i : s.cratesIndices()) {
+            if (!getAt(i).isCrateOnTarget()) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     /**
      * Checks if the board is completed (i.e. all the crates are on a target)
      *
      * @return true if completed, false otherwise
      */
-    boolean isCompleted();
+    default boolean isCompleted() {
+        for (int y = 0; y < getHeight(); y++) {
+            for (int x = 0; x < getWidth(); x++) {
+                if (getAt(x, y).isCrate()) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 
     /**
      * Returns all tunnels that are in this board
