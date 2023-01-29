@@ -21,7 +21,7 @@ import fr.valax.sokoshell.graphics.style.BasicStyle;
 import fr.valax.sokoshell.graphics.style.BoardStyle;
 import fr.valax.sokoshell.solver.*;
 import fr.valax.sokoshell.solver.board.Direction;
-import fr.valax.sokoshell.solver.board.IBoard;
+import fr.valax.sokoshell.solver.board.Board;
 import fr.valax.sokoshell.utils.Utils;
 import org.jline.reader.*;
 import org.jline.reader.impl.DefaultHighlighter;
@@ -392,7 +392,7 @@ public class SokoShell {
     }
 
 
-    public Path exportPNG(Pack pack, Level level, IBoard<?> board,
+    public Path exportPNG(Pack pack, Level level, Board board,
                           int playerX, int playerY, Direction playerDir)
             throws IOException {
         BufferedImage image = selectedStyle.createImage(board, playerX, playerY, playerDir);

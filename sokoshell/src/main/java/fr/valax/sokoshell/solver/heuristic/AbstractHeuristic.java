@@ -1,5 +1,6 @@
 package fr.valax.sokoshell.solver.heuristic;
 
+import fr.valax.sokoshell.solver.board.Board;
 import fr.valax.sokoshell.solver.board.MutableBoard;
 
 /**
@@ -9,9 +10,9 @@ import fr.valax.sokoshell.solver.board.MutableBoard;
  */
 public abstract class AbstractHeuristic implements Heuristic {
 
-    protected final MutableBoard board;
+    protected final Board board;
 
-    public AbstractHeuristic(MutableBoard board) {
+    public AbstractHeuristic(Board board) {
         this.board = board;
     }
 }

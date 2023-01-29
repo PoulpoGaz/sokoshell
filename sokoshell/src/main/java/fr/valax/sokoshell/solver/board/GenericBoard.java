@@ -1,21 +1,20 @@
 package fr.valax.sokoshell.solver.board;
 
 import fr.valax.sokoshell.solver.State;
-import fr.valax.sokoshell.solver.board.mark.MarkSystem;
-import fr.valax.sokoshell.solver.board.tiles.GenericTileInfo;
+import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 
 /**
- * Base class for {@link IBoard} implementations. Defines all read-only methods.
+ * Base class for {@link Board} implementations. Defines all read-only methods.
  * @param <T> The type of {@link T} to store.
  */
-public abstract class GenericBoard<T extends GenericTileInfo<T, ?>> implements IBoard<T> {
+public abstract class GenericBoard implements Board {
 
     protected final int width;
 
     protected final int height;
 
-    protected T[][] content;
+    protected TileInfo[][] content;
 
     public GenericBoard(int width, int height) {
         this.width = width;
@@ -23,7 +22,7 @@ public abstract class GenericBoard<T extends GenericTileInfo<T, ?>> implements I
     }
 
     @SuppressWarnings("CopyConstructorMissesField")
-    public GenericBoard(IBoard<?> other) {
+    public GenericBoard(Board other) {
         this(other.getWidth(), other.getHeight());
     }
 
@@ -43,12 +42,12 @@ public abstract class GenericBoard<T extends GenericTileInfo<T, ?>> implements I
     public int getIndex(int x, int y) { return y * width + x; }
 
     @Override
-    public T getAt(int index) {
+    public TileInfo getAt(int index) {
         return content[getY(index)][getX(index)];
     }
 
     @Override
-    public T safeGetAt(int index) {
+    public TileInfo safeGetAt(int index) {
         int x = getX(index);
         int y = getY(index);
 
@@ -60,17 +59,25 @@ public abstract class GenericBoard<T extends GenericTileInfo<T, ?>> implements I
     }
 
     @Override
-    public T getAt(int x, int y) {
+    public TileInfo getAt(int x, int y) {
         return content[y][x];
     }
 
     @Override
-    public T safeGetAt(int x, int y) {
+    public TileInfo safeGetAt(int x, int y) {
         if (caseExists(x, y)) {
             return getAt(x, y);
         } else {
             return null;
         }
+    }
+
+    @Override
+    public TileInfo safeGetAt(int x, int y, Direction dir) {
+        int x2 = x + dir.dirX();
+        int y2 = y + dir.dirY();
+
+        return safeGetAt(x2, y2);
     }
 
     @Override
@@ -85,7 +92,7 @@ public abstract class GenericBoard<T extends GenericTileInfo<T, ?>> implements I
 
     @Override
     public boolean isTileEmpty(int x, int y) {
-        T t = getAt(x, y);
+        TileInfo t = getAt(x, y);
         return !t.isSolid();
     }
 

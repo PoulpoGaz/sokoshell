@@ -5,6 +5,7 @@ import fr.valax.sokoshell.graphics.style.BoardStyle;
 import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.solver.Pack;
 import fr.valax.sokoshell.solver.State;
+import fr.valax.sokoshell.solver.board.Board;
 import fr.valax.sokoshell.solver.board.MutableBoard;
 import fr.valax.sokoshell.utils.PerformanceMeasurer;
 import org.junit.jupiter.api.Test;
@@ -21,7 +22,7 @@ public class GreedyHeuristicTest {
         BoardStyle style = TestUtils.getStyle(Path.of("isekai/isekai.style"));
 
         Level level = pack.getLevel(89);
-        MutableBoard board = new MutableBoard(level.getBoard());
+        Board board = new MutableBoard(level.getBoard());
         State s = level.getInitialState();
 
 

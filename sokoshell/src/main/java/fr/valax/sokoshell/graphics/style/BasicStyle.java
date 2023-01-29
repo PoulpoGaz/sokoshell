@@ -4,8 +4,8 @@ import fr.valax.sokoshell.SokoShell;
 import fr.valax.sokoshell.graphics.Graphics;
 import fr.valax.sokoshell.graphics.GraphicsUtils;
 import fr.valax.sokoshell.solver.board.Direction;
-import fr.valax.sokoshell.solver.board.IBoard;
-import fr.valax.sokoshell.solver.board.tiles.ITileInfo;
+import fr.valax.sokoshell.solver.board.Board;
+import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -66,7 +66,7 @@ public class BasicStyle extends BoardStyle {
     }
 
     @Override
-    public void draw(Graphics g, ITileInfo<?, ?> tile, Direction playerDir, int drawX, int drawY, int size) {
+    public void draw(Graphics g, TileInfo tile, Direction playerDir, int drawX, int drawY, int size) {
         StyledCharacter s = translateToStyledCharacter(tile, playerDir);
 
         g.setChar(s.getChar());
@@ -75,7 +75,7 @@ public class BasicStyle extends BoardStyle {
     }
 
     @Override
-    public void draw(Graphics2D g2d, ITileInfo<?, ?> tile, Direction playerDir, int drawX, int drawY, int size, int charWidth, int charHeight) {
+    public void draw(Graphics2D g2d, TileInfo tile, Direction playerDir, int drawX, int drawY, int size, int charWidth, int charHeight) {
         StyledCharacter s = translateToStyledCharacter(tile, playerDir);
 
         g2d.translate(drawX, drawY);
@@ -87,7 +87,7 @@ public class BasicStyle extends BoardStyle {
         g2d.translate(-drawX, -drawY);
     }
 
-    private StyledCharacter translateToStyledCharacter(ITileInfo<?, ?> tile, Direction playerDir) {
+    private StyledCharacter translateToStyledCharacter(TileInfo tile, Direction playerDir) {
         if (playerDir != null) {
             if (tile.isTarget()) {
                 return playerOnTarget;
@@ -106,7 +106,7 @@ public class BasicStyle extends BoardStyle {
     }
 
     @Override
-    public BufferedImage createImage(IBoard<?> board, int playerX, int playerY, Direction playerDir) {
+    public BufferedImage createImage(Board board, int playerX, int playerY, Direction playerDir) {
         BufferedImage img = new BufferedImage(board.getWidth() * GraphicsUtils.CHAR_WIDTH,
                 board.getHeight() * GraphicsUtils.CHAR_HEIGHT,
                 BufferedImage.TYPE_INT_ARGB);
@@ -120,7 +120,7 @@ public class BasicStyle extends BoardStyle {
                 for (int x = 0; x < board.getWidth(); x++) {
                     boolean player = playerX == x && playerY == y;
 
-                    ITileInfo<?, ?> tile = board.getAt(x, y);
+                    TileInfo tile = board.getAt(x, y);
                     int drawX = x * GraphicsUtils.CHAR_WIDTH;
                     int drawY = y * GraphicsUtils.CHAR_HEIGHT;
                     if (player) {

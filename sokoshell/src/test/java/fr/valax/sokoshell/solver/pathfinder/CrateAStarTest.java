@@ -2,14 +2,14 @@ package fr.valax.sokoshell.solver.pathfinder;
 
 import fr.valax.sokoshell.TestUtils;
 import fr.valax.sokoshell.solver.Level;
+import fr.valax.sokoshell.solver.board.Board;
 import fr.valax.sokoshell.solver.board.Direction;
-import static fr.valax.sokoshell.solver.board.Direction.*;
-
 import fr.valax.sokoshell.solver.board.MutableBoard;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
 
+import static fr.valax.sokoshell.solver.board.Direction.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -32,7 +32,7 @@ public class CrateAStarTest {
                 ##########
                 """);
 
-        MutableBoard board = new MutableBoard(level.getBoard());
+        Board board = new MutableBoard(level.getBoard());
         CrateAStar aStar = new CrateAStar(board);
         Node end = aStar.findPathAndComputeMoves(board.getAt(1, 1), null, board.getAt(2, 3), board.getAt(4, 4));
 
@@ -58,9 +58,9 @@ public class CrateAStarTest {
                 ##########
                 """);
 
-        MutableBoard map = new MutableBoard(level.getBoard());
-        CrateAStar aStar = new CrateAStar(map);
-        Node end = aStar.findPathAndComputeMoves(map.getAt(1, 1), null, map.getAt(2, 3), map.getAt(4, 4));
+        Board board = new MutableBoard(level.getBoard());
+        CrateAStar aStar = new CrateAStar(board);
+        Node end = aStar.findPathAndComputeMoves(board.getAt(1, 1), null, board.getAt(2, 3), board.getAt(4, 4));
 
         PathfinderUtils.check(1, 1, 2, 3, 5, 4, 4, 4, end, solution);
     }
@@ -84,9 +84,9 @@ public class CrateAStarTest {
                 ###################
                 """);
 
-        MutableBoard map = new MutableBoard(level.getBoard());
-        CrateAStar aStar = new CrateAStar(map);
-        Node end = aStar.findPathAndComputeMoves(map.getAt(1, 1), null, map.getAt(16, 2), map.getAt(1, 6));
+        Board board = new MutableBoard(level.getBoard());
+        CrateAStar aStar = new CrateAStar(board);
+        Node end = aStar.findPathAndComputeMoves(board.getAt(1, 1), null, board.getAt(16, 2), board.getAt(1, 6));
 
         // 6997 dijkstra
         // 52 A*
@@ -97,9 +97,9 @@ public class CrateAStarTest {
     void originalAndExtraTest() {
         Level level = TestUtils.getLevel(Path.of("levels8xv/Original.8xv"), 0);
 
-        MutableBoard map = new MutableBoard(level.getBoard());
-        CrateAStar aStar = new CrateAStar(map);
-        assertTrue(aStar.hasPath(map.getAt(4, 4), null, map.getAt(5, 7), map.getAt(17, 8)));
-        assertFalse(aStar.hasPath(map.getAt(4, 4), null, map.getAt(2, 7), map.getAt(17, 8)));
+        Board board = new MutableBoard(level.getBoard());
+        CrateAStar aStar = new CrateAStar(board);
+        assertTrue(aStar.hasPath(board.getAt(4, 4), null, board.getAt(5, 7), board.getAt(17, 8)));
+        assertFalse(aStar.hasPath(board.getAt(4, 4), null, board.getAt(2, 7), board.getAt(17, 8)));
     }
 }

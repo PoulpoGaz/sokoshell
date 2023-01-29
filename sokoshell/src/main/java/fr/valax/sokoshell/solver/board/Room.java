@@ -1,6 +1,6 @@
 package fr.valax.sokoshell.solver.board;
 
-import fr.valax.sokoshell.solver.board.tiles.MutableTileInfo;
+import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,15 +9,15 @@ public class Room {
 
     private boolean goalRoom;
 
-    private final List<MutableTileInfo> tiles = new ArrayList<>();
-    private final List<MutableTileInfo> targets = new ArrayList<>();
+    private final List<TileInfo> tiles = new ArrayList<>();
+    private final List<TileInfo> targets = new ArrayList<>();
 
     private final List<Tunnel> tunnels = new ArrayList<>();
 
     /**
      * Only computed is the level is a goal room level as defined by {@link SolverBoard#isGoalRoomLevel()}
      */
-    private List<MutableTileInfo> packingOrder;
+    private List<TileInfo> packingOrder;
 
     // dynamic
     // the index in packingOrder of the position of the next crate that will be pushed inside the room
@@ -28,7 +28,7 @@ public class Room {
     public Room() {
     }
 
-    public void addTile(MutableTileInfo tile) {
+    public void addTile(TileInfo tile) {
         tiles.add(tile);
 
         if (tile.isTarget()) {
@@ -37,11 +37,11 @@ public class Room {
     }
 
 
-    public List<MutableTileInfo> getTiles() {
+    public List<TileInfo> getTiles() {
         return tiles;
     }
 
-    public List<MutableTileInfo> getTargets() {
+    public List<TileInfo> getTargets() {
         return targets;
     }
 
@@ -63,15 +63,15 @@ public class Room {
         this.goalRoom = goalRoom;
     }
 
-    public List<MutableTileInfo> getPackingOrder() {
+    public List<TileInfo> getPackingOrder() {
         return packingOrder;
     }
 
-    public void setPackingOrder(List<MutableTileInfo> packingOrder) {
+    public void setPackingOrder(List<TileInfo> packingOrder) {
         this.packingOrder = packingOrder;
     }
 
-    public boolean isInPackingOrder(MutableTileInfo tile) {
+    public boolean isInPackingOrder(TileInfo tile) {
         return packingOrder != null && packingOrder.contains(tile);
     }
 

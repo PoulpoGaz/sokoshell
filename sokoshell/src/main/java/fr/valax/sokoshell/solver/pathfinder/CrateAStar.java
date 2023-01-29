@@ -1,8 +1,8 @@
 package fr.valax.sokoshell.solver.pathfinder;
 
+import fr.valax.sokoshell.solver.board.Board;
 import fr.valax.sokoshell.solver.board.Direction;
-import fr.valax.sokoshell.solver.board.MutableBoard;
-import fr.valax.sokoshell.solver.board.tiles.MutableTileInfo;
+import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 
 import java.util.PriorityQueue;
 
@@ -17,7 +17,7 @@ public class CrateAStar extends AbstractAStar {
     private final AStarMarkSystem markSystem;
     private final Node[] nodes;
 
-    public CrateAStar(MutableBoard board) {
+    public CrateAStar(Board board) {
         super(new PriorityQueue<>(2 * board.getWidth() * board.getHeight()));
         this.mapWidth = board.getWidth();
 
@@ -31,7 +31,7 @@ public class CrateAStar extends AbstractAStar {
         }
     }
 
-    private int toIndex(MutableTileInfo player, MutableTileInfo crate) {
+    private int toIndex(TileInfo player, TileInfo crate) {
         return (player.getY() * mapWidth + player.getX()) * area + crate.getY() * mapWidth + crate.getX();
     }
 
@@ -58,10 +58,10 @@ public class CrateAStar extends AbstractAStar {
 
     @Override
     protected Node processMove(Node parent, Direction dir) {
-        MutableTileInfo player = parent.getPlayer();
-        MutableTileInfo crate = parent.getCrate();
-        MutableTileInfo playerDest = player.adjacent(dir);
-        MutableTileInfo crateDest = crate;
+        TileInfo player = parent.getPlayer();
+        TileInfo crate = parent.getCrate();
+        TileInfo playerDest = player.adjacent(dir);
+        TileInfo crateDest = crate;
 
         if (playerDest.isAt(crate)) {
             crateDest = playerDest.adjacent(dir);
@@ -114,7 +114,7 @@ public class CrateAStar extends AbstractAStar {
         return node.getCrate().isAt(crateDest);
     }
 
-    protected int heuristic(MutableTileInfo newPlayer, MutableTileInfo newCrate) {
+    protected int heuristic(TileInfo newPlayer, TileInfo newCrate) {
         int h = newCrate.manhattanDistance(crateDest);
 
         /* the player first need to move near the crate to push it

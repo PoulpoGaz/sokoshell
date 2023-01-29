@@ -1,14 +1,14 @@
 package fr.valax.sokoshell.solver.heuristic;
 
 import fr.valax.sokoshell.solver.State;
-import fr.valax.sokoshell.solver.board.MutableBoard;
+import fr.valax.sokoshell.solver.board.Board;
 
 /**
  * According to <a href="http://sokobano.de/wiki/index.php?title=Solver#Simple_Lower_Bound">this article</a>
  */
 public class SimpleHeuristic extends AbstractHeuristic {
 
-    public SimpleHeuristic(MutableBoard board) {
+    public SimpleHeuristic(Board board) {
         super(board);
     }
 

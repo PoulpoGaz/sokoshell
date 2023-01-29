@@ -4,6 +4,7 @@ import fr.valax.sokoshell.SokoShell;
 import fr.valax.sokoshell.graphics.*;
 import fr.valax.sokoshell.graphics.layout.*;
 import fr.valax.sokoshell.solver.Level;
+import fr.valax.sokoshell.solver.board.Board;
 import fr.valax.sokoshell.solver.board.Direction;
 import fr.valax.sokoshell.solver.board.MutableBoard;
 import fr.valax.sokoshell.solver.board.tiles.Tile;
@@ -170,7 +171,7 @@ public class PlayCommand extends LevelCommand {
     }
 
     public static class GameController {
-        private final MutableBoard board;
+        private final Board board;
         private int playerX;
         private int playerY;
         private int moves;
@@ -247,7 +248,7 @@ public class PlayCommand extends LevelCommand {
             }
         }
 
-        public MutableBoard getBoard() { return board; }
+        public Board getBoard() { return board; }
 
         public int getPlayerX() { return playerX; }
         public int getPlayerY() { return playerY; }

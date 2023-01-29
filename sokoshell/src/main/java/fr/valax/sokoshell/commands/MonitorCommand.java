@@ -7,9 +7,9 @@ import fr.valax.sokoshell.graphics.*;
 import fr.valax.sokoshell.graphics.layout.*;
 import fr.valax.sokoshell.solver.*;
 import fr.valax.sokoshell.solver.board.Direction;
-import fr.valax.sokoshell.solver.board.IBoard;
+import fr.valax.sokoshell.solver.board.Board;
 import fr.valax.sokoshell.solver.board.MutableBoard;
-import fr.valax.sokoshell.solver.board.tiles.MutableTileInfo;
+import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 import fr.valax.sokoshell.utils.Utils;
 
 import java.io.IOException;
@@ -255,12 +255,12 @@ public class MonitorCommand extends AbstractCommand {
                 currentLevel = levels.get(index);
                 currentPack = currentLevel.getPack();
 
-                MutableBoard board = new MutableBoard(currentLevel.getBoard());
+                Board board = new MutableBoard(currentLevel.getBoard());
 
                 BigInteger n = estimateMaxNumberOfStates(board);
                 maxNumberOfStateLabel.setText(n.toString());
 
-                board.forEach(MutableTileInfo::removeCrate);
+                board.forEach(TileInfo::removeCrate);
 
                 progressLabel.setText(index + "/" + task.getLevels().size());
                 levelLabel.setText(Integer.toString(currentLevel.getIndex() + 1));
@@ -284,7 +284,7 @@ public class MonitorCommand extends AbstractCommand {
         }
 
         private void changeState(State newState) {
-            MutableBoard board = boardComponent.getBoard();
+            Board board = boardComponent.getBoard();
             if (board == null || newState == null) {
                 return;
             }
@@ -313,7 +313,7 @@ public class MonitorCommand extends AbstractCommand {
          * <br>
          * (f c) counts the number of way to organize the crate (c) and the player ( + 1)<br>
          */
-        private BigInteger estimateMaxNumberOfStates(IBoard<?> board) {
+        private BigInteger estimateMaxNumberOfStates(Board board) {
             int nCrate = 0;
             int nFloor = 0;
 

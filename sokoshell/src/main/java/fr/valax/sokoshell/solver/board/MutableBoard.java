@@ -5,6 +5,7 @@ import fr.valax.sokoshell.solver.State;
 import fr.valax.sokoshell.solver.board.mark.AbstractMarkSystem;
 import fr.valax.sokoshell.solver.board.mark.Mark;
 import fr.valax.sokoshell.solver.board.mark.MarkSystem;
+import fr.valax.sokoshell.solver.board.tiles.ImmutableTileInfo;
 import fr.valax.sokoshell.solver.board.tiles.MutableTileInfo;
 import fr.valax.sokoshell.solver.board.tiles.Tile;
 import fr.valax.sokoshell.solver.board.tiles.TileInfo;
@@ -17,7 +18,7 @@ import java.util.function.Consumer;
 
 /**
  * Represents the Sokoban board.<br />
- * This is essentially a 2D-array of {@link TileInfo}, the indices being the y and x coordinates
+ * This is essentially a 2D-array of {@link ImmutableTileInfo}, the indices being the y and x coordinates
  * (i.e. {@code content[y][x]} is the tile at (x;y)).<br />
  * This class also implements static and dynamic analysis of the Sokoban board:
  * <ul>
@@ -35,9 +36,9 @@ import java.util.function.Consumer;
  * @author PoulpoGaz
  */
 @SuppressWarnings("ForLoopReplaceableByForEach")
-public class MutableBoard extends GenericBoard<MutableTileInfo> {
+public class MutableBoard extends GenericBoard {
 
-    protected  final MarkSystem markSystem = newMarkSystem(MutableTileInfo::unmark);
+    protected  final MarkSystem markSystem = newMarkSystem(TileInfo::unmark);
     private final MarkSystem reachableMarkSystem = newMarkSystem((t) -> t.setReachable(false));
 
     private int targetCount;
@@ -45,7 +46,7 @@ public class MutableBoard extends GenericBoard<MutableTileInfo> {
     /**
      * Tiles that can be 'target' or 'floor'
      */
-    private MutableTileInfo[] floors;
+    private TileInfo[] floors;
 
     private final List<Tunnel> tunnels = new ArrayList<>();
     private final List<Room> rooms = new ArrayList<>();
@@ -69,7 +70,7 @@ public class MutableBoard extends GenericBoard<MutableTileInfo> {
     public MutableBoard(Tile[][] content, int width, int height) {
         super(width, height);
 
-        this.content = new MutableTileInfo[height][width];
+        this.content = new TileInfo[height][width];
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
@@ -84,10 +85,10 @@ public class MutableBoard extends GenericBoard<MutableTileInfo> {
      * @param other the map to copy
      */
     @SuppressWarnings("CopyConstructorMissesField")
-    public MutableBoard(IBoard<?> other) {
+    public MutableBoard(Board other) {
         super(other);
 
-        this.content = new MutableTileInfo[height][width];
+        this.content = new TileInfo[height][width];
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
@@ -101,7 +102,7 @@ public class MutableBoard extends GenericBoard<MutableTileInfo> {
      *
      * @param consumer the consumer to apply
      */
-    public void forEach(Consumer<MutableTileInfo> consumer) {
+    public void forEach(Consumer<TileInfo> consumer) {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 consumer.accept(content[y][x]);
@@ -160,7 +161,7 @@ public class MutableBoard extends GenericBoard<MutableTileInfo> {
      */
     public void safeAddStateCrates(State state) {
         for (int i : state.cratesIndices()) {
-            MutableTileInfo info = safeGetAt(i);
+            TileInfo info = safeGetAt(i);
 
             if (info != null) {
                 info.addCrate();
@@ -176,7 +177,7 @@ public class MutableBoard extends GenericBoard<MutableTileInfo> {
      */
     public void safeRemoveStateCrates(State state) {
         for (int i : state.cratesIndices()) {
-            MutableTileInfo info = safeGetAt(i);
+            TileInfo info = safeGetAt(i);
 
             if (info != null) {
                 info.removeCrate();
@@ -218,7 +219,7 @@ public class MutableBoard extends GenericBoard<MutableTileInfo> {
         int nFloor = 0;
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                MutableTileInfo t = getAt(x, y);
+                TileInfo t = getAt(x, y);
 
                 if (!t.isSolid() || t.isCrate()) {
                     nFloor++;
@@ -226,7 +227,7 @@ public class MutableBoard extends GenericBoard<MutableTileInfo> {
             }
         }
 
-        this.floors = new MutableTileInfo[nFloor];
+        this.floors = new TileInfo[nFloor];
         int i = 0;
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
@@ -243,8 +244,8 @@ public class MutableBoard extends GenericBoard<MutableTileInfo> {
      *
      * @param consumer the consumer to apply
      */
-    public void forEachNotWall(Consumer<MutableTileInfo> consumer) {
-        for (MutableTileInfo floor : floors) {
+    public void forEachNotWall(Consumer<TileInfo> consumer) {
+        for (TileInfo floor : floors) {
             consumer.accept(floor);
         }
     }
@@ -258,7 +259,7 @@ public class MutableBoard extends GenericBoard<MutableTileInfo> {
      */
     public void addStateCratesAndAnalyse(State state) {
         for (int i : state.cratesIndices()) {
-            MutableTileInfo tile = getAt(i);
+            TileInfo tile = getAt(i);
             tile.addCrate();
 
             Tunnel t = tile.getTunnel();
@@ -284,13 +285,13 @@ public class MutableBoard extends GenericBoard<MutableTileInfo> {
                 Room r = rooms.get(i);
 
                 if (r.isGoalRoom() && r.getPackingOrderIndex() >= 0) {
-                    List<MutableTileInfo> order = r.getPackingOrder();
+                    List<TileInfo> order = r.getPackingOrder();
 
                     // find the first non crate on target tile
                     // if the room is completed, then index is equals to -1
                     int index = -1;
                     for (int j = 0; j < order.size(); j++) {
-                        MutableTileInfo tile = order.get(j);
+                        TileInfo tile = order.get(j);
 
                         if (!tile.isCrateOnTarget()) {
                             index = j;
@@ -300,7 +301,7 @@ public class MutableBoard extends GenericBoard<MutableTileInfo> {
 
                     // checks that remaining aren't crate on target
                     for (int j = index + 1; j < order.size(); j++) {
-                        MutableTileInfo tile = order.get(j);
+                        TileInfo tile = order.get(j);
 
                         if (tile.isCrateOnTarget()) {
                             index = -1;
@@ -348,7 +349,7 @@ public class MutableBoard extends GenericBoard<MutableTileInfo> {
      * Detects the dead positions of a level. Dead positions are cases that make the level unsolvable
      * when a crate is put on them.
      * After this function has been called, to check if a given crate at (x,y) is a dead position,
-     * you can use {@link MutableTileInfo#isDeadTile()} to check in constant time.
+     * you can use {@link TileInfo#isDeadTile()} to check in constant time.
      * The map <strong>MUST</strong> have <strong>NO CRATES</strong> for this function to work.
      */
     public void computeDeadTiles() {
@@ -377,7 +378,7 @@ public class MutableBoard extends GenericBoard<MutableTileInfo> {
      * Discovers all the reachable cases from (x, y) to find dead positions, as described
      * <a href="www.sokobano.de/wiki/index.php?title=How_to_detect_deadlocks#Detecting_simple_deadlocks">here</a>
      */
-    private void findNonDeadCases(MutableTileInfo tile, Direction lastDir) {
+    private void findNonDeadCases(TileInfo tile, Direction lastDir) {
         tile.setDeadTile(false);
         for (Direction d : Direction.VALUES) {
             if (d == lastDir) { // do not go backwards
@@ -432,12 +433,12 @@ public class MutableBoard extends GenericBoard<MutableTileInfo> {
      * @param init a tile in the tunnel
      * @return a tunnel that contains the tile or {@code null}
      */
-    private Tunnel buildTunnel(MutableTileInfo init) {
+    private Tunnel buildTunnel(TileInfo init) {
         Direction pushDir1 = null;
         Direction pushDir2 = null;
 
         for (Direction dir : Direction.VALUES) {
-            MutableTileInfo adj = init.adjacent(dir);
+            TileInfo adj = init.adjacent(dir);
 
             if (!adj.isSolid()) {
                 if (pushDir1 == null) {
@@ -499,14 +500,14 @@ public class MutableBoard extends GenericBoard<MutableTileInfo> {
      * @param pos position of the player
      * @param dir the move the player did to go to pos
      */
-    private void growTunnel(Tunnel t, MutableTileInfo pos, Direction dir) {
+    private void growTunnel(Tunnel t, TileInfo pos, Direction dir) {
         pos.mark();
 
         Direction leftDir = dir.left();
         Direction rightDir = dir.right();
-        MutableTileInfo left = pos.adjacent(leftDir);
-        MutableTileInfo right = pos.adjacent(rightDir);
-        MutableTileInfo front = pos.adjacent(dir);
+        TileInfo left = pos.adjacent(leftDir);
+        TileInfo right = pos.adjacent(rightDir);
+        TileInfo front = pos.adjacent(dir);
 
         if (!pos.isTarget()) {
             pos.setTunnel(t);
@@ -563,7 +564,7 @@ public class MutableBoard extends GenericBoard<MutableTileInfo> {
         });
     }
 
-    private void expandRoom(Room room, MutableTileInfo tile) {
+    private void expandRoom(Room room, TileInfo tile) {
         room.addTile(tile);
         tile.setRoom(room);
 
@@ -572,7 +573,7 @@ public class MutableBoard extends GenericBoard<MutableTileInfo> {
         }
 
         for (Direction dir : Direction.VALUES) {
-            MutableTileInfo adj = tile.safeAdjacent(dir);
+            TileInfo adj = tile.safeAdjacent(dir);
 
             if (adj != null && !adj.isSolid()) {
                 if (!adj.isInATunnel() && !adj.isInARoom()) {
@@ -617,8 +618,8 @@ public class MutableBoard extends GenericBoard<MutableTileInfo> {
         markSystem.unmarkAll();
 
         Tunnel tunnel = room.getTunnels().get(0);
-        MutableTileInfo entrance;
-        MutableTileInfo inRoom;
+        TileInfo entrance;
+        TileInfo inRoom;
         if (tunnel.getStartOut() != null && tunnel.getStartOut().getRoom() == room) {
             entrance = tunnel.getStart();
             inRoom = tunnel.getStartOut();
@@ -627,26 +628,26 @@ public class MutableBoard extends GenericBoard<MutableTileInfo> {
             inRoom = tunnel.getEndOut();
         }
 
-        List<MutableTileInfo> targets = room.getTargets();
-        for (MutableTileInfo t : targets) {
+        List<TileInfo> targets = room.getTargets();
+        for (TileInfo t : targets) {
             t.addCrate();
         }
 
-        List<MutableTileInfo> packingOrder = new ArrayList<>();
+        List<TileInfo> packingOrder = new ArrayList<>();
 
 
-        List<MutableTileInfo> frontier = new ArrayList<>();
-        List<MutableTileInfo> newFrontier = new ArrayList<>();
+        List<TileInfo> frontier = new ArrayList<>();
+        List<TileInfo> newFrontier = new ArrayList<>();
         frontier.add(entrance);
 
-        List<MutableTileInfo> accessibleCrates = new ArrayList<>();
+        List<TileInfo> accessibleCrates = new ArrayList<>();
         findAccessibleCrates(frontier, newFrontier, accessibleCrates);
 
         while (!accessibleCrates.isEmpty()) {
             boolean hasChanged = false;
 
             for (int i = 0; i < accessibleCrates.size(); i++) {
-                MutableTileInfo crate = accessibleCrates.get(i);
+                TileInfo crate = accessibleCrates.get(i);
                 crate.removeCrate();
                 inRoom.addCrate();
 
@@ -670,7 +671,7 @@ public class MutableBoard extends GenericBoard<MutableTileInfo> {
             }
 
             if (!hasChanged) {
-                for (MutableTileInfo t : targets) {
+                for (TileInfo t : targets) {
                     t.removeCrate();
                 }
 
@@ -679,7 +680,7 @@ public class MutableBoard extends GenericBoard<MutableTileInfo> {
         }
 
 
-        for (MutableTileInfo t : targets) {
+        for (TileInfo t : targets) {
             t.removeCrate();
         }
 
@@ -706,12 +707,12 @@ public class MutableBoard extends GenericBoard<MutableTileInfo> {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
 
-                final MutableTileInfo t = getAt(x, y);
+                final TileInfo t = getAt(x, y);
 
                 int minDistToTarget = Integer.MAX_VALUE;
                 int minDistToTargetIndex = -1;
 
-                getAt(x, y).setTargets(new MutableTileInfo.TargetRemoteness[targetIndices.size()]);
+                getAt(x, y).setTargets(new TileInfo.TargetRemoteness[targetIndices.size()]);
 
                 for (int j = 0; j < targetIndices.size(); j++) {
 
@@ -725,10 +726,10 @@ public class MutableBoard extends GenericBoard<MutableTileInfo> {
                         minDistToTargetIndex = j;
                     }
 
-                    getAt(x, y).getTargets()[j] = new MutableTileInfo.TargetRemoteness(targetIndex, d);
+                    getAt(x, y).getTargets()[j] = new TileInfo.TargetRemoteness(targetIndex, d);
                 }
                 Arrays.sort(getAt(x, y).getTargets());
-                getAt(x, y).setNearestTarget(new MutableTileInfo.TargetRemoteness(minDistToTargetIndex, minDistToTarget));
+                getAt(x, y).setNearestTarget(new TileInfo.TargetRemoteness(minDistToTargetIndex, minDistToTarget));
             }
         }
     }
@@ -740,11 +741,11 @@ public class MutableBoard extends GenericBoard<MutableTileInfo> {
      * @param newFrontier a non-null list that will contain the next tile info to visit
      * @param out a list that will contain accessible crates
      */
-    private void findAccessibleCrates(List<MutableTileInfo> lastFrontier, List<MutableTileInfo> newFrontier, List<MutableTileInfo> out) {
+    private void findAccessibleCrates(List<TileInfo> lastFrontier, List<TileInfo> newFrontier, List<TileInfo> out) {
         newFrontier.clear();
 
         for (int i = 0; i < lastFrontier.size(); i++) {
-            MutableTileInfo tile = lastFrontier.get(i);
+            TileInfo tile = lastFrontier.get(i);
 
             if (!tile.isMarked()) {
                 tile.mark();
@@ -752,7 +753,7 @@ public class MutableBoard extends GenericBoard<MutableTileInfo> {
                     out.add(tile);
                 } else {
                     for (Direction dir : Direction.VALUES) {
-                        MutableTileInfo adj = tile.adjacent(dir);
+                        TileInfo adj = tile.adjacent(dir);
 
                         if (!adj.isMarked() && !adj.isWall()) {
                             newFrontier.add(adj);
@@ -784,10 +785,10 @@ public class MutableBoard extends GenericBoard<MutableTileInfo> {
         findReachableCases_aux(getAt(playerPos));
     }
 
-    private void findReachableCases_aux(MutableTileInfo tile) {
+    private void findReachableCases_aux(TileInfo tile) {
         tile.setReachable(true);
         for (Direction d : Direction.VALUES) {
-            MutableTileInfo adjacent = tile.adjacent(d);
+            TileInfo adjacent = tile.adjacent(d);
 
             // the second part of the condition avoids to check already processed cases
             if (!adjacent.isSolid() && !adjacent.isReachable()) {
@@ -829,7 +830,7 @@ public class MutableBoard extends GenericBoard<MutableTileInfo> {
         return topY.get() * width + topX.get();
     }
 
-    private void topLeftReachablePosition_aux(MutableTileInfo tile) {
+    private void topLeftReachablePosition_aux(TileInfo tile) {
         if (tile.getY() < topY.get() || (tile.getY() == topY.get() && tile.getX() < topX.get())) {
             topX.set(tile.getX());
             topY.set(tile.getY());
@@ -837,7 +838,7 @@ public class MutableBoard extends GenericBoard<MutableTileInfo> {
 
         tile.mark();
         for (Direction d : Direction.VALUES) {
-            MutableTileInfo adjacent = tile.adjacent(d);
+            TileInfo adjacent = tile.adjacent(d);
 
             if (!adjacent.isSolid() && !adjacent.isMarked()) {
                 topLeftReachablePosition_aux(adjacent);
@@ -860,17 +861,6 @@ public class MutableBoard extends GenericBoard<MutableTileInfo> {
         return targetCount;
     }
 
-
-
-    /**
-     * Returns the tile next to the tile at (x, y) according to dir
-     */
-    public MutableTileInfo safeGetAt(int x, int y, Direction dir) {
-        int x2 = x + dir.dirX();
-        int y2 = y + dir.dirY();
-
-        return safeGetAt(x2, y2);
-    }
 
     /**
      * Returns all tunnels that are in this map
@@ -916,15 +906,15 @@ public class MutableBoard extends GenericBoard<MutableTileInfo> {
 
     /**
      * Creates a {@linkplain MarkSystem mark system} that apply the specified reset
-     * consumer to every <strong>non-wall</strong> {@linkplain MutableTileInfo tile info}
-     * that are in this {@linkplain  SolverBoard map}.
+     * consumer to every <strong>non-wall</strong> {@linkplain TileInfo tile info}
+     * that are in this {@linkplain  Board board}.
      *
      * @param reset the reset function
      * @return a new MarkSystem
      * @see MarkSystem
      * @see Mark
      */
-    private MarkSystem newMarkSystem(Consumer<MutableTileInfo> reset) {
+    private MarkSystem newMarkSystem(Consumer<TileInfo> reset) {
         return new AbstractMarkSystem() {
             @Override
             public void reset() {

@@ -1,7 +1,7 @@
 package fr.valax.sokoshell.solver.pathfinder;
 
-import fr.valax.sokoshell.solver.board.MutableBoard;
-import fr.valax.sokoshell.solver.board.tiles.MutableTileInfo;
+import fr.valax.sokoshell.solver.board.Board;
+import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 
 /**
  * Find the shortest path between (player start, crate start) and (player dest, crate dest):
@@ -9,7 +9,7 @@ import fr.valax.sokoshell.solver.board.tiles.MutableTileInfo;
  */
 public class CratePlayerAStar extends CrateAStar {
 
-    public CratePlayerAStar(MutableBoard board) {
+    public CratePlayerAStar(Board board) {
         super(board);
     }
 
@@ -19,7 +19,7 @@ public class CratePlayerAStar extends CrateAStar {
     }
 
     @Override
-    protected int heuristic(MutableTileInfo newPlayer, MutableTileInfo newCrate) {
+    protected int heuristic(TileInfo newPlayer, TileInfo newCrate) {
          /*
             Try to first move the player near the crate
             Then push the crate to his destination

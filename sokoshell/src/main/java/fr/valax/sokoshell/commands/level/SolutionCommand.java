@@ -4,7 +4,9 @@ import fr.valax.args.api.Option;
 import fr.valax.sokoshell.SokoShell;
 import fr.valax.sokoshell.graphics.*;
 import fr.valax.sokoshell.graphics.layout.*;
-import fr.valax.sokoshell.solver.*;
+import fr.valax.sokoshell.solver.Level;
+import fr.valax.sokoshell.solver.SolverReport;
+import fr.valax.sokoshell.solver.board.Board;
 import fr.valax.sokoshell.solver.board.Direction;
 import fr.valax.sokoshell.solver.board.Move;
 import fr.valax.sokoshell.solver.board.MutableBoard;
@@ -292,7 +294,7 @@ public class SolutionCommand extends LevelCommand {
     public static class SolutionAnimator {
 
         private final SolverReport solution;
-        private MutableBoard board;
+        private Board board;
 
         private final List<Move> path;
         private int pathIndex;
@@ -409,7 +411,7 @@ public class SolutionCommand extends LevelCommand {
             return pathIndex > 0;
         }
 
-        public MutableBoard getBoard() {
+        public Board getBoard() {
             return board;
         }
 

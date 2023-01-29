@@ -1,7 +1,7 @@
 package fr.valax.sokoshell.solver.pathfinder;
 
 import fr.valax.sokoshell.solver.board.Move;
-import fr.valax.sokoshell.solver.board.tiles.MutableTileInfo;
+import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 
 import java.util.Objects;
 
@@ -13,8 +13,8 @@ public class Node implements Comparable<Node> {
     private Node parent;
     private int dist;
     private int heuristic;
-    private MutableTileInfo player;
-    private MutableTileInfo crate;
+    private TileInfo player;
+    private TileInfo crate;
     private Move move;
 
     private int expectedDist;
@@ -24,7 +24,7 @@ public class Node implements Comparable<Node> {
 
     public Node(Node parent,
                 int dist, int heuristic,
-                MutableTileInfo player, MutableTileInfo crate, Move move) {
+                TileInfo player, TileInfo crate, Move move) {
         this.parent = parent;
         this.dist = dist;
         this.heuristic = heuristic;
@@ -33,7 +33,7 @@ public class Node implements Comparable<Node> {
         this.move = move;
     }
 
-    public void setInitial(MutableTileInfo player, MutableTileInfo crate, int heuristic) {
+    public void setInitial(TileInfo player, TileInfo crate, int heuristic) {
         parent = null;
         dist = 0;
         this.heuristic = heuristic;
@@ -43,7 +43,7 @@ public class Node implements Comparable<Node> {
         expectedDist = heuristic;
     }
 
-    public void set(Node parent, MutableTileInfo player, MutableTileInfo crate, int heuristic) {
+    public void set(Node parent, TileInfo player, TileInfo crate, int heuristic) {
         this.parent = parent;
         this.dist = parent.dist + 1;
         this.heuristic = heuristic;
@@ -72,11 +72,11 @@ public class Node implements Comparable<Node> {
         return heuristic;
     }
 
-    public MutableTileInfo getPlayer() {
+    public TileInfo getPlayer() {
         return player;
     }
 
-    public MutableTileInfo getCrate() {
+    public TileInfo getCrate() {
         return crate;
     }
 

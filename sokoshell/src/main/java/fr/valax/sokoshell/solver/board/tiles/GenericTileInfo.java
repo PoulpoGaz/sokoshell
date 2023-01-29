@@ -1,7 +1,6 @@
 package fr.valax.sokoshell.solver.board.tiles;
 
 import fr.valax.sokoshell.solver.board.*;
-import fr.valax.sokoshell.solver.board.mark.Mark;
 
 /**
  * {@link TileInfo} stores <i>static</i> information about a tile:
@@ -10,7 +9,7 @@ import fr.valax.sokoshell.solver.board.mark.Mark;
  *     <li>the {@link Tile}</li>
  * </ul>
  *
- * These properties are immutable. See {@link MutableTileInfo} if you want to modify a {@link TileInfo}.
+ * These properties are immutable. See {@link TileInfo} if you want to modify a {@link TileInfo}.
  *
  * @author PoulpoGaz
  */
@@ -21,8 +20,8 @@ import fr.valax.sokoshell.solver.board.mark.Mark;
  *     <li>
  *         Static information
  *         <ul>
- *             <li>the {@link SolverBoard}</li>
- *             <li>{@link MutableTileInfo} information</li>
+ *             <li>the {@link MutableBoard}</li>
+ *             <li>{@link TileInfo} information</li>
  *         </ul>
  *     </li>
  *     <li>
@@ -36,9 +35,9 @@ import fr.valax.sokoshell.solver.board.mark.Mark;
  *
  * @author PoulpoGaz
  */
-public abstract class GenericTileInfo<T extends GenericTileInfo<T, B>, B extends GenericBoard<T>> implements ITileInfo<T, B> {
+public abstract class GenericTileInfo implements TileInfo {
 
-    protected final B board;
+    protected final Board board;
 
     protected final int x;
     protected final int y;
@@ -53,19 +52,19 @@ public abstract class GenericTileInfo<T extends GenericTileInfo<T, B>, B extends
      * @param x the position on the x-axis in the map
      * @param y the position on the y-axis in the map
      */
-    public GenericTileInfo(B board, Tile tile, int x, int y) {
+    public GenericTileInfo(Board board, Tile tile, int x, int y) {
         this.board = board;
         this.tile = tile;
         this.x = x;
         this.y = y;
     }
 
-    public GenericTileInfo(GenericTileInfo<T, B> tileInfo) {
-        this(tileInfo.board, tileInfo.tile, tileInfo.x, tileInfo.y);
+    public GenericTileInfo(TileInfo tileInfo) {
+        this(tileInfo.getBoard(), tileInfo.getTile(), tileInfo.getX(), tileInfo.getY());
     }
 
-    public GenericTileInfo(B board, GenericTileInfo<T, B> tileInfo) {
-        this(board, tileInfo.tile, tileInfo.x, tileInfo.y);
+    public GenericTileInfo(Board board, TileInfo tileInfo) {
+        this(board, tileInfo.getTile(), tileInfo.getX(), tileInfo.getY());
     }
     
    @Override
@@ -119,7 +118,7 @@ public abstract class GenericTileInfo<T extends GenericTileInfo<T, B>, B extends
     }
 
     @Override
-    public boolean isAt(T other) {
+    public boolean isAt(TileInfo other) {
         return isAt(other.getX(), other.getY());
     }
 
@@ -129,13 +128,13 @@ public abstract class GenericTileInfo<T extends GenericTileInfo<T, B>, B extends
     }
 
     @Override
-    public Direction direction(T other) {
+    public Direction direction(TileInfo other) {
         return Direction.of(other.getX() - x, other.getY() - y);
     }
 
     @Override
-    public int manhattanDistance(T other) {
-        return Math.abs(x - other.x) + Math.abs(y - other.y);
+    public int manhattanDistance(TileInfo other) {
+        return Math.abs(x - other.getX()) + Math.abs(y - other.getY());
     }
 
     /**
@@ -144,7 +143,7 @@ public abstract class GenericTileInfo<T extends GenericTileInfo<T, B>, B extends
      * @throws IndexOutOfBoundsException if this TileInfo is near the border of the map and
      * the direction point outside the emap
      */
-    public T adjacent(Direction dir) {
+    public TileInfo adjacent(Direction dir) {
         return board.getAt(x + dir.dirX(), y + dir.dirY());
     }
 
@@ -153,7 +152,7 @@ public abstract class GenericTileInfo<T extends GenericTileInfo<T, B>, B extends
      * @return the tile that is adjacent to this TileInfo in the {@link Direction} dir
      * or {@code null} if the adjacent tile is outside the map
      */
-    public T safeAdjacent(Direction dir) {
+    public TileInfo safeAdjacent(Direction dir) {
         return board.safeGetAt(x + dir.dirX(), y + dir.dirY());
     }
 
@@ -162,7 +161,7 @@ public abstract class GenericTileInfo<T extends GenericTileInfo<T, B>, B extends
      *
      * @return the board in which this tile is
      */
-    public B getBoard() {
+    public Board getBoard() {
         return board;
     }
 

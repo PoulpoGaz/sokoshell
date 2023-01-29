@@ -1,6 +1,6 @@
 package fr.valax.sokoshell.solver.board;
 
-import fr.valax.sokoshell.solver.board.tiles.MutableTileInfo;
+import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 
 import java.util.*;
 
@@ -21,7 +21,7 @@ public class Pathfinder {
         visited = new HashSet<>();
     }
 
-    public boolean hasPath(MutableTileInfo player, MutableTileInfo playerDest, MutableTileInfo crate, MutableTileInfo crateDest) {
+    public boolean hasPath(TileInfo player, TileInfo playerDest, TileInfo crate, TileInfo crateDest) {
         return findPath(player, playerDest, crate, crateDest) != null;
     }
 
@@ -35,7 +35,7 @@ public class Pathfinder {
      * @param crateDest optional crate destination. If not {@code null} then crateDest is not {@code null}
      * @return the path between the two points
      */
-    public Node findPath(MutableTileInfo playerStart, MutableTileInfo playerDest, MutableTileInfo crateStart, MutableTileInfo crateDest) {
+    public Node findPath(TileInfo playerStart, TileInfo playerDest, TileInfo crateStart, TileInfo crateDest) {
         Objects.requireNonNull(playerStart, "Player start can't be null");
 
         if (playerStart.isSolid()) {
@@ -124,8 +124,8 @@ public class Pathfinder {
 
         @Override
         protected Node processMove(Node parent, Direction dir) {
-            MutableTileInfo player = parent.player();
-            MutableTileInfo adj = player.adjacent(dir);
+            TileInfo player = parent.player();
+            TileInfo adj = player.adjacent(dir);
 
             if (!adj.isSolid()) {
                 return child(parent, adj, null, Move.of(dir, false));
@@ -135,7 +135,7 @@ public class Pathfinder {
         }
 
         @Override
-        protected int heuristic(MutableTileInfo newPlayer, MutableTileInfo newCrate) {
+        protected int heuristic(TileInfo newPlayer, TileInfo newCrate) {
             return newPlayer.manhattanDistance(playerDest);
         }
 
@@ -167,12 +167,12 @@ public class Pathfinder {
 
         @Override
         protected Node processMove(Node parent, Direction dir) {
-            MutableTileInfo player = parent.player();
-            MutableTileInfo crate = parent.crate();
-            MutableTileInfo adj = player.adjacent(dir);
+            TileInfo player = parent.player();
+            TileInfo crate = parent.crate();
+            TileInfo adj = player.adjacent(dir);
 
             if (adj.isAt(crate)) {
-                MutableTileInfo adjAdj = adj.adjacent(dir);
+                TileInfo adjAdj = adj.adjacent(dir);
 
                 if (adjAdj.isSolid()) {
                     return null;
@@ -187,7 +187,7 @@ public class Pathfinder {
         }
 
         @Override
-        protected int heuristic(MutableTileInfo newPlayer, MutableTileInfo newCrate) {
+        protected int heuristic(TileInfo newPlayer, TileInfo newCrate) {
             int h = newCrate.manhattanDistance(crateDest);
 
             /* the player first need to move near the crate to push it
@@ -218,7 +218,7 @@ public class Pathfinder {
     protected class AStarFull extends AStarCrateOnly {
 
         @Override
-        protected int heuristic(MutableTileInfo newPlayer, MutableTileInfo newCrate) {
+        protected int heuristic(TileInfo newPlayer, TileInfo newCrate) {
             /*
                 Try to first move the player near the crate
                 Then push the crate to his destination
@@ -245,16 +245,16 @@ public class Pathfinder {
 
     public abstract class AStar {
 
-        protected MutableTileInfo playerStart;
-        protected MutableTileInfo crateStart;
-        protected MutableTileInfo playerDest;
-        protected MutableTileInfo crateDest;
+        protected TileInfo playerStart;
+        protected TileInfo crateStart;
+        protected TileInfo playerDest;
+        protected TileInfo crateDest;
 
-        public boolean hasPath(MutableTileInfo playerStart, MutableTileInfo playerDest, MutableTileInfo crateStart, MutableTileInfo crateDest) {
+        public boolean hasPath(TileInfo playerStart, TileInfo playerDest, TileInfo crateStart, TileInfo crateDest) {
             return findPath(playerStart, playerDest, crateStart, crateDest) != null;
         }
 
-        public Node findPath(MutableTileInfo playerStart, MutableTileInfo playerDest, MutableTileInfo crateStart, MutableTileInfo crateDest) {
+        public Node findPath(TileInfo playerStart, TileInfo playerDest, TileInfo crateStart, TileInfo crateDest) {
             this.playerStart = playerStart;
             this.crateStart = crateStart;
             this.playerDest = playerDest;
@@ -303,7 +303,7 @@ public class Pathfinder {
             visited.clear();
         }
 
-        protected Node child(Node parent, MutableTileInfo newPlayer, MutableTileInfo newCrate, Move move) {
+        protected Node child(Node parent, TileInfo newPlayer, TileInfo newCrate, Move move) {
             return new Node(parent,
                     parent.dist() + 1,
                     parent.dist() + 1 + heuristic(newPlayer, newCrate),
@@ -314,14 +314,14 @@ public class Pathfinder {
 
         protected abstract Node processMove(Node parent, Direction dir);
 
-        protected abstract int heuristic(MutableTileInfo newPlayer, MutableTileInfo newCrate);
+        protected abstract int heuristic(TileInfo newPlayer, TileInfo newCrate);
 
         protected abstract boolean isEndNode(Node node);
     }
 
     public record Node(Node parent,
                        int dist, int heuristic,
-                       MutableTileInfo player, MutableTileInfo crate, Move move) implements Comparable<Node> {
+                       TileInfo player, TileInfo crate, Move move) implements Comparable<Node> {
 
         @Override
         public boolean equals(Object o) {

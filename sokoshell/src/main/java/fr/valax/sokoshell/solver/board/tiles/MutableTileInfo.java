@@ -9,7 +9,7 @@ import java.util.Arrays;
 /**
  * Represents a tile that can be modified.
  */
-public class MutableTileInfo extends GenericTileInfo<MutableTileInfo, MutableBoard> {
+public class MutableTileInfo extends GenericTileInfo {
 
     // Static information
     protected boolean deadTile;
@@ -44,15 +44,15 @@ public class MutableTileInfo extends GenericTileInfo<MutableTileInfo, MutableBoa
         this.mark = board.getMarkSystem().newMark();
     }
 
-    public MutableTileInfo(MutableTileInfo other) {
+    public MutableTileInfo(TileInfo other) {
         super(other);
 
         this.reachable = board.getReachableMarkSystem().newMark();
         this.mark = board.getMarkSystem().newMark();
     }
 
-    public MutableTileInfo(MutableBoard board, GenericTileInfo<?, ?> other) {
-        super(board, other.tile, other.x, other.y);
+    public MutableTileInfo(MutableBoard board, TileInfo other) {
+        super(board, other);
 
         this.reachable = board.getReachableMarkSystem().newMark();
         this.mark = board.getMarkSystem().newMark();
@@ -65,33 +65,19 @@ public class MutableTileInfo extends GenericTileInfo<MutableTileInfo, MutableBoa
      * @param other the map that will contain the copied TileInfo
      * @return the copied TileInfo in the new map
      */
-    public MutableTileInfo copiedTo(MutableBoard other) {
-        MutableTileInfo t = new MutableTileInfo(other, tile, x, y);
+    public TileInfo copiedTo(MutableBoard other) {
+        TileInfo t = new MutableTileInfo(other, tile, x, y);
         t.set(this);
         return t;
     }
 
-    /**
-     * Copy the information of other into this tile info
-     *
-     * @param other the TileInfo from which we extract information
-     */
-    public void set(MutableTileInfo other) {
-        tile = other.tile;
-        deadTile = other.deadTile;
-        setReachable(other.isReachable());
-        mark.setMarked(other.isMarked());
-        if (other.targets == null) {
-            targets = null;
-        } else {
-            targets = Arrays.copyOf(other.targets, other.targets.length);
-        }
-        nearestTarget = other.nearestTarget;
-    }
+
+    // GETTERS //
+
 
     /**
      * @return {@code true} if this tile is a dead tile
-     * @see SolverBoard#computeDeadTiles()
+     * @see MutableBoard#computeDeadTiles()
      */
     @Override
     public boolean isDeadTile() {
@@ -100,7 +86,7 @@ public class MutableTileInfo extends GenericTileInfo<MutableTileInfo, MutableBoa
 
     /**
      * @return {@code true} if this tile is reachable by the player.
-     * @see SolverBoard#findReachableCases(int)
+     * @see MutableBoard#findReachableCases(int)
      */
     @Override
     public boolean isReachable() {
@@ -179,10 +165,22 @@ public class MutableTileInfo extends GenericTileInfo<MutableTileInfo, MutableBoa
     }
 
 
-    /**
-     * If this was a floor, this is now a crate
-     * If this was a target, this is now a crate on target
-     */
+    // SETTERS //
+
+    public void set(TileInfo other) {
+        tile = other.getTile();
+        deadTile = other.isDeadTile();
+        setReachable(other.isReachable());
+        mark.setMarked(other.isMarked());
+        if (other.getTargets() == null) {
+            targets = null;
+        } else {
+            targets = Arrays.copyOf(other.getTargets(), other.getTargets().length);
+        }
+        nearestTarget = other.getNearestTarget();
+    }
+
+    @Override
     public void addCrate() {
         if (tile == Tile.FLOOR) {
             tile = Tile.CRATE;
@@ -191,10 +189,7 @@ public class MutableTileInfo extends GenericTileInfo<MutableTileInfo, MutableBoa
         }
     }
 
-    /**
-     * If this was a crate, this is now a floor
-     * If this was a crate on target, this is now a target
-     */
+    @Override
     public void removeCrate() {
         if (tile == Tile.CRATE) {
             tile = Tile.FLOOR;
@@ -203,83 +198,57 @@ public class MutableTileInfo extends GenericTileInfo<MutableTileInfo, MutableBoa
         }
     }
 
-    /**
-     * Sets the tile.
-     * @param tile the new tile
-     */
+    @Override
     public void setTile(Tile tile) {
         this.tile = tile;
     }
 
-    /**
-     * Sets this tile as a dead tile or not
-     * @see SolverBoard#computeDeadTiles() ()
-     */
+    @Override
     public void setDeadTile(boolean deadTile) {
         this.deadTile = deadTile;
     }
 
-    /**
-     * Sets this tile as reachable or not by the player. It doesn't check if it's possible.
-     * @see SolverBoard#findReachableCases(int)
-     */
+    @Override
     public void setReachable(boolean reachable) {
         this.reachable.setMarked(reachable);
     }
 
-    /**
-     * Sets the tunnel in which this tile is
-     */
+    @Override
     public void setTunnel(Tunnel tunnel) {
         this.tunnel = tunnel;
     }
 
-    /**
-     * Sets the {@link Tunnel.Exit} object associated with this tile info
-     * @see Tunnel.Exit
-     */
+    @Override
     public void setTunnelExit(Tunnel.Exit tunnelExit) {
         this.tunnelExit = tunnelExit;
     }
 
-    /**
-     * Sets the room in which this tile is
-     */
+    @Override
     public void setRoom(Room room) {
         this.room = room;
     }
 
-    /**
-     * Sets this tile as marked
-     * @see Mark
-     * @see MarkSystem
-     */
+    @Override
     public void mark() {
         mark.mark();
     }
 
-    /**
-     * Sets this tile as unmarked
-     * @see Mark
-     * @see MarkSystem
-     */
+    @Override
     public void unmark() {
         mark.unmark();
     }
 
-    /**
-     * Sets this tile as marked or not
-     * @see Mark
-     * @see MarkSystem
-     */
+    @Override
     public void setMarked(boolean marked) {
         mark.setMarked(marked);
     }
 
+    @Override
     public void setTargets(TargetRemoteness[] targets) {
         this.targets = targets;
     }
 
+    @Override
     public void setNearestTarget(TargetRemoteness nearestTarget) {
         this.nearestTarget = nearestTarget;
     }
