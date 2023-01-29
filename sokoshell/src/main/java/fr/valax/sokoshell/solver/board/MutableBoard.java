@@ -1,8 +1,14 @@
-package fr.valax.sokoshell.solver;
+package fr.valax.sokoshell.solver.board;
 
 import fr.valax.interval.IntWrapper;
-import fr.valax.sokoshell.solver.mark.AbstractMarkSystem;
-import fr.valax.sokoshell.solver.mark.MarkSystem;
+import fr.valax.sokoshell.solver.State;
+import fr.valax.sokoshell.solver.board.mark.AbstractMarkSystem;
+import fr.valax.sokoshell.solver.board.mark.Mark;
+import fr.valax.sokoshell.solver.board.mark.MarkSystem;
+import fr.valax.sokoshell.solver.board.tiles.ImmutableTileInfo;
+import fr.valax.sokoshell.solver.board.tiles.MutableTileInfo;
+import fr.valax.sokoshell.solver.board.tiles.Tile;
+import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 import fr.valax.sokoshell.solver.pathfinder.CrateAStar;
 import fr.valax.sokoshell.solver.pathfinder.CratePlayerAStar;
 import fr.valax.sokoshell.solver.pathfinder.PlayerAStar;
@@ -15,7 +21,7 @@ import java.util.function.Consumer;
 
 /**
  * Represents the Sokoban board.<br />
- * This is essentially a 2D-array of {@link TileInfo}, the indices being the y and x coordinates
+ * This is essentially a 2D-array of {@link ImmutableTileInfo}, the indices being the y and x coordinates
  * (i.e. {@code content[y][x]} is the tile at (x;y)).<br />
  * This class also implements static and dynamic analysis of the Sokoban board:
  * <ul>
@@ -33,22 +39,12 @@ import java.util.function.Consumer;
  * @author PoulpoGaz
  */
 @SuppressWarnings("ForLoopReplaceableByForEach")
-public class Board {
+public class MutableBoard extends GenericBoard {
 
-    public static final int MINIMUM_WIDTH = 5;
-    public static final int MINIMUM_HEIGHT = 5;
-
-    private final MarkSystem markSystem = newMarkSystem(TileInfo::unmark);
+    protected  final MarkSystem markSystem = newMarkSystem(TileInfo::unmark);
     private final MarkSystem reachableMarkSystem = newMarkSystem((t) -> t.setReachable(false));
 
-
-
-    private final TileInfo[][] content;
-    private final int width;
-    private final int height;
-
     private int targetCount;
-
 
     /**
      * Tiles that can be 'target' or 'floor'
@@ -67,27 +63,25 @@ public class Board {
     private CrateAStar crateAStar;
     private CratePlayerAStar cratePlayerAStar;
 
+
     /**
-     * Creates a Map with the specified width, height and tiles
+     * Creates a SolverBoard with the specified width, height and tiles
      *
      * @param content a rectangular matrix of size width * height. The first index is for the rows
      *                and the second for the columns
      * @param width map width
      * @param height map height
      */
-    public Board(Tile[][] content, int width, int height) {
-        this.width = width;
-        this.height = height;
+    public MutableBoard(Tile[][] content, int width, int height) {
+        super(width, height);
 
         this.content = new TileInfo[height][width];
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                this.content[y][x] = new TileInfo(this, content[y][x], x, y);
+                this.content[y][x] = new MutableTileInfo(this, content[y][x], x, y);
             }
         }
-
-        State.initZobristValues(width * height);
     }
 
     /**
@@ -96,21 +90,51 @@ public class Board {
      * @param other the map to copy
      */
     @SuppressWarnings("CopyConstructorMissesField")
-    public Board(Board other) {
-        this.width = other.width;
-        this.height = other.height;
+    public MutableBoard(Board other) {
+        super(other);
+
         this.content = new TileInfo[height][width];
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                this.content[y][x] = other.content[y][x].copyTo(this);
+                this.content[y][x] = new MutableTileInfo(this, other.getAt(x, y));
             }
         }
     }
 
-    // =======================================================
-    // *  Methods below don't need a call to #initForSolver  *
-    // =======================================================
+    /**
+     * Apply the consumer on every tile info
+     *
+     * @param consumer the consumer to apply
+     */
+    public void forEach(Consumer<TileInfo> consumer) {
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                consumer.accept(content[y][x]);
+            }
+        }
+    }
+
+    /**
+     * Set at tile at the specified index. The index will be converted to
+     * cartesian coordinate with {@link #getX(int)} and {@link  #getY(int)}
+     *
+     * @param index index in the map
+     * @param tile the new tile
+     * @throws IndexOutOfBoundsException if the index lead to a position outside the map
+     */
+    public void setAt(int index, Tile tile) { content[getY(index)][getX(index)].setTile(tile); }
+
+    /**
+     * Set at tile at (x, y)
+     *
+     * @param x x position in the map
+     * @param y y position in the map
+     * @throws IndexOutOfBoundsException if the position is outside the map
+     */
+    public void setAt(int x, int y, Tile tile) {
+        content[y][x].setTile(tile);
+    }
 
     /**
      * Puts the crates of the given state in the content array.
@@ -165,23 +189,6 @@ public class Board {
             }
         }
     }
-
-
-    /**
-     * Apply the consumer on every tile info
-     *
-     * @param consumer the consumer to apply
-     */
-    public void forEach(Consumer<TileInfo> consumer) {
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                consumer.accept(content[y][x]);
-            }
-        }
-    }
-
-
-
 
     // ===========================================
     // *         Methods used by solvers         *
@@ -425,20 +432,6 @@ public class Board {
                 tunnels.add(tunnel);
             }
         });
-
-        for (int i = 0; i < tunnels.size(); i++) {
-            Tunnel t = tunnels.get(i);
-
-            if (t.getStartOut() == null || t.getEndOut() == null) {
-                t.setOneway(true);
-            } else {
-                t.getStart().addCrate();
-                findReachableCases(t.getStartOut());
-                t.getStart().removeCrate();
-
-                t.setOneway(!t.getEndOut().isReachable());
-            }
-        }
     }
 
     /**
@@ -704,6 +697,51 @@ public class Board {
         return true;
     }
 
+    private void computeTileToTargetsDistances() {
+
+        List<Integer> targetIndices = new ArrayList<>();
+
+        targetCount = 0;
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                if (this.content[y][x].isTarget() || this.content[y][x].isCrateOnTarget()) {
+                    targetCount++;
+                    targetIndices.add(getIndex(x, y));
+                }
+            }
+        }
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+
+                final TileInfo t = getAt(x, y);
+
+                int minDistToTarget = Integer.MAX_VALUE;
+                int minDistToTargetIndex = -1;
+
+                getAt(x, y).setTargets(new TileInfo.TargetRemoteness[targetIndices.size()]);
+
+                for (int j = 0; j < targetIndices.size(); j++) {
+
+                    final int targetIndex = targetIndices.get(j);
+                    final int d = (t.isFloor() || t.isTarget()
+                                   ? playerAStar.findPath(t, getAt(targetIndex), null, null).getDist() //t.manhattanDistance(getAt(targetIndex))
+                                   : 0);
+
+
+                    if (d < minDistToTarget) {
+                        minDistToTarget = d;
+                        minDistToTargetIndex = j;
+                    }
+
+                    getAt(x, y).getTargets()[j] = new TileInfo.TargetRemoteness(targetIndex, d);
+                }
+                Arrays.sort(getAt(x, y).getTargets());
+                getAt(x, y).setNearestTarget(new TileInfo.TargetRemoteness(minDistToTargetIndex, minDistToTarget));
+            }
+        }
+    }
+
     /**
      * Find accessible crates using bfs from lastFrontier.
      *
@@ -743,53 +781,6 @@ public class Board {
 
 
 
-    private void computeTileToTargetsDistances() {
-
-        List<Integer> targetIndices = new ArrayList<>();
-
-        targetCount = 0;
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                if (this.content[y][x].isTarget() || this.content[y][x].isCrateOnTarget()) {
-                    targetCount++;
-                    targetIndices.add(getIndex(x, y));
-                }
-            }
-        }
-
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-
-                final TileInfo t = getAt(x, y);
-
-                int minDistToTarget = Integer.MAX_VALUE;
-                int minDistToTargetIndex = -1;
-
-                getAt(x, y).setTargets(new TileInfo.TargetRemoteness[targetIndices.size()]);
-
-                for (int j = 0; j < targetIndices.size(); j++) {
-
-                    final int targetIndex = targetIndices.get(j);
-                    final int d = (t.isFloor() || t.isTarget()
-                                   ? playerAStar.findPath(t, getAt(targetIndex), null, null).getDist() //t.manhattanDistance(getAt(targetIndex))
-                                   : 0);
-
-                    if (d < minDistToTarget) {
-                        minDistToTarget = d;
-                        minDistToTargetIndex = j;
-                    }
-
-                    getAt(x, y).getTargets()[j] = new TileInfo.TargetRemoteness(targetIndex, d);
-                }
-                Arrays.sort(getAt(x, y).getTargets());
-                getAt(x, y).setNearestTarget(new TileInfo.TargetRemoteness(minDistToTargetIndex, minDistToTarget));
-            }
-        }
-    }
-
-
-
-
 
     // * DYNAMIC *
 
@@ -797,13 +788,9 @@ public class Board {
      * Find reachable tiles
      * @param playerPos The indic of the case on which the player currently is.
      */
-    protected void findReachableCases(int playerPos) {
-        findReachableCases(getAt(playerPos));
-    }
-
-    protected void findReachableCases(TileInfo tile) {
+    public void findReachableCases(int playerPos) {
         reachableMarkSystem.unmarkAll();
-        findReachableCases_aux(tile);
+        findReachableCases_aux(getAt(playerPos));
     }
 
     private void findReachableCases_aux(TileInfo tile) {
@@ -831,9 +818,9 @@ public class Board {
      *
      * @return the top left reachable position after pushing the crate
      * @see MarkSystem
-     * @see fr.valax.sokoshell.solver.mark.Mark
+     * @see Mark
      */
-    protected int topLeftReachablePosition(int crateToMoveX, int crateToMoveY, int destX, int destY) {
+    public int topLeftReachablePosition(int crateToMoveX, int crateToMoveY, int destX, int destY) {
         // temporary move the crate
         getAt(crateToMoveX, crateToMoveY).removeCrate();
         getAt(destX, destY).addCrate();
@@ -873,19 +860,6 @@ public class Board {
     // *********************
 
 
-    /**
-     * Returns the width of the map
-     *
-     * @return the width of the map
-     */
-    public int getWidth() { return width; }
-
-    /**
-     * Returns the height of the map
-     *
-     * @return the height of the map
-     */
-    public int getHeight() { return height; }
 
     /**
      * Returns the number of target i.e. tiles on which a crate has to be pushed to solve the level) on the map
@@ -895,190 +869,6 @@ public class Board {
         return targetCount;
     }
 
-    /**
-     * Convert an index to a position on the x-axis
-     *
-     * @param index the index to convert
-     * @return the converted position
-     */
-    public int getX(int index) { return index % width; }
-
-    /**
-     * Convert an index to a position on the y-axis
-     *
-     * @param index the index to convert
-     * @return the converted position
-     */
-    public int getY(int index) { return index / width; }
-
-    /**
-     * Convert a (x;y) position to an index
-     * @param x Coordinate on x-axis
-     * @param y Coordinate on y-axis
-     * @return the converted index
-     */
-    public int getIndex(int x, int y) { return y * width + x; }
-
-    /**
-     * Returns the {@link TileInfo} at the specific index
-     *
-     * @param index the index of the {@link TileInfo}
-     * @return the TileInfo at the specific index
-     * @throws IndexOutOfBoundsException if the index lead to a position outside the map
-     * @see #getX(int)
-     * @see #getY(int)
-     * @see #safeGetAt(int)
-     */
-    public TileInfo getAt(int index) {
-        return content[getY(index)][getX(index)];
-    }
-
-    /**
-     * Returns the {@link TileInfo} at the specific index
-     *
-     * @param index the index of the {@link TileInfo}
-     * @return the TileInfo at the specific index or {@code null}
-     * if the index represent a position outside the map
-     * @see #getX(int)
-     * @see #getY(int)
-     */
-    public TileInfo safeGetAt(int index) {
-        int x = getX(index);
-        int y = getY(index);
-
-        if (caseExists(x, y)) {
-            return getAt(x, y);
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Returns the {@link TileInfo} at the specific position
-     *
-     * @param x x the of the tile
-     * @param y y the of the tile
-     * @return the TileInfo at the specific coordinate
-     * @throws IndexOutOfBoundsException if the position is outside the map
-     * @see #safeGetAt(int, int)
-     */
-    public TileInfo getAt(int x, int y) {
-        return content[y][x];
-    }
-
-    /**
-     * Returns the {@link TileInfo} at the specific position
-     *
-     * @param x x the of the tile
-     * @param y y the of the tile
-     * @return the TileInfo at the specific index or {@code null}
-     * if the index represent a position outside the map
-     * @see #getX(int)
-     * @see #getY(int)
-     */
-    public TileInfo safeGetAt(int x, int y) {
-        if (caseExists(x, y)) {
-            return getAt(x, y);
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Returns the tile next to the tile at (x, y) according to dir
-     */
-    public TileInfo safeGetAt(int x, int y, Direction dir) {
-        int x2 = x + dir.dirX();
-        int y2 = y + dir.dirY();
-
-        return safeGetAt(x2, y2);
-    }
-
-    /**
-     * Set at tile at the specified index. The index will be converted to
-     * cartesian coordinate with {@link #getX(int)} and {@link  #getY(int)}
-     *
-     * @param index index in the map
-     * @param tile the new tile
-     * @throws IndexOutOfBoundsException if the index lead to a position outside the map
-     */
-    public void setAt(int index, Tile tile) { content[getY(index)][getX(index)].setTile(tile); }
-
-    /**
-     * Set at tile at (x, y)
-     *
-     * @param x x position in the map
-     * @param y y position in the map
-     * @throws IndexOutOfBoundsException if the position is outside the map
-     */
-    public void setAt(int x, int y, Tile tile) {
-        content[y][x].setTile(tile);
-    }
-
-    /**
-     * Tells whether the case at (x,y) exists or not (i.e. if the case is in the map)
-     * 
-     * @param x x-coordinate
-     * @param y y-coordinate
-     * @return {@code true} if the case exists, {@code false} otherwise
-     */
-    public boolean caseExists(int x, int y) {
-        return (0 <= x && x < width) && (0 <= y && y < height);
-    }
-
-    /**
-     * Same than caseExists(x, y) but with an index
-     * 
-     * @param index index of the case
-     * @return {@code true} if the case exists, {@code false} otherwise
-     * @see #caseExists(int, int) 
-     */
-    public boolean caseExists(int index) {
-        return caseExists(getX(index), getY(index));
-    }
-
-    /**
-     * Tells whether the tile at the given coordinates is empty or not.
-     * 
-     * @param x x coordinate of the case
-     * @param y y coordinate of the case
-     * @return {@code true} if empty, {@code false} otherwise
-     */
-    public boolean isTileEmpty(int x, int y) {
-        TileInfo t = getAt(x, y);
-        return !t.isSolid();
-    }
-
-    /**
-     * Checks if the map is solved (i.e. all the crates are on a target).<br />
-     * <strong>The crates MUST have been put on the map for this function to work as expected.</strong>
-     * 
-     * @return {@code true} if the map is completed, false otherwise
-     */
-    public boolean isCompletedWith(State s) {
-        for (int i : s.cratesIndices()) {
-            if (!getAt(i).isCrateOnTarget()) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Checks if the map is completed (i.e. all the crates are on a target)
-     * 
-     * @return true if completed, false otherwise
-     */
-    public boolean isCompleted() {
-        for (int y = 0; y < getHeight(); y++) {
-            for (int x = 0; x < getWidth(); x++) {
-                if (getAt(x, y).isCrate()) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
 
     /**
      * Returns all tunnels that are in this map
@@ -1125,12 +915,12 @@ public class Board {
     /**
      * Creates a {@linkplain MarkSystem mark system} that apply the specified reset
      * consumer to every <strong>non-wall</strong> {@linkplain TileInfo tile info}
-     * that are in this {@linkplain  Board map}.
+     * that are in this {@linkplain  Board board}.
      *
      * @param reset the reset function
      * @return a new MarkSystem
      * @see MarkSystem
-     * @see fr.valax.sokoshell.solver.mark.Mark
+     * @see Mark
      */
     private MarkSystem newMarkSystem(Consumer<TileInfo> reset) {
         return new AbstractMarkSystem() {

@@ -1,8 +1,7 @@
 package fr.valax.sokoshell.solver.pathfinder;
 
-import fr.valax.sokoshell.solver.TileInfo;
-import fr.valax.sokoshell.solver.mark.Mark;
-import fr.valax.sokoshell.solver.mark.MarkSystem;
+import fr.valax.sokoshell.solver.board.mark.*;
+import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 
 /**
  * A mark is visited, if it is equal to the global mark.

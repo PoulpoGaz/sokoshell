@@ -1,16 +1,17 @@
 package fr.valax.sokoshell.solver.pathfinder;
 
 import fr.valax.sokoshell.TestUtils;
-import fr.valax.sokoshell.solver.Board;
-import fr.valax.sokoshell.solver.Direction;
 import fr.valax.sokoshell.solver.Level;
-import fr.valax.sokoshell.solver.TileInfo;
+import fr.valax.sokoshell.solver.board.Board;
+import fr.valax.sokoshell.solver.board.Direction;
+import fr.valax.sokoshell.solver.board.MutableBoard;
+import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
 
-import static fr.valax.sokoshell.solver.Direction.DOWN;
-import static fr.valax.sokoshell.solver.Direction.RIGHT;
+import static fr.valax.sokoshell.solver.board.Direction.DOWN;
+import static fr.valax.sokoshell.solver.board.Direction.RIGHT;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class PlayerAStarTest {
@@ -32,7 +33,7 @@ public class PlayerAStarTest {
                 ########
                 """);
 
-        Board board = level.getMap();
+        Board board = new MutableBoard(level.getBoard());
         PlayerAStar aStar = new PlayerAStar(board);
 
         // 21 nodes A*
@@ -45,7 +46,7 @@ public class PlayerAStarTest {
     void complex() {
         Level level = TestUtils.getLevel(LABYRINTH);
 
-        Board board = level.getMap();
+        Board board = new MutableBoard(level.getBoard());
         PlayerAStar aStar = new PlayerAStar(board);
 
         // 181 nodes A*
@@ -77,7 +78,7 @@ public class PlayerAStarTest {
     void originalAndExtraTest() {
         Level level = TestUtils.getLevel(Path.of("levels8xv/Original.8xv"), 0);
 
-        Board board = level.getMap();
+        Board board = new MutableBoard(level.getBoard());
         PlayerAStar aStar = new PlayerAStar(board);
 
         assertTrue(aStar.hasPath(board.getAt(11, 8), board.getAt(17, 8), null, null));

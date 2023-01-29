@@ -1,6 +1,7 @@
 package fr.valax.sokoshell.solver.heuristic;
 
-import fr.valax.sokoshell.solver.Board;
+import fr.valax.sokoshell.solver.board.Board;
+import fr.valax.sokoshell.solver.board.MutableBoard;
 
 /**
  * Base class for heuristic computing classes.

@@ -3,8 +3,8 @@ package fr.valax.sokoshell.graphics.style;
 import fr.valax.sokoshell.TestUtils;
 import fr.valax.sokoshell.graphics.Graphics;
 import fr.valax.sokoshell.graphics.Surface;
-import fr.valax.sokoshell.solver.Direction;
 import fr.valax.sokoshell.solver.Level;
+import fr.valax.sokoshell.solver.board.Direction;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -27,7 +27,7 @@ public class BoardStyleReaderTest {
                 System.out.println("Size: " + i);
                 s.clear();
                 s.resize(level.getWidth() * i, level.getHeight() * i);
-                style.draw(g, i, level.getMap(), level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
+                style.draw(g, i, level.getBoard(), level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
                 s.print();
             }
         }

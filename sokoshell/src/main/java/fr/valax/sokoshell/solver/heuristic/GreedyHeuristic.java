@@ -1,8 +1,10 @@
 package fr.valax.sokoshell.solver.heuristic;
 
-import fr.valax.sokoshell.solver.Board;
 import fr.valax.sokoshell.solver.State;
-import fr.valax.sokoshell.solver.TileInfo;
+import fr.valax.sokoshell.solver.board.Board;
+import fr.valax.sokoshell.solver.board.MutableBoard;
+import fr.valax.sokoshell.solver.board.tiles.TileInfo;
+import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 
 /**
  * According to <a href="http://sokobano.de/wiki/index.php?title=Solver#Greedy_approach">this article</a>
@@ -152,7 +154,7 @@ public class GreedyHeuristic extends AbstractHeuristic {
         public TileInfo.TargetRemoteness getNearestNotAttributedTarget() {
             TileInfo.TargetRemoteness[] remoteness = crate.getTargets();
 
-            Board b = crate.getMap();
+            Board b = crate.getBoard();
             while (b.getAt(remoteness[index].index()).isMarked()) {
                 index++;
             }

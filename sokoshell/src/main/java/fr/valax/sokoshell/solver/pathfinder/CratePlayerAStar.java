@@ -1,7 +1,7 @@
 package fr.valax.sokoshell.solver.pathfinder;
 
-import fr.valax.sokoshell.solver.Board;
-import fr.valax.sokoshell.solver.TileInfo;
+import fr.valax.sokoshell.solver.board.Board;
+import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 
 /**
  * Find the shortest path between (player start, crate start) and (player dest, crate dest):

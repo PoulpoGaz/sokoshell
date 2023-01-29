@@ -1,5 +1,7 @@
 package fr.valax.sokoshell.solver;
 
+import fr.valax.sokoshell.solver.board.*;
+import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 import fr.valax.sokoshell.solver.collections.SolverCollection;
 import fr.valax.sokoshell.utils.SizeOf;
 
@@ -79,12 +81,14 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
 
         Level level = params.getLevel();
 
+        State.initZobristValues(level.getWidth() * level.getHeight());
+
         final State initialState = level.getInitialState();
         State finalState = null;
 
         int nState = initialState.cratesIndices().length;
 
-        board = level.getMap();
+        board = new MutableBoard(level.getBoard());
         board.removeStateCrates(initialState);
         board.initForSolver();
 

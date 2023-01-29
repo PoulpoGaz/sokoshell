@@ -1,15 +1,15 @@
 package fr.valax.sokoshell.solver.pathfinder;
 
 import fr.valax.sokoshell.TestUtils;
-import fr.valax.sokoshell.solver.Board;
-import fr.valax.sokoshell.solver.Direction;
 import fr.valax.sokoshell.solver.Level;
-import fr.valax.sokoshell.solver.Board;
+import fr.valax.sokoshell.solver.board.Board;
+import fr.valax.sokoshell.solver.board.Direction;
+import fr.valax.sokoshell.solver.board.MutableBoard;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
 
-import static fr.valax.sokoshell.solver.Direction.*;
+import static fr.valax.sokoshell.solver.board.Direction.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -33,7 +33,7 @@ public class CratePlayerAStarTest {
                 ##########
                 """);
 
-        Board board = level.getMap();
+        Board board = new MutableBoard(level.getBoard());
         CratePlayerAStar aStar = new CratePlayerAStar(board);
         Node end = aStar.findPathAndComputeMoves(board.getAt(1, 1), board.getAt(1, 1), board.getAt(2, 3), board.getAt(4, 4));
 
@@ -63,7 +63,7 @@ public class CratePlayerAStarTest {
                 ###################
                 """);
 
-        Board board = level.getMap();
+        Board board = new MutableBoard(level.getBoard());
         CratePlayerAStar aStar = new CratePlayerAStar(board);
         Node end = aStar.findPathAndComputeMoves(board.getAt(1, 1), board.getAt(17, 1), board.getAt(16, 2), board.getAt(1, 6));
 
@@ -75,7 +75,7 @@ public class CratePlayerAStarTest {
     @Test
     void originalAndExtra() {
         Level level = TestUtils.getLevel(Path.of("levels8xv/Original.8xv"), 0);
-        Board board = level.getMap();
+        Board board = new MutableBoard(level.getBoard());
         CratePlayerAStar aStar = new CratePlayerAStar(board);
 
         assertTrue(aStar.hasPath(board.getAt(4, 4), board.getAt(4, 4), board.getAt(5, 7), board.getAt(17, 8)));

@@ -6,6 +6,10 @@ import fr.valax.sokoshell.TaskStatus;
 import fr.valax.sokoshell.graphics.*;
 import fr.valax.sokoshell.graphics.layout.*;
 import fr.valax.sokoshell.solver.*;
+import fr.valax.sokoshell.solver.board.Direction;
+import fr.valax.sokoshell.solver.board.Board;
+import fr.valax.sokoshell.solver.board.MutableBoard;
+import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 import fr.valax.sokoshell.utils.Utils;
 
 import java.io.IOException;
@@ -93,7 +97,7 @@ public class MonitorCommand extends AbstractCommand {
         private final Label levelLabel = new Label();
         private final Label maxNumberOfStateLabel = new Label();
 
-        private MapComponent mapComponent;
+        private BoardComponent boardComponent;
 
         public Monitor(SolverTask task) {
             this.task = task;
@@ -115,11 +119,11 @@ public class MonitorCommand extends AbstractCommand {
 
             Component top = createTopComponent();
             Component bottom = createBotComponent();
-            mapComponent = new MapComponent();
+            boardComponent = new BoardComponent();
 
             add(top, BorderLayout.NORTH);
             add(bottom, BorderLayout.SOUTH);
-            add(mapComponent, BorderLayout.CENTER);
+            add(boardComponent, BorderLayout.CENTER);
         }
 
         private Component createTopComponent() {
@@ -199,14 +203,14 @@ public class MonitorCommand extends AbstractCommand {
         }
 
         private String export() {
-            if (mapComponent.getMap() == null) {
+            if (boardComponent.getBoard() == null) {
                 return null;
             }
 
             try {
                 Path out = SokoShell.INSTANCE
                         .exportPNG(currentPack, currentLevel,
-                                mapComponent.getMap(), mapComponent.getPlayerX(), mapComponent.getPlayerY(),
+                                boardComponent.getBoard(), boardComponent.getPlayerX(), boardComponent.getPlayerY(),
                                 Direction.DOWN);
 
                 return out.toString();
@@ -251,7 +255,7 @@ public class MonitorCommand extends AbstractCommand {
                 currentLevel = levels.get(index);
                 currentPack = currentLevel.getPack();
 
-                Board board = currentLevel.getMap();
+                Board board = new MutableBoard(currentLevel.getBoard());
 
                 BigInteger n = estimateMaxNumberOfStates(board);
                 maxNumberOfStateLabel.setText(n.toString());
@@ -262,15 +266,15 @@ public class MonitorCommand extends AbstractCommand {
                 levelLabel.setText(Integer.toString(currentLevel.getIndex() + 1));
                 packLabel.setText(currentPack.name());
 
-                mapComponent.setMap(board);
-                mapComponent.setPlayerX(-1);
-                mapComponent.setPlayerY(-1);
+                boardComponent.setBoard(board);
+                boardComponent.setPlayerX(-1);
+                boardComponent.setPlayerY(-1);
             } else if (task.getTaskStatus() == TaskStatus.FINISHED) {
                 progressLabel.setText("Done!");
             } else {
                 currentLevel = null;
                 currentPack = null;
-                mapComponent.setMap(null);
+                boardComponent.setBoard(null);
 
                 progressLabel.setText("?/" + task.getLevels().size());
                 levelLabel.setText("?");
@@ -280,7 +284,7 @@ public class MonitorCommand extends AbstractCommand {
         }
 
         private void changeState(State newState) {
-            Board board = mapComponent.getMap();
+            Board board = boardComponent.getBoard();
             if (board == null || newState == null) {
                 return;
             }
@@ -295,9 +299,9 @@ public class MonitorCommand extends AbstractCommand {
             int playerX = board.getX(currentState.playerPos());
             int playerY = board.getY(currentState.playerPos());
 
-            mapComponent.setPlayerX(playerX);
-            mapComponent.setPlayerY(playerY);
-            mapComponent.repaint();
+            boardComponent.setPlayerX(playerX);
+            boardComponent.setPlayerY(playerY);
+            boardComponent.repaint();
         }
 
         /**

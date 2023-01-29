@@ -1,4 +1,6 @@
-package fr.valax.sokoshell.solver;
+package fr.valax.sokoshell.solver.board;
+
+import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 
 import java.util.ArrayList;
 import java.util.List;

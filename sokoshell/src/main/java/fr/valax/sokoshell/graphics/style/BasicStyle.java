@@ -3,9 +3,9 @@ package fr.valax.sokoshell.graphics.style;
 import fr.valax.sokoshell.SokoShell;
 import fr.valax.sokoshell.graphics.Graphics;
 import fr.valax.sokoshell.graphics.GraphicsUtils;
-import fr.valax.sokoshell.solver.Board;
-import fr.valax.sokoshell.solver.Direction;
-import fr.valax.sokoshell.solver.TileInfo;
+import fr.valax.sokoshell.solver.board.Direction;
+import fr.valax.sokoshell.solver.board.Board;
+import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;

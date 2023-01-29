@@ -1,5 +1,11 @@
 package fr.valax.sokoshell.solver;
 
+import fr.valax.sokoshell.solver.board.Board;
+import fr.valax.sokoshell.solver.board.Direction;
+import fr.valax.sokoshell.solver.board.MutableBoard;
+import fr.valax.sokoshell.solver.board.tiles.TileInfo;
+import fr.valax.sokoshell.solver.board.tiles.Tile;
+
 /**
  * May be removed in the future
  * @author darth-mole

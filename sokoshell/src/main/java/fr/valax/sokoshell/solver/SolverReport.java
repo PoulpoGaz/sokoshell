@@ -5,6 +5,10 @@ import fr.poulpogaz.json.JsonPrettyWriter;
 import fr.poulpogaz.json.JsonReader;
 import fr.valax.sokoshell.SokoShell;
 import fr.valax.sokoshell.graphics.style.BoardStyle;
+import fr.valax.sokoshell.solver.board.Board;
+import fr.valax.sokoshell.solver.board.Move;
+import fr.valax.sokoshell.solver.board.MutableBoard;
+import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 import fr.valax.sokoshell.solver.pathfinder.CrateAStar;
 import fr.valax.sokoshell.solver.pathfinder.Node;
 
@@ -137,7 +141,7 @@ public class SolverReport {
      */
     private List<Move> createFullSolution(List<State> states) {
         Level level = parameters.getLevel();
-        Board board = level.getMap();
+        Board board = new MutableBoard(level.getBoard());
 
         ArrayList<Move> path = new ArrayList<>();
         List<Move> temp = new ArrayList<>();
@@ -160,7 +164,7 @@ public class SolverReport {
                     diff.crate(), diff.crateDest());
 
             if (node == null) {
-                throw canFindPathException(board, current, next);
+                throw cannotFindPathException(board, current, next);
             }
 
             player = node.getPlayer();
@@ -216,7 +220,7 @@ public class SolverReport {
      * @param next the next state
      * @return an exception
      */
-    private IllegalStateException canFindPathException(Board board, State current, State next) {
+    private IllegalStateException cannotFindPathException(Board board, State current, State next) {
         BoardStyle style = SokoShell.INSTANCE.getBoardStyle();
 
         String map1 = style.drawToString(board, board.getX(current.playerPos()), board.getY(current.playerPos())).toAnsi();

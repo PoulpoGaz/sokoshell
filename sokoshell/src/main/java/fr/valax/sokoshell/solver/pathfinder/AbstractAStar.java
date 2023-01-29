@@ -1,8 +1,8 @@
 package fr.valax.sokoshell.solver.pathfinder;
 
-import fr.valax.sokoshell.solver.Direction;
-import fr.valax.sokoshell.solver.Move;
-import fr.valax.sokoshell.solver.TileInfo;
+import fr.valax.sokoshell.solver.board.Direction;
+import fr.valax.sokoshell.solver.board.Move;
+import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 
 import java.util.PriorityQueue;
 

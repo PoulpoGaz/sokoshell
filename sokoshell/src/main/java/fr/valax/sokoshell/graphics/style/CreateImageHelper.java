@@ -1,7 +1,7 @@
 package fr.valax.sokoshell.graphics.style;
 
-import fr.valax.sokoshell.solver.Board;
-import fr.valax.sokoshell.solver.Direction;
+import fr.valax.sokoshell.solver.board.Board;
+import fr.valax.sokoshell.solver.board.Direction;
 
 import java.awt.*;
 import java.awt.geom.Rectangle2D;

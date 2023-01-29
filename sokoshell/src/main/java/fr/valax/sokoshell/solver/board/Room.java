@@ -1,4 +1,6 @@
-package fr.valax.sokoshell.solver;
+package fr.valax.sokoshell.solver.board;
+
+import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +15,7 @@ public class Room {
     private final List<Tunnel> tunnels = new ArrayList<>();
 
     /**
-     * Only computed is the level is a goal room level as defined by {@link Board#isGoalRoomLevel()}
+     * Only computed is the level is a goal room level as defined by {@link SolverBoard#isGoalRoomLevel()}
      */
     private List<TileInfo> packingOrder;
 

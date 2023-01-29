@@ -4,7 +4,13 @@ import fr.valax.args.api.Option;
 import fr.valax.sokoshell.SokoShell;
 import fr.valax.sokoshell.graphics.*;
 import fr.valax.sokoshell.graphics.layout.*;
-import fr.valax.sokoshell.solver.*;
+import fr.valax.sokoshell.solver.Level;
+import fr.valax.sokoshell.solver.SolverReport;
+import fr.valax.sokoshell.solver.board.Board;
+import fr.valax.sokoshell.solver.board.Direction;
+import fr.valax.sokoshell.solver.board.Move;
+import fr.valax.sokoshell.solver.board.MutableBoard;
+import fr.valax.sokoshell.solver.board.tiles.Tile;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -111,7 +117,7 @@ public class SolutionCommand extends LevelCommand {
         private Label pushesLabel;
         private Label speedLabel;
 
-        private MapComponent mapComponent;
+        private BoardComponent boardComponent;
 
         public SolutionComponent(SolutionAnimator animator) {
             this.animator = animator;
@@ -128,10 +134,10 @@ public class SolutionCommand extends LevelCommand {
             speedLabel = new Label();
             speedLabel.setHorizAlign(Label.WEST);
 
-            mapComponent = new MapComponent();
-            mapComponent.setMap(animator.getMap());
-            mapComponent.setPlayerX(animator.getPlayerX());
-            mapComponent.setPlayerY(animator.getPlayerY());
+            boardComponent = new BoardComponent();
+            boardComponent.setBoard(animator.getBoard());
+            boardComponent.setPlayerX(animator.getPlayerX());
+            boardComponent.setPlayerY(animator.getPlayerY());
 
             updateComponents();
 
@@ -167,11 +173,11 @@ public class SolutionCommand extends LevelCommand {
 
             setLayout(new BorderLayout());
             add(bot, BorderLayout.SOUTH);
-            add(mapComponent, BorderLayout.CENTER);
+            add(boardComponent, BorderLayout.CENTER);
         }
 
         private String export() {
-            if (mapComponent.getMap() == null) {
+            if (boardComponent.getBoard() == null) {
                 return null;
             }
 
@@ -180,7 +186,7 @@ public class SolutionCommand extends LevelCommand {
 
                 Path out = SokoShell.INSTANCE
                         .exportPNG(l.getPack(), l,
-                                animator.getMap(), animator.getPlayerX(), animator.getPlayerY(),
+                                animator.getBoard(), animator.getPlayerX(), animator.getPlayerY(),
                                 animator.getLastMove());
 
                 return out.toString();
@@ -278,10 +284,10 @@ public class SolutionCommand extends LevelCommand {
             pushesLabel.setText("%d/%d".formatted(animator.getPushCount(), animator.numberOfPushes()));
             speedLabel.setText(Integer.toString(speed));
 
-            mapComponent.setPlayerX(animator.getPlayerX());
-            mapComponent.setPlayerY(animator.getPlayerY());
-            mapComponent.setPlayerDir(animator.getLastMove());
-            mapComponent.repaint();
+            boardComponent.setPlayerX(animator.getPlayerX());
+            boardComponent.setPlayerY(animator.getPlayerY());
+            boardComponent.setPlayerDir(animator.getLastMove());
+            boardComponent.repaint();
         }
     }
 
@@ -303,7 +309,7 @@ public class SolutionCommand extends LevelCommand {
             this.solution = solution;
             Level level = solution.getParameters().getLevel();
 
-            this.board = level.getMap();
+            this.board = new MutableBoard(level.getBoard());
             this.playerX = level.getPlayerX();
             this.playerY = level.getPlayerY();
 
@@ -397,7 +403,7 @@ public class SolutionCommand extends LevelCommand {
                 playerX = level.getPlayerX();
                 playerY = level.getPlayerY();
 
-                board = level.getMap();
+                board = new MutableBoard(level.getBoard());
             }
         }
 
@@ -405,7 +411,7 @@ public class SolutionCommand extends LevelCommand {
             return pathIndex > 0;
         }
 
-        public Board getMap() {
+        public Board getBoard() {
             return board;
         }
 

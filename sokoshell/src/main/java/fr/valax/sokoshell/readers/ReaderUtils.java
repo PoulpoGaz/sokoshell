@@ -1,7 +1,7 @@
 package fr.valax.sokoshell.readers;
 
 import fr.valax.sokoshell.solver.Level;
-import fr.valax.sokoshell.solver.Tile;
+import fr.valax.sokoshell.solver.board.tiles.Tile;
 
 /**
  * Utility class for readers

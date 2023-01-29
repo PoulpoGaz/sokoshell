@@ -1,4 +1,4 @@
-package fr.valax.sokoshell.solver.mark;
+package fr.valax.sokoshell.solver.board.mark;
 
 /**
  * <p>

@@ -2,10 +2,10 @@ package fr.valax.sokoshell.graphics.style;
 
 import fr.valax.sokoshell.graphics.Graphics;
 import fr.valax.sokoshell.graphics.Surface;
-import fr.valax.sokoshell.solver.Direction;
 import fr.valax.sokoshell.solver.Level;
-import fr.valax.sokoshell.solver.Board;
-import fr.valax.sokoshell.solver.TileInfo;
+import fr.valax.sokoshell.solver.board.Direction;
+import fr.valax.sokoshell.solver.board.Board;
+import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 import fr.valax.sokoshell.utils.Utils;
 import org.jline.terminal.Terminal;
 import org.jline.utils.AttributedString;
@@ -20,7 +20,7 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * A board style defines how to draw TileInfo on a {@link Surface} or with {@link Graphics2D}.
+ * A board style defines how to draw ITileInfo on a {@link Surface} or with {@link Graphics2D}.
  */
 public abstract class BoardStyle {
 
@@ -115,15 +115,15 @@ public abstract class BoardStyle {
 
 
     public AttributedString drawToString(Level level) {
-        return drawToString(level.getMap(), level.getPlayerX(), level.getPlayerY());
+        return drawToString(level.getBoard(), level.getPlayerX(), level.getPlayerY());
     }
 
     public List<AttributedString> drawToList(Level level) {
-        return drawToList(level.getMap(), level.getPlayerX(), level.getPlayerY());
+        return drawToList(level.getBoard(), level.getPlayerX(), level.getPlayerY());
     }
 
     public Surface draw(Level level) {
-        return draw(level.getMap(), level.getPlayerX(), level.getPlayerY());
+        return draw(level.getBoard(), level.getPlayerX(), level.getPlayerY());
     }
 
 
