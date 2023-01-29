@@ -107,34 +107,12 @@ public class BasicStyle extends BoardStyle {
 
     @Override
     public BufferedImage createImage(Board board, int playerX, int playerY, Direction playerDir) {
-        BufferedImage img = new BufferedImage(board.getWidth() * GraphicsUtils.CHAR_WIDTH,
-                board.getHeight() * GraphicsUtils.CHAR_HEIGHT,
-                BufferedImage.TYPE_INT_ARGB);
+        return new CreateImageHelper().initAndCreateImage(false, this, 1, board, playerX, playerY, playerDir);
+    }
 
-        Graphics2D g2d = img.createGraphics();
-        try {
-            g2d.setFont(GraphicsUtils.DEFAULT_FONT);
-            g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-
-            for (int y = 0; y < board.getHeight(); y++) {
-                for (int x = 0; x < board.getWidth(); x++) {
-                    boolean player = playerX == x && playerY == y;
-
-                    TileInfo tile = board.getAt(x, y);
-                    int drawX = x * GraphicsUtils.CHAR_WIDTH;
-                    int drawY = y * GraphicsUtils.CHAR_HEIGHT;
-                    if (player) {
-                        draw(g2d, tile, playerDir, drawX, drawY, 1, GraphicsUtils.CHAR_WIDTH, GraphicsUtils.CHAR_HEIGHT);
-                    } else {
-                        draw(g2d, tile, null, drawX, drawY, 1, GraphicsUtils.CHAR_WIDTH, GraphicsUtils.CHAR_HEIGHT);
-                    }
-                }
-            }
-        } finally {
-            g2d.dispose();
-        }
-
-        return img;
+    @Override
+    public BufferedImage createImageWithLegend(Board board, int playerX, int playerY, Direction playerDir) {
+        return new CreateImageHelper().initAndCreateImage(true, this, 1, board, playerX, playerY, playerDir);
     }
 
     @Override

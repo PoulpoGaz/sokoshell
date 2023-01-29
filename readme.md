@@ -115,3 +115,7 @@ Solutions:
 ### Reachable tiles
 
 possible optimization: https://en.wikipedia.org/wiki/Flood_fill
+
+### Tunnels
+
+Remove playerOnlyTunnel with one exit.

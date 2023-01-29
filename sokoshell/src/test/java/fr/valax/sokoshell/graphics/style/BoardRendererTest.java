@@ -2,12 +2,15 @@ package fr.valax.sokoshell.graphics.style;
 
 import fr.valax.sokoshell.TestUtils;
 import fr.valax.sokoshell.graphics.Graphics;
+import fr.valax.sokoshell.graphics.GraphicsUtils;
 import fr.valax.sokoshell.graphics.Surface;
 import fr.valax.sokoshell.solver.Direction;
 import fr.valax.sokoshell.solver.Level;
 import org.junit.jupiter.api.Test;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -160,6 +163,44 @@ public class BoardRendererTest {
 
         BoardStyle style = TestUtils.getStyle(Path.of("warehouse/warehouse.style"));
         BufferedImage img = style.createImage(level.getMap(), level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
+        ImageIO.write(img, "png", new File("out2.png"));
+    }
+
+    @Test
+    void createImageWithLegend() throws IOException {
+        Level level = TestUtils.getLevel("""
+                ################
+                #. @           #
+                ###$  #        #
+                ##*            #
+                ##      ##     #
+                ##   #         #
+                ##      #      #
+                ##   #*********#
+                ################
+                """);
+
+        BoardStyle style = BasicStyle.DEFAULT_STYLE;
+        BufferedImage img = style.createImageWithLegend(level.getMap(), level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
+        ImageIO.write(img, "png", new File("out.png"));
+    }
+
+    @Test
+    void createImageFileBoardStyleWithLegend() throws IOException {
+        Level level = TestUtils.getLevel("""
+                ################
+                #. @           #
+                ###$  #        #
+                ##*            #
+                ##      ##     #
+                ##   #         #
+                ##      #      #
+                ##   #*********#
+                ################
+                """);
+
+        BoardStyle style = TestUtils.getStyle(Path.of("warehouse/warehouse.style"));
+        BufferedImage img = style.createImageWithLegend(level.getMap(), level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
         ImageIO.write(img, "png", new File("out2.png"));
     }
 }
