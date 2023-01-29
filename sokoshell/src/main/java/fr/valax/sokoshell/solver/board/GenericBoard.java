@@ -2,13 +2,16 @@ package fr.valax.sokoshell.solver.board;
 
 import fr.valax.sokoshell.solver.State;
 import fr.valax.sokoshell.solver.board.tiles.TileInfo;
-import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 
 /**
- * Base class for {@link Board} implementations. Defines all read-only methods.
- * @param <T> The type of {@link T} to store.
+ * A {@code package-private} class meant to be use as a base class for {@link Board} implementations.
+ * It defines all read-only methods, as well as a way to store the tiles. It is essentially a 2D-array of
+ * {@link TileInfo}, the indices being the y and x coordinates (i.e. {@code content[y][x]} is the tile at (x;y)).
+ *
+ * @see Board
+ * @see TileInfo
  */
-public abstract class GenericBoard implements Board {
+abstract class GenericBoard implements Board {
 
     protected final int width;
 

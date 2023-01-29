@@ -4,9 +4,35 @@ import fr.valax.sokoshell.solver.board.*;
 import fr.valax.sokoshell.solver.board.mark.Mark;
 import fr.valax.sokoshell.solver.board.mark.MarkSystem;
 
+/**
+ * The {@link TileInfo} interface defines the methods that {@link Board} implementations need to manage tiles,
+ * for instance:
+ * <ul>
+ *     <li>the position</li>
+ *     <li>the {@link Tile}</li>
+ * </ul>
+ * It defines a set of high-level interactions functions.
+ *
+ * @see Board
+ */
 public interface TileInfo {
 
     // GETTERS //
+
+    /**
+     * @return the position of this TileInfo on the x-axis
+     */
+    int getX();
+
+    /**
+     * @return the position of this TileInfo on the y-axis
+     */
+    int getY();
+
+    /**
+     * @return which tile is this TileInfo
+     */
+    Tile getTile();
 
     /**
      * @return true if there is a crate at this position
@@ -44,21 +70,6 @@ public interface TileInfo {
      * @see #anyCrate()
      */
     boolean isCrateOnTarget();
-
-    /**
-     * @return which tile is this TileInfo
-     */
-    Tile getTile();
-
-    /**
-     * @return the position of this TileInfo on the x-axis
-     */
-    int getX();
-
-    /**
-     * @return the position of this TileInfo on the y-axis
-     */
-    int getY();
 
     /**
      * Returns {@code true} if this tile is at the same position as 'other'

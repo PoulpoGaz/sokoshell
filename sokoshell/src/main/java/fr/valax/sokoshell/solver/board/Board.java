@@ -3,13 +3,31 @@ package fr.valax.sokoshell.solver.board;
 import fr.valax.sokoshell.solver.State;
 import fr.valax.sokoshell.solver.board.mark.Mark;
 import fr.valax.sokoshell.solver.board.mark.MarkSystem;
-import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 import fr.valax.sokoshell.solver.board.tiles.Tile;
 import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 
 import java.util.List;
 import java.util.function.Consumer;
 
+/**
+ * Represents the Sokoban board.<br />
+ * This interface defines getters setters for the properties of a Sokoban board, e.g. the width, the height etc.
+ * Implementations of this interface are meant to be used with a {@link TileInfo} implementation.
+ * This class also defines static and dynamic analysis of the Sokoban board, for instance for solving purposes.
+ * Such properties are the following:
+ * <ul>
+ *     <li>Static</li>
+ *     <ul>
+ *         <li>Dead positions: cases that make the level unsolvable when a crate is pushed on them</li>
+ *     </ul>
+ *     <li>Dynamic</li>
+ *     <ul>
+ *         <li>Reachable cases: cases that the player can reach according to his position</li>
+ *     </ul>
+ * </ul>
+ *
+ * @see TileInfo
+ */
 public interface Board {
 
     int MINIMUM_WIDTH = 5;

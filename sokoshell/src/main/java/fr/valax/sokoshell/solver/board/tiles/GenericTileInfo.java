@@ -1,41 +1,16 @@
 package fr.valax.sokoshell.solver.board.tiles;
 
-import fr.valax.sokoshell.solver.board.*;
+import fr.valax.sokoshell.solver.board.Board;
+import fr.valax.sokoshell.solver.board.Direction;
 
 /**
- * {@link TileInfo} stores <i>static</i> information about a tile:
- * <ul>
- *     <li>the position</li>
- *     <li>the {@link Tile}</li>
- * </ul>
+ * A {@code package-private} class meant to be use as a base class for {@link TileInfo} implementations.
+ * It defines all the basic properties and their corresponding getters
+ * (position, tile, board, etc.)
  *
- * These properties are immutable. See {@link TileInfo} if you want to modify a {@link TileInfo}.
- *
- * @author PoulpoGaz
+ * @see TileInfo
  */
-
-/**
- * SolverTileInfo stores information about a Tile that are relevant for solving:
- * <ul>
- *     <li>
- *         Static information
- *         <ul>
- *             <li>the {@link MutableBoard}</li>
- *             <li>{@link TileInfo} information</li>
- *         </ul>
- *     </li>
- *     <li>
- *         Dynamic information
- *         <ul>
- *             <li>if the tile is reachable</li>
- *             <li>a mark</li>
- *         </ul>
- *     </li>
- * </ul>
- *
- * @author PoulpoGaz
- */
-public abstract class GenericTileInfo implements TileInfo {
+abstract class GenericTileInfo implements TileInfo {
 
     protected final Board board;
 

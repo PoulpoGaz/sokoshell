@@ -5,7 +5,6 @@ import fr.valax.sokoshell.solver.State;
 import fr.valax.sokoshell.solver.board.mark.AbstractMarkSystem;
 import fr.valax.sokoshell.solver.board.mark.Mark;
 import fr.valax.sokoshell.solver.board.mark.MarkSystem;
-import fr.valax.sokoshell.solver.board.tiles.ImmutableTileInfo;
 import fr.valax.sokoshell.solver.board.tiles.MutableTileInfo;
 import fr.valax.sokoshell.solver.board.tiles.Tile;
 import fr.valax.sokoshell.solver.board.tiles.TileInfo;
@@ -16,24 +15,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
+
 /**
- * Represents the Sokoban board.<br />
- * This is essentially a 2D-array of {@link ImmutableTileInfo}, the indices being the y and x coordinates
- * (i.e. {@code content[y][x]} is the tile at (x;y)).<br />
- * This class also implements static and dynamic analysis of the Sokoban board:
- * <ul>
- *     <li>Static</li>
- *     <ul>
- *         <li>Dead positions: cases that make the level unsolvable when a crate is pushed on them</li>
- *     </ul>
- *     <li>Dynamic</li>
- *     <ul>
- *         <li>Reachable cases: cases that the player can reach according to his position</li>
- *     </ul>
- * </ul>
+ * Mutable implementation of {@link Board}.
  *
- * @author darth-mole
- * @author PoulpoGaz
+ * This class extends {@link GenericBoard} by defining all the setters methods. It internally uses {@link MutableTileInfo} to store the board content
+ * in {@link GenericBoard#content}.
+ *
+ * @see Board
+ * @see GenericBoard
+ * @see MutableTileInfo
  */
 @SuppressWarnings("ForLoopReplaceableByForEach")
 public class MutableBoard extends GenericBoard {

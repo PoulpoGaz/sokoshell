@@ -2,13 +2,24 @@ package fr.valax.sokoshell.solver.board;
 
 import fr.valax.sokoshell.solver.State;
 import fr.valax.sokoshell.solver.board.mark.MarkSystem;
-import fr.valax.sokoshell.solver.board.tiles.TileInfo;
-import fr.valax.sokoshell.solver.board.tiles.Tile;
 import fr.valax.sokoshell.solver.board.tiles.ImmutableTileInfo;
+import fr.valax.sokoshell.solver.board.tiles.Tile;
+import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 
 import java.util.List;
 import java.util.function.Consumer;
 
+/**
+ * Immutable implementation of {@link Board}.
+ *
+ * This class extends {@link GenericBoard}. It internally uses {@link ImmutableTileInfo} to store the board content
+ * in {@link GenericBoard#content}. As it is immutable, it implements the setters methods always throws a
+ * {@link UnsupportedOperationException} when such a method is called.
+ *
+ * @see Board
+ * @see GenericBoard
+ * @see TileInfo
+ */
 public class ImmutableBoard extends GenericBoard {
 
     public ImmutableBoard(Tile[][] content, int width, int height) {

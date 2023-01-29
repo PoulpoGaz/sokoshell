@@ -1,13 +1,21 @@
 package fr.valax.sokoshell.solver.board.tiles;
 
-import fr.valax.sokoshell.solver.board.*;
+import fr.valax.sokoshell.solver.board.MutableBoard;
+import fr.valax.sokoshell.solver.board.Room;
+import fr.valax.sokoshell.solver.board.Tunnel;
 import fr.valax.sokoshell.solver.board.mark.Mark;
-import fr.valax.sokoshell.solver.board.mark.MarkSystem;
 
 import java.util.Arrays;
 
 /**
- * Represents a tile that can be modified.
+ * Mutable implementation of {@link TileInfo}.
+ *
+ * This class extends {@link GenericTileInfo} and implements the setters methods defined in
+ * {@link TileInfo}.
+ * It also implements getters and setters for the 'solver-intended' properties.
+ *
+ * @see TileInfo
+ * @see GenericTileInfo
  */
 public class MutableTileInfo extends GenericTileInfo {
 
@@ -58,7 +66,6 @@ public class MutableTileInfo extends GenericTileInfo {
         this.mark = board.getMarkSystem().newMark();
     }
 
-
     /**
      * Copy a TileInfo to another board
      *
@@ -74,81 +81,40 @@ public class MutableTileInfo extends GenericTileInfo {
 
     // GETTERS //
 
-
-    /**
-     * @return {@code true} if this tile is a dead tile
-     * @see MutableBoard#computeDeadTiles()
-     */
     @Override
     public boolean isDeadTile() {
         return deadTile;
     }
 
-    /**
-     * @return {@code true} if this tile is reachable by the player.
-     * @see MutableBoard#findReachableCases(int)
-     */
     @Override
     public boolean isReachable() {
         return reachable.isMarked();
     }
 
-    /**
-     * Returns the tunnel in which this tile is
-     *
-     * @return the tunnel in which this tile is
-     */
      @Override
     public Tunnel getTunnel() {
         return tunnel;
     }
 
-    /**
-     * Returns the {@link Tunnel.Exit} object associated with this tile info.
-     * If the tile isn't in a tunnel, it returns null
-     *
-     * @return the {@link Tunnel.Exit} object associated with this tile info or {@code null
-     * @see Tunnel.Exit
-     */
     @Override
     public Tunnel.Exit getTunnelExit() {
         return tunnelExit;
     }
 
-    /**
-     * Returns {@code true} if this tile info is in a tunnel
-     *
-     * @return {@code true} if this tile info is in a tunnel
-     */
     public boolean isInATunnel() {
         return tunnel != null;
     }
 
-    /**
-     * Returns the room in which this tile is
-     *
-     * @return the room in which this tile is
-     */
     @Override
     public Room getRoom() {
         return room;
     }
 
-    /**
-     * Returns {@code true} if this tile info is in a room
-     *
-     * @return {@code true} if this tile info is in a room
-     */
     @Override
     public boolean isInARoom() {
         return room != null;
     }
 
-    /**
-     * @return {@code true} if this tile is marked
-     * @see Mark
-     * @see MarkSystem
-     */
     @Override
     public boolean isMarked() {
         return mark.isMarked();
