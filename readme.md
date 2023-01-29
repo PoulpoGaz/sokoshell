@@ -101,6 +101,7 @@ Styles are currently in development in branch poulpogaz. It will solve the follo
 * Exporting board to png only works for style that only uses image and define style of size 16.
 
 27/01/2023: solved, just forgot to add createImageWithLegend
+29/01/2023: finished
 
 ### Goal Packing Order
 
