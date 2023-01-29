@@ -285,21 +285,27 @@ public abstract class BoardStyle {
      */
     public abstract BufferedImage createImage(Board board, int playerX, int playerY, Direction playerDir);
 
+    public abstract BufferedImage createImageWithLegend(Board board, int playerX, int playerY, Direction playerDir);
+
     public void draw(Graphics2D g2d, int size,
                      Board board, int playerX, int playerY, Direction playerDir) {
         Font font = g2d.getFont();
         Rectangle2D max = font.getMaxCharBounds(g2d.getFontRenderContext());
 
-        int charWidth = (int) max.getWidth();
-        int charHeight = (int) max.getHeight();
+        draw(g2d, size,
+                (int) max.getWidth(), (int) max.getHeight(),
+                board, playerX, playerY, playerDir);
+    }
 
+    public void draw(Graphics2D g2d, int size, int charWidth, int charHeight,
+                     Board board, int playerX, int playerY, Direction playerDir) {
         for (int y2 = 0; y2 < board.getHeight(); y2++) {
             for (int x2 = 0; x2 < board.getWidth(); x2++) {
                 boolean player = playerY == y2 && playerX == x2;
 
                 TileInfo tile = board.getAt(x2, y2);
-                int drawX = x2 * size;
-                int drawY = y2 * size;
+                int drawX = x2 * size * charWidth;
+                int drawY = y2 * size * charHeight;
                 if (player) {
                     draw(g2d, tile, playerDir, drawX, drawY, size, charWidth, charHeight);
                 } else {
@@ -308,8 +314,6 @@ public abstract class BoardStyle {
             }
         }
     }
-
-
 
 
     /**
@@ -324,7 +328,7 @@ public abstract class BoardStyle {
 
     /**
      * Returns {@code true} if the size is supported by the style.
-     * An unsupported size can still be passed to {@link #draw(Graphics, TileInfo <?, ?>, Direction, int, int, int)}
+     * An unsupported size can still be passed to {@link #draw(Graphics, TileInfo, Direction, int, int, int)}
      * but it may produce weird results.
      *
      * @param size size

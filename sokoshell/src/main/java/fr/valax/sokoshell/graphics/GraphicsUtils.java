@@ -41,8 +41,13 @@ public class GraphicsUtils {
      */
     public static final int CHAR_HEIGHT;
 
+    /**
+     * The {@link FontRenderContext} used to retrieve character's dimensions.
+     */
+    public static final FontRenderContext DEFAULT_RENDER_CONTEXT = new FontRenderContext(null, true, true);
+
     static {
-        Rectangle2D max = DEFAULT_FONT.getMaxCharBounds(new FontRenderContext(null, true, true));
+        Rectangle2D max = DEFAULT_FONT.getMaxCharBounds(DEFAULT_RENDER_CONTEXT);
         CHAR_WIDTH = (int) Math.ceil(max.getWidth());
         CHAR_HEIGHT = (int) Math.ceil(max.getHeight());
     }
@@ -221,5 +226,84 @@ public class GraphicsUtils {
         int yDraw = y + (charHeight - fm.getMaxDescent());
 
         g2d.drawString(String.valueOf(c.getChar()), x, yDraw);
+    }
+
+    public static Rectangle2D getStringBounds(String str) {
+        return DEFAULT_FONT.getStringBounds(str, DEFAULT_RENDER_CONTEXT);
+    }
+
+    public static Rectangle2D getStringBounds(Font font, String str) {
+        return font.getStringBounds(str, DEFAULT_RENDER_CONTEXT);
+    }
+
+    public static void drawStringCentered(Graphics2D g2d, String str, Rectangle rect) {
+        FontMetrics fm = g2d.getFontMetrics();
+
+        int width = fm.stringWidth(str);
+
+        g2d.drawString(str,
+                (int) (rect.getX() + (rect.getWidth() - width) / 2),
+                (int) (rect.getY() + (rect.getHeight() - fm.getHeight()) / 2 + fm.getAscent()));
+    }
+
+    /**
+     * Adjusts the given {@link Font} size such that any character fit
+     * within width
+     *
+     * @param font The font to adjust
+     * @param width width
+     * @return A new {@link Font} instance that is guaranteed to write any
+     * character within width
+     */
+    public static Font adjustFont(Font font, int width) {
+        float minSize = 1;
+        float maxSize = 500;
+
+        Font newFont = font;
+        while (maxSize - minSize > 1) {
+            float size = (maxSize + minSize) / 2f;
+
+            newFont = font.deriveFont(size);
+            Rectangle2D rect = newFont.getMaxCharBounds(DEFAULT_RENDER_CONTEXT);
+
+            if (rect.getWidth() < width) {
+                minSize = size;
+            } else {
+                maxSize = size;
+            }
+        }
+
+        return newFont;
+    }
+
+    /**
+     * Adjusts the given {@link Font} size such that the given text fits
+     * within width
+     *
+     * @param font The font to adjust
+     * @param text text
+     * @param width width
+     * @return A new {@link Font} instance that is guaranteed to write the given
+     * string within width
+     */
+    public static Font adjustFont(Font font, String text, int width) {
+        float minSize = 1;
+        float maxSize = 500;
+
+        Font newFont = font;
+        while (maxSize - minSize > 1) {
+            float size = (maxSize + minSize) / 2f;
+
+            newFont = font.deriveFont(size);
+            Rectangle2D rect = newFont.getStringBounds(text, DEFAULT_RENDER_CONTEXT);
+
+            if (rect.getWidth() < width) {
+                minSize = size;
+            } else {
+                maxSize = size;
+            }
+        }
+
+        return newFont;
     }
 }

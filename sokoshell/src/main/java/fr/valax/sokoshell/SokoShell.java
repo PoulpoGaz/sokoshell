@@ -395,7 +395,7 @@ public class SokoShell {
     public Path exportPNG(Pack pack, Level level, Board board,
                           int playerX, int playerY, Direction playerDir)
             throws IOException {
-        BufferedImage image = selectedStyle.createImage(board, playerX, playerY, playerDir);
+        BufferedImage image = selectedStyle.createImageWithLegend(board, playerX, playerY, playerDir);
 
         Path out;
         if (pack == null && level == null) {

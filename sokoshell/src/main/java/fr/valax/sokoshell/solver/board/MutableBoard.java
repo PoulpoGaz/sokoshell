@@ -8,6 +8,9 @@ import fr.valax.sokoshell.solver.board.mark.MarkSystem;
 import fr.valax.sokoshell.solver.board.tiles.MutableTileInfo;
 import fr.valax.sokoshell.solver.board.tiles.Tile;
 import fr.valax.sokoshell.solver.board.tiles.TileInfo;
+import fr.valax.sokoshell.solver.pathfinder.CrateAStar;
+import fr.valax.sokoshell.solver.pathfinder.CratePlayerAStar;
+import fr.valax.sokoshell.solver.pathfinder.PlayerAStar;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,7 +50,9 @@ public class MutableBoard extends GenericBoard {
      */
     private boolean isGoalRoomLevel;
 
-    private Pathfinder pathfinder;
+    private PlayerAStar playerAStar;
+    private CrateAStar crateAStar;
+    private CratePlayerAStar cratePlayerAStar;
 
 
     /**
@@ -192,7 +197,9 @@ public class MutableBoard extends GenericBoard {
      * @see Tunnel
      */
     public void initForSolver() {
-        pathfinder = new Pathfinder();
+        playerAStar = new PlayerAStar(this);
+        crateAStar = new CrateAStar(this);
+        cratePlayerAStar = new CratePlayerAStar(this);
 
         computeFloors();
         computeDeadTiles();
@@ -642,7 +649,7 @@ public class MutableBoard extends GenericBoard {
                 crate.removeCrate();
                 inRoom.addCrate();
 
-                if (pathfinder.getCrateAStar().hasPath(entrance, null, inRoom, crate)) {
+                if (crateAStar.hasPath(entrance, null, inRoom, crate)) {
                     accessibleCrates.remove(i);
                     i--;
                     crate.unmark();
@@ -709,8 +716,9 @@ public class MutableBoard extends GenericBoard {
 
                     final int targetIndex = targetIndices.get(j);
                     final int d = (t.isFloor() || t.isTarget()
-                            ? /*pathfinder.distanceBetween(t, getAt(targetIndex))*/t.manhattanDistance(getAt(targetIndex))
-                            : 0);
+                                   ? playerAStar.findPath(t, getAt(targetIndex), null, null).getDist() //t.manhattanDistance(getAt(targetIndex))
+                                   : 0);
+
 
                     if (d < minDistToTarget) {
                         minDistToTarget = d;
