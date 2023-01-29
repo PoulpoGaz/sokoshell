@@ -4,6 +4,9 @@ import fr.valax.sokoshell.solver.board.*;
 import fr.valax.sokoshell.solver.board.mark.Mark;
 import fr.valax.sokoshell.solver.board.mark.MarkSystem;
 
+/**
+ * Stores information about a tile.
+ */
 public interface TileInfo {
 
     // GETTERS //
@@ -150,15 +153,15 @@ public interface TileInfo {
     /**
      * @param dir the direction
      * @return the tile that is adjacent to this TileInfo in the {@link Direction} dir
-     * @throws IndexOutOfBoundsException if this TileInfo is near the border of the map and
-     * the direction point outside the emap
+     * @throws IndexOutOfBoundsException if this TileInfo is near the border of the board and
+     * the direction point outside the board
      */
     TileInfo adjacent(Direction dir);
 
     /**
      * @param dir the direction
      * @return the tile that is adjacent to this TileInfo in the {@link Direction} dir
-     * or {@code null} if the adjacent tile is outside the map
+     * or {@code null} if the adjacent tile is outside the board
      */
     TileInfo safeAdjacent(Direction dir);
 
@@ -195,57 +198,77 @@ public interface TileInfo {
      * Copy the information of other into this tile info
      *
      * @param other the TileInfo from which we extract information
+     * @throws UnsupportedOperationException if the {@code set} operation isn't
+     * supported by this TileInfo
      */
     void set(TileInfo other);
 
     /**
      * If this was a floor, this is now a crate
      * If this was a target, this is now a crate on target
+     * @throws UnsupportedOperationException if the {@code addCrate} operation isn't
+     * supported by this TileInfo
      */
     void addCrate();
 
     /**
      * If this was a crate, this is now a floor
      * If this was a crate on target, this is now a target
+     * @throws UnsupportedOperationException if the {@code removeCrate} operation isn't
+     * supported by this TileInfo
      */
     void removeCrate();
 
     /**
      * Sets the tile.
      * @param tile the new tile
+     * @throws UnsupportedOperationException if the {@code setTile} operation isn't
+     * supported by this TileInfo
      */
     void setTile(Tile tile);
 
     /**
      * Sets this tile as a dead tile or not
-     * @see MutableBoard#computeDeadTiles() ()
+     * @throws UnsupportedOperationException if the {@code setDeadTile} operation isn't
+     * supported by this TileInfo
+     * @see MutableBoard#computeDeadTiles()
      */
     void setDeadTile(boolean deadTile);
 
     /**
      * Sets this tile as reachable or not by the player. It doesn't check if it's possible.
+     * @throws UnsupportedOperationException if the {@code setReachable} operation isn't
+     * supported by this TileInfo
      * @see MutableBoard#findReachableCases(int)
      */
     void setReachable(boolean reachable);
 
     /**
      * Sets the tunnel in which this tile is
+     * @throws UnsupportedOperationException if the {@code setTunnel} operation isn't
+     * supported by this TileInfo
      */
     void setTunnel(Tunnel tunnel);
 
     /**
      * Sets the {@link Tunnel.Exit} object associated with this tile info
+     * @throws UnsupportedOperationException if the {@code setTunnelExit} operation isn't
+     * supported by this TileInfo
      * @see Tunnel.Exit
      */
     void setTunnelExit(Tunnel.Exit tunnelExit);
 
     /**
      * Sets the room in which this tile is
+     * @throws UnsupportedOperationException if the {@code setRoom} operation isn't
+     * supported by this TileInfo
      */
     void setRoom(Room room);
 
     /**
      * Sets this tile as marked
+     * @throws UnsupportedOperationException if the {@code mark} operation isn't
+     * supported by this TileInfo
      * @see Mark
      * @see MarkSystem
      */
@@ -253,6 +276,8 @@ public interface TileInfo {
 
     /**
      * Sets this tile as unmarked
+     * @throws UnsupportedOperationException if the {@code unmark} operation isn't
+     * supported by this TileInfo
      * @see Mark
      * @see MarkSystem
      */
@@ -260,12 +285,26 @@ public interface TileInfo {
 
     /**
      * Sets this tile as marked or not
+     * @throws UnsupportedOperationException if the {@code setMarked} operation isn't
+     * supported by this TileInfo
      * @see Mark
      * @see MarkSystem
      */
     void setMarked(boolean marked);
 
+    /**
+     * Set the distance to every targets
+     * @param targets distance to every targets
+     * @throws UnsupportedOperationException if the {@code setTargets} operation isn't
+     * supported by this TileInfo
+     */
     void setTargets(TargetRemoteness[] targets);
 
+    /**
+     * Set the nearest target
+     * @param nearestTarget nearest target
+     * @throws UnsupportedOperationException if the {@code setNearestTarget} operation isn't
+     * supported by this TileInfo
+     */
     void setNearestTarget(TargetRemoteness nearestTarget);
 }

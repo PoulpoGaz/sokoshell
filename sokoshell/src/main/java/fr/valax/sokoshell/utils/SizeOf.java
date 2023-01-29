@@ -43,9 +43,9 @@ public class SizeOf {
                         (long) Integer.BYTES * nCrate);
     }
 
-    public static long approxSizeOf2(Set<State> map, int nCrate) {
+    public static long approxSizeOf2(Set<State> set, int nCrate) {
         // hash map size can be neglected
-        return map.size() * (32 + 32 + 16 + (long) Integer.BYTES * nCrate);
+        return set.size() * (32 + 32 + 16 + (long) Integer.BYTES * nCrate);
     }
 
     public static ClassLayout getHashMapLayout() {

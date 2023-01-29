@@ -4,7 +4,6 @@ import fr.valax.sokoshell.SokoShell;
 import fr.valax.sokoshell.graphics.style.BoardStyle;
 import fr.valax.sokoshell.solver.board.Board;
 import fr.valax.sokoshell.solver.board.Direction;
-import fr.valax.sokoshell.solver.board.MutableBoard;
 
 public class BoardComponent extends Component {
 

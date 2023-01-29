@@ -2,8 +2,6 @@ package fr.valax.sokoshell.solver.heuristic;
 
 import fr.valax.sokoshell.solver.State;
 import fr.valax.sokoshell.solver.board.Board;
-import fr.valax.sokoshell.solver.board.MutableBoard;
-import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 
 /**

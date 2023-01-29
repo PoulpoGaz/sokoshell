@@ -1,6 +1,8 @@
 package fr.valax.sokoshell.solver.board.tiles;
 
-import fr.valax.sokoshell.solver.board.*;
+import fr.valax.sokoshell.solver.board.MutableBoard;
+import fr.valax.sokoshell.solver.board.Room;
+import fr.valax.sokoshell.solver.board.Tunnel;
 import fr.valax.sokoshell.solver.board.mark.Mark;
 import fr.valax.sokoshell.solver.board.mark.MarkSystem;
 
@@ -23,12 +25,12 @@ public class MutableTileInfo extends GenericTileInfo {
     protected Room room;
 
     /**
-     * Remoteness data from this tile to every target on the map.
+     * Remoteness data from this tile to every target on the board.
      */
     protected TargetRemoteness[] targets;
 
     /**
-     * Nearest target on the map.
+     * Nearest target on the board.
      */
     protected TargetRemoteness nearestTarget;
 
@@ -57,20 +59,6 @@ public class MutableTileInfo extends GenericTileInfo {
         this.reachable = board.getReachableMarkSystem().newMark();
         this.mark = board.getMarkSystem().newMark();
     }
-
-
-    /**
-     * Copy a TileInfo to another board
-     *
-     * @param other the map that will contain the copied TileInfo
-     * @return the copied TileInfo in the new map
-     */
-    public TileInfo copiedTo(MutableBoard other) {
-        TileInfo t = new MutableTileInfo(other, tile, x, y);
-        t.set(this);
-        return t;
-    }
-
 
     // GETTERS //
 

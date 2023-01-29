@@ -2,9 +2,9 @@ package fr.valax.sokoshell.solver.board;
 
 import fr.valax.sokoshell.solver.State;
 import fr.valax.sokoshell.solver.board.mark.MarkSystem;
-import fr.valax.sokoshell.solver.board.tiles.TileInfo;
-import fr.valax.sokoshell.solver.board.tiles.Tile;
 import fr.valax.sokoshell.solver.board.tiles.ImmutableTileInfo;
+import fr.valax.sokoshell.solver.board.tiles.Tile;
+import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 
 import java.util.List;
 import java.util.function.Consumer;

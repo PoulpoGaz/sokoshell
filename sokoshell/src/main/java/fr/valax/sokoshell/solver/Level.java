@@ -3,8 +3,8 @@ package fr.valax.sokoshell.solver;
 import fr.poulpogaz.json.JsonException;
 import fr.poulpogaz.json.JsonPrettyWriter;
 import fr.valax.sokoshell.solver.board.Board;
-import fr.valax.sokoshell.solver.board.ImmutableBoard;
 import fr.valax.sokoshell.solver.board.Direction;
+import fr.valax.sokoshell.solver.board.ImmutableBoard;
 import fr.valax.sokoshell.solver.board.tiles.Tile;
 import fr.valax.sokoshell.utils.BuilderException;
 
@@ -239,7 +239,7 @@ public class Level {
         private int playerX = -1;
         private int playerY = -1;
 
-        private Tile[][] map = new Tile[0][0];
+        private Tile[][] board = new Tile[0][0];
         private int width;
         private int height;
         private int index;
@@ -248,12 +248,12 @@ public class Level {
          * Builds and returns a {@link Level}
          *
          * @return the new {@link Level}
-         * @throws BuilderException if the player is outside the map
+         * @throws BuilderException if the player is outside the board
          * r the player is on a solid tile
          */
         public Level build() {
-            if (map == null) {
-                throw new BuilderException("Map is null");
+            if (board == null) {
+                throw new BuilderException("Board is null");
             }
 
             if (playerX < 0 || playerX >= width) {
@@ -264,12 +264,12 @@ public class Level {
                 throw new BuilderException("Player y out of bounds");
             }
 
-            if (map[playerY][playerX].isSolid()) {
+            if (board[playerY][playerX].isSolid()) {
                 throw new BuilderException("Player is on a solid tile");
             }
 
             formatLevel();
-            Board m = new ImmutableBoard(map, width, height);
+            Board m = new ImmutableBoard(board, width, height);
 
             return new Level(m, playerY * width + playerX, index);
         }
@@ -285,7 +285,7 @@ public class Level {
             int i = 0;
             for (int y = 0; y < height; y++) {
                 for (int x = 0; x < width; x++) {
-                    if (map[y][x] != Tile.WALL && !visited.contains(i)) {
+                    if (board[y][x] != Tile.WALL && !visited.contains(i)) {
                         addWallIfNecessary(x, y, visited);
                     }
 
@@ -324,7 +324,7 @@ public class Level {
 
                     int i3 = y3 * width + x3;
 
-                    if (map[y3][x3] != Tile.WALL && localVisited.add(i3)) {
+                    if (board[y3][x3] != Tile.WALL && localVisited.add(i3)) {
                         visited.add(i3);
                         toVisit.push(i3);
                     }
@@ -336,7 +336,7 @@ public class Level {
                     int x2 = i % width;
                     int y2 = i / width;
 
-                    map[y2][x2] = Tile.WALL;
+                    board[y2][x2] = Tile.WALL;
                 }
             }
         }
@@ -348,19 +348,19 @@ public class Level {
             int bottom = 0;
 
             for (int y = 0; y < height; y++) {
-                if (map[y][0] != Tile.WALL) {
+                if (board[y][0] != Tile.WALL) {
                     left = 1;
                 }
-                if (map[y][width - 1] != Tile.WALL) {
+                if (board[y][width - 1] != Tile.WALL) {
                     right = 1;
                 }
             }
 
             for (int x = 0; x < width; x++) {
-                if (map[0][x] != Tile.WALL) {
+                if (board[0][x] != Tile.WALL) {
                     top = 1;
                 }
-                if (map[height - 1][x] != Tile.WALL) {
+                if (board[height - 1][x] != Tile.WALL) {
                     bottom = 1;
                 }
             }
@@ -374,14 +374,14 @@ public class Level {
             for (int y = 0; y < height + top + bottom; y++) {
                 for (int x = 0; x < width + right + left; x++) {
                     if (x >= left && y >= top && x < width + left && y < height + top) {
-                        newTiles[y][x] = map[y - top][x - left];
+                        newTiles[y][x] = board[y - top][x - left];
                     } else {
                         newTiles[y][x] = Tile.WALL;
                     }
                 }
             }
 
-            map = newTiles;
+            board = newTiles;
             width += right + left;
             height += top + bottom;
             playerX += left;
@@ -452,19 +452,19 @@ public class Level {
                 return;
             }
 
-            Tile[][] newMap = new Tile[newHeight][newWidth];
+            Tile[][] newBoard = new Tile[newHeight][newWidth];
 
             int yMax = Math.min(newHeight, height);
             int xMax = Math.min(newWidth, width);
             for (int y = 0; y < yMax; y++) {
-                System.arraycopy(map[y], 0, newMap[y], 0, xMax);
+                System.arraycopy(board[y], 0, newBoard[y], 0, xMax);
 
                 for (int x = xMax; x < newWidth; x++) {
-                    newMap[y][x] = Tile.WALL;
+                    newBoard[y][x] = Tile.WALL;
                 }
             }
 
-            map = newMap;
+            board = newBoard;
 
             width = newWidth;
             height = newHeight;
@@ -517,7 +517,7 @@ public class Level {
          */
         public void set(Tile tile, int x, int y) {
             resizeIfNeeded(x, y);
-            map[y][x] = tile;
+            board[y][x] = tile;
         }
 
         /**
@@ -531,7 +531,7 @@ public class Level {
                 return null;
             }
 
-            return map[y][x];
+            return board[y][x];
         }
 
         /**

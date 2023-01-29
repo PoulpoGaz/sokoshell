@@ -1,6 +1,7 @@
 package fr.valax.sokoshell.solver.pathfinder;
 
-import fr.valax.sokoshell.solver.board.mark.*;
+import fr.valax.sokoshell.solver.board.mark.Mark;
+import fr.valax.sokoshell.solver.board.mark.MarkSystem;
 import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 
 /**

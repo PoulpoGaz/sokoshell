@@ -13,6 +13,12 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * A parameter given to a {@link Solver}. A parameter has a name and a description.
+ * It is responsible for parsing arguments and give default value. Implementations
+ * can also define how to auto complete and must implements {@link #fromJson(IJsonReader)}
+ * and {@link #toJson(IJsonWriter)}
+ */
 public abstract class SolverParameter {
 
     protected final String name;

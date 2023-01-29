@@ -12,13 +12,13 @@ import java.util.PriorityQueue;
  */
 public class PlayerAStar extends AbstractAStar {
 
-    private final int mapWidth;
+    private final int boardWidth;
     private final AStarMarkSystem markSystem;
     private final Node[] nodes;
 
     public PlayerAStar(Board board) {
         super(new PriorityQueue<>(board.getWidth() * board.getHeight()));
-        this.mapWidth = board.getWidth();
+        this.boardWidth = board.getWidth();
         markSystem = new AStarMarkSystem(board.getWidth() * board.getHeight());
         nodes = new Node[board.getHeight() * board.getWidth()];
 
@@ -28,7 +28,7 @@ public class PlayerAStar extends AbstractAStar {
     }
 
     private int toIndex(TileInfo player) {
-        return player.getY() * mapWidth + player.getX();
+        return player.getY() * boardWidth + player.getX();
     }
 
     @Override

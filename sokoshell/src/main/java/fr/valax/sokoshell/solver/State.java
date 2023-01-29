@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.Random;
 
 /**
- * A state represents an arrangement of the crates in the map and the location of the player.
+ * A state represents an arrangement of the crates in the board and the location of the player.
  *
  * @implNote <strong>DO NOT MODIFY THE ARRAY AFTER THE INITIALIZATION. THE HASH WON'T BE RECALCULATED</strong>
  * @author darth-mole
@@ -17,10 +17,8 @@ public class State {
     protected static int[][] zobristValues;
 
     /**
-     * @param minSize minSize is the number of tile in the map
+     * @param minSize minSize is the number of tile in the board
      */
-    // TODO: zobrist values are static but it can be a problem
-    //       when the solver is running and the user load a new pack
     public static void initZobristValues(int minSize) {
         int i;
         if (zobristValues == null) {
@@ -154,14 +152,14 @@ public class State {
     }
 
     /**
-     * The index of the case of the map on which the player is.
+     * The index of the case of the board on which the player is.
      */
     public int playerPos() {
         return playerPos;
     }
 
     /**
-     * The index of the cases of the map on which the crates are.
+     * The index of the cases of the board on which the crates are.
      */
     public int[] cratesIndices() {
         return cratesIndices;
@@ -172,7 +170,7 @@ public class State {
     }
 
     /**
-     * The state in which the map was before coming to this state.
+     * The state in which the board was before coming to this state.
      */
     public State parent() {
         return parent;

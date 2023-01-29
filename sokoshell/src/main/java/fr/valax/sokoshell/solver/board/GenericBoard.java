@@ -2,11 +2,9 @@ package fr.valax.sokoshell.solver.board;
 
 import fr.valax.sokoshell.solver.State;
 import fr.valax.sokoshell.solver.board.tiles.TileInfo;
-import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 
 /**
  * Base class for {@link Board} implementations. Defines all read-only methods.
- * @param <T> The type of {@link T} to store.
  */
 public abstract class GenericBoard implements Board {
 

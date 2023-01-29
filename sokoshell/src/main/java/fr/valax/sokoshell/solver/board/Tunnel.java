@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A tunnel is a zone of the map like this:
+ * A tunnel is a zone of the board like this:
  *
  * <pre>
  *     $$$$$$

@@ -1,7 +1,7 @@
 package fr.valax.sokoshell.solver.board.tiles;
 
 /**
- * Represents the content of a case of the map.
+ * Represents the content of a case of the board.
  * @author darth-mole
  */
 public enum Tile {

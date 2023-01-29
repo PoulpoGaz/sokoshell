@@ -1,40 +1,8 @@
 package fr.valax.sokoshell.solver.board.tiles;
 
-import fr.valax.sokoshell.solver.board.*;
+import fr.valax.sokoshell.solver.board.Board;
+import fr.valax.sokoshell.solver.board.Direction;
 
-/**
- * {@link TileInfo} stores <i>static</i> information about a tile:
- * <ul>
- *     <li>the position</li>
- *     <li>the {@link Tile}</li>
- * </ul>
- *
- * These properties are immutable. See {@link TileInfo} if you want to modify a {@link TileInfo}.
- *
- * @author PoulpoGaz
- */
-
-/**
- * SolverTileInfo stores information about a Tile that are relevant for solving:
- * <ul>
- *     <li>
- *         Static information
- *         <ul>
- *             <li>the {@link MutableBoard}</li>
- *             <li>{@link TileInfo} information</li>
- *         </ul>
- *     </li>
- *     <li>
- *         Dynamic information
- *         <ul>
- *             <li>if the tile is reachable</li>
- *             <li>a mark</li>
- *         </ul>
- *     </li>
- * </ul>
- *
- * @author PoulpoGaz
- */
 public abstract class GenericTileInfo implements TileInfo {
 
     protected final Board board;
@@ -49,8 +17,8 @@ public abstract class GenericTileInfo implements TileInfo {
      * Create a new TileInfo
      *
      * @param tile the tile
-     * @param x the position on the x-axis in the map
-     * @param y the position on the y-axis in the map
+     * @param x the position on the x-axis in the board
+     * @param y the position on the y-axis in the board
      */
     public GenericTileInfo(Board board, Tile tile, int x, int y) {
         this.board = board;
@@ -140,8 +108,8 @@ public abstract class GenericTileInfo implements TileInfo {
     /**
      * @param dir the direction
      * @return the tile that is adjacent to this TileInfo in the {@link Direction} dir
-     * @throws IndexOutOfBoundsException if this TileInfo is near the border of the map and
-     * the direction point outside the emap
+     * @throws IndexOutOfBoundsException if this TileInfo is near the border of the board and
+     * the direction point outside the board
      */
     public TileInfo adjacent(Direction dir) {
         return board.getAt(x + dir.dirX(), y + dir.dirY());
@@ -150,7 +118,7 @@ public abstract class GenericTileInfo implements TileInfo {
     /**
      * @param dir the direction
      * @return the tile that is adjacent to this TileInfo in the {@link Direction} dir
-     * or {@code null} if the adjacent tile is outside the map
+     * or {@code null} if the adjacent tile is outside the board
      */
     public TileInfo safeAdjacent(Direction dir) {
         return board.safeGetAt(x + dir.dirX(), y + dir.dirY());

@@ -69,8 +69,8 @@ public class MutableBoard extends GenericBoard {
      *
      * @param content a rectangular matrix of size width * height. The first index is for the rows
      *                and the second for the columns
-     * @param width map width
-     * @param height map height
+     * @param width board width
+     * @param height board height
      */
     public MutableBoard(Tile[][] content, int width, int height) {
         super(width, height);
@@ -87,7 +87,7 @@ public class MutableBoard extends GenericBoard {
     /**
      * Creates a copy of 'other'. It doesn't copy solver information
      *
-     * @param other the map to copy
+     * @param other the board to copy
      */
     @SuppressWarnings("CopyConstructorMissesField")
     public MutableBoard(Board other) {
@@ -119,18 +119,18 @@ public class MutableBoard extends GenericBoard {
      * Set at tile at the specified index. The index will be converted to
      * cartesian coordinate with {@link #getX(int)} and {@link  #getY(int)}
      *
-     * @param index index in the map
+     * @param index index in the board
      * @param tile the new tile
-     * @throws IndexOutOfBoundsException if the index lead to a position outside the map
+     * @throws IndexOutOfBoundsException if the index lead to a position outside the board
      */
     public void setAt(int index, Tile tile) { content[getY(index)][getX(index)].setTile(tile); }
 
     /**
      * Set at tile at (x, y)
      *
-     * @param x x position in the map
-     * @param y y position in the map
-     * @throws IndexOutOfBoundsException if the position is outside the map
+     * @param x x position in the board
+     * @param y y position in the board
+     * @throws IndexOutOfBoundsException if the position is outside the board
      */
     public void setAt(int x, int y, Tile tile) {
         content[y][x].setTile(tile);
@@ -160,7 +160,7 @@ public class MutableBoard extends GenericBoard {
 
     /**
      * Puts the crates of the given state in the content array.
-     * If a crate is outside the map, it doesn't throw an {@link IndexOutOfBoundsException}
+     * If a crate is outside the board, it doesn't throw an {@link IndexOutOfBoundsException}
      *
      * @param state The state with the crates
      */
@@ -176,7 +176,7 @@ public class MutableBoard extends GenericBoard {
 
     /**
      * Removes the crates of the given state from the content array.
-     * If a crate is outside the map, it doesn't throw an {@link IndexOutOfBoundsException}
+     * If a crate is outside the board, it doesn't throw an {@link IndexOutOfBoundsException}
      *
      * @param state The state with the crates
      */
@@ -196,13 +196,13 @@ public class MutableBoard extends GenericBoard {
     // ===========================================
 
     /**
-     * Initialize the map for solving:
+     * Initialize the board for solving:
      * <ul>
      *     <li>compute floor tiles: an array containing all non-wall tile</li>
      *     <li>compute {@linkplain #computeDeadTiles() dead tiles}</li>
      *     <li>find {@linkplain #findTunnels() tunnels}</li>
      * </ul>
-     * <strong>The map must have no crate inside</strong>
+     * <strong>The board must have no crate inside</strong>
      * @see Tunnel
      */
     public void initForSolver() {
@@ -357,7 +357,7 @@ public class MutableBoard extends GenericBoard {
      * when a crate is put on them.
      * After this function has been called, to check if a given crate at (x,y) is a dead position,
      * you can use {@link TileInfo#isDeadTile()} to check in constant time.
-     * The map <strong>MUST</strong> have <strong>NO CRATES</strong> for this function to work.
+     * The board <strong>MUST</strong> have <strong>NO CRATES</strong> for this function to work.
      */
     public void computeDeadTiles() {
         // reset
@@ -595,7 +595,7 @@ public class MutableBoard extends GenericBoard {
 
 
     /**
-     * Compute packing order. No crate should be on the map
+     * Compute packing order. No crate should be on the board
      */
     public void tryComputePackingOrder() {
         isGoalRoomLevel = rooms.size() > 1;
@@ -862,8 +862,8 @@ public class MutableBoard extends GenericBoard {
 
 
     /**
-     * Returns the number of target i.e. tiles on which a crate has to be pushed to solve the level) on the map
-     * @return the number of target i.e. tiles on which a crate has to be pushed to solve the level) on the map
+     * Returns the number of target i.e. tiles on which a crate has to be pushed to solve the level on the board
+     * @return the number of target i.e. tiles on which a crate has to be pushed to solve the level on the board
      */
     public int getTargetCount() {
         return targetCount;
@@ -871,18 +871,18 @@ public class MutableBoard extends GenericBoard {
 
 
     /**
-     * Returns all tunnels that are in this map
+     * Returns all tunnels that are in this board
      *
-     * @return all tunnels that are in this map
+     * @return all tunnels that are in this board
      */
     public List<Tunnel> getTunnels() {
         return tunnels;
     }
 
     /**
-     * Returns all rooms that are in this map
+     * Returns all rooms that are in this board
      *
-     * @return all rooms that are in this map
+     * @return all rooms that are in this board
      */
     public List<Room> getRooms() {
         return rooms;

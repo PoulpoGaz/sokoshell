@@ -193,7 +193,7 @@ public class SolverReport {
      *     <li>new crate pos</li>
      * </ul>
      *
-     * @param board the map
+     * @param board the board
      * @param from the first state
      * @param to the second state
      * @return a {@link StateDiff}
@@ -223,10 +223,10 @@ public class SolverReport {
     private IllegalStateException cannotFindPathException(Board board, State current, State next) {
         BoardStyle style = SokoShell.INSTANCE.getBoardStyle();
 
-        String map1 = style.drawToString(board, board.getX(current.playerPos()), board.getY(current.playerPos())).toAnsi();
+        String str1 = style.drawToString(board, board.getX(current.playerPos()), board.getY(current.playerPos())).toAnsi();
         board.removeStateCrates(current);
         board.addStateCrates(next);
-        String map2 = style.drawToString(board, board.getX(next.playerPos()), board.getY(next.playerPos())).toString();
+        String str2 = style.drawToString(board, board.getX(next.playerPos()), board.getY(next.playerPos())).toString();
 
         return new IllegalStateException("""
                 Can't find path between two states:
@@ -235,7 +235,7 @@ public class SolverReport {
                 and
                 %s
                 (%s)
-                """.formatted(map1, current, map2, next));
+                """.formatted(str1, current, str2, next));
     }
 
 

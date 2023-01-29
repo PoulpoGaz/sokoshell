@@ -144,19 +144,19 @@ public class PlayCommand extends LevelCommand {
             } else if (keyPressed(Key.DOWN)) {
                 controller.move(Direction.DOWN);
                 updateComponents();
-            } /*else if (keyPressed(Key.E)) {
+            } else if (keyPressed(Key.E)) {
                 Direction lastMove = controller.getLastDir();
                 if (lastMove == null) {
                     lastMove = Direction.DOWN;
                 }
 
                 try {
-                    helper.exportPNG(level.getPack(), level, controller.getMap(),
+                    sokoshell().exportPNG(level.getPack(), level, controller.getBoard(),
                             controller.getPlayerX(), controller.getPlayerY(), lastMove);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-            }*/
+            }
         }
 
         private void updateComponents() {

@@ -6,19 +6,11 @@ import fr.poulpogaz.json.JsonException;
 import fr.valax.sokoshell.SokoShell;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.*;
 
 /**
- * Contains the level to solve, the type of the solver and various others parameters that are contained in a Map
- * associating the name of the parameter (a string) and the parameter (an object). These parameters can be of any type,
- * but they won't be serialized if the type is not a string, an enum or a number.<br>
- * Some parameters:
- * <ul>
- *     <li>{@link SolverParameters#TIMEOUT}: a period of time after which the solver will stop</li>
- *     <li>{@link SolverParameters#MAX_RAM}: the maximum amount of ram a solver can use</li>
- *     <li>{@link Tracker#TRACKER_PARAM}: a custom {@link Tracker}</li>
- * </ul>
+ * A collection of {@link SolverParameter} plus the name of the solver used and the level to
+ * solve. {@link Solver} known which level to solve thanks to this object
  */
 public class SolverParameters {
 

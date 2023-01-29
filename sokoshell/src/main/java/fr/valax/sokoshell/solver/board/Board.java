@@ -3,13 +3,17 @@ package fr.valax.sokoshell.solver.board;
 import fr.valax.sokoshell.solver.State;
 import fr.valax.sokoshell.solver.board.mark.Mark;
 import fr.valax.sokoshell.solver.board.mark.MarkSystem;
-import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 import fr.valax.sokoshell.solver.board.tiles.Tile;
 import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 
 import java.util.List;
 import java.util.function.Consumer;
 
+/**
+ * Represents a Sokoban board. It contains various information about
+ * the sokoban like dead tiles, rooms, etc. These information may not
+ * be available. In this case, methods will return false, null or -1.
+ */
 public interface Board {
 
     int MINIMUM_WIDTH = 5;
@@ -32,9 +36,9 @@ public interface Board {
     int getHeight();
 
     /**
-     * Returns the number of target i.e. tiles on which a crate has to be pushed to solve the level) on the map
+     * Returns the number of target i.e. tiles on which a crate has to be pushed to solve the level on the board
      *
-     * @return the number of target i.e. tiles on which a crate has to be pushed to solve the level) on the map
+     * @return the number of target i.e. tiles on which a crate has to be pushed to solve the level on the board
      */
     int getTargetCount();
 
@@ -157,16 +161,16 @@ public interface Board {
     boolean isCompleted();
 
     /**
-     * Returns all tunnels that are in this map
+     * Returns all tunnels that are in this board
      *
-     * @return all tunnels that are in this map
+     * @return all tunnels that are in this board
      */
     List<Tunnel> getTunnels();
 
     /**
-     * Returns all rooms that are in this map
+     * Returns all rooms that are in this board
      *
-     * @return all rooms that are in this map
+     * @return all rooms that are in this board
      */
     List<Room> getRooms();
 
@@ -203,18 +207,18 @@ public interface Board {
      * Set at tile at the specified index. The index will be converted to
      * cartesian coordinate with {@link #getX(int)} and {@link  #getY(int)}
      *
-     * @param index index in the map
+     * @param index index in the board
      * @param tile  the new tile
-     * @throws IndexOutOfBoundsException if the index lead to a position outside the map
+     * @throws IndexOutOfBoundsException if the index lead to a position outside the board
      */
     void setAt(int index, Tile tile);
 
     /**
      * Set at tile at (x, y)
      *
-     * @param x x position in the map
-     * @param y y position in the map
-     * @throws IndexOutOfBoundsException if the position is outside the map
+     * @param x x position in the board
+     * @param y y position in the board
+     * @throws IndexOutOfBoundsException if the position is outside the board
      */
     void setAt(int x, int y, Tile tile);
 
@@ -234,7 +238,7 @@ public interface Board {
 
     /**
      * Puts the crates of the given state in the content array.
-     * If a crate is outside the map, it doesn't throw an {@link IndexOutOfBoundsException}
+     * If a crate is outside the board, it doesn't throw an {@link IndexOutOfBoundsException}
      *
      * @param state The state with the crates
      */
@@ -242,7 +246,7 @@ public interface Board {
 
     /**
      * Removes the crates of the given state from the content array.
-     * If a crate is outside the map, it doesn't throw an {@link IndexOutOfBoundsException}
+     * If a crate is outside the board, it doesn't throw an {@link IndexOutOfBoundsException}
      *
      * @param state The state with the crates
      */
@@ -254,13 +258,13 @@ public interface Board {
     // ===========================================
 
     /**
-     * Initialize the map for solving:
+     * Initialize the board for solving:
      * <ul>
      *     <li>compute floor tiles: an array containing all non-wall tile</li>
      *     <li>compute {@linkplain #computeDeadTiles() dead tiles}</li>
      *     <li>find {@linkplain #findTunnels() tunnels}</li>
      * </ul>
-     * <strong>The map must have no crate inside</strong>
+     * <strong>The board must have no crate inside</strong>
      *
      * @see Tunnel
      */
@@ -307,7 +311,7 @@ public interface Board {
      * when a crate is put on them.
      * After this function has been called, to check if a given crate at (x,y) is a dead position,
      * you can use {@link TileInfo#isDeadTile()} to check in constant time.
-     * The map <strong>MUST</strong> have <strong>NO CRATES</strong> for this function to work.
+     * The board <strong>MUST</strong> have <strong>NO CRATES</strong> for this function to work.
      */
     void computeDeadTiles();
 
@@ -332,7 +336,7 @@ public interface Board {
     void findRooms();
 
     /**
-     * Compute packing order. No crate should be on the map
+     * Compute packing order. No crate should be on the board
      */
     void tryComputePackingOrder();
 

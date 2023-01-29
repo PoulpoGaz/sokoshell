@@ -11,7 +11,7 @@ import java.util.PriorityQueue;
  */
 public class CrateAStar extends AbstractAStar {
 
-    private final int mapWidth;
+    private final int boardWidth;
     private final int area;
 
     private final AStarMarkSystem markSystem;
@@ -19,7 +19,7 @@ public class CrateAStar extends AbstractAStar {
 
     public CrateAStar(Board board) {
         super(new PriorityQueue<>(2 * board.getWidth() * board.getHeight()));
-        this.mapWidth = board.getWidth();
+        this.boardWidth = board.getWidth();
 
         area = board.getWidth() * board.getHeight();
         markSystem = new AStarMarkSystem(area * area);
@@ -32,7 +32,7 @@ public class CrateAStar extends AbstractAStar {
     }
 
     private int toIndex(TileInfo player, TileInfo crate) {
-        return (player.getY() * mapWidth + player.getX()) * area + crate.getY() * mapWidth + crate.getX();
+        return (player.getY() * boardWidth + player.getX()) * area + crate.getY() * boardWidth + crate.getX();
     }
 
     @Override
