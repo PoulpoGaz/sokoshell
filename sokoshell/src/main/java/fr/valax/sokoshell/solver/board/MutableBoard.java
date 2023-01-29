@@ -422,6 +422,20 @@ public class MutableBoard extends GenericBoard {
                 tunnels.add(tunnel);
             }
         });
+
+        for (int i = 0; i < tunnels.size(); i++) {
+            Tunnel t = tunnels.get(i);
+
+            if (t.getStartOut() == null || t.getEndOut() == null) {
+                t.setOneway(true);
+            } else {
+                t.getStart().addCrate();
+                findReachableCases(t.getStartOut());
+                t.getStart().removeCrate();
+
+                t.setOneway(!t.getEndOut().isReachable());
+            }
+        }
     }
 
     /**
@@ -779,8 +793,12 @@ public class MutableBoard extends GenericBoard {
      * @param playerPos The indic of the case on which the player currently is.
      */
     public void findReachableCases(int playerPos) {
+        findReachableCases(getAt(playerPos));
+    }
+
+    public void findReachableCases(TileInfo tile) {
         reachableMarkSystem.unmarkAll();
-        findReachableCases_aux(getAt(playerPos));
+        findReachableCases_aux(tile);
     }
 
     private void findReachableCases_aux(TileInfo tile) {
