@@ -72,7 +72,7 @@ public class PrintCommand extends AbstractCommand {
                     Surface surface = new Surface();
                     surface.resize(s.getColumns(), s.getRows());
                     Graphics g = new Graphics(surface);
-                    sokoshell().getBoardStyle().drawCentered(g, 0, 0, s.getColumns(), s.getRows(), l.getBoard(), l.getPlayerX(), l.getPlayerY(), playerDir);
+                    sokoshell().getBoardStyle().drawCentered(g, 0, 0, s.getColumns(), s.getRows(), l, l.getPlayerX(), l.getPlayerY(), playerDir);
                     surface.print(out);
                 } else {
                     sokoshell().getBoardStyle().print(out, l);
@@ -80,7 +80,7 @@ public class PrintCommand extends AbstractCommand {
 
                 if (export) {
                     try {
-                        sokoshell().exportPNG(l.getPack(), l, l.getBoard(), l.getPlayerX(), l.getPlayerY(), playerDir);
+                        sokoshell().exportPNG(l.getPack(), l, l, l.getPlayerX(), l.getPlayerY(), playerDir);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }

@@ -88,7 +88,7 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
 
         int nState = initialState.cratesIndices().length;
 
-        board = new MutableBoard(level.getBoard());
+        board = new MutableBoard(level);
         board.removeStateCrates(initialState);
         board.initForSolver();
 

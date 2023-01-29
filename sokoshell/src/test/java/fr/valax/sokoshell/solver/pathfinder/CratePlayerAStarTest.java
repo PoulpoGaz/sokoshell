@@ -33,7 +33,7 @@ public class CratePlayerAStarTest {
                 ##########
                 """);
 
-        Board board = new MutableBoard(level.getBoard());
+        Board board = new MutableBoard(level);
         CratePlayerAStar aStar = new CratePlayerAStar(board);
         Node end = aStar.findPathAndComputeMoves(board.getAt(1, 1), board.getAt(1, 1), board.getAt(2, 3), board.getAt(4, 4));
 
@@ -63,7 +63,7 @@ public class CratePlayerAStarTest {
                 ###################
                 """);
 
-        Board board = new MutableBoard(level.getBoard());
+        Board board = new MutableBoard(level);
         CratePlayerAStar aStar = new CratePlayerAStar(board);
         Node end = aStar.findPathAndComputeMoves(board.getAt(1, 1), board.getAt(17, 1), board.getAt(16, 2), board.getAt(1, 6));
 
@@ -75,7 +75,7 @@ public class CratePlayerAStarTest {
     @Test
     void originalAndExtra() {
         Level level = TestUtils.getLevel(Path.of("levels8xv/Original.8xv"), 0);
-        Board board = new MutableBoard(level.getBoard());
+        Board board = new MutableBoard(level);
         CratePlayerAStar aStar = new CratePlayerAStar(board);
 
         assertTrue(aStar.hasPath(board.getAt(4, 4), board.getAt(4, 4), board.getAt(5, 7), board.getAt(17, 8)));

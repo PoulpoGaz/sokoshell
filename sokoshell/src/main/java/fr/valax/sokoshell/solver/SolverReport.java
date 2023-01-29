@@ -141,7 +141,7 @@ public class SolverReport {
      */
     private List<Move> createFullSolution(List<State> states) {
         Level level = parameters.getLevel();
-        Board board = new MutableBoard(level.getBoard());
+        Board board = new MutableBoard(level);
 
         ArrayList<Move> path = new ArrayList<>();
         List<Move> temp = new ArrayList<>();

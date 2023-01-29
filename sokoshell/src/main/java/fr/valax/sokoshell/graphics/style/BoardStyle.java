@@ -115,15 +115,15 @@ public abstract class BoardStyle {
 
 
     public AttributedString drawToString(Level level) {
-        return drawToString(level.getBoard(), level.getPlayerX(), level.getPlayerY());
+        return drawToString(level, level.getPlayerX(), level.getPlayerY());
     }
 
     public List<AttributedString> drawToList(Level level) {
-        return drawToList(level.getBoard(), level.getPlayerX(), level.getPlayerY());
+        return drawToList(level, level.getPlayerX(), level.getPlayerY());
     }
 
     public Surface draw(Level level) {
-        return draw(level.getBoard(), level.getPlayerX(), level.getPlayerY());
+        return draw(level, level.getPlayerX(), level.getPlayerY());
     }
 
 

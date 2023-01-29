@@ -255,7 +255,7 @@ public class MonitorCommand extends AbstractCommand {
                 currentLevel = levels.get(index);
                 currentPack = currentLevel.getPack();
 
-                Board board = new MutableBoard(currentLevel.getBoard());
+                Board board = new MutableBoard(currentLevel);
 
                 BigInteger n = estimateMaxNumberOfStates(board);
                 maxNumberOfStateLabel.setText(n.toString());

@@ -182,7 +182,7 @@ public class PlayCommand extends LevelCommand {
         private boolean mapCompleted = false;
 
         GameController(Level level) {
-            this.board = new MutableBoard(level.getBoard());
+            this.board = new MutableBoard(level);
             this.playerX = level.getPlayerX();
             this.playerY = level.getPlayerY();
         }

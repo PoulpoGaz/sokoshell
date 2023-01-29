@@ -15,18 +15,17 @@ import java.util.*;
  * @author darth-mole
  * @author PoulpoGaz
  */
-public class Level {
+public class Level extends ImmutableBoard {
 
     // package private
     Pack pack;
-    private final Board board;
     private final int playerPos;
     private final int index;
 
     private final List<SolverReport> solverReports;
 
-    public Level(Board board, int playerPos, int index) {
-        this.board = board;
+    public Level(Tile[][] tiles, int width, int height, int playerPos, int index) {
+        super(tiles, width, height);
         this.playerPos = playerPos;
         this.index = index;
 
@@ -39,33 +38,6 @@ public class Level {
             solution.writeSolution(jpw);
             jpw.endObject();
         }
-    }
-
-    /**
-     * Returns the (immutable) board
-     *
-     * @return the (immutable) board
-     */
-    public Board getBoard() {
-        return board;
-    }
-
-    /**
-     * Returns the width of this level
-     *
-     * @return the width of this level
-     */
-    public int getWidth() {
-        return board.getWidth();
-    }
-
-    /**
-     * Returns the height of this level
-     *
-     * @return the height of this level
-     */
-    public int getHeight() {
-        return board.getHeight();
     }
 
     /**
@@ -96,7 +68,7 @@ public class Level {
 
         for (int y = 0; y < getHeight(); y++) {
             for (int x = 0; x < getWidth(); x++) {
-                if (board.getAt(x, y).anyCrate()) {
+                if (getAt(x, y).anyCrate()) {
                     cratesIndices.add(y * getWidth() + x);
                 }
             }
@@ -269,9 +241,8 @@ public class Level {
             }
 
             formatLevel();
-            Board m = new ImmutableBoard(board, width, height);
 
-            return new Level(m, playerY * width + playerX, index);
+            return new Level(board, width, height, playerY * width + playerX, index);
         }
 
         /**

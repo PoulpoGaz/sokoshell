@@ -16,7 +16,7 @@ public class AbstractSolverTest {
         Level level = TestUtils.getLevel(Path.of("levels8xv/Aruba10.8xv"), 46 - 1);
         BoardStyle style = TestUtils.getStyle(Path.of("isekai/isekai.style"));
 
-        Board board = new MutableBoard(level.getBoard());
+        Board board = new MutableBoard(level);
         board.removeStateCrates(level.getInitialState());
         //mR.setShowDeadTiles(true);
         style.print(level);
@@ -69,7 +69,7 @@ public class AbstractSolverTest {
         BasicBruteforceSolver solver = BasicBruteforceSolver.newBFSSolver();
 
         for (Level level : pack.levels()) {
-            Board board = new MutableBoard(level.getBoard());
+            Board board = new MutableBoard(level);
             State init = level.getInitialState();
 
             board.computeFloors();
@@ -90,7 +90,7 @@ public class AbstractSolverTest {
 
         BasicBruteforceSolver solver = BasicBruteforceSolver.newBFSSolver();
 
-        Board board = new MutableBoard(level.getBoard());
+        Board board = new MutableBoard(level);
         State init = level.getInitialState();
 
         board.computeFloors();
@@ -113,7 +113,7 @@ public class AbstractSolverTest {
 
         BasicBruteforceSolver solver = BasicBruteforceSolver.newBFSSolver();
 
-        Board board = new MutableBoard(level.getBoard());
+        Board board = new MutableBoard(level);
         State init = level.getInitialState();
 
         board.computeFloors();

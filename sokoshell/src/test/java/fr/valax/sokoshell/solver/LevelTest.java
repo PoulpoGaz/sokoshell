@@ -21,7 +21,7 @@ public class LevelTest {
                 """;
 
         Level l = TestUtils.getLevel(level);
-        Board board = new MutableBoard(l.getBoard());
+        Board board = new MutableBoard(l);
 
         assertEquals(Tile.WALL, board.getAt(0, 0).getTile());
         assertEquals(Tile.WALL, board.getAt(1, 0).getTile());
@@ -60,7 +60,7 @@ public class LevelTest {
                 """;
 
         Level l = TestUtils.getLevel(level);
-        Board board = new MutableBoard(l.getBoard());
+        Board board = new MutableBoard(l);
 
         assertEquals(Tile.WALL, board.getAt(0, 0).getTile());
         assertEquals(Tile.WALL, board.getAt(1, 0).getTile());
@@ -109,7 +109,7 @@ public class LevelTest {
                 """;
 
         Level l = TestUtils.getLevel(level);
-        Board board = new MutableBoard(l.getBoard());
+        Board board = new MutableBoard(l);
 
         assertEquals(7, board.getWidth());
         assertEquals(6, board.getHeight());

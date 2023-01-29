@@ -27,7 +27,7 @@ public class BoardStyleReaderTest {
                 System.out.println("Size: " + i);
                 s.clear();
                 s.resize(level.getWidth() * i, level.getHeight() * i);
-                style.draw(g, i, level.getBoard(), level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
+                style.draw(g, i, level, level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
                 s.print();
             }
         }

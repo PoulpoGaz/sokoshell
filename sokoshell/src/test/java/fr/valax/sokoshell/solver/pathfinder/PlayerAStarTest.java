@@ -33,7 +33,7 @@ public class PlayerAStarTest {
                 ########
                 """);
 
-        Board board = new MutableBoard(level.getBoard());
+        Board board = new MutableBoard(level);
         PlayerAStar aStar = new PlayerAStar(board);
 
         // 21 nodes A*
@@ -46,7 +46,7 @@ public class PlayerAStarTest {
     void complex() {
         Level level = TestUtils.getLevel(LABYRINTH);
 
-        Board board = new MutableBoard(level.getBoard());
+        Board board = new MutableBoard(level);
         PlayerAStar aStar = new PlayerAStar(board);
 
         // 181 nodes A*
@@ -78,7 +78,7 @@ public class PlayerAStarTest {
     void originalAndExtraTest() {
         Level level = TestUtils.getLevel(Path.of("levels8xv/Original.8xv"), 0);
 
-        Board board = new MutableBoard(level.getBoard());
+        Board board = new MutableBoard(level);
         PlayerAStar aStar = new PlayerAStar(board);
 
         assertTrue(aStar.hasPath(board.getAt(11, 8), board.getAt(17, 8), null, null));

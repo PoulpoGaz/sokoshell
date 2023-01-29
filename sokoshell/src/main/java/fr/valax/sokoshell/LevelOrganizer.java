@@ -89,11 +89,9 @@ public class LevelOrganizer {
             return false;
         }
 
-        Board board1 = level1.getBoard();
-        Board board2 = level2.getBoard();
-        for (int y = 0; y < board1.getHeight(); y++) {
-            for (int x = 0; x < board1.getWidth(); x++) {
-                if (board1.getAt(x, y).getTile() != board2.getAt(x, y).getTile()) {
+        for (int y = 0; y < level1.getHeight(); y++) {
+            for (int x = 0; x < level1.getWidth(); x++) {
+                if (level1.getAt(x, y).getTile() != level2.getAt(x, y).getTile()) {
                     return false;
                 }
             }

@@ -19,7 +19,7 @@ public class SimpleHeuristicTest {
         BoardStyle style = TestUtils.getStyle(Path.of("isekai/isekai.style"));
 
         Level level = pack.getLevel(0);
-        Board board = new MutableBoard(level.getBoard());
+        Board board = new MutableBoard(level);
 
         board.initForSolver();
         style.print(board, level.getPlayerX(), level.getPlayerY());

@@ -27,7 +27,7 @@ public class BoardRendererTest {
         Surface s = new Surface();
         s.resize(level.getWidth(), level.getHeight());
 
-        style.draw(new Graphics(s), 1, level.getBoard(), level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
+        style.draw(new Graphics(s), 1, level, level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
 
         s.print();
     }
@@ -55,7 +55,7 @@ public class BoardRendererTest {
         Surface s = new Surface();
         s.resize(level.getWidth() + 1, level.getHeight() + 1);
 
-        style.drawWithLegend(new Graphics(s), 1, level.getBoard(), level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
+        style.drawWithLegend(new Graphics(s), 1, level, level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
 
         s.print();
     }
@@ -75,7 +75,7 @@ public class BoardRendererTest {
         Surface s = new Surface();
         s.resize(level.getWidth() * 3 + 1, level.getHeight() * 3 + 1);
 
-        style.drawWithLegend(new Graphics(s), 3, level.getBoard(), level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
+        style.drawWithLegend(new Graphics(s), 3, level, level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
 
         s.print();
     }
@@ -99,7 +99,7 @@ public class BoardRendererTest {
         Surface s = new Surface();
         s.resize(level.getWidth() + 1, level.getHeight() + 2);
 
-        style.drawWithLegend(new Graphics(s), 1, level.getBoard(), level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
+        style.drawWithLegend(new Graphics(s), 1, level, level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
 
         s.print();
     }
@@ -123,7 +123,7 @@ public class BoardRendererTest {
         Surface s = new Surface();
         s.resize(level.getWidth() * 3 + 1, level.getHeight() * 3 + 1);
 
-        style.drawWithLegend(new Graphics(s), 3, level.getBoard(), level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
+        style.drawWithLegend(new Graphics(s), 3, level, level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
 
         s.print();
     }
@@ -143,7 +143,7 @@ public class BoardRendererTest {
                 """);
 
         BoardStyle style = BasicStyle.DEFAULT_STYLE;
-        BufferedImage img = style.createImage(level.getBoard(), level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
+        BufferedImage img = style.createImage(level, level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
         ImageIO.write(img, "png", new File("out.png"));
     }
 
@@ -162,7 +162,7 @@ public class BoardRendererTest {
                 """);
 
         BoardStyle style = TestUtils.getStyle(Path.of("warehouse/warehouse.style"));
-        BufferedImage img = style.createImage(level.getBoard(), level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
+        BufferedImage img = style.createImage(level, level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
         ImageIO.write(img, "png", new File("out2.png"));
     }
 
@@ -181,7 +181,7 @@ public class BoardRendererTest {
                 """);
 
         BoardStyle style = BasicStyle.DEFAULT_STYLE;
-        BufferedImage img = style.createImageWithLegend(level.getBoard(), level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
+        BufferedImage img = style.createImageWithLegend(level, level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
         ImageIO.write(img, "png", new File("out.png"));
     }
 
@@ -200,7 +200,7 @@ public class BoardRendererTest {
                 """);
 
         BoardStyle style = TestUtils.getStyle(Path.of("warehouse/warehouse.style"));
-        BufferedImage img = style.createImageWithLegend(level.getBoard(), level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
+        BufferedImage img = style.createImageWithLegend(level, level.getPlayerX(), level.getPlayerY(), Direction.DOWN);
         ImageIO.write(img, "png", new File("out2.png"));
     }
 }

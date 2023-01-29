@@ -309,7 +309,7 @@ public class SolutionCommand extends LevelCommand {
             this.solution = solution;
             Level level = solution.getParameters().getLevel();
 
-            this.board = new MutableBoard(level.getBoard());
+            this.board = new MutableBoard(level);
             this.playerX = level.getPlayerX();
             this.playerY = level.getPlayerY();
 
@@ -403,7 +403,7 @@ public class SolutionCommand extends LevelCommand {
                 playerX = level.getPlayerX();
                 playerY = level.getPlayerY();
 
-                board = new MutableBoard(level.getBoard());
+                board = new MutableBoard(level);
             }
         }
 
