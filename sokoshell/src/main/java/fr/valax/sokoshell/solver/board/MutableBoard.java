@@ -5,10 +5,7 @@ import fr.valax.sokoshell.solver.State;
 import fr.valax.sokoshell.solver.board.mark.AbstractMarkSystem;
 import fr.valax.sokoshell.solver.board.mark.Mark;
 import fr.valax.sokoshell.solver.board.mark.MarkSystem;
-import fr.valax.sokoshell.solver.board.tiles.ImmutableTileInfo;
-import fr.valax.sokoshell.solver.board.tiles.MutableTileInfo;
-import fr.valax.sokoshell.solver.board.tiles.Tile;
-import fr.valax.sokoshell.solver.board.tiles.TileInfo;
+import fr.valax.sokoshell.solver.board.tiles.*;
 import fr.valax.sokoshell.solver.pathfinder.CrateAStar;
 import fr.valax.sokoshell.solver.pathfinder.CratePlayerAStar;
 import fr.valax.sokoshell.solver.pathfinder.PlayerAStar;
@@ -815,8 +812,8 @@ public class MutableBoard extends GenericBoard {
 
 
 
-    private final IntWrapper topX = new IntWrapper();
-    private final IntWrapper topY = new IntWrapper();
+    private int topX = 0;
+    private int topY = 0;
 
     /**
      * This method compute the top left reachable position of the player of pushing a crate
@@ -833,8 +830,8 @@ public class MutableBoard extends GenericBoard {
         getAt(crateToMoveX, crateToMoveY).removeCrate();
         getAt(destX, destY).addCrate();
 
-        topX.set(width);
-        topY.set(height);
+        topX = width;
+        topY = height;
 
         markSystem.unmarkAll();
         topLeftReachablePosition_aux(getAt(crateToMoveX, crateToMoveY));
@@ -843,13 +840,13 @@ public class MutableBoard extends GenericBoard {
         getAt(crateToMoveX, crateToMoveY).addCrate();
         getAt(destX, destY).removeCrate();
 
-        return topY.get() * width + topX.get();
+        return topY * width + topX;
     }
 
     private void topLeftReachablePosition_aux(TileInfo tile) {
-        if (tile.getY() < topY.get() || (tile.getY() == topY.get() && tile.getX() < topX.get())) {
-            topX.set(tile.getX());
-            topY.set(tile.getY());
+        if (tile.getY() < topY || (tile.getY() == topY && tile.getX() < topX)) {
+            topX = tile.getX();
+            topY = tile.getY();
         }
 
         tile.mark();
@@ -955,7 +952,7 @@ public class MutableBoard extends GenericBoard {
 
             for (int y = 0; y < height; y++) {
                 for (int x = 0; x < width; x++) {
-                    tiles[y][x] = new TileView(MutableBoard.this.content[y][x]);
+                    tiles[y][x] = new TileView(this, MutableBoard.this.content[y][x]);
                 }
             }
         }
@@ -1116,13 +1113,29 @@ public class MutableBoard extends GenericBoard {
         }
     }
 
-    protected class TileView extends ImmutableTileInfo {
+    protected static class TileView implements TileInfo {
 
+        private final Board boardView;
         private final TileInfo tile;
 
-        public TileView(TileInfo tile) {
-            super(tile);
+        public TileView(BoardView boardView, TileInfo tile) {
+            this.boardView = boardView;
             this.tile = tile;
+        }
+
+        @Override
+        public int getX() {
+            return tile.getX();
+        }
+
+        @Override
+        public int getY() {
+            return tile.getY();
+        }
+
+        @Override
+        public Tile getTile() {
+            return tile.getTile();
         }
 
         @Override
@@ -1166,6 +1179,11 @@ public class MutableBoard extends GenericBoard {
         }
 
         @Override
+        public Board getBoard() {
+            return boardView;
+        }
+
+        @Override
         public String toString() {
             return tile.toString();
         }
@@ -1178,6 +1196,76 @@ public class MutableBoard extends GenericBoard {
         @Override
         public TargetRemoteness[] getTargets() {
             return null;
+        }
+
+        @Override
+        public void set(TileInfo other) {
+            throw new UnsupportedOperationException("Immutable object");
+        }
+
+        @Override
+        public void addCrate() {
+            throw new UnsupportedOperationException("Immutable object");
+        }
+
+        @Override
+        public void removeCrate() {
+            throw new UnsupportedOperationException("Immutable object");
+        }
+
+        @Override
+        public void setTile(Tile tile) {
+            throw new UnsupportedOperationException("Immutable object");
+        }
+
+        @Override
+        public void setDeadTile(boolean deadTile) {
+            throw new UnsupportedOperationException("Immutable object");
+        }
+
+        @Override
+        public void setReachable(boolean reachable) {
+            throw new UnsupportedOperationException("Immutable object");
+        }
+
+        @Override
+        public void setTunnel(Tunnel tunnel) {
+            throw new UnsupportedOperationException("Immutable object");
+        }
+
+        @Override
+        public void setTunnelExit(Tunnel.Exit tunnelExit) {
+            throw new UnsupportedOperationException("Immutable object");
+        }
+
+        @Override
+        public void setRoom(Room room) {
+            throw new UnsupportedOperationException("Immutable object");
+        }
+
+        @Override
+        public void mark() {
+            throw new UnsupportedOperationException("Immutable object");
+        }
+
+        @Override
+        public void unmark() {
+            throw new UnsupportedOperationException("Immutable object");
+        }
+
+        @Override
+        public void setMarked(boolean marked) {
+            throw new UnsupportedOperationException("Immutable object");
+        }
+
+        @Override
+        public void setTargets(TargetRemoteness[] targets) {
+            throw new UnsupportedOperationException("Immutable object");
+        }
+
+        @Override
+        public void setNearestTarget(TargetRemoteness nearestTarget) {
+            throw new UnsupportedOperationException("Immutable object");
         }
     }
 }

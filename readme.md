@@ -116,6 +116,31 @@ Solutions:
 ### Reachable tiles
 
 possible optimization: https://en.wikipedia.org/wiki/Flood_fill
+Probably efficient algorithm:
+The algorithm will compute all zones of the map.
+It will use a union-find structure. Two tiles in the same partition are in the same zone.
+Recursive function;
+```
+computeZone(x, y) {
+    if solid(x, y) then do nothing.
+    else if solid(x - 1, y) && solid(x, y - 1) then do nothing
+    else if solid(x - 1, y) then (x, y - 1) and (x, y) are in the same zone (UNION)
+    else if solid(x, y - 1) then (x - 1, y) and (x, y) are in the same zone (UNION)
+    else then (x, y - 1) and (x - 1, y) and (x, y) are in the same zone (UNION)
+}
+```
+Using dynamic programming, the complexity of the above function is O(width x height).
+I think it is possible to calculate topX, topY and create a list (or tree) containing all tile
+in the same zone while keeping the same complexity.
+
+New way of computing topX, topY after **one** push: if the crate is a frontier (ie delimits two zone),
+topX, topY can be calculated as follows: if the crate moves inside the other zone, then 
+topX, topY = max((topX, topY), (newCrateX, newCrateY)), if the crate moves inside the current zone then
+topX, topY = if ((newCrateX, newCrateY) = (topX, topY)) then complicated (new to find a new topX, topY, maybe storing the second topX, topY)
+             else max((topX, topY), otherZoneTopXY)
+
+Thinking about this, it should also work for multiple push of the same crate (for the 2nd case only...)
+
 
 ### Tunnels
 

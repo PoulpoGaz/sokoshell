@@ -37,46 +37,62 @@ public interface TileInfo {
     /**
      * @return true if there is a crate at this position
      */
-    boolean anyCrate();
+    default boolean anyCrate() {
+        return getTile().isCrate();
+    }
 
     /**
      * @return true if there is a wall or a crate at this position
      */
-    boolean isSolid();
+    default boolean isSolid() {
+        return getTile().isSolid();
+    }
 
     /**
      * @return true if this TileInfo is exactly a floor
      */
-    boolean isFloor();
+    default boolean isFloor() {
+        return getTile() == Tile.FLOOR;
+    }
 
     /**
      * @return true if this TileInfo is exactly a wall
      */
-    boolean isWall();
+    default boolean isWall() {
+        return getTile() == Tile.WALL;
+    }
 
     /**
      * @return true if this TileInfo is exactly a target
      */
-    boolean isTarget();
+    default boolean isTarget() {
+        return getTile() == Tile.TARGET;
+    }
 
     /**
      * @return true if this TileInfo is exactly a crate
      * @see #anyCrate()
      */
-    boolean isCrate();
+    default boolean isCrate() {
+        return getTile() == Tile.CRATE;
+    }
 
     /**
      * @return true if this TileInfo is exactly a crate on target
      * @see #anyCrate()
      */
-    boolean isCrateOnTarget();
+    default boolean isCrateOnTarget() {
+        return getTile() == Tile.CRATE_ON_TARGET;
+    }
 
     /**
      * Returns {@code true} if this tile is at the same position as 'other'
      * @param other other tile
      * @return {@code true} if this tile is at the same position as 'other'
      */
-    boolean isAt(TileInfo other);
+    default boolean isAt(TileInfo other) {
+        return isAt(other.getX(), other.getY());
+    }
 
     /**
      * Returns {@code true} if this tile is at the position (x; y)
@@ -84,7 +100,9 @@ public interface TileInfo {
      * @param y y location
      * @return {@code true} if this tile is at the position (x; y)}
      */
-    boolean isAt(int x, int y);
+    default boolean isAt(int x, int y) {
+        return x == getX() && y == getY();
+    }
 
     /**
      * Returns the direction between this tile and other.
@@ -92,7 +110,9 @@ public interface TileInfo {
      * @param other 'other' tile
      * @return the direction between this tile and other
      */
-    Direction direction(TileInfo other);
+    default Direction direction(TileInfo other) {
+        return Direction.of(other.getX() - getX(), other.getY() - getY());
+    }
 
     /**
      * Returns the distance of manhattan between this tile and other
@@ -100,7 +120,9 @@ public interface TileInfo {
      * @param other 'other' tile
      * @return the distance of manhattan between this tile and other
      */
-    int manhattanDistance(TileInfo other);
+    default int manhattanDistance(TileInfo other) {
+        return Math.abs(getX() - other.getX()) + Math.abs(getY() - other.getY());
+    }
 
     /**
      * @return {@code true} if this tile is a dead tile
@@ -164,14 +186,18 @@ public interface TileInfo {
      * @throws IndexOutOfBoundsException if this TileInfo is near the border of the board and
      * the direction point outside the board
      */
-    TileInfo adjacent(Direction dir);
+    default TileInfo adjacent(Direction dir) {
+        return getBoard().getAt(getX() + dir.dirX(), getY() + dir.dirY());
+    }
 
     /**
      * @param dir the direction
      * @return the tile that is adjacent to this TileInfo in the {@link Direction} dir
      * or {@code null} if the adjacent tile is outside the board
      */
-    TileInfo safeAdjacent(Direction dir);
+    default TileInfo safeAdjacent(Direction dir) {
+        return getBoard().safeGetAt(getX() + dir.dirX(), getY() + dir.dirY());
+    }
 
     /**
      * Returns the board in which this tile is
@@ -180,7 +206,9 @@ public interface TileInfo {
      */
     Board getBoard();
 
-    int positionHashCode();
+    default int positionHashCode() {
+        return getY() * getBoard().getWidth() + getX();
+    }
 
     TargetRemoteness getNearestTarget();
 
