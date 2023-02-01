@@ -62,9 +62,9 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
 
         long timeout = params.getArgument(TIMEOUT);
         long maxRam = params.getArgument(MAX_RAM);
-        boolean detailed = params.getArgument(ACCURATE);
+        boolean accurate = params.getArgument(ACCURATE);
 
-        if (detailed) {
+        if (accurate) {
             SizeOf.initialize();
         }
 
@@ -103,7 +103,7 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
                 break;
             }
 
-            if (hasRamExceeded(maxRam, detailed, nState)) {
+            if (hasRamExceeded(maxRam, accurate, nState)) {
                 endStatus = SolverReport.RAM_EXCEED;
                 break;
             }
@@ -340,7 +340,7 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
 
     @Override
     public State currentState() {
-        if (toProcess != null) {
+        if (toProcess != null && running) {
             return toProcess.cachedState();
         } else {
             return null;
@@ -348,9 +348,9 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
     }
 
     @Override
-    public Board getBoardAsReadonlyView() {
-        if (board != null) {
-            return board.asReadOnlyView();
+    public Board staticBoard() {
+        if (board != null && running) {
+            return board.staticBoard();
         } else {
             return null;
         }

@@ -1,6 +1,5 @@
 package fr.valax.sokoshell.solver.board;
 
-import fr.valax.interval.IntWrapper;
 import fr.valax.sokoshell.solver.State;
 import fr.valax.sokoshell.solver.board.mark.AbstractMarkSystem;
 import fr.valax.sokoshell.solver.board.mark.Mark;
@@ -49,7 +48,8 @@ public class MutableBoard extends GenericBoard {
     private CrateAStar crateAStar;
     private CratePlayerAStar cratePlayerAStar;
 
-    private BoardView readOnlyView;
+    private StaticBoard staticBoard;
+    private boolean initialized = false; // was this board initialized by a solver ?
 
     /**
      * Creates a SolverBoard with the specified width, height and tiles
@@ -203,6 +203,7 @@ public class MutableBoard extends GenericBoard {
         findRooms();
         tryComputePackingOrder();
         computeTileToTargetsDistances();
+        initialized = true;
     }
 
     /**
@@ -864,12 +865,12 @@ public class MutableBoard extends GenericBoard {
     // * GETTERS / SETTERS *
     // *********************
 
-    public BoardView asReadOnlyView() {
-        if (readOnlyView == null) {
-            readOnlyView = new BoardView();
+    public StaticBoard staticBoard() {
+        if (staticBoard == null && initialized) {
+            staticBoard = new StaticBoard();
         }
 
-        return readOnlyView;
+        return staticBoard;
     }
 
     /**
@@ -943,16 +944,15 @@ public class MutableBoard extends GenericBoard {
         };
     }
 
-    protected class BoardView implements Board {
+    protected class StaticBoard extends GenericBoard {
 
-        private final TileInfo[][] tiles;
-
-        public BoardView() {
-            tiles = new TileInfo[height][width];
+        public StaticBoard() {
+            super(MutableBoard.this.width, MutableBoard.this.height);
+            content = new TileInfo[height][width];
 
             for (int y = 0; y < height; y++) {
                 for (int x = 0; x < width; x++) {
-                    tiles[y][x] = new TileView(this, MutableBoard.this.content[y][x]);
+                    content[y][x] = new StaticTile(this, MutableBoard.this.content[y][x]);
                 }
             }
         }
@@ -970,31 +970,6 @@ public class MutableBoard extends GenericBoard {
         @Override
         public int getTargetCount() {
             return MutableBoard.this.getTargetCount();
-        }
-
-        @Override
-        public int getY(int index) {
-            return MutableBoard.this.getY(index);
-        }
-
-        @Override
-        public int getX(int index) {
-            return MutableBoard.this.getX(index);
-        }
-
-        @Override
-        public int getIndex(int x, int y) {
-            return MutableBoard.this.getIndex(x, y);
-        }
-
-        @Override
-        public TileInfo getAt(int index) {
-            return getAt(getX(index), getY(index));
-        }
-
-        @Override
-        public TileInfo getAt(int x, int y) {
-            return tiles[y][x];
         }
 
         @Override
@@ -1021,131 +996,44 @@ public class MutableBoard extends GenericBoard {
         public MarkSystem getReachableMarkSystem() {
             return null;
         }
-
-        @Override
-        public void forEach(Consumer<TileInfo> consumer) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void setAt(int index, Tile tile) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void setAt(int x, int y, Tile tile) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void addStateCrates(State state) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void removeStateCrates(State state) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void safeAddStateCrates(State state) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void safeRemoveStateCrates(State state) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void initForSolver() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void computeFloors() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void forEachNotWall(Consumer<TileInfo> consumer) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void addStateCratesAndAnalyse(State state) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void removeStateCratesAndReset(State state) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void computeDeadTiles() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void findTunnels() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void findRooms() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void tryComputePackingOrder() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void findReachableCases(int playerPos) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public int topLeftReachablePosition(int crateToMoveX, int crateToMoveY, int destX, int destY) {
-            throw new UnsupportedOperationException();
-        }
     }
 
-    protected static class TileView implements TileInfo {
+    /**
+     * A TileInfo that contains only static information
+     */
+    protected static class StaticTile extends GenericTileInfo {
 
-        private final Board boardView;
-        private final TileInfo tile;
+        private final boolean deadTile;
 
-        public TileView(BoardView boardView, TileInfo tile) {
-            this.boardView = boardView;
-            this.tile = tile;
+        private final TargetRemoteness[] targets;
+        private final TargetRemoteness nearestTarget;
+
+        public StaticTile(StaticBoard staticBoard, TileInfo tile) {
+            super(staticBoard, removeCrate(tile.getTile()), tile.getX(), tile.getY());
+            this.deadTile = tile.isDeadTile();
+
+            this.targets = tile.getTargets();
+            this.nearestTarget = tile.getNearestTarget();
         }
 
-        @Override
-        public int getX() {
-            return tile.getX();
-        }
-
-        @Override
-        public int getY() {
-            return tile.getY();
-        }
-
-        @Override
-        public Tile getTile() {
-            return tile.getTile();
+        private static Tile removeCrate(Tile tile) {
+            if (tile == Tile.CRATE) {
+                return Tile.FLOOR;
+            } else if (tile == Tile.CRATE_ON_TARGET) {
+                return Tile.TARGET;
+            } else {
+                return tile;
+            }
         }
 
         @Override
         public boolean isDeadTile() {
-            return tile.isDeadTile();
+            return deadTile;
         }
 
         @Override
         public boolean isReachable() {
-            return tile.isReachable();
+            return false;
         }
 
         @Override
@@ -1160,7 +1048,7 @@ public class MutableBoard extends GenericBoard {
 
         @Override
         public boolean isInATunnel() {
-            return tile.isInATunnel();
+            return false;
         }
 
         @Override
@@ -1170,102 +1058,30 @@ public class MutableBoard extends GenericBoard {
 
         @Override
         public boolean isInARoom() {
-            return tile.isInARoom();
+            return false;
         }
 
         @Override
         public boolean isMarked() {
-            return tile.isMarked();
-        }
-
-        @Override
-        public Board getBoard() {
-            return boardView;
-        }
-
-        @Override
-        public String toString() {
-            return tile.toString();
+            return false;
         }
 
         @Override
         public TargetRemoteness getNearestTarget() {
-            return tile.getNearestTarget();
+            return nearestTarget;
         }
 
         @Override
         public TargetRemoteness[] getTargets() {
-            return null;
+            return targets;
         }
+    }
 
-        @Override
-        public void set(TileInfo other) {
-            throw new UnsupportedOperationException("Immutable object");
-        }
+    private static class ImmutableTunnel extends Tunnel {
 
-        @Override
-        public void addCrate() {
-            throw new UnsupportedOperationException("Immutable object");
-        }
+    }
 
-        @Override
-        public void removeCrate() {
-            throw new UnsupportedOperationException("Immutable object");
-        }
+    private static class ImmutableRoom extends Room {
 
-        @Override
-        public void setTile(Tile tile) {
-            throw new UnsupportedOperationException("Immutable object");
-        }
-
-        @Override
-        public void setDeadTile(boolean deadTile) {
-            throw new UnsupportedOperationException("Immutable object");
-        }
-
-        @Override
-        public void setReachable(boolean reachable) {
-            throw new UnsupportedOperationException("Immutable object");
-        }
-
-        @Override
-        public void setTunnel(Tunnel tunnel) {
-            throw new UnsupportedOperationException("Immutable object");
-        }
-
-        @Override
-        public void setTunnelExit(Tunnel.Exit tunnelExit) {
-            throw new UnsupportedOperationException("Immutable object");
-        }
-
-        @Override
-        public void setRoom(Room room) {
-            throw new UnsupportedOperationException("Immutable object");
-        }
-
-        @Override
-        public void mark() {
-            throw new UnsupportedOperationException("Immutable object");
-        }
-
-        @Override
-        public void unmark() {
-            throw new UnsupportedOperationException("Immutable object");
-        }
-
-        @Override
-        public void setMarked(boolean marked) {
-            throw new UnsupportedOperationException("Immutable object");
-        }
-
-        @Override
-        public void setTargets(TargetRemoteness[] targets) {
-            throw new UnsupportedOperationException("Immutable object");
-        }
-
-        @Override
-        public void setNearestTarget(TargetRemoteness nearestTarget) {
-            throw new UnsupportedOperationException("Immutable object");
-        }
     }
 }

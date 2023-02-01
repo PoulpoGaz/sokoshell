@@ -3,6 +3,8 @@ package fr.valax.sokoshell.solver.board.tiles;
 import fr.valax.sokoshell.commands.AbstractCommand;
 import fr.valax.sokoshell.solver.board.Board;
 import fr.valax.sokoshell.solver.board.Direction;
+import fr.valax.sokoshell.solver.board.Room;
+import fr.valax.sokoshell.solver.board.Tunnel;
 
 import java.util.AbstractList;
 
@@ -67,5 +69,77 @@ public abstract class GenericTileInfo implements TileInfo {
      */
     public Board getBoard() {
         return board;
+    }
+
+    // SETTERS: throw UnsupportedOperationException as this class is immutable //
+
+    @Override
+    public void set(TileInfo other) {
+        throw new UnsupportedOperationException("Immutable object");
+    }
+
+    @Override
+    public void addCrate() {
+        throw new UnsupportedOperationException("Immutable object");
+    }
+
+    @Override
+    public void removeCrate() {
+        throw new UnsupportedOperationException("Immutable object");
+    }
+
+    @Override
+    public void setTile(Tile tile) {
+        throw new UnsupportedOperationException("Immutable object");
+    }
+
+    @Override
+    public void setDeadTile(boolean deadTile) {
+        throw new UnsupportedOperationException("Immutable object");
+    }
+
+    @Override
+    public void setReachable(boolean reachable) {
+        throw new UnsupportedOperationException("Immutable object");
+    }
+
+    @Override
+    public void setTunnel(Tunnel tunnel) {
+        throw new UnsupportedOperationException("Immutable object");
+    }
+
+    @Override
+    public void setTunnelExit(Tunnel.Exit tunnelExit) {
+        throw new UnsupportedOperationException("Immutable object");
+    }
+
+    @Override
+    public void setRoom(Room room) {
+        throw new UnsupportedOperationException("Immutable object");
+    }
+
+    @Override
+    public void mark() {
+        throw new UnsupportedOperationException("Immutable object");
+    }
+
+    @Override
+    public void unmark() {
+        throw new UnsupportedOperationException("Immutable object");
+    }
+
+    @Override
+    public void setMarked(boolean marked) {
+        throw new UnsupportedOperationException("Immutable object");
+    }
+
+    @Override
+    public void setTargets(TargetRemoteness[] targets) {
+        throw new UnsupportedOperationException("Immutable object");
+    }
+
+    @Override
+    public void setNearestTarget(TargetRemoteness nearestTarget) {
+        throw new UnsupportedOperationException("Immutable object");
     }
 }

@@ -126,7 +126,6 @@ public class GraphicsUtils {
     }
 
     /**
-     *
      * @param red red component, between 0 and 255
      * @param green green component, between 0 and 255
      * @param blue green component, between 0 and 255
@@ -134,6 +133,17 @@ public class GraphicsUtils {
      */
     public static int toRGB(int red, int green, int blue) {
         return (red & 0xFF) << 16 | (green & 0xFF) << 8 | (blue & 0xFF);
+    }
+
+    /**
+     * @param red red component, between 0 and 255
+     * @param green green component, between 0 and 255
+     * @param blue green component, between 0 and 255
+     * @param alpha alpha component, between 0 and 255
+     * @return convert to 32 bits color formatted as ARGB (8 bits per component)
+     */
+    public static int toARGB(int red, int green, int blue, int alpha) {
+        return (alpha & 0xFF) << 24 | (red & 0xFF) << 16 | (green & 0xFF) << 8 | (blue & 0xFF);
     }
 
     /**

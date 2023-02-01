@@ -1,6 +1,10 @@
 package fr.valax.sokoshell.solver.board;
 
+import fr.valax.sokoshell.solver.State;
+import fr.valax.sokoshell.solver.board.tiles.Tile;
 import fr.valax.sokoshell.solver.board.tiles.TileInfo;
+
+import java.util.function.Consumer;
 
 /**
  * A {@code package-private} class meant to be use as a base class for {@link Board} implementations.
@@ -10,7 +14,7 @@ import fr.valax.sokoshell.solver.board.tiles.TileInfo;
  * @see Board
  * @see TileInfo
  */
-abstract class GenericBoard implements Board {
+public abstract class GenericBoard implements Board {
 
     protected final int width;
 
@@ -51,5 +55,99 @@ abstract class GenericBoard implements Board {
     @Override
     public TileInfo getAt(int x, int y) {
         return content[y][x];
+    }
+
+
+    // SETTERS: throw UnsupportedOperationException as this object is immutable //
+    @Override
+    public void forEach(Consumer<TileInfo> consumer) {
+        throw new UnsupportedOperationException("Board is immutable");
+    }
+
+    @Override
+    public void setAt(int index, Tile tile) {
+        throw new UnsupportedOperationException("Board is immutable");
+    }
+
+    @Override
+    public void setAt(int x, int y, Tile tile) {
+        throw new UnsupportedOperationException("Board is immutable");
+    }
+
+    @Override
+    public void addStateCrates(State state) {
+        throw new UnsupportedOperationException("Board is immutable");
+    }
+
+    @Override
+    public void removeStateCrates(State state) {
+        throw new UnsupportedOperationException("Board is immutable");
+    }
+
+    @Override
+    public void safeAddStateCrates(State state) {
+        throw new UnsupportedOperationException("Board is immutable");
+    }
+
+    @Override
+    public void safeRemoveStateCrates(State state) {
+        throw new UnsupportedOperationException("Board is immutable");
+    }
+
+    // Solver-used methods: throw UnsupportedOperationException as this object is (for now) not to be used by solvers //
+
+    @Override
+    public void initForSolver() {
+        throw new UnsupportedOperationException("Board is not intended for solvers");
+    }
+
+    @Override
+    public void computeFloors() {
+        throw new UnsupportedOperationException("Board is not intended for solvers");
+    }
+
+    @Override
+    public void forEachNotWall(Consumer<TileInfo> consumer) {
+        throw new UnsupportedOperationException("Board is not intended for solvers");
+    }
+
+    @Override
+    public void addStateCratesAndAnalyse(State state) {
+        throw new UnsupportedOperationException("Board is not intended for solvers");
+    }
+
+    @Override
+    public void removeStateCratesAndReset(State state) {
+        throw new UnsupportedOperationException("Board is not intended for solvers");
+    }
+
+    @Override
+    public void computeDeadTiles() {
+        throw new UnsupportedOperationException("Board is not intended for solvers");
+    }
+
+    @Override
+    public void findTunnels() {
+        throw new UnsupportedOperationException("Board is not intended for solvers");
+    }
+
+    @Override
+    public void findRooms() {
+        throw new UnsupportedOperationException("Board is not intended for solvers");
+    }
+
+    @Override
+    public void tryComputePackingOrder() {
+        throw new UnsupportedOperationException("Board is not intended for solvers");
+    }
+
+    @Override
+    public void findReachableCases(int playerPos) {
+        throw new UnsupportedOperationException("Board is not intended for solvers");
+    }
+
+    @Override
+    public int topLeftReachablePosition(int crateToMoveX, int crateToMoveY, int destX, int destY) {
+        throw new UnsupportedOperationException("Board is not intended for solvers");
     }
 }

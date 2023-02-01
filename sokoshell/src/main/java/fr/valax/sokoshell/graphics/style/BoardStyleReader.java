@@ -1,6 +1,8 @@
 package fr.valax.sokoshell.graphics.style;
 
 import fr.valax.sokoshell.graphics.Color;
+import fr.valax.sokoshell.graphics.Graphics;
+import fr.valax.sokoshell.graphics.GraphicsUtils;
 import fr.valax.sokoshell.solver.board.Direction;
 import fr.valax.sokoshell.solver.board.tiles.Tile;
 import org.jline.utils.AttributedString;
@@ -83,6 +85,9 @@ public class BoardStyleReader {
         for (Direction dir : Direction.VALUES) {
             samplers.put(dir.name(), new ArrayList<>());
         }
+        samplers.put(FileBoardStyle.DEAD_TILE, new ArrayList<>());
+        samplers.put(FileBoardStyle.ROOM, new ArrayList<>());
+        samplers.put(FileBoardStyle.TUNNEL, new ArrayList<>());
     }
 
     private void initFunctions() {
@@ -107,6 +112,7 @@ public class BoardStyleReader {
         addFunction(new Alias());
         addFunction(new SetImage());
         addFunction(new SetAnsi());
+        addFunction(new SetMask());
         addFunction(new Merge());
     }
 
@@ -271,7 +277,7 @@ public class BoardStyleReader {
         List<FileBoardStyle.Sampler> samplers = getSamplers(name);
 
         if (samplers == null) {
-            throw error("No such sampler: %s");
+            throw error("No such sampler: %s", name);
         }
 
         samplers.add(sampler);
@@ -527,6 +533,35 @@ public class BoardStyleReader {
 
             FileBoardStyle.Sampler sampler = createAnsiSampler(size);
             addSampler(args[1], sampler);
+        }
+    }
+
+    protected class SetMask extends Function {
+
+        public SetMask() {
+            super("set-mask");
+        }
+
+        @Override
+        public void execute(String[] args) throws IOException {
+            if (args.length != 7) {
+                throw error("""
+                        Invalid use of set-mask, expected 6 arguments, got: %d.
+                        Prototype: set-ansi TILE/PLAYER_DIR SIZE RED GREEN BLUE ALPHA
+                        """, args.length - 1);
+            }
+
+            int size = parseInt(args[2]);
+            if (size <= 0) {
+                throw error("Zero or negative size: %d", size);
+            }
+
+            int red   = parseInt(args[3]);
+            int green = parseInt(args[4]);
+            int blue  = parseInt(args[5]);
+            int alpha = parseInt(args[6]);
+
+            addSampler(args[1], new FileBoardStyle.MaskSampler(GraphicsUtils.toARGB(red, green, blue, alpha), size));
         }
     }
 

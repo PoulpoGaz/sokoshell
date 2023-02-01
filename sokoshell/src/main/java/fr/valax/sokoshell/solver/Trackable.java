@@ -1,6 +1,10 @@
 package fr.valax.sokoshell.solver;
 
 import fr.valax.sokoshell.solver.board.Board;
+import fr.valax.sokoshell.solver.board.Room;
+import fr.valax.sokoshell.solver.board.Tunnel;
+
+import java.util.List;
 
 /**
  * A solver that implements this interface allows
@@ -44,9 +48,10 @@ public interface Trackable extends Solver {
     State currentState();
 
     /**
-     * @return the board as a read-only view
+     * @return an immutable board that contains all static information.
+     * The board has no crate on it
      */
-    Board getBoardAsReadonlyView();
+    Board staticBoard();
 
     /**
      * Set the {@link Tracker} that is tracking this trackable

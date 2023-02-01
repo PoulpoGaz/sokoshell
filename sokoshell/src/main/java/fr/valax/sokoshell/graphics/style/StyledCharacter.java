@@ -64,28 +64,28 @@ public class StyledCharacter {
     }
 
     /**
-     * Merge this character with an empty space with background color rgb.
-     * If rgb is completely transparent (alpha = 0) then this character isn't modified.
-     * If rgb is completely opaque (alpha = 255) then this character is set an empty
-     * space with background color rgb.
+     * Merge this character with an empty space with background color argb.
+     * If argb is completely transparent (alpha = 0) then this character isn't modified.
+     * If argb is completely opaque (alpha = 255) then this character is set an empty
+     * space with background color argb.
      * Otherwise, it is as if a mask is drawn on the character: background color
-     * and foreground color are blended with rgb
+     * and foreground color are blended with argb
      *
-     * @param rgb background color
+     * @param argb background color
      */
-    public void mergeRGB(int rgb) {
-        int alpha = (rgb >> 24) & 0xFF;
+    public void mergeRGB(int argb) {
+        int alpha = getAlpha(argb);
 
         if (alpha == 0) {
             return;
         }
 
         if (alpha == 255) {
-            setRGB(rgb);
+            setRGB(argb);
         } else {
-            int r = getRed(rgb);
-            int g = getGreen(rgb);
-            int b = getBlue(rgb);
+            int r = getRed(argb);
+            int g = getGreen(argb);
+            int b = getBlue(argb);
             double a = alpha / 255d;
 
             if (color) {
@@ -162,19 +162,19 @@ public class StyledCharacter {
                 int g = (int) (fg >> (FG_COLOR_EXP + 8)) & 0xFF;
                 int b = (int) (fg >> FG_COLOR_EXP) & 0xFF;
 
-                style.foreground(lerp(alpha, r, red), lerp(alpha, g, green), lerp(alpha, b, blue));
+                style = style.foreground(lerp(alpha, r, red), lerp(alpha, g, green), lerp(alpha, b, blue));
                 return;
             } else if ((fg & F_FOREGROUND_IND) != 0) {
                 int index = (int) (fg >> FG_COLOR_EXP) & 0xFF;
 
                 if (alpha < 0.5) {
-                    style.foreground(index);
+                    style = style.foreground(index);
                     return;
                 } // otherwise use rgb
             }
         }
 
-        style.foreground(red, green, blue);
+        style = style.foreground(red, green, blue);
     }
 
     private void blendBackground(double alpha, int red, int green, int blue) {
@@ -187,19 +187,19 @@ public class StyledCharacter {
                 int g = (int) (bg >> (BG_COLOR_EXP + 8)) & 0xFF;
                 int b = (int) (bg >> BG_COLOR_EXP) & 0xFF;
 
-                style.foreground(lerp(alpha, r, red), lerp(alpha, g, green), lerp(alpha, b, blue));
+                style = style.background(lerp(alpha, r, red), lerp(alpha, g, green), lerp(alpha, b, blue));
                 return;
             } else if ((bg & F_BACKGROUND_IND) != 0) {
                 int index = (int) (bg >> BG_COLOR_EXP) & 0xFF;
 
                 if (alpha < 0.5) {
-                    style.foreground(index);
+                    style = style.background(index);
                     return;
                 } // otherwise use rgb
             }
         }
 
-        style.foreground(red, green, blue);
+        style = style.background(red, green, blue);
     }
 
     public char getChar() {

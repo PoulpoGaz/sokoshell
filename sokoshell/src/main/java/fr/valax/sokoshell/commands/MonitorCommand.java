@@ -230,10 +230,14 @@ public class MonitorCommand extends AbstractCommand {
             }
 
             if (trackable != null) {
-                State state = trackable.currentState();
+                /*State state = trackable.currentState();
 
-                if (state != currentState) {
+                if (state != null && state != currentState) {
                     changeState(state);
+                }*/
+
+                if (trackable.staticBoard() != null) {
+                    boardComponent.setBoard(trackable.staticBoard());
                 }
 
                 long end = trackable.timeEnded();
@@ -255,18 +259,18 @@ public class MonitorCommand extends AbstractCommand {
                 currentLevel = levels.get(index);
                 currentPack = currentLevel.getPack();
 
-                Board board = new MutableBoard(currentLevel);
+                //Board board = new MutableBoard(currentLevel);
 
-                BigInteger n = estimateMaxNumberOfStates(board);
-                maxNumberOfStateLabel.setText(n.toString());
+                //BigInteger n = estimateMaxNumberOfStates(board);
+                //maxNumberOfStateLabel.setText(n.toString());
 
-                board.forEach(TileInfo::removeCrate);
+                //board.forEach(TileInfo::removeCrate);
 
                 progressLabel.setText(index + "/" + task.getLevels().size());
                 levelLabel.setText(Integer.toString(currentLevel.getIndex() + 1));
                 packLabel.setText(currentPack.name());
 
-                boardComponent.setBoard(board);
+                //boardComponent.setBoard(board);
                 boardComponent.setPlayerX(-1);
                 boardComponent.setPlayerY(-1);
             } else if (task.getTaskStatus() == TaskStatus.FINISHED) {

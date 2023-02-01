@@ -22,44 +22,31 @@ import static fr.valax.sokoshell.graphics.GraphicsUtils.*;
  */
 public class FileBoardStyle extends BoardStyle {
 
+    public static final String DEAD_TILE = "dead_tile";
+    public static final String TUNNEL    = "tunnel";
+    public static final String ROOM      = "room";
+
     private final int[] availableSizes;
     private final Map<String, Sampler[]> samplers = new HashMap<>();
 
     protected FileBoardStyle(BoardStyleReader reader) throws IOException {
         super(reader.name, reader.author, reader.version);
 
-        int[] availableSizes = null;
+        Set<Integer> availableSizes = new HashSet<>();
 
         for (Map.Entry<String, List<Sampler>> s : reader.samplers.entrySet()) {
             Sampler[] samplerArray = s.getValue().toArray(new Sampler[0]);
             Arrays.sort(samplerArray, Comparator.comparingInt(Sampler::getSize));
 
-            if (availableSizes == null) {
-                availableSizes = new int[samplerArray.length];
-
-                for (int i = 0; i < samplerArray.length; i++) {
-                    availableSizes[i] = samplerArray[i].getSize();
-
-                    if (i > 0 && availableSizes[i - 1] == availableSizes[i]) {
-                        throw new IOException("Duplicate sampler for " + s.getKey());
-                    }
-                }
-            } else {
-                if (samplerArray.length != availableSizes.length) {
-                    throw new IOException("Invalid number of sampler for " + s.getKey());
-                }
-
-                for (int i = 0; i < samplerArray.length; i++) {
-                    if (availableSizes[i] != samplerArray[i].getSize()) {
-                        throw new IOException("Invalid sampler size for " + s.getKey());
-                    }
-                }
+            // TODO: check
+            for (Sampler sampler : samplerArray) {
+                availableSizes.add(sampler.getSize());
             }
 
             samplers.put(s.getKey(), samplerArray);
         }
 
-        this.availableSizes = Objects.requireNonNull(availableSizes);
+        this.availableSizes = Objects.requireNonNull(availableSizes).stream().mapToInt(i -> i).sorted().toArray();
     }
 
     @Override
@@ -67,14 +54,12 @@ public class FileBoardStyle extends BoardStyle {
         int index = findBestSizeIndex(size);
         size = availableSizes[index];
 
-        Sampler tileSampler = getSampler(tile, index);
-        Sampler playerSampler = getSampler(playerDir, index);
-
+        List<Sampler> samplers = getSamplersFor(tile, playerDir, index);
         StyledCharacter out = new StyledCharacter();
 
         for (int y = 0; y < size; y++) {
             for (int x = 0; x < size; x++) {
-                fetch(x, y, out, tileSampler, playerSampler);
+                fetch(x, y, out, samplers);
                 g.getSurface().draw(out.getChar(), out.getStyle(), drawX + x, drawY + y);
             }
         }
@@ -85,15 +70,14 @@ public class FileBoardStyle extends BoardStyle {
                      TileInfo tile, Direction playerDir,
                      int drawX, int drawY, int size, int charWidth, int charHeight) {
         int index = findBestSizeIndex(size);
+        size = availableSizes[index];
 
-        Sampler tileSampler = getSampler(tile, index);
-        Sampler playerSampler = getSampler(playerDir, index);
-
+        List<Sampler> samplers = getSamplersFor(tile, playerDir, index);
         StyledCharacter out = new StyledCharacter();
 
         for (int y = 0; y < size; y++) {
             for (int x = 0; x < size; x++) {
-                fetch(x, y, out, tileSampler, playerSampler);
+                fetch(x, y, out, samplers);
                 GraphicsUtils.draw(g2d, out, drawX + x * charWidth, drawY + y * charHeight, charWidth, charHeight, Color.BLACK, Color.WHITE);
             }
         }
@@ -173,7 +157,7 @@ public class FileBoardStyle extends BoardStyle {
         return image;
     }
 
-    private void fetch(int x, int y, StyledCharacter out, Sampler... samplers) {
+    private void fetch(int x, int y, StyledCharacter out, List<Sampler> samplers) {
         boolean merge = false;
         for (Sampler sampler : samplers) {
             if (sampler != null) {
@@ -183,15 +167,31 @@ public class FileBoardStyle extends BoardStyle {
         }
     }
 
-    protected Sampler getSampler(TileInfo tile, int sizeIndex) {
-        return samplers.get(tile.getTile().name())[sizeIndex];
+    protected List<Sampler> getSamplersFor(TileInfo tile, Direction playerDir, int sizeIndex) {
+        List<Sampler> samplers = new ArrayList<>();
+        addIfNotNull(samplers, tile.getTile().name(), sizeIndex);
+
+        if (playerDir != null) {
+            addIfNotNull(samplers, playerDir.name(), sizeIndex);
+        }
+        if (tile.isDeadTile() && drawDeadTiles) {
+            addIfNotNull(samplers, DEAD_TILE, sizeIndex);
+        }
+        if (tile.isInATunnel() && drawTunnels) {
+            addIfNotNull(samplers, TUNNEL, sizeIndex);
+        }
+        if (tile.isInARoom() && drawRooms) {
+            addIfNotNull(samplers, ROOM, sizeIndex);
+        }
+
+        return samplers;
     }
 
-    protected Sampler getSampler(Direction dir, int sizeIndex) {
-        if (dir == null) {
-            return null;
-        } else {
-            return samplers.get(dir.name())[sizeIndex];
+    protected void addIfNotNull(List<Sampler> samplerList, String name, int sizeIndex) {
+        Sampler s = samplers.get(name)[sizeIndex];
+
+        if (s != null) {
+            samplerList.add(s);
         }
     }
 
@@ -279,6 +279,30 @@ public class FileBoardStyle extends BoardStyle {
         }
     }
 
+    protected static class MaskSampler implements Sampler {
+
+        private final int rgba;
+        private final int size;
+
+        public MaskSampler(int rgba, int size) {
+            this.rgba = rgba;
+            this.size = size;
+        }
+
+        @Override
+        public void fetch(int x, int y, StyledCharacter out, boolean merge) {
+            if (merge) {
+                out.mergeRGB(rgba);
+            } else {
+                out.setRGB(rgba);
+            }
+        }
+
+        @Override
+        public int getSize() {
+            return size;
+        }
+    }
 
     protected static class AnsiSampler implements Sampler {
 

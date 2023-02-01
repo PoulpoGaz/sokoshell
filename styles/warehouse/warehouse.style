@@ -40,6 +40,8 @@ set-ansi crate_on_target 1
 set-ansi player 1
 {fg black}o
 
+set-mask dead_tile 1 255 0 0 128
+
 
 
 # ==== SIZE 2 ====

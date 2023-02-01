@@ -30,6 +30,10 @@ public abstract class BoardStyle {
     protected final String author;
     protected final String version;
 
+    protected boolean drawDeadTiles = true;
+    protected boolean drawRooms = false;
+    protected boolean drawTunnels = false;
+
     /**
      * Creates a new style
      * @param name name of the style or "Unnamed n°i" where is an integer
@@ -346,5 +350,29 @@ public abstract class BoardStyle {
 
     public final String getVersion() {
         return version;
+    }
+
+    public boolean isDrawDeadTiles() {
+        return drawDeadTiles;
+    }
+
+    public void setDrawDeadTiles(boolean drawDeadTiles) {
+        this.drawDeadTiles = drawDeadTiles;
+    }
+
+    public boolean isDrawRooms() {
+        return drawRooms;
+    }
+
+    public void setDrawRooms(boolean drawRooms) {
+        this.drawRooms = drawRooms;
+    }
+
+    public boolean isDrawTunnels() {
+        return drawTunnels;
+    }
+
+    public void setDrawTunnels(boolean drawTunnels) {
+        this.drawTunnels = drawTunnels;
     }
 }
