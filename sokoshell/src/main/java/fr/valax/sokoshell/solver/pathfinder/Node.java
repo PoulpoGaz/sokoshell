@@ -110,7 +110,6 @@ public class Node implements Comparable<Node> {
 
     @Override
     public int compareTo(Node o) {
-        // compare in reverse order to prioritize minimal expected dist
         return Integer.compare(expectedDist, o.expectedDist);
     }
 }

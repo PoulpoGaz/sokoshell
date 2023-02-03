@@ -9,8 +9,12 @@ import fr.valax.sokoshell.solver.pathfinder.CrateAStar;
 import fr.valax.sokoshell.solver.pathfinder.CratePlayerAStar;
 import fr.valax.sokoshell.solver.pathfinder.PlayerAStar;
 
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 
 /**
@@ -946,13 +950,68 @@ public class MutableBoard extends GenericBoard {
 
     protected class StaticBoard extends GenericBoard {
 
+        private final List<ImmutableTunnel> tunnels;
+        private final List<ImmutableRoom> rooms;
+
         public StaticBoard() {
             super(MutableBoard.this.width, MutableBoard.this.height);
-            content = new TileInfo[height][width];
+
+            StaticTile[][] content = new StaticTile[height][width];
+            this.content = content;
 
             for (int y = 0; y < height; y++) {
                 for (int x = 0; x < width; x++) {
                     content[y][x] = new StaticTile(this, MutableBoard.this.content[y][x]);
+                }
+            }
+
+            tunnels = MutableBoard.this.tunnels.stream()
+                    .map((t) -> new ImmutableTunnel(this, t)).toList();
+            rooms = MutableBoard.this.rooms.stream()
+                    .map((r) -> new ImmutableRoom(this, r)).toList();
+
+            linkTunnelsRoomsAndTileInfos(content);
+        }
+
+        private void linkTunnelsRoomsAndTileInfos(StaticTile[][] content) {
+            Map<Room, ImmutableRoom> roomMap = new HashMap<>(rooms.size());
+            for (int i = 0; i < rooms.size(); i++) {
+                roomMap.put(MutableBoard.this.rooms.get(i), rooms.get(i));
+            }
+
+            Map<Tunnel, ImmutableTunnel> tunnelMap = new HashMap<>(tunnels.size());
+            for (int i = 0; i < rooms.size(); i++) {
+                tunnelMap.put(MutableBoard.this.tunnels.get(i), tunnels.get(i));
+            }
+
+            // add rooms to tunnels
+            List<Tunnel> originalTunnel = MutableBoard.this.tunnels;
+            for (int i = 0; i < tunnels.size(); i++) {
+                ImmutableTunnel t = tunnels.get(i);
+                t.rooms = originalTunnel.get(i).rooms.stream()
+                        .map(r -> (Room) roomMap.get(r)).toList();
+            }
+
+            // add tunnels to rooms
+            List<Room> originalRooms = MutableBoard.this.rooms;
+            for (int i = 0; i < rooms.size(); i++) {
+                ImmutableRoom r = rooms.get(i);
+                r.tunnels = originalRooms.get(i).tunnels.stream()
+                        .map(t -> (Tunnel) tunnelMap.get(t)).toList();
+            }
+
+            // add tunnels, rooms to tile info
+            for (int y = 0; y < getHeight(); y++) {
+                for (int x = 0; x < getWidth(); x++) {
+                    TileInfo original = MutableBoard.this.content[y][x];
+                    StaticTile dest = content[y][x];
+
+                    dest.tunnel = tunnelMap.get(original.getTunnel());
+                    dest.room = roomMap.get(original.getRoom());
+
+                    if (dest.getTunnelExit() != null) {
+                        dest.exit = original.getTunnelExit(); // it is immutable !
+                    }
                 }
             }
         }
@@ -972,14 +1031,16 @@ public class MutableBoard extends GenericBoard {
             return MutableBoard.this.getTargetCount();
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         public List<Tunnel> getTunnels() {
-            return null;
+            return (List<Tunnel>) ((List<?>) tunnels); // this is black magic
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         public List<Room> getRooms() {
-            return null;
+            return (List<Room>) ((List<?>) rooms); // more black magic !
         }
 
         @Override
@@ -1007,6 +1068,10 @@ public class MutableBoard extends GenericBoard {
 
         private final TargetRemoteness[] targets;
         private final TargetRemoteness nearestTarget;
+
+        private ImmutableTunnel tunnel;
+        private ImmutableRoom room;
+        private Tunnel.Exit exit;
 
         public StaticTile(StaticBoard staticBoard, TileInfo tile) {
             super(staticBoard, removeCrate(tile.getTile()), tile.getX(), tile.getY());
@@ -1038,27 +1103,27 @@ public class MutableBoard extends GenericBoard {
 
         @Override
         public Tunnel getTunnel() {
-            return null;
+            return tunnel;
         }
 
         @Override
         public Tunnel.Exit getTunnelExit() {
-            return null;
+            return exit;
         }
 
         @Override
         public boolean isInATunnel() {
-            return false;
+            return tunnel != null;
         }
 
         @Override
         public Room getRoom() {
-            return null;
+            return room;
         }
 
         @Override
         public boolean isInARoom() {
-            return false;
+            return room != null;
         }
 
         @Override
@@ -1079,9 +1144,118 @@ public class MutableBoard extends GenericBoard {
 
     private static class ImmutableTunnel extends Tunnel {
 
+        public ImmutableTunnel(StaticBoard board, Tunnel tunnel) {
+            start = board.getAt(tunnel.start.getIndex());
+            end = board.getAt(tunnel.end.getIndex());
+
+            if (startOut != null) {
+                startOut = board.getAt(tunnel.startOut.getIndex());
+            }
+            if (endOut != null) {
+                endOut = board.getAt(tunnel.endOut.getIndex());
+            }
+            playerOnlyTunnel = tunnel.isPlayerOnlyTunnel();
+            isOneway = tunnel.isOneway();
+        }
+
+        @Override
+        public void createTunnelExits() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void addRoom(Room room) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void setStart(TileInfo start) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void setEnd(TileInfo end) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void setStartOut(TileInfo startOut) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void setEndOut(TileInfo endOut) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void setPlayerOnlyTunnel(boolean playerOnlyTunnel) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void setCrateInside(boolean crateInside) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void setOneway(boolean oneway) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean crateInside() {
+            return false;
+        }
     }
 
     private static class ImmutableRoom extends Room {
 
+        public ImmutableRoom(StaticBoard board, Room room) {
+            goalRoom = room.isGoalRoom();
+
+            for (TileInfo t : room.getTiles()) {
+                tiles.add(board.getAt(t.getIndex()));
+            }
+            for (TileInfo t : room.getTargets()) {
+                targets.add(board.getAt(t.getIndex()));
+            }
+            if (room.getPackingOrder() != null) {
+                packingOrder = new ArrayList<>();
+                for (TileInfo t : room.getPackingOrder()) {
+                    packingOrder.add(board.getAt(t.getIndex()));
+                }
+            }
+        }
+
+        @Override
+        public void addTunnel(Tunnel tunnel) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void addTile(TileInfo tile) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void setGoalRoom(boolean goalRoom) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void setPackingOrder(List<TileInfo> packingOrder) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void setPackingOrderIndex(int packingOrderIndex) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public int getPackingOrderIndex() {
+            return -1;
+        }
     }
 }

@@ -7,23 +7,23 @@ import java.util.List;
 
 public class Room {
 
-    private boolean goalRoom;
+    protected boolean goalRoom;
 
-    private final List<TileInfo> tiles = new ArrayList<>();
-    private final List<TileInfo> targets = new ArrayList<>();
+    protected final List<TileInfo> tiles = new ArrayList<>();
+    protected final List<TileInfo> targets = new ArrayList<>();
 
-    private final List<Tunnel> tunnels = new ArrayList<>();
+    protected List<Tunnel> tunnels;
 
     /**
      * Only computed if the level is a goal room level as defined by {@link Board#isGoalRoomLevel()}
      */
-    private List<TileInfo> packingOrder;
+    protected List<TileInfo> packingOrder;
 
     // dynamic
     // the index in packingOrder of the position of the next crate that will be pushed inside the room
     // negative if it is not possible because a crate isn't at the correct position
     // or if the room isn't a goal room
-    private int packingOrderIndex;
+    protected int packingOrderIndex;
 
     public Room() {
     }
@@ -47,6 +47,9 @@ public class Room {
 
 
     public void addTunnel(Tunnel tunnel) {
+        if (tunnels == null) {
+            tunnels = new ArrayList<>();
+        }
         tunnels.add(tunnel);
     }
 

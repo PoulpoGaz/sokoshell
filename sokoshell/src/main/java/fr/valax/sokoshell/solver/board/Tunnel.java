@@ -19,23 +19,23 @@ public class Tunnel {
 
     // STATIC
 
-    private TileInfo start;
-    private TileInfo end;
+    protected TileInfo start;
+    protected TileInfo end;
 
     // the tile outside the tunnel adjacent to start
-    private TileInfo startOut;
+    protected TileInfo startOut;
 
     // the tile outside the tunnel adjacent to end
-    private TileInfo endOut;
-    private final List<Room> rooms = new ArrayList<>();
+    protected TileInfo endOut;
+    protected List<Room> rooms;
 
     // true if the tunnel can only be taken by the player
-    private boolean playerOnlyTunnel;
-    private boolean isOneway;
+    protected boolean playerOnlyTunnel;
+    protected boolean isOneway;
 
 
     // DYNAMIC
-    private boolean crateInside = false;
+    protected boolean crateInside = false;
 
 
 
@@ -87,6 +87,9 @@ public class Tunnel {
     }
 
     public void addRoom(Room room) {
+        if (rooms == null) {
+            rooms = new ArrayList<>();
+        }
         rooms.add(room);
     }
 
@@ -156,6 +159,9 @@ public class Tunnel {
      * if you push a crate inside the tunnel to the left, the
      * method {@link #getExit(Direction)} wile return where you will
      * be after pushing the crate until you aren't outside the tunnel.
+     *
+     * @implNote This object isn't immutable but is assumed as
+     * immutable by MutableBoard.StaticBoard#linkTunnelsRoomsAndTileInfos(MutableBoard.StaticTile[][])
      */
     public static class Exit {
 
