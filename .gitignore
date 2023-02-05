@@ -1,2 +1,12 @@
 .idea/
 target/
+*.iml
+
+# exclude latex
+documents/**/*.aux
+documents/**/*.log
+documents/**/*.nav
+documents/**/*.out
+documents/**/*.snm
+documents/**/*.noc
+documents/**/*.toc
