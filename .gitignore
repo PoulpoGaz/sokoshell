@@ -10,3 +10,4 @@ documents/**/*.out
 documents/**/*.snm
 documents/**/*.noc
 documents/**/*.toc
+documents/**/*.synctex.gz

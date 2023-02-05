@@ -40,16 +40,6 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
         super(name);
     }
 
-    /**
-     * Instantiates the {@link BruteforceSolver#toProcess} attribute, depending on the solver type:
-     * <ul>
-     *     <li>DFS: stack</li>
-     *     <li>BFS: queue</li>
-     *     <li>A*: priority queue</li>
-     * </ul>
-     */
-    protected abstract void createCollection();
-
     @Override
     public SolverReport solve(SolverParameters params) {
         Objects.requireNonNull(params);
@@ -92,7 +82,7 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
         board.removeStateCrates(initialState);
         board.initForSolver();
 
-        createCollection();
+        init();
         processed.clear();
 
         addInitialState(level);
@@ -148,6 +138,12 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
             return SolverReport.withoutSolution(params, getStatistics(), SolverReport.NO_SOLUTION);
         }
     }
+
+    /**
+     * Initialize the solver. This method is called after the initialization of
+     * the board
+     */
+    protected abstract void init();
 
     protected abstract void addInitialState(Level level);
 

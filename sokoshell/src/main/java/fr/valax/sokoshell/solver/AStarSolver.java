@@ -1,22 +1,47 @@
 package fr.valax.sokoshell.solver;
 
+import fr.valax.sokoshell.solver.board.Board;
 import fr.valax.sokoshell.solver.collections.SolverPriorityQueue;
 import fr.valax.sokoshell.solver.heuristic.GreedyHeuristic;
 import fr.valax.sokoshell.solver.heuristic.Heuristic;
+import fr.valax.sokoshell.solver.heuristic.SimpleHeuristic;
 
-public class AStarSolver extends BruteforceSolver<WeightedState> {
+public abstract class AStarSolver extends BruteforceSolver<WeightedState> {
+
+    public static AStarSolver newGreedyAStar() {
+        return new AStarSolver("A*") {
+
+            @Override
+            protected Heuristic createHeuristic(Board board) {
+                return new GreedyHeuristic(board);
+            }
+        };
+    }
+
+    public static AStarSolver newSimplerAStar() {
+        return new AStarSolver("A* simple") {
+
+            @Override
+            protected Heuristic createHeuristic(Board board) {
+                return new SimpleHeuristic(board);
+            }
+        };
+    }
+
 
     private Heuristic heuristic;
 
-    public AStarSolver() {
-        super(A_STAR);
+    public AStarSolver(String name) {
+        super(name);
     }
 
     @Override
-    protected void createCollection() {
-        heuristic = new GreedyHeuristic(this.board);
+    protected void init() {
+        heuristic = createHeuristic(board);
         toProcess = new SolverPriorityQueue();
     }
+
+    protected abstract Heuristic createHeuristic(Board board);
 
     @Override
     protected void addInitialState(Level level) {

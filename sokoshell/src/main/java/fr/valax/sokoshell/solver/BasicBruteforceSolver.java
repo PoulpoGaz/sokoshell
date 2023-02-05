@@ -87,7 +87,7 @@ public abstract class BasicBruteforceSolver extends BruteforceSolver<State> {
         }
 
         @Override
-        protected void createCollection() {
+        protected void init() {
             toProcess = new DFSSolverCollection();
         }
 
@@ -112,7 +112,7 @@ public abstract class BasicBruteforceSolver extends BruteforceSolver<State> {
         }
 
         @Override
-        protected void createCollection() {
+        protected void init() {
             toProcess = new BFSSolverCollection();
         }
 
