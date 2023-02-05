@@ -280,6 +280,12 @@ public class BoardStyleReader {
             throw error("No such sampler: %s", name);
         }
 
+        for (FileBoardStyle.Sampler s : samplers) {
+            if (s.getSize() == sampler.getSize()) {
+                throw error("Duplicate sampler: %s with size %d", name, sampler.getSize());
+            }
+        }
+
         samplers.add(sampler);
     }
 
@@ -291,7 +297,7 @@ public class BoardStyleReader {
             String line = nextLine();
 
             if (line == null) {
-                throw error("Ansi sampler not terminated. (need %d more line(s)", size - i);
+                throw error("Ansi sampler not terminated. (need %d more line(s))", size - i);
             }
 
             asb.setLength(0);
@@ -314,9 +320,14 @@ public class BoardStyleReader {
             }
 
             strings[i] = asb.toAttributedString();
+
+            int s = strings[i].columnLength();
+            if (s != size) {
+                throw error("Invalid length, got %d, but expected %d", s, size);
+            }
         }
 
-        return new FileBoardStyle.AnsiSampler(size, strings);
+        return new FileBoardStyle.AnsiSampler(strings);
     }
 
     private int executeStyleFunction(String line, AttributedStringBuilder asb, int i) throws IOException {
@@ -635,7 +646,7 @@ public class BoardStyleReader {
                     strings[y] = asb.toAttributedString();
                 }
 
-                return new FileBoardStyle.AnsiSampler(size, strings);
+                return new FileBoardStyle.AnsiSampler(strings);
             }
         }
 

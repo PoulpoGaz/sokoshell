@@ -4,6 +4,7 @@ import fr.valax.sokoshell.graphics.Graphics;
 import fr.valax.sokoshell.graphics.GraphicsUtils;
 import fr.valax.sokoshell.solver.board.Board;
 import fr.valax.sokoshell.solver.board.Direction;
+import fr.valax.sokoshell.solver.board.tiles.Tile;
 import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;
@@ -27,26 +28,42 @@ public class FileBoardStyle extends BoardStyle {
     public static final String ROOM      = "room";
 
     private final int[] availableSizes;
-    private final Map<String, Sampler[]> samplers = new HashMap<>();
+
+    // samplers by size then name
+    private final Map<Integer, Map<String, Sampler>> samplersBySize = new HashMap<>();
 
     protected FileBoardStyle(BoardStyleReader reader) throws IOException {
         super(reader.name, reader.author, reader.version);
 
-        Set<Integer> availableSizes = new HashSet<>();
+        for (Map.Entry<String, List<Sampler>> entry : reader.samplers.entrySet()) {
+            for (Sampler sampler : entry.getValue()) {
+                Map<String, Sampler> map = samplersBySize.computeIfAbsent(sampler.getSize(), k -> new HashMap<>());
 
-        for (Map.Entry<String, List<Sampler>> s : reader.samplers.entrySet()) {
-            Sampler[] samplerArray = s.getValue().toArray(new Sampler[0]);
-            Arrays.sort(samplerArray, Comparator.comparingInt(Sampler::getSize));
-
-            // TODO: check
-            for (Sampler sampler : samplerArray) {
-                availableSizes.add(sampler.getSize());
+                map.put(entry.getKey(), sampler);
             }
-
-            samplers.put(s.getKey(), samplerArray);
         }
 
-        this.availableSizes = Objects.requireNonNull(availableSizes).stream().mapToInt(i -> i).sorted().toArray();
+        checkSamplers();
+
+        this.availableSizes = samplersBySize.keySet().stream().mapToInt(i -> i).sorted().toArray();
+    }
+
+    private void checkSamplers() throws IOException {
+        for (Map.Entry<Integer, Map<String, Sampler>> entry : samplersBySize.entrySet()) {
+            Map<String, Sampler> samplers = entry.getValue();
+
+            for (Tile tile : Tile.values()) {
+                if (!samplers.containsKey(tile.name())) {
+                    throw new IOException("Missing sampler " + tile.name() + " for size " + entry.getKey());
+                }
+            }
+
+            for (Direction dir : Direction.values()) {
+                if (!samplers.containsKey(dir.name())) {
+                    throw new IOException("Missing sampler " + dir.name() + " for size " + entry.getKey());
+                }
+            }
+        }
     }
 
     @Override
@@ -54,7 +71,7 @@ public class FileBoardStyle extends BoardStyle {
         int index = findBestSizeIndex(size);
         size = availableSizes[index];
 
-        List<Sampler> samplers = getSamplersFor(tile, playerDir, index);
+        List<Sampler> samplers = getSamplersFor(tile, playerDir, size);
         StyledCharacter out = new StyledCharacter();
 
         for (int y = 0; y < size; y++) {
@@ -72,7 +89,7 @@ public class FileBoardStyle extends BoardStyle {
         int index = findBestSizeIndex(size);
         size = availableSizes[index];
 
-        List<Sampler> samplers = getSamplersFor(tile, playerDir, index);
+        List<Sampler> samplers = getSamplersFor(tile, playerDir, size);
         StyledCharacter out = new StyledCharacter();
 
         for (int y = 0; y < size; y++) {
@@ -88,7 +105,7 @@ public class FileBoardStyle extends BoardStyle {
         int sizeIndex = availableSizes.length - 1;
         int size = availableSizes[sizeIndex];
 
-        if (isImageOnly(sizeIndex)) {
+        if (isImageOnly(size)) {
             CreateImageHelper helper = new CreateImageHelper();
             helper.charWidth = 1;
             helper.charHeight = 1;
@@ -107,7 +124,7 @@ public class FileBoardStyle extends BoardStyle {
         int sizeIndex = availableSizes.length - 1;
         int size = availableSizes[sizeIndex];
 
-        if (isImageOnly(sizeIndex)) {
+        if (isImageOnly(size)) {
             return createImageWithLegendOnlyImage(size, board, playerX, playerY, playerDir);
         } else {
             return new CreateImageHelper()
@@ -145,10 +162,12 @@ public class FileBoardStyle extends BoardStyle {
         return helper.createImage(true, this, size, board, playerX, playerY, playerDir);
     }
 
-    private boolean isImageOnly(int sizeIndex) {
+    private boolean isImageOnly(int size) {
+        Map<String, Sampler> samplers = samplersBySize.get(size);
+
         boolean image = true;
-        for (Sampler[] samplers : this.samplers.values()) {
-            if (samplers[sizeIndex] instanceof AnsiSampler) {
+        for (Sampler sampler : samplers.values()) {
+            if (sampler instanceof AnsiSampler) {
                 image = false;
                 break;
             }
@@ -167,32 +186,26 @@ public class FileBoardStyle extends BoardStyle {
         }
     }
 
-    protected List<Sampler> getSamplersFor(TileInfo tile, Direction playerDir, int sizeIndex) {
+    protected List<Sampler> getSamplersFor(TileInfo tile, Direction playerDir, int size) {
+        Map<String, Sampler> allSamplers = samplersBySize.get(size);
+
         List<Sampler> samplers = new ArrayList<>();
-        addIfNotNull(samplers, tile.getTile().name(), sizeIndex);
+        samplers.add(allSamplers.get(tile.getTile().name()));
 
         if (playerDir != null) {
-            addIfNotNull(samplers, playerDir.name(), sizeIndex);
+            samplers.add(allSamplers.get(playerDir.name()));
         }
         if (tile.isDeadTile() && drawDeadTiles) {
-            addIfNotNull(samplers, DEAD_TILE, sizeIndex);
+            samplers.add(allSamplers.get(DEAD_TILE));
         }
         if (tile.isInATunnel() && drawTunnels) {
-            addIfNotNull(samplers, TUNNEL, sizeIndex);
+            samplers.add(allSamplers.get(TUNNEL));
         }
         if (tile.isInARoom() && drawRooms) {
-            addIfNotNull(samplers, ROOM, sizeIndex);
+            samplers.add(allSamplers.get(ROOM));
         }
 
         return samplers;
-    }
-
-    protected void addIfNotNull(List<Sampler> samplerList, String name, int sizeIndex) {
-        Sampler s = samplers.get(name)[sizeIndex];
-
-        if (s != null) {
-            samplerList.add(s);
-        }
     }
 
     @Override
@@ -308,20 +321,8 @@ public class FileBoardStyle extends BoardStyle {
 
         private final AttributedString[] ansi;
 
-        public AnsiSampler(int size, AttributedString[] ansi) {
+        public AnsiSampler(AttributedString[] ansi) {
             this.ansi = ansi;
-
-            if (ansi.length != size) {
-                throw new IllegalArgumentException();
-            }
-
-            for (AttributedString str : ansi) {
-                if (str == null || str.columnLength() != size) {
-                    throw new IllegalArgumentException("Invalid length: " + str + ".");
-                } else if (str.columnLength() != size) {
-                    throw new IllegalArgumentException("Invalid length: " + str + ". length=" + str.columnLength());
-                }
-            }
         }
 
         @Override

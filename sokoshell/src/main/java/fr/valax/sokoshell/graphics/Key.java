@@ -88,7 +88,32 @@ public interface Key {
     Key DELETE = new SimpleKey(KeyMap.del());
     Key SPACE = new SimpleKey(" ");
 
+    Key CTRL_A = ctrl('a');
+    Key CTRL_B = ctrl('b');
+    Key CTRL_C = ctrl('c');
+    Key CTRL_D = ctrl('d');
     Key CTRL_E = ctrl('e');
+    Key CTRL_F = ctrl('f');
+    Key CTRL_G = ctrl('g');
+    Key CTRL_H = ctrl('h');
+    Key CTRL_I = ctrl('i');
+    Key CTRL_J = ctrl('j');
+    Key CTRL_K = ctrl('k');
+    Key CTRL_L = ctrl('l');
+    Key CTRL_M = ctrl('m');
+    Key CTRL_N = ctrl('n');
+    Key CTRL_O = ctrl('o');
+    Key CTRL_P = ctrl('p');
+    Key CTRL_Q = ctrl('q');
+    Key CTRL_R = ctrl('r');
+    Key CTRL_S = ctrl('s');
+    Key CTRL_T = ctrl('t');
+    Key CTRL_U = ctrl('u');
+    Key CTRL_V = ctrl('v');
+    Key CTRL_W = ctrl('w');
+    Key CTRL_X = ctrl('x');
+    Key CTRL_Y = ctrl('y');
+    Key CTRL_Z = ctrl('z');
 
     Key MOUSE = new InfoCmpCapabilityKey(InfoCmp.Capability.key_mouse);
 

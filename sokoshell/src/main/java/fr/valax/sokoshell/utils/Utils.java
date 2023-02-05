@@ -6,6 +6,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -159,5 +160,21 @@ public class Utils {
         } else {
             return parent.resolve(s);
         }
+    }
+
+
+    public static BigInteger binomial(int n, int k) {
+        BigInteger bottom = BigInteger.ONE;
+
+        for (int i = 2; i <= k; i++) {
+            bottom = bottom.multiply(BigInteger.valueOf(i));
+        }
+
+        BigInteger top = BigInteger.ONE;
+        for (int i = n - k + 1; i <= n; i++) {
+            top = top.multiply(BigInteger.valueOf(i));
+        }
+
+        return top.divide(bottom);
     }
 }

@@ -30,7 +30,7 @@ public abstract class BoardStyle {
     protected final String author;
     protected final String version;
 
-    protected boolean drawDeadTiles = true;
+    protected boolean drawDeadTiles = false;
     protected boolean drawRooms = false;
     protected boolean drawTunnels = false;
 
@@ -171,7 +171,7 @@ public abstract class BoardStyle {
         int yOffset = y + (height - h) / 2;
 
         g.getSurface().translate(xOffset, yOffset);
-        drawWithLegend(g, s, board, playerX, playerY, playerDir);
+        draw(g, s, board, playerX, playerY, playerDir);
         g.getSurface().translate(-xOffset, -yOffset);
     }
 

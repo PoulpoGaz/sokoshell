@@ -74,11 +74,6 @@ public abstract class GenericTileInfo implements TileInfo {
     // SETTERS: throw UnsupportedOperationException as this class is immutable //
 
     @Override
-    public void set(TileInfo other) {
-        throw new UnsupportedOperationException("Immutable object");
-    }
-
-    @Override
     public void addCrate() {
         throw new UnsupportedOperationException("Immutable object");
     }

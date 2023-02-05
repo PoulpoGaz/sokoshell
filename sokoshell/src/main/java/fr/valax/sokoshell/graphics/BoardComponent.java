@@ -12,6 +12,8 @@ public class BoardComponent extends Component {
     private int playerX;
     private int playerY;
 
+    private boolean showLegend = true;
+
     public BoardComponent() {
 
     }
@@ -21,7 +23,11 @@ public class BoardComponent extends Component {
         if (board != null) {
             BoardStyle style = SokoShell.INSTANCE.getBoardStyle();
 
-            style.drawCenteredWithLegend(g, 0, 0, getWidth(), getHeight(), board, playerX, playerY, playerDir);
+            if (showLegend) {
+                style.drawCenteredWithLegend(g, 0, 0, getWidth(), getHeight(), board, playerX, playerY, playerDir);
+            } else {
+                style.drawCentered(g, 0, 0, getWidth(), getHeight(), board, playerX, playerY, playerDir);
+            }
         }
     }
 
@@ -65,6 +71,17 @@ public class BoardComponent extends Component {
     public void setPlayerY(int playerY) {
         if (playerY != this.playerY) {
             this.playerY = playerY;
+            repaint();
+        }
+    }
+
+    public boolean isShowLegend() {
+        return showLegend;
+    }
+
+    public void setShowLegend(boolean showLegend) {
+        if (showLegend != this.showLegend) {
+            this.showLegend = showLegend;
             repaint();
         }
     }

@@ -2,13 +2,14 @@ package fr.valax.sokoshell.solver;
 
 import fr.poulpogaz.json.JsonException;
 import fr.poulpogaz.json.JsonPrettyWriter;
-import fr.valax.sokoshell.solver.board.Board;
 import fr.valax.sokoshell.solver.board.Direction;
 import fr.valax.sokoshell.solver.board.ImmutableBoard;
 import fr.valax.sokoshell.solver.board.tiles.Tile;
 import fr.valax.sokoshell.utils.BuilderException;
+import fr.valax.sokoshell.utils.Utils;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.*;
 
 /**
@@ -24,12 +25,36 @@ public class Level extends ImmutableBoard {
 
     private final List<SolverReport> solverReports;
 
+    // number of crate or crate on target
+    private final int numberOfCrate;
+
+    // number of crate, crate on target, floor and target
+    private final int numberOfNonWall;
+
+    private BigInteger maxNumberOfStateEstimation;
+
     public Level(Tile[][] tiles, int width, int height, int playerPos, int index) {
         super(tiles, width, height);
         this.playerPos = playerPos;
         this.index = index;
 
         solverReports = new ArrayList<>();
+
+        int numCrate = 0;
+        int numFloor = 0;
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                if (getAt(x, y).anyCrate()) {
+                    numCrate++;
+                }
+                if (!getAt(x, y).isWall()) {
+                    numFloor++;
+                }
+            }
+        }
+
+        this.numberOfCrate = numCrate;
+        this.numberOfNonWall = numFloor;
     }
 
     public void writeSolutions(JsonPrettyWriter jpw) throws JsonException, IOException {
@@ -80,6 +105,35 @@ public class Level extends ImmutableBoard {
         }
 
         return new State(playerPos, cratesIndicesArray, null);
+    }
+
+    public BigInteger estimateNumberOfState() {
+        if (maxNumberOfStateEstimation == null) {
+            // + 1 for numberOfCrate because we also consider the player
+            maxNumberOfStateEstimation = Utils.binomial(numberOfNonWall, numberOfCrate + 1);
+        }
+
+        return maxNumberOfStateEstimation;
+    }
+
+    public BigInteger estimateNumberOfState(int nDeadTile) {
+        int nFloor = numberOfNonWall - nDeadTile;
+
+        return Utils.binomial(nFloor, numberOfCrate + 1);
+    }
+
+    /**
+     * @return the number of crate in this level
+     */
+    public int getNumberOfCrate() {
+        return numberOfCrate;
+    }
+
+    /**
+     * @return the number of non-wall (floor, target, crate, crate on target)
+     */
+    public int getNumberOfNonWall() {
+        return numberOfNonWall;
     }
 
     /**

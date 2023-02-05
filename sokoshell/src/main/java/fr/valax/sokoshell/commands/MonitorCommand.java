@@ -5,6 +5,7 @@ import fr.valax.sokoshell.SolverTask;
 import fr.valax.sokoshell.TaskStatus;
 import fr.valax.sokoshell.graphics.*;
 import fr.valax.sokoshell.graphics.layout.*;
+import fr.valax.sokoshell.graphics.style.BoardStyle;
 import fr.valax.sokoshell.solver.*;
 import fr.valax.sokoshell.solver.board.Board;
 import fr.valax.sokoshell.solver.board.Direction;
@@ -40,6 +41,10 @@ public class MonitorCommand extends AbstractCommand {
                 ex = e;
             }
         }
+        BoardStyle style = sokoshell().getBoardStyle();
+        style.setDrawDeadTiles(false);
+        style.setDrawTunnels(false);
+        style.setDrawRooms(false);
 
         if (ex != null) {
             ex.printStackTrace(err);
@@ -49,8 +54,11 @@ public class MonitorCommand extends AbstractCommand {
     }
 
     private void initEngine(TerminalEngine engine, SolverTask task) {
-        Key.ENTER.bind(engine);
-        Key.CTRL_E.bind(engine);
+        Key.CTRL_D.bind(engine); // dead tiles
+        Key.CTRL_E.bind(engine); // export
+        Key.CTRL_L.bind(engine); // legend
+        Key.CTRL_R.bind(engine); // rooms
+        Key.CTRL_T.bind(engine); // tunnels
         Key.ESCAPE.bind(engine);
 
         engine.setRootComponent(new Monitor(task));
@@ -68,7 +76,15 @@ public class MonitorCommand extends AbstractCommand {
 
     @Override
     public String[] getUsage() {
-        return new String[0];
+        return new String[] {
+                "Monitor a solve: view the process and static information.",
+                "Shortcuts:",
+                "-ctrl e: export to png the board.",
+                "-ctrl l: show legend.",
+                "-ctrl d: show dead tiles.",
+                "-ctrl t: show tunnels.",
+                "-ctrl r: show rooms.",
+        };
     }
 
     private static class Monitor extends Component {
@@ -98,6 +114,7 @@ public class MonitorCommand extends AbstractCommand {
         private final Label maxNumberOfStateLabel = new Label();
 
         private BoardComponent boardComponent;
+        private boolean isUsingStaticBoard = false;
 
         public Monitor(SolverTask task) {
             this.task = task;
@@ -223,6 +240,24 @@ public class MonitorCommand extends AbstractCommand {
         protected void updateComponent() {
             if (keyPressed(Key.ESCAPE)) {
                 getEngine().stop();
+                return;
+            }
+            if (keyPressed(Key.CTRL_L)) {
+                boardComponent.setShowLegend(!boardComponent.isShowLegend());
+            }
+
+            BoardStyle currentStyle = SokoShell.INSTANCE.getBoardStyle();
+            if (keyPressed(Key.CTRL_D)) {
+                currentStyle.setDrawDeadTiles(!currentStyle.isDrawDeadTiles());
+                repaint();
+            }
+            if (keyPressed(Key.CTRL_R)) {
+                currentStyle.setDrawRooms(!currentStyle.isDrawRooms());
+                repaint();
+            }
+            if (keyPressed(Key.CTRL_T)) {
+                currentStyle.setDrawTunnels(!currentStyle.isDrawTunnels());
+                repaint();
             }
 
             if (task.getCurrentLevel() != index) {
@@ -230,14 +265,16 @@ public class MonitorCommand extends AbstractCommand {
             }
 
             if (trackable != null) {
-                /*State state = trackable.currentState();
+                State state = trackable.currentState();
+
+                if (!isUsingStaticBoard && trackable.staticBoard() != null) {
+                    MutableBoard board = new MutableBoard(trackable.staticBoard(), true);
+                    boardComponent.setBoard(board);
+                    setEstimation(currentLevel.estimateNumberOfState(countDeadTiles(board)));
+                }
 
                 if (state != null && state != currentState) {
                     changeState(state);
-                }*/
-
-                if (trackable.staticBoard() != null) {
-                    boardComponent.setBoard(trackable.staticBoard());
                 }
 
                 long end = trackable.timeEnded();
@@ -259,18 +296,23 @@ public class MonitorCommand extends AbstractCommand {
                 currentLevel = levels.get(index);
                 currentPack = currentLevel.getPack();
 
-                //Board board = new MutableBoard(currentLevel);
-
-                //BigInteger n = estimateMaxNumberOfStates(board);
-                //maxNumberOfStateLabel.setText(n.toString());
-
-                //board.forEach(TileInfo::removeCrate);
+                Board board;
+                if (trackable != null && trackable.staticBoard() != null) {
+                    board = new MutableBoard(trackable.staticBoard(), true);
+                    setEstimation(currentLevel.estimateNumberOfState(countDeadTiles(board)));
+                    isUsingStaticBoard = true;
+                } else {
+                    board = new MutableBoard(currentLevel);
+                    board.forEach(TileInfo::removeCrate);
+                    setEstimation(currentLevel.estimateNumberOfState());
+                    isUsingStaticBoard = false;
+                }
 
                 progressLabel.setText(index + "/" + task.getLevels().size());
                 levelLabel.setText(Integer.toString(currentLevel.getIndex() + 1));
                 packLabel.setText(currentPack.name());
 
-                //boardComponent.setBoard(board);
+                boardComponent.setBoard(board);
                 boardComponent.setPlayerX(-1);
                 boardComponent.setPlayerY(-1);
             } else if (task.getTaskStatus() == TaskStatus.FINISHED) {
@@ -308,65 +350,22 @@ public class MonitorCommand extends AbstractCommand {
             boardComponent.repaint();
         }
 
-        /**
-         * let c the number of crate<br>
-         * let f the number of floor<br>
-         * <br>
-         * An upper bounds of the number of states is:<br>
-         * (f (c + 1))     where (n k) is n choose k<br>
-         * <br>
-         * (f c) counts the number of way to organize the crate (c) and the player ( + 1)<br>
-         */
-        private BigInteger estimateMaxNumberOfStates(Board board) {
-            int nCrate = 0;
-            int nFloor = 0;
+        private void setEstimation(BigInteger integer) {
+            maxNumberOfStateLabel.setText(integer.toString());
+        }
+
+        private int countDeadTiles(Board board) {
+            int n = 0;
 
             for (int y = 0; y < board.getHeight(); y++) {
                 for (int x = 0; x < board.getWidth(); x++) {
-
-                    if (board.getAt(x, y).anyCrate()) {
-                        nCrate++;
-                        nFloor++;
-                    } else if (!board.getAt(x, y).isSolid()) {
-                        nFloor++;
+                    if (board.getAt(x, y).isDeadTile()) {
+                        n++;
                     }
                 }
             }
 
-            Tuple t = factorial(nFloor, nCrate + 1, nFloor - nCrate - 1);
-
-            return t.a()
-                    .divide(t.b().multiply(t.c()));
-        }
-
-
-        private Tuple factorial(int nA, int nB, int nC) {
-            int max = Math.max(nA, Math.max(nB, nC));
-
-            BigInteger a = nA == 0 ? BigInteger.ZERO : null;
-            BigInteger b = nB == 0 ? BigInteger.ZERO : null;
-            BigInteger c = nC == 0 ? BigInteger.ZERO : null;
-
-            BigInteger fac = BigInteger.ONE;
-            for (int k = 1; k <= max; k++) {
-
-                fac = fac.multiply(BigInteger.valueOf(k));
-
-                if (k == nA) {
-                    a = fac;
-                }
-                if (k == nB) {
-                    b = fac;
-                }
-                if (k == nC) {
-                    c = fac;
-                }
-            }
-
-            return new Tuple(a, b, c);
+            return n;
         }
     }
-
-
-    private record Tuple(BigInteger a, BigInteger b, BigInteger c) {}
 }

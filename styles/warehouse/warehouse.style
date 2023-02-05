@@ -40,8 +40,6 @@ set-ansi crate_on_target 1
 set-ansi player 1
 {fg black}o
 
-set-mask dead_tile 1 255 0 0 128
-
 
 
 # ==== SIZE 2 ====
@@ -238,3 +236,32 @@ set-image player_left     16 tileset.png  80 0
 set-image player_right    16 tileset.png  96 0
 set-image player_down     16 tileset.png 112 0
 set-image player_up       16 tileset.png 128 0
+
+
+# ==== MASKS ====
+set-mask dead_tile  1 255 0 0 64
+set-mask dead_tile  2 255 0 0 64
+set-mask dead_tile  3 255 0 0 64
+set-mask dead_tile  4 255 0 0 64
+set-mask dead_tile  8 255 0 0 64
+set-mask dead_tile 10 255 0 0 64
+set-mask dead_tile 12 255 0 0 64
+set-mask dead_tile 16 255 0 0 64
+
+set-mask tunnel  1 200 192 100 64
+set-mask tunnel  2 200 192 100 64
+set-mask tunnel  3 200 192 100 64
+set-mask tunnel  4 200 192 100 64
+set-mask tunnel  8 200 192 100 64
+set-mask tunnel 10 200 192 100 64
+set-mask tunnel 12 200 192 100 64
+set-mask tunnel 16 200 192 100 64
+
+set-mask room  1 89 133 198 64
+set-mask room  2 89 133 198 64
+set-mask room  3 89 133 198 64
+set-mask room  4 89 133 198 64
+set-mask room  8 89 133 198 64
+set-mask room 10 89 133 198 64
+set-mask room 12 89 133 198 64
+set-mask room 16 89 133 198 64

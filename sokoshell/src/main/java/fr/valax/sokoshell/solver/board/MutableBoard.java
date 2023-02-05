@@ -53,7 +53,6 @@ public class MutableBoard extends GenericBoard {
     private CratePlayerAStar cratePlayerAStar;
 
     private StaticBoard staticBoard;
-    private boolean initialized = false; // was this board initialized by a solver ?
 
     /**
      * Creates a SolverBoard with the specified width, height and tiles
@@ -82,15 +81,107 @@ public class MutableBoard extends GenericBoard {
      */
     @SuppressWarnings("CopyConstructorMissesField")
     public MutableBoard(Board other) {
-        super(other);
+        this(other, false);
+    }
 
-        this.content = new TileInfo[height][width];
+    public MutableBoard(Board other, boolean copyStatic) {
+        super(other.getWidth(), other.getHeight());
+
+        content = new TileInfo[height][width];
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                this.content[y][x] = new MutableTileInfo(this, other.getAt(x, y));
+                content[y][x] = new MutableTileInfo(this, other.getAt(x, y));
             }
         }
+
+        if (copyStatic) {
+            copyStaticInformation(other);
+        }
+    }
+
+    private void copyStaticInformation(Board other) {
+        // map room in other board and in this board
+        Map<Room, Room> roomMap = new HashMap<>(rooms.size());
+        Map<Tunnel, Tunnel> tunnelMap = new HashMap<>(rooms.size());
+
+        // copy tunnels, rooms
+        for (Room room : other.getRooms()) {
+            Room copy = copyRoom(room);
+            roomMap.put(room, copy);
+            rooms.add(copy);
+        }
+        for (Tunnel tunnel : other.getTunnels()) {
+            Tunnel copy = copyTunnel(tunnel);
+            tunnelMap.put(tunnel, copy);
+            tunnels.add(copy);
+        }
+
+        // copy tile info
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                TileInfo otherTile = other.getAt(x, y);
+                TileInfo tile = content[y][x];
+                tile.setDeadTile(otherTile.isDeadTile());
+
+                if (tile.getTargets() != null) {
+                    tile.setTargets(Arrays.copyOf(tile.getTargets(), tile.getTargets().length));
+                }
+                tile.setNearestTarget(otherTile.getNearestTarget());
+
+                tile.setTunnel(tunnelMap.get(otherTile.getTunnel()));
+                tile.setRoom(roomMap.get(otherTile.getRoom()));
+                if (otherTile.getTunnelExit() != null) {
+                    tile.setTunnelExit(otherTile.getTunnelExit()); // it is immutable !
+                }
+            }
+        }
+
+        // link rooms and tunnels
+        for (Tunnel tunnel : other.getTunnels()) {
+            Tunnel newTunnel = tunnelMap.get(tunnel);
+            for (Room room : other.getRooms()) {
+                Room newRoom = roomMap.get(room);
+                newTunnel.addRoom(newRoom);
+                newRoom.addTunnel(newTunnel);
+            }
+        }
+    }
+
+    private Room copyRoom(Room room) {
+        Room newRoom = new Room();
+        newRoom.setGoalRoom(room.isGoalRoom());
+
+        for (TileInfo t : room.getTiles()) {
+            newRoom.addTile(getAt(t.getIndex()));
+        }
+        if (room.getPackingOrder() != null) {
+            List<TileInfo> packingOrder = new ArrayList<>();
+            for (TileInfo t : room.getPackingOrder()) {
+                packingOrder.add(getAt(t.getIndex()));
+            }
+            newRoom.setPackingOrder(packingOrder);
+        }
+
+        return newRoom;
+    }
+
+    private Tunnel copyTunnel(Tunnel tunnel) {
+        Tunnel newTunnel = new Tunnel();
+
+        newTunnel.setStart(getAt(tunnel.getStart().getIndex()));
+        newTunnel.setEnd(getAt(tunnel.getEnd().getIndex()));
+
+        if (tunnel.getStartOut() != null) {
+            newTunnel.setStartOut(getAt(tunnel.getStartOut().getIndex()));
+        }
+        if (tunnel.getEndOut() != null) {
+            newTunnel.setEndOut(getAt(tunnel.getEndOut().getIndex()));
+        }
+        newTunnel.setPlayerOnlyTunnel(tunnel.isPlayerOnlyTunnel());
+        newTunnel.setOneway(tunnel.isOneway());
+
+        return newTunnel;
     }
 
     /**
@@ -207,7 +298,14 @@ public class MutableBoard extends GenericBoard {
         findRooms();
         tryComputePackingOrder();
         computeTileToTargetsDistances();
-        initialized = true;
+
+        // we must compute the static board here
+        // this is the unique point where the board
+        // information are guaranteed to be true.
+        // For example, the freeze deadlock detector
+        // places wall on the map but this object
+        // has no information about this.
+        staticBoard = new StaticBoard();
     }
 
     /**
@@ -870,10 +968,6 @@ public class MutableBoard extends GenericBoard {
     // *********************
 
     public StaticBoard staticBoard() {
-        if (staticBoard == null && initialized) {
-            staticBoard = new StaticBoard();
-        }
-
         return staticBoard;
     }
 
@@ -1009,7 +1103,7 @@ public class MutableBoard extends GenericBoard {
                     dest.tunnel = tunnelMap.get(original.getTunnel());
                     dest.room = roomMap.get(original.getRoom());
 
-                    if (dest.getTunnelExit() != null) {
+                    if (original.getTunnelExit() != null) {
                         dest.exit = original.getTunnelExit(); // it is immutable !
                     }
                 }
@@ -1077,7 +1171,12 @@ public class MutableBoard extends GenericBoard {
             super(staticBoard, removeCrate(tile.getTile()), tile.getX(), tile.getY());
             this.deadTile = tile.isDeadTile();
 
-            this.targets = tile.getTargets();
+            if (tile.getTargets() == null) {
+                targets = null;
+            } else {
+                targets = Arrays.copyOf(tile.getTargets(), tile.getTargets().length);
+            }
+
             this.nearestTarget = tile.getNearestTarget();
         }
 

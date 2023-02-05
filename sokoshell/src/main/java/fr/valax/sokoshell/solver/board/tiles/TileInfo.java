@@ -218,6 +218,10 @@ public interface TileInfo {
 
     TargetRemoteness[] getTargets();
 
+    /**
+     * @implNote If you replace index by TileInfo, you will need to modify MutableBoard#StaticTile.
+     * If you are too lazy to do that, create an issue on github
+     */
     record TargetRemoteness(int index, int distance) implements Comparable<TargetRemoteness> {
 
         @Override
@@ -233,15 +237,6 @@ public interface TileInfo {
 
 
     // SETTERS //
-
-    /**
-     * Copy the information of other into this tile info
-     *
-     * @param other the TileInfo from which we extract information
-     * @throws UnsupportedOperationException if the {@code set} operation isn't
-     * supported by this TileInfo
-     */
-    void set(TileInfo other);
 
     /**
      * If this was a floor, this is now a crate

@@ -120,19 +120,6 @@ public class MutableTileInfo extends GenericTileInfo {
 
     // SETTERS //
 
-    public void set(TileInfo other) {
-        tile = other.getTile();
-        deadTile = other.isDeadTile();
-        setReachable(other.isReachable());
-        mark.setMarked(other.isMarked());
-        if (other.getTargets() == null) {
-            targets = null;
-        } else {
-            targets = Arrays.copyOf(other.getTargets(), other.getTargets().length);
-        }
-        nearestTarget = other.getNearestTarget();
-    }
-
     @Override
     public void addCrate() {
         if (tile == Tile.FLOOR) {
