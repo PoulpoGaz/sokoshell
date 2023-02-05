@@ -1,0 +1,2 @@
+\beamer@sectionintoc {1}{Le jeu du Sokoban}{2}{0}{1}
+\beamer@sectionintoc {2}{Résolution}{4}{0}{2}
