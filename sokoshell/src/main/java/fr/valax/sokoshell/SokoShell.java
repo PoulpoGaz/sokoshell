@@ -113,8 +113,7 @@ public class SokoShell {
 
         addSolver(BasicBruteforceSolver.newBFSSolver());
         addSolver(BasicBruteforceSolver.newDFSSolver());
-        addSolver(AStarSolver.newGreedyAStar());
-        addSolver(AStarSolver.newSimplerAStar());
+        addSolver(new AStarSolver());
 
         addBoardStyle(BasicStyle.DEFAULT_STYLE);
         addBoardStyle(BasicStyle.XSB_STYLE);

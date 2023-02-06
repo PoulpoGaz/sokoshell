@@ -5,6 +5,9 @@ import fr.valax.sokoshell.solver.board.Direction;
 import fr.valax.sokoshell.solver.board.tiles.Tile;
 import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * May be removed in the future
  * @author darth-mole
@@ -74,5 +77,20 @@ public abstract class AbstractSolver implements Solver {
 
         // ultimate check, the crate is frozen if it is only a crate and not a crate on target
         return deadlock;
+    }
+
+    @Override
+    public List<SolverParameter> getParameters() {
+        List<SolverParameter> params = new ArrayList<>();
+        addParameters(params);
+        return params;
+    }
+
+    /**
+     * Add your parameters to the list returned by {@link #getParameters()}
+     * @param parameters parameters that will be returned by {@link #getParameters()}
+     */
+    protected void addParameters(List<SolverParameter> parameters) {
+
     }
 }

@@ -82,7 +82,7 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
         board.removeStateCrates(initialState);
         board.initForSolver();
 
-        init();
+        init(params);
         processed.clear();
 
         addInitialState(level);
@@ -143,7 +143,7 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
      * Initialize the solver. This method is called after the initialization of
      * the board
      */
-    protected abstract void init();
+    protected abstract void init(SolverParameters parameters);
 
     protected abstract void addInitialState(Level level);
 
@@ -314,10 +314,10 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
     }
 
     @Override
-    public List<SolverParameter> getParameters() {
-        return List.of(new SolverParameter.Long(TIMEOUT, "Maximal runtime of the solver", -1),
-                new SolverParameter.RamParameter(MAX_RAM, -1),
-                new SolverParameter.Boolean(ACCURATE, "Use a more accurate method to calculate ram usage", false));
+    protected void addParameters(List<SolverParameter> parameters) {
+        parameters.add(new SolverParameter.Long(TIMEOUT, "Maximal runtime of the solver", -1));
+        parameters.add(new SolverParameter.RamParameter(MAX_RAM, -1));
+        parameters.add(new SolverParameter.Boolean(ACCURATE, "Use a more accurate method to calculate ram usage", false));
     }
 
     private SolverStatistics getStatistics() {
