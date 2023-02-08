@@ -131,13 +131,13 @@ public class CorralDetector {
             Corral corral2 = corrals[corral2I];
 
             if (rank[corral1I] < rank[corral2I]) {
-                mergeInto(corral2, corral1);
+                mergeInto(corral1, corral2);
                 parent[corral1I] = corral2I;
                 return corrals[corral2I];
             } else if (rank[corral1I] > rank[corral2I]) {
                 mergeInto(corral2, corral1);
                 parent[corral2I] = corral1I;
-                return corrals[corral2I];
+                return corrals[corral1I];
             } else {
                 mergeInto(corral1, corral2);
                 parent[corral1I] = corral2I;

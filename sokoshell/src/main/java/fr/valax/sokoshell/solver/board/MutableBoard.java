@@ -1082,7 +1082,7 @@ public class MutableBoard extends GenericBoard {
             }
 
             Map<Tunnel, ImmutableTunnel> tunnelMap = new HashMap<>(tunnels.size());
-            for (int i = 0; i < rooms.size(); i++) {
+            for (int i = 0; i < tunnels.size(); i++) {
                 tunnelMap.put(MutableBoard.this.tunnels.get(i), tunnels.get(i));
             }
 

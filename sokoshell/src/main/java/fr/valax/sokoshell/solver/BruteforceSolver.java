@@ -149,7 +149,6 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
 
     private void addChildrenStates() {
         S state = toProcess.cachedState();
-        // board.findReachableCases(state.playerPos());
 
         int[] cratesIndices = state.cratesIndices();
         for (int crateIndex = 0; crateIndex < cratesIndices.length; crateIndex++) {

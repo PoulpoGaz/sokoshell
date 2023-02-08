@@ -50,6 +50,7 @@ public class BoardTest {
 
         Level level = TestUtils.getLevel(Path.of("levels8xv/Original.8xv"));
         Board board = new MutableBoard(level);
+        State.initZobristValues(board.getWidth() * board.getHeight());
         board.removeStateCrates(level.getInitialState());
         board.computeFloors();
         board.findTunnels();

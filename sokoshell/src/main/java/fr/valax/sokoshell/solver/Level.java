@@ -89,6 +89,8 @@ public class Level extends ImmutableBoard {
      * @return the initial state
      */
     public State getInitialState() {
+        State.initZobristValues(getWidth() * getHeight()); // TODO
+
         List<Integer> cratesIndices = new ArrayList<>();
 
         for (int y = 0; y < getHeight(); y++) {

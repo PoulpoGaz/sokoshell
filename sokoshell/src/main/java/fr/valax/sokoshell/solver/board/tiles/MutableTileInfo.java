@@ -1,5 +1,6 @@
 package fr.valax.sokoshell.solver.board.tiles;
 
+import fr.valax.sokoshell.graphics.style.BasicStyle;
 import fr.valax.sokoshell.solver.board.MutableBoard;
 import fr.valax.sokoshell.solver.board.Room;
 import fr.valax.sokoshell.solver.board.Tunnel;
@@ -72,7 +73,7 @@ public class MutableTileInfo extends GenericTileInfo {
 
     @Override
     public boolean isReachable() {
-        return !tile.isSolid() && board.getCorral(this).containsPlayer(); // reachable.isMarked();
+        return !tile.isSolid() && board.getCorral(this).containsPlayer();
     }
 
      @Override
