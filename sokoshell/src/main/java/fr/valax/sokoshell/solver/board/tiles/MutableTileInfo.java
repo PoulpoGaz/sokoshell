@@ -45,15 +45,11 @@ public class MutableTileInfo extends GenericTileInfo {
     protected Mark reachable;
     protected Mark mark;
 
+    private final MutableBoard board;
+
     public MutableTileInfo(MutableBoard board, Tile tile, int x, int y) {
         super(board, tile, x, y);
-
-        this.reachable = board.getReachableMarkSystem().newMark();
-        this.mark = board.getMarkSystem().newMark();
-    }
-
-    public MutableTileInfo(TileInfo other) {
-        super(other);
+        this.board = board;
 
         this.reachable = board.getReachableMarkSystem().newMark();
         this.mark = board.getMarkSystem().newMark();
@@ -61,6 +57,7 @@ public class MutableTileInfo extends GenericTileInfo {
 
     public MutableTileInfo(MutableBoard board, TileInfo other) {
         super(board, other);
+        this.board = board;
 
         this.reachable = board.getReachableMarkSystem().newMark();
         this.mark = board.getMarkSystem().newMark();
@@ -75,7 +72,7 @@ public class MutableTileInfo extends GenericTileInfo {
 
     @Override
     public boolean isReachable() {
-        return reachable.isMarked();
+        return !tile.isSolid() && board.getCorral(this).containsPlayer(); // reachable.isMarked();
     }
 
      @Override

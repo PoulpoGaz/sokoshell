@@ -1,6 +1,8 @@
 package fr.valax.sokoshell.solver.board;
 
+import fr.valax.sokoshell.solver.Corral;
 import fr.valax.sokoshell.solver.State;
+import fr.valax.sokoshell.solver.CorralDetector;
 import fr.valax.sokoshell.solver.board.mark.AbstractMarkSystem;
 import fr.valax.sokoshell.solver.board.mark.Mark;
 import fr.valax.sokoshell.solver.board.mark.MarkSystem;
@@ -9,12 +11,8 @@ import fr.valax.sokoshell.solver.pathfinder.CrateAStar;
 import fr.valax.sokoshell.solver.pathfinder.CratePlayerAStar;
 import fr.valax.sokoshell.solver.pathfinder.PlayerAStar;
 
-import java.lang.reflect.Array;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 
 /**
@@ -43,6 +41,7 @@ public class MutableBoard extends GenericBoard {
     private final List<Tunnel> tunnels = new ArrayList<>();
     private final List<Room> rooms = new ArrayList<>();
 
+
     /**
      * True if all rooms are goal room with only one entrance
      */
@@ -51,6 +50,8 @@ public class MutableBoard extends GenericBoard {
     private PlayerAStar playerAStar;
     private CrateAStar crateAStar;
     private CratePlayerAStar cratePlayerAStar;
+
+    private final CorralDetector corralDetector;
 
     private StaticBoard staticBoard;
 
@@ -66,12 +67,13 @@ public class MutableBoard extends GenericBoard {
         super(width, height);
 
         this.content = new TileInfo[height][width];
-
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 this.content[y][x] = new MutableTileInfo(this, content[y][x], x, y);
             }
         }
+
+        corralDetector = new CorralDetector(width * height);
     }
 
     /**
@@ -79,7 +81,6 @@ public class MutableBoard extends GenericBoard {
      *
      * @param other the board to copy
      */
-    @SuppressWarnings("CopyConstructorMissesField")
     public MutableBoard(Board other) {
         this(other, false);
     }
@@ -88,12 +89,13 @@ public class MutableBoard extends GenericBoard {
         super(other.getWidth(), other.getHeight());
 
         content = new TileInfo[height][width];
-
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 content[y][x] = new MutableTileInfo(this, other.getAt(x, y));
             }
         }
+
+        corralDetector = new CorralDetector(width * height);
 
         if (copyStatic) {
             copyStaticInformation(other);
@@ -412,6 +414,8 @@ public class MutableBoard extends GenericBoard {
                 }
             }
         }
+
+        corralDetector.findCorral(this, getX(state.playerPos()), getY(state.playerPos()));
     }
 
     /**
@@ -530,7 +534,7 @@ public class MutableBoard extends GenericBoard {
                 t.setOneway(true);
             } else {
                 t.getStart().addCrate();
-                findReachableCases(t.getStartOut());
+                corralDetector.findCorral(this, t.getStartOut().getX(), t.getStartOut().getY());
                 t.getStart().removeCrate();
 
                 t.setOneway(!t.getEndOut().isReachable());
@@ -801,6 +805,42 @@ public class MutableBoard extends GenericBoard {
         return true;
     }
 
+    /**
+     * Find accessible crates using bfs from lastFrontier.
+     *
+     * @param lastFrontier starting point of the bfs
+     * @param newFrontier a non-null list that will contain the next tile info to visit
+     * @param out a list that will contain accessible crates
+     */
+    private void findAccessibleCrates(List<TileInfo> lastFrontier, List<TileInfo> newFrontier, List<TileInfo> out) {
+        newFrontier.clear();
+
+        for (int i = 0; i < lastFrontier.size(); i++) {
+            TileInfo tile = lastFrontier.get(i);
+
+            if (!tile.isMarked()) {
+                tile.mark();
+                if (tile.anyCrate()) {
+                    out.add(tile);
+                } else {
+                    for (Direction dir : Direction.VALUES) {
+                        TileInfo adj = tile.adjacent(dir);
+
+                        if (!adj.isMarked() && !adj.isWall()) {
+                            newFrontier.add(adj);
+                        }
+                    }
+                }
+            }
+        }
+
+        if (!newFrontier.isEmpty()) {
+            findAccessibleCrates(newFrontier, lastFrontier, out);
+        } else {
+            lastFrontier.clear();
+        }
+    }
+
     private void computeTileToTargetsDistances() {
 
         List<Integer> targetIndices = new ArrayList<>();
@@ -846,42 +886,6 @@ public class MutableBoard extends GenericBoard {
         }
     }
 
-    /**
-     * Find accessible crates using bfs from lastFrontier.
-     *
-     * @param lastFrontier starting point of the bfs
-     * @param newFrontier a non-null list that will contain the next tile info to visit
-     * @param out a list that will contain accessible crates
-     */
-    private void findAccessibleCrates(List<TileInfo> lastFrontier, List<TileInfo> newFrontier, List<TileInfo> out) {
-        newFrontier.clear();
-
-        for (int i = 0; i < lastFrontier.size(); i++) {
-            TileInfo tile = lastFrontier.get(i);
-
-            if (!tile.isMarked()) {
-                tile.mark();
-                if (tile.anyCrate()) {
-                    out.add(tile);
-                } else {
-                    for (Direction dir : Direction.VALUES) {
-                        TileInfo adj = tile.adjacent(dir);
-
-                        if (!adj.isMarked() && !adj.isWall()) {
-                            newFrontier.add(adj);
-                        }
-                    }
-                }
-            }
-        }
-
-        if (!newFrontier.isEmpty()) {
-            findAccessibleCrates(newFrontier, lastFrontier, out);
-        } else {
-            lastFrontier.clear();
-        }
-    }
-
 
 
 
@@ -911,6 +915,10 @@ public class MutableBoard extends GenericBoard {
                 findReachableCases_aux(adjacent);
             }
         }
+    }
+
+    public Corral getCorral(TileInfo tile) {
+        return corralDetector.findCorral(tile);
     }
 
 

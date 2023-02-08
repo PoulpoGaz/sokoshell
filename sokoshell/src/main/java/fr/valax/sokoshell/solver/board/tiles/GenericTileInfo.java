@@ -137,4 +137,9 @@ public abstract class GenericTileInfo implements TileInfo {
     public void setNearestTarget(TargetRemoteness nearestTarget) {
         throw new UnsupportedOperationException("Immutable object");
     }
+
+    @Override
+    public int hashCode() {
+        return y * board.getWidth() + x;
+    }
 }

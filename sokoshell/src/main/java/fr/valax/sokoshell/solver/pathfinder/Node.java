@@ -103,8 +103,8 @@ public class Node implements Comparable<Node> {
 
     @Override
     public int hashCode() {
-        int result = player != null ? player.positionHashCode() : 0;
-        result = 31 * result + (crate != null ? crate.positionHashCode() : 0); // TODO
+        int result = player != null ? player.getIndex() : 0;
+        result = 31 * result + (crate != null ? crate.getIndex() : 0); // TODO
         return result;
     }
 

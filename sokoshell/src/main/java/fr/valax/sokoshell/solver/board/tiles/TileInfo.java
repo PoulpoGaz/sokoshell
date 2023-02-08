@@ -206,10 +206,6 @@ public interface TileInfo {
      */
     Board getBoard();
 
-    default int positionHashCode() {
-        return getIndex();
-    }
-
     default int getIndex() {
         return getY() * getBoard().getWidth() + getX();
     }

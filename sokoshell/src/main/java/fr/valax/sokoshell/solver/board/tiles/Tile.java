@@ -2,10 +2,6 @@ package fr.valax.sokoshell.solver.board.tiles;
 
 /**
  * Represents the content of a case of the board.
-<<<<<<< HEAD
- * @author darth-mole
-=======
->>>>>>> refs/remotes/origin/main
  */
 public enum Tile {
 

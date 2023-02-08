@@ -72,7 +72,7 @@ public class PrintCommand extends AbstractCommand {
                     Surface surface = new Surface();
                     surface.resize(s.getColumns(), s.getRows());
                     Graphics g = new Graphics(surface);
-                    sokoshell().getBoardStyle().drawCentered(g, 0, 0, s.getColumns(), s.getRows(), l, l.getPlayerX(), l.getPlayerY(), playerDir);
+                    sokoshell().getBoardStyle().drawCenteredWithLegend(g, 0, 0, s.getColumns(), s.getRows(), l, l.getPlayerX(), l.getPlayerY(), playerDir);
                     surface.print(out);
                 } else {
                     sokoshell().getBoardStyle().print(out, l);
