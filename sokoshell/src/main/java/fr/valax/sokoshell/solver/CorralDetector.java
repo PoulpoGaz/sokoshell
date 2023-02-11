@@ -118,7 +118,7 @@ public class CorralDetector {
                 // the crate is inside a corral
                 // and not a part of a barrier
                 adj.get(0).crates.add(crate);
-            } else {
+            } else if (adj.size() > 1) {
                 // crate is a part of a barrier
                 for (int i = 0; i < adj.size(); i++) {
                     adj.get(i).crates.add(crate);
@@ -133,8 +133,8 @@ public class CorralDetector {
                 // all the adjacent corral cannot be PI corral
                 if (adj.size() >= 3 || !playerCorralAdjacent) {
                     // either too many corrals are linked, either the player isn't involved
-                    for (int i = 0; i < corrals.length; i++) {
-                        corrals[i].isPICorral = false;
+                    for (int i = 0; i < adj.size(); i++) {
+                        adj.get(i).isPICorral = false;
                     }
                 }
             }
@@ -153,7 +153,9 @@ public class CorralDetector {
             // corral neighbor the 'player corral'.
             // We only need to check that every crate in the barrier
             // can be pushed inside the corral.
-            for (TileInfo crate : c.barrier) {
+            List<TileInfo> barrier = c.barrier;
+            for (int j = 0; j < barrier.size(); j++) {
+                TileInfo crate = barrier.get(j);
                 if (!canBePushedInside(crate, Direction.LEFT) && !canBePushedInside(crate, Direction.UP)) {
                     c.isPICorral = false;
                     break;
@@ -212,6 +214,7 @@ public class CorralDetector {
         corral.containsPlayer = false;
         corral.isPICorral = true;
         corral.crates.clear();
+        corral.barrier.clear();
         corral.topX = tile.getX();
         corral.topY = tile.getY();
 

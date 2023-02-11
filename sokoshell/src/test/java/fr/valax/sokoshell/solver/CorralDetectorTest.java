@@ -1,6 +1,7 @@
 package fr.valax.sokoshell.solver;
 
 import fr.valax.sokoshell.TestUtils;
+import fr.valax.sokoshell.graphics.style.BasicStyle;
 import fr.valax.sokoshell.solver.board.MutableBoard;
 import fr.valax.sokoshell.solver.board.tiles.Tile;
 import fr.valax.sokoshell.solver.board.tiles.TileInfo;
@@ -92,6 +93,23 @@ public class CorralDetectorTest {
         print(corralDetector.getCorrals());
     }
 
+    @Test
+    void piCorralTest4() {
+        Level level = TestUtils.getLevel(Path.of("levels8xv/Original.8xv"), 3);
+        MutableBoard board = new MutableBoard(level);
+
+        CorralDetector corralDetector = new CorralDetector(board.getWidth() * board.getHeight());
+
+        board.removeStateCrates(level.getInitialState());
+        board.getAt(3, 7).addCrate();
+        board.getAt(3, 6).addCrate();
+        board.getAt(4, 6).addCrate();
+
+        BasicStyle.XSB_STYLE.print(board, -1, -1);
+
+        corralDetector.findCorral(board, 1, 3);
+        print(corralDetector.getCorrals());
+    }
 
     private static void print(Set<Corral> corrals) {
         System.out.println("~~~~~~~~~~~~~~~~~~~~");

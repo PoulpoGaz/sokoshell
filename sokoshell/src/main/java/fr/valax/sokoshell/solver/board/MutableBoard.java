@@ -414,8 +414,6 @@ public class MutableBoard extends GenericBoard {
                 }
             }
         }
-
-        corralDetector.findCorral(this, getX(state.playerPos()), getY(state.playerPos()));
     }
 
     /**
@@ -917,10 +915,6 @@ public class MutableBoard extends GenericBoard {
         }
     }
 
-    public Corral getCorral(TileInfo tile) {
-        return corralDetector.findCorral(tile);
-    }
-
 
 
     private int topX = 0;
@@ -1008,6 +1002,16 @@ public class MutableBoard extends GenericBoard {
 
     public boolean isGoalRoomLevel() {
         return isGoalRoomLevel;
+    }
+
+    @Override
+    public Corral getCorral(TileInfo tile) {
+        return corralDetector.findCorral(tile);
+    }
+
+    @Override
+    public CorralDetector getCorralDetector() {
+        return corralDetector;
     }
 
     /**

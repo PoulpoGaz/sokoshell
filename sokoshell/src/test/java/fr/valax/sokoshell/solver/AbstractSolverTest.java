@@ -1,6 +1,7 @@
 package fr.valax.sokoshell.solver;
 
 import fr.valax.sokoshell.TestUtils;
+import fr.valax.sokoshell.graphics.style.BasicStyle;
 import fr.valax.sokoshell.graphics.style.BoardStyle;
 import fr.valax.sokoshell.solver.board.Board;
 import fr.valax.sokoshell.solver.board.MutableBoard;
@@ -125,5 +126,32 @@ public class AbstractSolverTest {
 
         style.print(board, myState.playerPos() % board.getWidth(), myState.playerPos() / board.getWidth());
         System.out.println(solver.checkFreezeDeadlock(board, myState));
+    }
+
+    @Test
+    void piCorralTest() {
+        Level level = TestUtils.getLevel(Path.of("levels8xv/Original.8xv"), 3);
+        MutableBoard board = new MutableBoard(level);
+
+        CorralDetector corralDetector = board.getCorralDetector();
+
+        int playerX = 1;
+        int playerY = 3;
+        int c1      = board.getIndex(3, 7);
+        int c2      = board.getIndex(3, 6);
+        int c3      = board.getIndex(4, 6);
+        int player  = board.getIndex(playerX, playerY);
+
+        board.removeStateCrates(level.getInitialState());
+        board.getAt(c1).addCrate();
+        board.getAt(c2).addCrate();
+        board.getAt(c3).addCrate();
+
+        BasicStyle.XSB_STYLE.print(board, playerX, playerY);
+
+        State state = new State(player, new int[] {c1, c2, c3}, 0, null);
+        corralDetector.findCorral(board, playerX, playerY);
+        BasicBruteforceSolver solver = BasicBruteforceSolver.newBFSSolver();
+        System.out.println(solver.checkPICorralDeadlock(board, state));
     }
 }

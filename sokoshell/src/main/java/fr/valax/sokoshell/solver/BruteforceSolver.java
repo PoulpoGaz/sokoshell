@@ -106,10 +106,23 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
                 break;
             }
 
-            if (!checkFreezeDeadlock(board, state)) {
-                addChildrenStates();
+            if (checkFreezeDeadlock(board, state)) {
+                board.removeStateCratesAndReset(state);
+                continue;
             }
 
+            int playerX = board.getX(state.playerPos());
+            int playerY = board.getY(state.playerPos());
+
+            CorralDetector detector = board.getCorralDetector();
+            detector.findCorral(board, playerX, playerY);
+
+            if (checkPICorralDeadlock(board, state)) {
+                board.removeStateCratesAndReset(state);
+                continue;
+            }
+
+            addChildrenStates();
             board.removeStateCratesAndReset(state);
         }
 

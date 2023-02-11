@@ -1,5 +1,7 @@
 package fr.valax.sokoshell.solver.board;
 
+import fr.valax.sokoshell.solver.Corral;
+import fr.valax.sokoshell.solver.CorralDetector;
 import fr.valax.sokoshell.solver.State;
 import fr.valax.sokoshell.solver.board.mark.Mark;
 import fr.valax.sokoshell.solver.board.mark.MarkSystem;
@@ -408,4 +410,14 @@ public interface Board {
      */
     int topLeftReachablePosition(int crateToMoveX, int crateToMoveY, int destX, int destY);
 
+    /**
+     * @param tile tile
+     * @return the corral in which {@code tile} is
+     */
+    Corral getCorral(TileInfo tile);
+
+    /**
+     * @return the {@link CorralDetector} used to find corrals
+     */
+    CorralDetector getCorralDetector();
 }

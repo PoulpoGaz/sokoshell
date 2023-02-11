@@ -79,6 +79,86 @@ public abstract class AbstractSolver implements Solver {
         return deadlock;
     }
 
+
+
+    protected boolean checkPICorralDeadlock(Board board, State state) {
+        CorralDetector detector = board.getCorralDetector();
+        detector.findPICorral(board, state.cratesIndices());
+
+        for (Corral corral : detector.getCorrals()) {
+            if (corral.isPICorral()) {
+                if (checkPICorralDeadlock(board, state, corral)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    protected boolean checkPICorralDeadlock(Board board, State state, Corral corral) {
+        // int statesExplored = 0;
+
+        // remove crates
+        for (int crate : state.cratesIndices()) {
+            if (!isInCorral(board, crate, corral)) {
+                board.getAt(crate).removeCrate();;
+            }
+        }
+
+        boolean deadlock = true;
+
+        for (TileInfo crate : corral.barrier) {
+            for (Direction dir : Direction.VALUES) {
+                TileInfo player = crate.adjacent(dir.negate());
+
+                if (player.isReachable()) {
+                    TileInfo crateDest = crate.adjacent(dir);
+
+                    if (crateDest.isSolid()) {
+                        continue;
+                    }
+
+                    crateDest.addCrate();
+                    crate.removeCrate();
+
+                    if (!checkFreezeDeadlock(crateDest)) {
+                        deadlock = false;
+                    }
+
+                    crateDest.removeCrate();
+                    crate.addCrate();
+                }
+            }
+        }
+
+
+        // re add crates
+        for (int crate : state.cratesIndices()) {
+            if (!isInCorral(board, crate, corral)) {
+                board.getAt(crate).addCrate();;
+            }
+        }
+
+        return deadlock;
+    }
+
+    private boolean isInCorral(Board board, int crate, Corral corral) {
+        TileInfo tile = board.getAt(crate);
+
+        List<Corral> adjacentCorrals = tile.getAdjacentCorrals();
+        for (int i = 0; i < adjacentCorrals.size(); i++) {
+            Corral adj = adjacentCorrals.get(i);
+
+            if (adj == corral) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
     @Override
     public List<SolverParameter> getParameters() {
         List<SolverParameter> params = new ArrayList<>();

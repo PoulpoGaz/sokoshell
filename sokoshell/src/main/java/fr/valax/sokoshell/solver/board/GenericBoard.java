@@ -1,5 +1,7 @@
 package fr.valax.sokoshell.solver.board;
 
+import fr.valax.sokoshell.solver.Corral;
+import fr.valax.sokoshell.solver.CorralDetector;
 import fr.valax.sokoshell.solver.State;
 import fr.valax.sokoshell.solver.board.tiles.Tile;
 import fr.valax.sokoshell.solver.board.tiles.TileInfo;
@@ -149,5 +151,15 @@ public abstract class GenericBoard implements Board {
     @Override
     public int topLeftReachablePosition(int crateToMoveX, int crateToMoveY, int destX, int destY) {
         throw new UnsupportedOperationException("Board is not intended for solvers");
+    }
+
+    @Override
+    public Corral getCorral(TileInfo tile) {
+        return null;
+    }
+
+    @Override
+    public CorralDetector getCorralDetector() {
+        return null;
     }
 }
