@@ -1,8 +1,11 @@
 package fr.valax.sokoshell.solver.board.tiles;
 
+import fr.valax.sokoshell.solver.Corral;
 import fr.valax.sokoshell.solver.board.*;
 import fr.valax.sokoshell.solver.board.mark.Mark;
 import fr.valax.sokoshell.solver.board.mark.MarkSystem;
+
+import java.util.List;
 
 /**
  * The {@link TileInfo} interface defines the methods that {@link Board} implementations need to manage tiles,
@@ -338,4 +341,19 @@ public interface TileInfo {
      * supported by this TileInfo
      */
     void setNearestTarget(TargetRemoteness nearestTarget);
+
+
+    /**
+     * Only for crates. Returns adjacent corrals
+     * @return adjacent corrals
+     */
+    List<Corral> getAdjacentCorrals();
+
+    /**
+     * Only for crates. Returns true if it is in a barrier
+     * @return true if the crate is in a barrier
+     */
+    default boolean isInABarrier() {
+        return getAdjacentCorrals().size() > 2;
+    }
 }

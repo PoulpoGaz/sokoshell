@@ -1,12 +1,15 @@
 package fr.valax.sokoshell.solver.board.tiles;
 
 import fr.valax.sokoshell.graphics.style.BasicStyle;
+import fr.valax.sokoshell.solver.Corral;
 import fr.valax.sokoshell.solver.board.MutableBoard;
 import fr.valax.sokoshell.solver.board.Room;
 import fr.valax.sokoshell.solver.board.Tunnel;
 import fr.valax.sokoshell.solver.board.mark.Mark;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Mutable implementation of {@link TileInfo}.
@@ -19,6 +22,8 @@ import java.util.Arrays;
  * @see GenericTileInfo
  */
 public class MutableTileInfo extends GenericTileInfo {
+
+    private final MutableBoard board;
 
     // Static information
     protected boolean deadTile;
@@ -41,12 +46,12 @@ public class MutableTileInfo extends GenericTileInfo {
      */
     protected TargetRemoteness nearestTarget;
 
+    private List<Corral> adjacentCorrals = new ArrayList<>(4);
+
 
     // Dynamic information
     protected Mark reachable;
     protected Mark mark;
-
-    private final MutableBoard board;
 
     public MutableTileInfo(MutableBoard board, Tile tile, int x, int y) {
         super(board, tile, x, y);
@@ -189,5 +194,10 @@ public class MutableTileInfo extends GenericTileInfo {
     @Override
     public void setNearestTarget(TargetRemoteness nearestTarget) {
         this.nearestTarget = nearestTarget;
+    }
+
+    @Override
+    public List<Corral> getAdjacentCorrals() {
+        return adjacentCorrals;
     }
 }
