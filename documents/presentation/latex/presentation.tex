@@ -1,0 +1,55 @@
+
+\input{preamble.tex}
+
+\begin{document}
+
+    \maketitle
+
+    \begin{frame}{Plan}
+        \tableofcontents%[hideallsubsections]
+    \end{frame}
+
+    \section{Le jeu du Sokoban}
+        \begin{frame}{Le jeu du Sokoban}
+            \includegraphics{Original & Extra_1.png}
+        \end{frame}
+
+    \section{Principe de résolution}
+            \begin{frame}{Arbre des états}
+                \begin{center}
+                    \begin{tikzpicture}
+                        [sibling distance=10em,level distance=6em,
+                        every node/.style={shape=rectangle,draw,align=center}]
+
+                        \node{\includegraphics[width=0.2\textwidth]{exhaustive_search/1.png}}
+                            child{node{\only<2-3>{\includegraphics[width=0.2\textwidth]{exhaustive_search/2.png}}}
+                                child{node{\only<3>{\includegraphics[width=0.2\textwidth]{exhaustive_search/5.png}}}}}
+                            child{node{\only<2-3>{\includegraphics[width=0.2\textwidth]{exhaustive_search/3.png}}}
+                                child{node{\only<3>{\includegraphics[width=0.2\textwidth]{exhaustive_search/4.png}}}}};
+                    \end{tikzpicture}
+                \end{center}
+            \end{frame}
+
+            \begin{frame}{Un graphe vu comme un arbre}
+            \end{frame}
+
+    \section{Réduction de l'espace de recherche}
+        \begin{frame}{Détection de \textit{deadlocks}}
+        \end{frame}
+
+        \begin{frame}{Détection de \textit{corrals}}
+        \end{frame}
+
+    \section{Recherche dirigée par une heuristique}
+        \begin{frame}{Heuristique simple \textit{(Simple Lower Bound)}}
+        \end{frame}
+
+        \begin{frame}{Heuristique gloutonne \textit{(Greedy Lower Bound)}}
+        \end{frame}
+
+    \section{Optimisations}
+        \begin{frame}{}
+        \end{frame}
+
+    \section{Résultats}
+\end{document}

@@ -1,0 +1,20 @@
+\documentclass{beamer}
+
+\usetheme{metropolis} % Use metropolis theme
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+\usetikzlibrary{trees}
+\tikzset{hide on/.code={\only<#1>{\color{fg!20}}}}
+
+\title{Résolution de niveaux du Sokoban}
+\date{\today}
+\author{PoulpoGaz, darth-mole}
+\institute{Candidat n° 012345}
+
+\usepackage{graphics}
+\graphicspath{{../../assets/}}
+
+% French language support (e.g. date format)
+\usepackage[francais]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern} % for missing fonts (e.g. italic in titles)
