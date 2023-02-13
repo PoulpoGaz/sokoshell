@@ -22,8 +22,7 @@ public class SolverTask {
     private static final AtomicInteger index = new AtomicInteger(1);
 
     protected final Solver solver;
-
-    protected Tracker tracker;
+    protected final Tracker tracker;
     protected ScheduledFuture<?> trackerFuture;
 
     private final List<SolverParameter> params;
@@ -43,8 +42,9 @@ public class SolverTask {
 
     private List<SolverReport> solverReports;
 
-    public SolverTask(Solver solver, List<SolverParameter> params, List<Level> levels, String pack, String level) {
+    public SolverTask(Solver solver, Tracker tracker, List<SolverParameter> params, List<Level> levels, String pack, String level) {
         this.solver = solver;
+        this.tracker = tracker;
         this.params = params;
         this.levels = Objects.requireNonNull(levels);
         this.pack = pack;
@@ -74,8 +74,7 @@ public class SolverTask {
             if (taskStatus == TaskStatus.PENDING) {
                 changeStatus(TaskStatus.RUNNING);
 
-                if (solver instanceof Trackable t) {
-                    tracker = getTracker();
+                if (tracker != null && solver instanceof Trackable t) {
                     t.setTacker(tracker);
 
                     trackerFuture = SokoShell.INSTANCE.getScheduledExecutor().scheduleWithFixedDelay(
@@ -96,16 +95,6 @@ public class SolverTask {
         if (solve) { // outside synchronized block to allow stop to work
             solve();
         }
-    }
-
-    protected Tracker getTracker() {
-        /*Object object = params.get(Tracker.TRACKER_PARAM);
-
-        if (object instanceof Tracker tracker) {
-            return tracker;
-        } else {*/
-            return new BasicTracker();
-        //}
     }
 
     protected void solve() {

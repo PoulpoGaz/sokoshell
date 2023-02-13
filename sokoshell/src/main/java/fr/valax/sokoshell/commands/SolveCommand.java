@@ -5,14 +5,8 @@ import fr.valax.args.api.Command;
 import fr.valax.args.api.Option;
 import fr.valax.args.api.VaArgs;
 import fr.valax.args.utils.ArgsUtils;
-import fr.valax.sokoshell.SokoShell;
-import fr.valax.sokoshell.SolverTask;
-import fr.valax.sokoshell.TaskList;
-import fr.valax.sokoshell.TaskStatus;
-import fr.valax.sokoshell.solver.Level;
-import fr.valax.sokoshell.solver.Pack;
-import fr.valax.sokoshell.solver.Solver;
-import fr.valax.sokoshell.solver.SolverParameter;
+import fr.valax.sokoshell.*;
+import fr.valax.sokoshell.solver.*;
 import org.jline.reader.Candidate;
 import org.jline.reader.LineReader;
 
@@ -35,6 +29,16 @@ public class SolveCommand extends AbstractCommand {
             description = "solving strategy: DFS (default) BFS, A*",
             defaultValue = "DFS")
     protected String solver;
+
+    @Option(names = {"t", "tracker"}, hasArgument = true, argName = "Tracker",
+            description = {
+                    "Set the tracker. The tracker is the object responsible of gathering statistics",
+                    "Possible values:",
+                    "-none: no tracker will be added",
+                    "-light: time start, time end, node per secondes, average queue size and total number of states are computed",
+                    "-default: same as light but with more details"
+            }, defaultValue = "default")
+    protected String tracker;
 
     @Option(names = {"P", "position"}, hasArgument = true)
     private Integer position;
@@ -66,6 +70,15 @@ public class SolveCommand extends AbstractCommand {
             return FAILURE;
         }
 
+        Tracker tracker = null;
+        if (!this.tracker.equalsIgnoreCase("none")) {
+            tracker = getTracker();
+            if (tracker == null) {
+                err.printf("No such tracker: %s%n", this.tracker);
+                return FAILURE;
+            }
+        }
+
         List<SolverParameter> parameters = getParameters(solver, args);
         printTask(out, solver, parameters, levels);
 
@@ -73,10 +86,10 @@ public class SolveCommand extends AbstractCommand {
         SolverTask lastTask = null;
         if (split) {
             for (Level level : levels) {
-                lastTask = newTask(solver, parameters, List.of(level), packRequest);
+                lastTask = newTask(solver, tracker, parameters, List.of(level), packRequest);
             }
         } else {
-            lastTask = newTask(solver, parameters, levels, packRequest);
+            lastTask = newTask(solver, tracker, parameters, levels, packRequest);
         }
 
         if (waitUntilFinished) {
@@ -87,6 +100,14 @@ public class SolveCommand extends AbstractCommand {
         }
 
         return Command.SUCCESS;
+    }
+
+    private Tracker getTracker() {
+        return switch (tracker.toLowerCase()) {
+            case "light" -> new LightweightTracker();
+            case "default" -> new DefaultTracker();
+            default -> null;
+        };
     }
 
     private List<SolverParameter> getParameters(Solver solver, String[] args) throws InvalidArgument {
@@ -134,8 +155,8 @@ public class SolveCommand extends AbstractCommand {
         }
     }
 
-    private SolverTask newTask(Solver solver, List<SolverParameter> params, List<Level> levels, String packRequest) {
-        SolverTask task = new SolverTask(solver, params, levels, packRequest, nullSafeToString(this.levels));
+    private SolverTask newTask(Solver solver, Tracker tracker, List<SolverParameter> params, List<Level> levels, String packRequest) {
+        SolverTask task = new SolverTask(solver, tracker, params, levels, packRequest, nullSafeToString(this.levels));
         TaskList list = sokoshell().getTaskList();
 
         if (toTheTop) {
@@ -221,6 +242,10 @@ public class SolveCommand extends AbstractCommand {
                 for (String solver : solvers) {
                     candidates.add(new Candidate(solver));
                 }
+            } else if (ArgsUtils.contains(option.getShortNames(), 't')) {
+                candidates.add(new Candidate("none"));
+                candidates.add(new Candidate("light"));
+                candidates.add(new Candidate("default"));
             }
         } else {
             CommandLine.OptionSpec spec = command.findOption("s");

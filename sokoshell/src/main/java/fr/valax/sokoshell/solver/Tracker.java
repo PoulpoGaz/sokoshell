@@ -1,8 +1,10 @@
 package fr.valax.sokoshell.solver;
 
+import fr.valax.sokoshell.DefaultTracker;
+
 /**
  * A tracker is an object that watch a {@link Trackable} and gather solver statistics
- * @see fr.valax.sokoshell.BasicTracker
+ * @see DefaultTracker
  * @see Trackable
  */
 public interface Tracker {

@@ -16,13 +16,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Basic implementation of {@link Tracker}. It just tries to get information
+ * Default implementation of {@link Tracker}. It just tries to get information
  * as much as possible from a {@link Trackable}
  */
-public class BasicTracker implements Tracker {
+public class DefaultTracker implements Tracker {
 
-    private final List<InstantStatistic> stats = new ArrayList<>();
-
+    private List<InstantStatistic> stats;
     private boolean end = false;
 
     @Override
@@ -42,7 +41,7 @@ public class BasicTracker implements Tracker {
     @Override
     public synchronized void reset() {
         end = false;
-        stats.clear();
+        stats = new ArrayList<>();
     }
 
     @Override
@@ -116,6 +115,17 @@ public class BasicTracker implements Tracker {
             return 1000L * (last.nodeExplored() - first.nodeExplored()) / runTime();
         }
 
+        /**
+         * Compute the average of the following function:
+         * <pre>
+         *      f : [start, end] -> real
+         *          t -> if iStats contains an instant statistic at t then returns the queue size at t
+         *               else it exists two t1 < t < t2 such as it exists two instant statistic with queue size q1 and q2
+         *                    then returns (t - t1) * (q1 - q2) / (t1 - t2) + q1
+         * </pre>
+         * The function can be seen as follows: given two consecutive instant, we just draw a line between the two
+         * queue size.
+         */
         @Override
         public int averageQueueSize() {
             if (statistics.isEmpty()) {
