@@ -35,9 +35,48 @@
 
     \section{Réduction de l'espace de recherche}
         \begin{frame}{Détection de \textit{deadlocks}}
+            \begin{figure}
+                \centering
+                \subcaptionbox{\textit{Freeze deadlock n°1}}
+                    {\includegraphics{freeze_deadlock/ex_1_dead.png}}
+                \subcaptionbox{\textit{Freeze deadlock n°2}}
+                    {\includegraphics{freeze_deadlock/ex_2_dead.png}}
+                \subcaptionbox{\textit{PI Corral deadlock}}
+                    {\includegraphics{pi_corral_deadlock_dead.png}}
+            \end{figure}
         \end{frame}
 
-        \begin{frame}{Détection de \textit{corrals}}
+        \begin{frame}{Détection de \textit{freeze deadlocks}}
+            \begin{figure}
+                \centering
+                \subcaptionbox{Règle n°1}[.3\textwidth]
+                {\includegraphics{freeze_deadlock/rule_1.png}}
+                \subcaptionbox{Règle n°2}[.3\textwidth]
+                {\includegraphics{freeze_deadlock/rule_2.png}}
+                \subcaptionbox{Règle n°3}[.3\textwidth] {
+                    \begin{tikzpicture}
+                        \includegraphics{freeze_deadlock/rule_3.png}
+                        % comment mettre un point d'interogation sur les deux caisses ajacentes à la caisse centrale?
+                        % et comment centrer dans un tikzpicture?
+                    \end{tikzpicture}
+                }
+            \end{figure}
+        \end{frame}
+
+        \begin{frame}{Détection de \textit{freeze deadlocks}}
+            \begin{center}
+                \begin{tikzpicture}
+                    \node(start)                    {\includegraphics[width=0.3\textwidth]{freeze_deadlock/ex_2_dead.png}};
+                    \node(first)  [right=of start]  {\includegraphics[width=0.3\textwidth]{freeze_deadlock/ex_2_explanation_1.png}};
+                    \node(second) [below=of first]  {\includegraphics[width=0.3\textwidth]{freeze_deadlock/ex_2_explanation_2.png}};
+                    \node(third)  [left=of second]  {\includegraphics[width=0.3\textwidth]{freeze_deadlock/ex_2_explanation_3.png}}
+                        child{node{Gelée!}};
+
+                    \draw[->] (start.east)  -- (first.west);
+                    \draw[->] (first.south) -- (second.north);
+                    \draw[->] (second.west) -- (third.east);
+                \end{tikzpicture}
+            \end{center}
         \end{frame}
 
     \section{Recherche dirigée par une heuristique}
