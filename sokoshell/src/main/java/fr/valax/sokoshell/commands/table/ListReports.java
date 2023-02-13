@@ -4,9 +4,9 @@ import fr.valax.args.CommandLine;
 import fr.valax.args.api.Option;
 import fr.valax.args.utils.ArgsUtils;
 import fr.valax.sokoshell.SolverTask;
+import fr.valax.sokoshell.solver.ISolverStatistics;
 import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.solver.SolverReport;
-import fr.valax.sokoshell.solver.SolverStatistics;
 import fr.valax.sokoshell.utils.Alignment;
 import fr.valax.sokoshell.utils.PrettyColumn;
 import fr.valax.sokoshell.utils.PrettyTable;
@@ -84,7 +84,7 @@ public class ListReports extends TableCommand {
         time.setToString(time1 -> PrettyTable.wrap(Utils.prettyDate(time1)));
 
         for (SolverReport s : solverReports) {
-            SolverStatistics stats = s.getStatistics();
+            ISolverStatistics stats = s.getStatistics();
 
             packName.add(s.getParameters().getLevel().getPack().name());
             index.add(Alignment.RIGHT, s.getParameters().getLevel().getIndex() + 1);
@@ -92,8 +92,8 @@ public class ListReports extends TableCommand {
             solverName.add(s.getSolverName());
             pushes.add(Alignment.RIGHT, s.numberOfPushes());
             moves.add(Alignment.RIGHT, s.numberOfMoves());
-            date.add(stats.getTimeStarted());
-            time.add(Alignment.RIGHT, stats.getTimeEnded() - stats.getTimeStarted());
+            date.add(stats.timeStarted());
+            time.add(Alignment.RIGHT, stats.runTime());
         }
 
         table.addColumn(packName);
@@ -146,11 +146,10 @@ public class ListReports extends TableCommand {
         int pushesSum = 0;
 
         for (SolverReport report : solverReports) {
-            SolverStatistics stats = report.getStatistics();
+            ISolverStatistics stats = report.getStatistics();
 
-            List<SolverStatistics.InstantStatistic> iStats = stats.getStatistics();
-            if (iStats != null && iStats.size() > 0) {
-                int state = iStats.get(iStats.size() - 1).nodeExplored();
+            if (stats.totalStateExplored() >= 0) {
+                int state = stats.totalStateExplored();
                 if (state < minState) {
                     minState = state;
                     minStateReport = report;
@@ -164,7 +163,7 @@ public class ListReports extends TableCommand {
                 numReportWithState++;
             }
 
-            long time = stats.getTimeEnded() - stats.getTimeStarted();
+            long time = stats.runTime();
             if (time < minMoves) {
                 minTime = time;
                 minTimeReport = report;
@@ -222,7 +221,7 @@ public class ListReports extends TableCommand {
         out.printf("Fastest solved level: in %s - %s #%d%n", Utils.prettyDate(minTime), l.getPack().name(), l.getIndex() + 1);
 
         l = maxTimeReport.getLevel();
-        out.printf("Lowest solved level: in %s - %s #%d%n", Utils.prettyDate(maxTime), l.getPack().name(), l.getIndex() + 1);
+        out.printf("Slowest solved level: in %s - %s #%d%n", Utils.prettyDate(maxTime), l.getPack().name(), l.getIndex() + 1);
         out.println();
 
 

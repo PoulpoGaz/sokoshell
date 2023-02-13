@@ -12,7 +12,7 @@ import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 import fr.valax.sokoshell.solver.pathfinder.CrateAStar;
 import fr.valax.sokoshell.solver.pathfinder.Node;
 
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  * it contains two representation of the solution: a sequence of {@link State} and a sequence of {@link Move}.
  *
  * @see SolverParameters
- * @see SolverStatistics
+ * @see ISolverStatistics
  * @see State
  * @see Move
  * @author PoulpoGaz
@@ -45,7 +45,7 @@ public class SolverReport {
      * @return a report without a solution
      * @throws IllegalArgumentException if the state is {@link SolverReport#SOLUTION_FOUND}
      */
-    public static SolverReport withoutSolution(SolverParameters params, SolverStatistics stats, String status) {
+    public static SolverReport withoutSolution(SolverParameters params, ISolverStatistics stats, String status) {
         return new SolverReport(params, stats, null, status);
     }
 
@@ -58,7 +58,7 @@ public class SolverReport {
      * @param stats the statistics
      * @return a report with a solution
      */
-    public static SolverReport withSolution(State finalState, SolverParameters params, SolverStatistics stats) {
+    public static SolverReport withSolution(State finalState, SolverParameters params, ISolverStatistics stats) {
         List<State> solution = new ArrayList<>();
 
         State s = finalState;
@@ -74,7 +74,7 @@ public class SolverReport {
     }
 
     private final SolverParameters parameters;
-    private final SolverStatistics statistics;
+    private final ISolverStatistics statistics;
 
     private final String status;
 
@@ -82,7 +82,7 @@ public class SolverReport {
     private final int numberOfPushes;
 
     public SolverReport(SolverParameters parameters,
-                        SolverStatistics statistics,
+                        ISolverStatistics statistics,
                         List<State> states,
                         String status) {
         this.parameters = Objects.requireNonNull(parameters);
@@ -110,9 +110,9 @@ public class SolverReport {
     }
 
     private SolverReport(SolverParameters parameters,
-                        SolverStatistics statistics,
-                        String status,
-                        List<Move> moves) {
+                         ISolverStatistics statistics,
+                         String status,
+                         List<Move> moves) {
         this.parameters = Objects.requireNonNull(parameters);
         this.statistics = Objects.requireNonNull(statistics);
         this.status = Objects.requireNonNull(status);
@@ -259,7 +259,16 @@ public class SolverReport {
         }
 
         jpw.key("statistics");
-        statistics.writeStatistics(jpw);
+
+        // probably not a good way to do that, but I don't know
+        // how to easily serialize and deserialize ISolverStatistics
+        // without having a factory...
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(baos);
+        oos.writeObject(statistics);
+        oos.close();
+
+        jpw.value(Base64.getEncoder().encodeToString(baos.toByteArray()));
     }
 
 
@@ -293,7 +302,17 @@ public class SolverReport {
             throw new JsonException(String.format("Invalid key. Expected \"statistics\" but was \"%s\"", key));
         }
 
-        SolverStatistics stats = SolverStatistics.fromJson(jr);
+        // see writeSolution
+        byte[] bytes = Base64.getDecoder().decode(jr.nextString());
+
+        ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bytes));
+        ISolverStatistics stats;
+        try {
+            stats = (ISolverStatistics) ois.readObject();
+        } catch (ClassNotFoundException e) {
+            throw new IOException(e);
+        }
+        ois.close();
 
         return new SolverReport(parameters, stats, status, moves);
     }
@@ -324,7 +343,7 @@ public class SolverReport {
      *
      * @return the parameters given to the solver
      */
-    public SolverStatistics getStatistics() {
+    public ISolverStatistics getStatistics() {
         return statistics;
     }
 

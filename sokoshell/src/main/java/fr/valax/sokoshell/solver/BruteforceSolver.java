@@ -332,15 +332,13 @@ public abstract class BruteforceSolver<S extends State> extends AbstractSolver i
         parameters.add(new SolverParameter.Boolean(ACCURATE, "Use a more accurate method to calculate ram usage", false));
     }
 
-    private SolverStatistics getStatistics() {
-        SolverStatistics stats;
+    private ISolverStatistics getStatistics() {
+        ISolverStatistics stats;
 
         if (tracker != null) {
             stats = Objects.requireNonNull(tracker.getStatistics(this));
         } else {
-            stats = new SolverStatistics();
-            stats.setTimeStarted(timeStart);
-            stats.setTimeEnded(timeEnd);
+            stats = new ISolverStatistics.Basic(timeStart, timeEnd);
         }
 
         return stats;

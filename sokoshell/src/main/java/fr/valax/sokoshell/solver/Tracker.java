@@ -26,11 +26,11 @@ public interface Tracker {
     void reset();
 
     /**
-     * Build a {@link SolverStatistics} object. It uses the Trackable to get the last data.
+     * Build a {@link ISolverStatistics} object. It uses the Trackable to get the last data.
      * It is called once at the end of research.
      * @param trackable a trackable from which we get data
      * @return solver statistics
-     * @see SolverStatistics
+     * @see ISolverStatistics
      */
-    SolverStatistics getStatistics(Trackable trackable);
+    ISolverStatistics getStatistics(Trackable trackable);
 }
