@@ -66,15 +66,15 @@
         \begin{frame}{Détection de \textit{freeze deadlocks}}
             \begin{center}
                 \begin{tikzpicture}
-                    \node(start)                    {\includegraphics[width=0.3\textwidth]{freeze_deadlock/ex_2_dead.png}};
-                    \node(first)  [right=of start]  {\includegraphics[width=0.3\textwidth]{freeze_deadlock/ex_2_explanation_1.png}};
-                    \node(second) [below=of first]  {\includegraphics[width=0.3\textwidth]{freeze_deadlock/ex_2_explanation_2.png}};
-                    \node(third)  [left=of second]  {\includegraphics[width=0.3\textwidth]{freeze_deadlock/ex_2_explanation_3.png}}
-                        child{node{Gelée!}};
+                    \node(start)                               {\includegraphics[width=0.3\textwidth]{freeze_deadlock/ex_2_dead.png}};
+                    \only<2-4>{\node(first)  [right=of start]  {\includegraphics[width=0.3\textwidth]{freeze_deadlock/ex_2_explanation_1.png}}};
+                    \only<3-4>{\node(second) [below=of first]  {\includegraphics[width=0.3\textwidth]{freeze_deadlock/ex_2_explanation_2.png}}};
+                    \only<4-4>{\node(third)  [left=of second]  {\includegraphics[width=0.3\textwidth]{freeze_deadlock/ex_2_explanation_3.png}}
+                        child{node{Gelée!}}};
 
-                    \draw[->] (start.east)  -- (first.west);
-                    \draw[->] (first.south) -- (second.north);
-                    \draw[->] (second.west) -- (third.east);
+                    \only<2-4>{\draw[->] (start.east)  -- (first.west)};
+                    \only<3-4>{\draw[->] (first.south) -- (second.north)};
+                    \only<4-4>{\draw[->] (second.west) -- (third.east)};
                 \end{tikzpicture}
             \end{center}
         \end{frame}
