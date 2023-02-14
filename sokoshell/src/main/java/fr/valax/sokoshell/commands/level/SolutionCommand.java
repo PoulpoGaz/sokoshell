@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.ListIterator;
 
 public class SolutionCommand extends LevelCommand {
 
@@ -242,17 +243,7 @@ public class SolutionCommand extends LevelCommand {
             } else if (keyPressed(Key.R)) {
                 animator.reset();
                 updateComponents();
-            } /*else if (keyReleased(Key.E)) {
-                SolverReport report = animator.getSolution();
-                Level level = report.getLevel();
-
-                try {
-                    helper.exportPNG(level.getPack(), level, animator.getMap(),
-                            animator.getPlayerX(), animator.getPlayerY(), animator.getLastMove());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }*/
+            }
         }
 
         private void animate() {
@@ -296,14 +287,10 @@ public class SolutionCommand extends LevelCommand {
         private final SolverReport solution;
         private Board board;
 
-        private final List<Move> path;
-        private int pathIndex;
+        private final SolverReport.SolutionIterator solutionIt;
 
         private int playerX;
         private int playerY;
-
-        private int move;
-        private int push;
 
         public SolutionAnimator(SolverReport solution) {
             this.solution = solution;
@@ -313,23 +300,20 @@ public class SolutionCommand extends LevelCommand {
             this.playerX = level.getPlayerX();
             this.playerY = level.getPlayerY();
 
-            path = solution.getFullSolution();
+            solutionIt = solution.getSolutionIterator();
         }
 
         public void move() {
-            if (!hasNext()) {
+            if (!solutionIt.hasNext()) {
                 return;
             }
 
-            Direction dir = path.get(pathIndex).direction();
+            Direction dir = solutionIt.next().direction();
 
             playerX += dir.dirX();
             playerY += dir.dirY();
-            move++;
 
             moveCrate(playerX, playerY, dir);
-
-            pathIndex++;
         }
 
         // move crate if needed
@@ -346,8 +330,6 @@ public class SolutionCommand extends LevelCommand {
             }
 
             if (curr.isCrate()) {
-                push++;
-
                 switch (next) {
                     case FLOOR -> board.setAt(newX, newY, Tile.CRATE);
                     case TARGET -> board.setAt(newX, newY, Tile.CRATE_ON_TARGET);
@@ -355,17 +337,12 @@ public class SolutionCommand extends LevelCommand {
             }
         }
 
-        public boolean hasNext() {
-            return pathIndex < path.size();
-        }
-
         public void moveBackward() {
-            if (!hasPrevious()) {
+            if (!solutionIt.hasPrevious()) {
                 return;
             }
 
-            pathIndex--;
-            Move move = path.get(pathIndex);
+            Move move = solutionIt.previous();
 
             Direction dir = move.direction();
 
@@ -384,20 +361,15 @@ public class SolutionCommand extends LevelCommand {
                     case FLOOR -> board.setAt(playerX, playerY, Tile.CRATE);
                     case TARGET -> board.setAt(playerX, playerY, Tile.CRATE_ON_TARGET);
                 }
-
-                push--;
             }
 
-            this.move--;
             playerX -= dir.dirX();
             playerY -= dir.dirY();
         }
 
         public void reset() {
-            if (pathIndex > 0) {
-                move = 0;
-                push = 0;
-                pathIndex = 0;
+            if (solutionIt.hasPrevious()) {
+                solutionIt.reset();
 
                 Level level = solution.getParameters().getLevel();
                 playerX = level.getPlayerX();
@@ -407,8 +379,12 @@ public class SolutionCommand extends LevelCommand {
             }
         }
 
+        public boolean hasNext() {
+            return solutionIt.hasNext();
+        }
+
         public boolean hasPrevious() {
-            return pathIndex > 0;
+            return solutionIt.hasPrevious();
         }
 
         public Board getBoard() {
@@ -424,11 +400,11 @@ public class SolutionCommand extends LevelCommand {
         }
 
         public int getMoveCount() {
-            return move;
+            return solutionIt.getMoveCount();
         }
 
         public int getPushCount() {
-            return push;
+            return solutionIt.getPushCount();
         }
 
         public int numberOfMoves() {
@@ -440,11 +416,14 @@ public class SolutionCommand extends LevelCommand {
         }
 
         public Direction getLastMove() {
-            if (pathIndex == 0) {
+            if (!solutionIt.hasPrevious()) {
                 return null;
             }
 
-            return path.get(pathIndex - 1).direction();
+            Direction last = solutionIt.previous().direction();
+            solutionIt.next();
+
+            return last;
         }
 
         public SolverReport getSolution() {

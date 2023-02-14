@@ -78,7 +78,21 @@ public class SolverReport {
 
     private final String status;
 
-    private final List<Move> fullSolution;
+    /**
+     * Solution packed in an int array.
+     * Three bits are used for storing a move.
+     * Move 1 is located at bit 0 of array 0,
+     * Move 2 is located at bit 3 of array 0,
+     * ...,
+     * Move 10 is located at bit 27 of array 0,
+     * Move 11 is located at bit 30 of array 0
+     * and use the first bit of array 1.
+     * Move 12 is located at bit 1 of array 1,
+     * etc.
+     * Bits are stored in little-endian fashion.
+     */
+    private final int[] solution;
+    private final int numberOfMoves;
     private final int numberOfPushes;
 
     public SolverReport(SolverParameters parameters,
@@ -94,42 +108,34 @@ public class SolverReport {
                 throw new IllegalArgumentException("SolverStatus is SOLUTION_FOUND. You must give the solution");
             }
 
-            fullSolution = createFullSolution(states);
+            SolutionBuilder builder = createFullSolution(states);
 
-            int n = 0;
-            for (Move m : fullSolution) {
-                if (m.moveCrate()) {
-                    n++;
-                }
-            }
-            numberOfPushes = n;
+            numberOfPushes = builder.getNumberOfPushes();
+            numberOfMoves = builder.getNumberOfMoves();
+            solution = builder.getSolution();
         } else {
+            numberOfMoves = -1;
             numberOfPushes = -1;
-            fullSolution = null;
+            solution = null;
         }
     }
 
     private SolverReport(SolverParameters parameters,
                          ISolverStatistics statistics,
                          String status,
-                         List<Move> moves) {
+                         SolutionBuilder builder) {
         this.parameters = Objects.requireNonNull(parameters);
         this.statistics = Objects.requireNonNull(statistics);
         this.status = Objects.requireNonNull(status);
 
         if (status.equals(SOLUTION_FOUND)) {
-            fullSolution = Objects.requireNonNull(moves);
-
-            int n = 0;
-            for (Move m : fullSolution) {
-                if (m.moveCrate()) {
-                    n++;
-                }
-            }
-            numberOfPushes = n;
+            numberOfPushes = builder.getNumberOfPushes();
+            numberOfMoves = builder.getNumberOfMoves();
+            solution = builder.getSolution();
         } else {
+            numberOfMoves = -1;
             numberOfPushes = -1;
-            fullSolution = null;
+            solution = null;
         }
     }
 
@@ -139,11 +145,11 @@ public class SolverReport {
      *
      * @return the full solution
      */
-    private List<Move> createFullSolution(List<State> states) {
+    private SolutionBuilder createFullSolution(List<State> states) {
         Level level = parameters.getLevel();
         Board board = new MutableBoard(level);
 
-        ArrayList<Move> path = new ArrayList<>();
+        SolutionBuilder sb = new SolutionBuilder(2 * states.size());
         List<Move> temp = new ArrayList<>();
 
         TileInfo player = board.getAt(level.getPlayerX(), level.getPlayerY());
@@ -173,16 +179,16 @@ public class SolverReport {
                 node = node.getParent();
             }
 
-            path.ensureCapacity(path.size() + temp.size());
+            sb.ensureCapacity(sb.getNumberOfMoves() + temp.size());
             for (int j = temp.size() - 1; j >= 0; j--) {
-                path.add(temp.get(j));
+                sb.add(temp.get(j));
             }
             temp.clear();
 
             board.removeStateCrates(current);
         }
 
-        return path;
+        return sb;
     }
 
     /**
@@ -246,11 +252,11 @@ public class SolverReport {
         jpw.key("parameters");
         parameters.append(jpw);
 
-        if (fullSolution != null) {
+        if (solution != null) {
             jpw.key("solution").beginArray();
             jpw.setInline(JsonPrettyWriter.Inline.ALL);
 
-            for (Move m : fullSolution) {
+            for (Move m : getFullSolution()) {
                 jpw.value(m.shortName());
             }
 
@@ -280,11 +286,11 @@ public class SolverReport {
 
         String key = jr.nextKey();
 
-        List<Move> moves = null;
+        SolutionBuilder sb = null;
         if (key.equals("solution")) {
             jr.beginArray();
 
-            moves = new ArrayList<>();
+            sb = new SolutionBuilder(32 * 5); // uses array of size 16
             while (!jr.isArrayEnd()) {
                 String name = jr.nextString();
                 Move move = Move.of(name);
@@ -293,7 +299,7 @@ public class SolverReport {
                     throw new IOException("Unknown move: " + name);
                 }
 
-                moves.add(move);
+                sb.add(move);
             }
             jr.endArray();
 
@@ -314,7 +320,7 @@ public class SolverReport {
         }
         ois.close();
 
-        return new SolverReport(parameters, stats, status, moves);
+        return new SolverReport(parameters, stats, status, sb);
     }
 
 
@@ -347,6 +353,14 @@ public class SolverReport {
         return statistics;
     }
 
+    public SolutionIterator getSolutionIterator() {
+        if (solution == null) {
+            return null;
+        }
+
+        return new SolutionIterator();
+    }
+
     /**
      * If the sokoban was solved, this report contains the solution as a sequence
      * of moves. It describes all moves made by the player.
@@ -354,7 +368,18 @@ public class SolverReport {
      * @return the solution or {@code null} if the sokoban wasn't solved
      */
     public List<Move> getFullSolution() {
-        return fullSolution;
+        if (solution == null) {
+            return null;
+        }
+
+        ListIterator<Move> it = getSolutionIterator();
+        List<Move> moves = new ArrayList<>(numberOfMoves);
+
+        while (it.hasNext()) {
+            moves.add(it.next());
+        }
+
+        return moves;
     }
 
     /**
@@ -372,7 +397,7 @@ public class SolverReport {
      * @return {@code -1} if the sokoban wasn't solved or the number of moves the player made to solve the sokoban
      */
     public int numberOfMoves() {
-        return fullSolution == null ? -1 : fullSolution.size();
+        return numberOfMoves;
     }
 
 
@@ -435,4 +460,217 @@ public class SolverReport {
      * @param crateDest crate destination
      */
     private record StateDiff(TileInfo playerDest, TileInfo crate, TileInfo crateDest) {}
+
+    /**
+     * An object to iterate over a solution in forward and backward order.
+     */
+    public class SolutionIterator implements ListIterator<Move> {
+
+        /**
+         * Position in the array
+         */
+        private int arrayPos;
+
+        /**
+         * Position in solution[arrayPos]
+         */
+        private int bitPos;
+
+        private int move;
+        private int push;
+
+        /**
+         * @return read the next bit
+         */
+        private int readNext() {
+            int bit = (solution[arrayPos] >> bitPos) & 0b1;
+
+            bitPos++;
+            if (bitPos == 32) {
+                bitPos = 0;
+                arrayPos++;
+            }
+
+            return bit;
+        }
+
+        /**
+         * @return read the previous bit
+         */
+        private int readPrevious() {
+            bitPos--;
+            if (bitPos < 0) {
+                bitPos = 31;
+                arrayPos--;
+            }
+
+            return (solution[arrayPos] >> bitPos) & 0b1;
+        }
+
+
+        @Override
+        public boolean hasNext() {
+            return move < numberOfMoves;
+        }
+
+        @Override
+        public Move next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+
+            int first  = readNext();
+            int second = readNext();
+            int third  = readNext();
+
+            int value = (third << 2) | (second << 1) | first;
+
+            Move move = Move.values()[value];
+
+            this.move++;
+            if (move.moveCrate()) {
+                push++;
+            }
+
+            return move;
+        }
+
+        @Override
+        public boolean hasPrevious() {
+            return move > 0;
+        }
+
+        @Override
+        public Move previous() {
+            if (!hasPrevious()) {
+                throw new NoSuchElementException();
+            }
+
+            int third  = readPrevious();
+            int second = readPrevious();
+            int first  = readPrevious();
+
+            int value = (third << 2) | (second << 1) | first;
+
+            Move move = Move.values()[value];
+
+            this.move--;
+            if (move.moveCrate()) {
+                push--;
+            }
+
+            return move;
+        }
+
+        @Override
+        public int nextIndex() {
+            return move;
+        }
+
+        @Override
+        public int previousIndex() {
+            return move - 1;
+        }
+
+        public void reset() {
+            move = 0;
+            arrayPos = 0;
+            bitPos = 0;
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void set(Move move) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void add(Move move) {
+            throw new UnsupportedOperationException();
+        }
+
+        public int getMoveCount() {
+            return move;
+        }
+
+        public int getPushCount() {
+            return push;
+        }
+    }
+
+    /**
+     * A convenience object to convert a list of move to a solution array.
+     */
+    private static class SolutionBuilder {
+
+        private int[] solution;
+
+        private int arrayPos;
+        private int bitPos;
+
+        private int numberOfMoves;
+        private int numberOfPushes;
+
+        public SolutionBuilder(int estimatedNumberOfMove) {
+            solution = new int[computeArraySize(estimatedNumberOfMove)];
+        }
+
+        private void write(int bit) {
+            solution[arrayPos] = (bit & 0b1) << bitPos | solution[arrayPos];
+
+            bitPos++;
+            if (bitPos == 32) {
+                bitPos = 0;
+                arrayPos++;
+            }
+        }
+
+        public void add(Move move) {
+            if (bitPos + 3 >= 32 && arrayPos + 1 >= solution.length) {
+                ensureCapacity(numberOfMoves * 2 + 1);
+            }
+
+            int value = move.ordinal();
+            write(value & 0b1);
+            write((value >> 1) & 0b1);
+            write((value >> 2) & 0b1);
+            numberOfMoves++;
+
+            if (move.moveCrate()) {
+                numberOfPushes++;
+            }
+        }
+
+        public void ensureCapacity(int numberOfMove) {
+            int minArraySize = computeArraySize(numberOfMove);
+
+            if (minArraySize > solution.length) {
+                solution = Arrays.copyOf(solution, minArraySize);
+            }
+        }
+
+        public int getNumberOfMoves() {
+            return numberOfMoves;
+        }
+
+        public int getNumberOfPushes() {
+            return numberOfPushes;
+        }
+
+        public int[] getSolution() {
+            int arraySize = computeArraySize(numberOfMoves);
+
+            return Arrays.copyOf(solution, arraySize);
+        }
+
+        private int computeArraySize(int numberOfMove) {
+            int nBits = 3 * numberOfMove;
+
+            return nBits / 32 + 1;
+        }
+    }
 }

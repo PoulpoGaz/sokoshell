@@ -3,6 +3,8 @@ package fr.valax.sokoshell.solver.board;
 /**
  * An enumeration representing a move or a push in a solution. The {@code moveCrate} flag is needed to go back
  * in {@link fr.valax.sokoshell.commands.level.SolutionCommand}
+ *
+ * DO NOT MODIFY ORDER OF VALUES WITHOUT REMAKING ALL SAVES
  */
 public enum Move {
 

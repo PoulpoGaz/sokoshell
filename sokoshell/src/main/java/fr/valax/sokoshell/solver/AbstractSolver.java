@@ -75,7 +75,6 @@ public abstract class AbstractSolver implements Solver {
             current.setTile(oldCurr);
         }
 
-        // ultimate check, the crate is frozen if it is only a crate and not a crate on target
         return deadlock;
     }
 
