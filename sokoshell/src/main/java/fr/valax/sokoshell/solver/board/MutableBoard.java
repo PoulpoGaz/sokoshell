@@ -520,24 +520,23 @@ public class MutableBoard extends GenericBoard {
             Tunnel tunnel = buildTunnel(t);
 
             if (tunnel != null) {
+                // compute tunnel exits
                 tunnel.createTunnelExits();
+
+                // compute oneway property
+                if (tunnel.getStartOut() == null || tunnel.getEndOut() == null) {
+                    tunnel.setOneway(true);
+                } else {
+                    tunnel.getStart().addCrate();
+                    corralDetector.findCorral(this, tunnel.getStartOut().getX(), tunnel.getStartOut().getY());
+                    tunnel.getStart().removeCrate();
+
+                    tunnel.setOneway(!tunnel.getEndOut().isReachable());
+                }
+
                 tunnels.add(tunnel);
             }
         });
-
-        for (int i = 0; i < tunnels.size(); i++) {
-            Tunnel t = tunnels.get(i);
-
-            if (t.getStartOut() == null || t.getEndOut() == null) {
-                t.setOneway(true);
-            } else {
-                t.getStart().addCrate();
-                corralDetector.findCorral(this, t.getStartOut().getX(), t.getStartOut().getY());
-                t.getStart().removeCrate();
-
-                t.setOneway(!t.getEndOut().isReachable());
-            }
-        }
     }
 
     /**
@@ -705,6 +704,11 @@ public class MutableBoard extends GenericBoard {
      */
     public void tryComputePackingOrder() {
         isGoalRoomLevel = rooms.size() > 1;
+
+        if (!isGoalRoomLevel) {
+            return;
+        }
+
         for (int i = 0; i < rooms.size(); i++) {
             Room r = rooms.get(i);
             if (r.isGoalRoom() && r.getTunnels().size() != 1) {
@@ -1094,16 +1098,20 @@ public class MutableBoard extends GenericBoard {
             List<Tunnel> originalTunnel = MutableBoard.this.tunnels;
             for (int i = 0; i < tunnels.size(); i++) {
                 ImmutableTunnel t = tunnels.get(i);
-                t.rooms = originalTunnel.get(i).rooms.stream()
-                        .map(r -> (Room) roomMap.get(r)).toList();
+                if (originalTunnel.get(i).rooms != null) {
+                    t.rooms = originalTunnel.get(i).rooms.stream()
+                            .map(r -> (Room) roomMap.get(r)).toList();
+                }
             }
 
             // add tunnels to rooms
             List<Room> originalRooms = MutableBoard.this.rooms;
             for (int i = 0; i < rooms.size(); i++) {
                 ImmutableRoom r = rooms.get(i);
-                r.tunnels = originalRooms.get(i).tunnels.stream()
-                        .map(t -> (Tunnel) tunnelMap.get(t)).toList();
+                if (originalRooms.get(i).tunnels != null) {
+                    r.tunnels = originalRooms.get(i).tunnels.stream()
+                            .map(t -> (Tunnel) tunnelMap.get(t)).toList();
+                }
             }
 
             // add tunnels, rooms to tile info
