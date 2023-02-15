@@ -45,7 +45,17 @@ public class Utils {
         if (v == 0)  {
             return 1;
         } else if (v < 0) {
-            return 1 + nDigit(-v);
+            return (int) (2 + Math.log10(-v));
+        } else {
+            return (int) (1 + Math.log10(v));
+        }
+    }
+
+    public static int nDigit(long v) {
+        if (v == 0)  {
+            return 1;
+        } else if (v < 0) {
+            return (int) (2 + Math.log10(-v));
         } else {
             return (int) (1 + Math.log10(v));
         }

@@ -64,14 +64,23 @@ public class SokoShell {
 
     public static final Path USER_HOME = Path.of(System.getProperty("user.home"));
     public static final Path HISTORY = USER_HOME.resolve(".%s_history".formatted(NAME));
-    public static final Path RUN_COMMAND = USER_HOME.resolve(".%src".formatted(NAME));
 
     public static final Path EXPORT_FOLDER = Path.of("export");
 
     public static final SokoShell INSTANCE = new SokoShell();
 
     public static void main(String[] args) {
-        SokoShell.INSTANCE.loop(args);
+        Path sokoshellrc;
+        if (args.length == 0) {
+            sokoshellrc = USER_HOME.resolve(".%src".formatted(NAME));
+        } else if (args.length == 1) {
+            sokoshellrc = Path.of(args[0]);
+        } else {
+            System.err.println("Too many arguments. Only accept one file");
+            return;
+        }
+
+        SokoShell.INSTANCE.loop(sokoshellrc);
     }
 
 
@@ -167,12 +176,12 @@ public class SokoShell {
                     .addCommand(new ObjectSizeCommand())
 
                     // unix-like commands
-                    // TODO: add wc
                     .addCommand(new Cat())
                     .addCommand(new Echo())
                     .addCommand(new Grep())
                     .addCommand(new Less())
                     .addCommand(new Source())
+                    .addCommand(new WordCount())
                     .addCommand(help)
                     .addCommand(JLineUtils.newExitCommand(NAME))
                     .build();
@@ -190,12 +199,11 @@ public class SokoShell {
 
     /**
      * Initialize terminal, command line and line reader.
-     * Execute startup script and the first command (give by args) if any.
-     * Read and execute command.
+     * Execute startup script
      *
-     * @param args the first command to execute
+     * @param sokoshellrc sokoshellrc location
      */
-    private void loop(String[] args) {
+    private void loop(Path sokoshellrc) {
         try (Terminal terminal = TerminalBuilder.terminal()) {
             this.terminal = terminal;
 
@@ -218,7 +226,7 @@ public class SokoShell {
                     .build();
 
             welcome();
-            if (!executeStartupScript()) {
+            if (!executeStartupScript(sokoshellrc)) {
                 return;
             }
 
@@ -227,8 +235,7 @@ public class SokoShell {
 
             boolean running = true;
             while (running) {
-                running = executeOrWaitInput(args);
-                args = null;
+                running = waitInputAndExecute();
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -278,26 +285,18 @@ public class SokoShell {
 
 
     /**
-     * Execute the command given by {@code args} or wait for the user
-     * to write the command and then execute it.
+     * Wait for the user to write the command and then execute it.
      *
-     * @param args program args or null
      * @return false to stop
      */
-    private boolean executeOrWaitInput(String[] args) {
+    private boolean waitInputAndExecute() {
         boolean reading = false;
         try {
+            reading = true;
+            String line = reader.readLine(getPrompt());
+            reading = false;
 
-            if (args == null || args.length == 0) {
-                reading = true;
-                String line = reader.readLine(getPrompt());
-                reading = false;
-
-                cli.execute(line);
-            } else {
-                System.out.println(getPrompt() + Arrays.toString(args));
-                cli.execute(args);
-            }
+            cli.execute(line);
         } catch (EndOfFileException e) { // thrown when user types ctrl+D and by the built-in exit command
             return false;
         } catch (UserInterruptException e) {
@@ -331,10 +330,10 @@ public class SokoShell {
 
     // STARTUP SCRIPT
 
-    private boolean executeStartupScript() {
+    private boolean executeStartupScript(Path location) {
         StartupScript ss = new StartupScript(cli);
         try {
-            ss.run(RUN_COMMAND);
+            ss.run(location);
 
             return true;
         } catch (IOException | CommandLineException e) {
