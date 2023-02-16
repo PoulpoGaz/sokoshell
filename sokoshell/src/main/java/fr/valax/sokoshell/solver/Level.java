@@ -209,11 +209,22 @@ public class Level extends ImmutableBoard {
      * @param solverReport the report to add
      * @throws IllegalArgumentException if the report isn't for this level
      */
-    public void addSolverReport(SolverReport solverReport) {
+    public synchronized void addSolverReport(SolverReport solverReport) {
         if (solverReport.getParameters().getLevel() != this) {
             throw new IllegalArgumentException("Attempting to add a report to the wrong level");
         }
         solverReports.add(solverReport);
+    }
+
+    public synchronized void removeSolverReport(int index) {
+        solverReports.remove(index);
+    }
+
+    public synchronized int indexOf(SolverReport solverReport) {
+        if (solverReport.getParameters().getLevel() != this) {
+            return -1;
+        }
+        return solverReports.indexOf(solverReport);
     }
 
     /**
@@ -231,7 +242,8 @@ public class Level extends ImmutableBoard {
      * @return {@code true} if this level has a solution
      */
     public boolean hasSolution() {
-        for (SolverReport r : solverReports) {
+        for (int i = 0; i < solverReports.size(); i++) {
+            SolverReport r = solverReports.get(i);
             if (r.isSolved()) {
                 return true;
             }

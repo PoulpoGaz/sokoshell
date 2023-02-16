@@ -35,6 +35,10 @@ public class SetParser {
     }
 
     public Set parse(String str) throws ParseException {
+        if (str == null || str.isBlank()) {
+            return Empty.INSTANCE;
+        }
+
         this.str = str;
         status = INTERVAL_SINGLETON_START;
         pos = 0;

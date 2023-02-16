@@ -318,7 +318,8 @@ public class SolverTask {
     }
 
     /**
-     * Returns all {@link SolverReport} that were produced at the end of task
+     * Returns all {@link SolverReport} that were produced at the end of task.
+     * These reports may not be present in the list of reports owned by a level.
      *
      * @return all {@link SolverReport} that were produced at the end of task or {@code null}
      */

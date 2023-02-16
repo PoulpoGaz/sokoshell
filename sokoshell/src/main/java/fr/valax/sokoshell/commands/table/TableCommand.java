@@ -10,13 +10,13 @@ import java.io.PrintStream;
 public abstract class TableCommand extends AbstractCommand {
 
     @Option(names = {"c", "column"}, hasArgument = true)
-    private String column;
+    protected String column;
 
     @Option(names = {"I", "column-index"}, hasArgument = true)
-    private Integer index;
+    protected Integer index;
 
     @Option(names = {"r", "reversed"})
-    private boolean reversed;
+    protected boolean reversed;
 
     protected void printTable(PrintStream out, PrintStream err, PrettyTable table) {
         if (column == null && index == null) {

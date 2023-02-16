@@ -66,6 +66,10 @@ public class LoadCommand extends AbstractCommand {
             return;
         }
 
+        if (pack.nLevels() == 0) {
+            return;
+        }
+
         if (!sokoshell().addPack(pack)) {
             boolean answer = ScanUtils.yesNoQuestion(
                     "A pack with named %s already exists. Did you want to overwrite it?".formatted(pack.name()),

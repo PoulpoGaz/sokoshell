@@ -1,5 +1,6 @@
 package fr.valax.sokoshell.commands.table;
 
+import fr.poulpogaz.json.utils.Pair;
 import fr.valax.args.CommandLine;
 import fr.valax.args.api.Option;
 import fr.valax.args.utils.ArgsUtils;
@@ -36,24 +37,44 @@ public class ListReports extends TableCommand {
 
     @Override
     public int executeImpl(InputStream in, PrintStream out, PrintStream err) throws InvalidArgument {
+        if (index == null && column == null) {
+            column = "Date";
+        }
+
         if (taskIndex != null) {
             SolverTask task = sokoshell().getTaskList().getTask(taskIndex);
 
             if (task == null) {
                 err.printf("Can't find task n°%d%n", taskIndex);
                 return FAILURE;
-            } else if (task.getSolutions() == null) {
-                err.println("This task is running or has no solution");
-                return FAILURE;
             } else {
-                list(out, err, task.getSolutions());
+                List<SolverReport> reports = task.getSolutions();
+
+                if (reports == null) {
+                    err.println("This task is running or has no solution");
+                    return FAILURE;
+                } else {
+                    List<Pair<SolverReport, Integer>> reportsWithIndex = new ArrayList<>();
+
+                    for (SolverReport r : reports) {
+                        int i = r.getLevel().indexOf(r);
+
+                        if (i >= 0) { // happen when the report was removed
+                            reportsWithIndex.add(new Pair<>(r, i));
+                        }
+                    }
+
+                    list(out, err, reportsWithIndex);
+                }
             }
         } else {
             List<Level> levels = getLevels(levelIndex, packName);
 
-            List<SolverReport> solverReports = new ArrayList<>();
+            List<Pair<SolverReport, Integer>> solverReports = new ArrayList<>();
             for (Level level : levels) {
-                solverReports.addAll(level.getSolverReports());
+                for (int i = 0; i < level.numberOfSolverReport(); i++) {
+                    solverReports.add(new Pair<>(level.getSolverReport(i), i));
+                }
             }
 
             list(out, err, solverReports);
@@ -62,7 +83,7 @@ public class ListReports extends TableCommand {
         return SUCCESS;
     }
 
-    private void list(PrintStream out, PrintStream err, List<SolverReport> solverReports) {
+    private void list(PrintStream out, PrintStream err, List<Pair<SolverReport, Integer>> solverReports) {
         if (solverReports.isEmpty()) {
             out.println("No report found");
             return;
@@ -71,7 +92,8 @@ public class ListReports extends TableCommand {
         PrettyTable table = new PrettyTable();
 
         PrettyColumn<String> packName = new PrettyColumn<>("Pack");
-        PrettyColumn<Integer> index = new PrettyColumn<>("Index");
+        PrettyColumn<Integer> level = new PrettyColumn<>("Level");
+        PrettyColumn<Integer> report = new PrettyColumn<>("Report");
         PrettyColumn<String> status = new PrettyColumn<>("Status");
         PrettyColumn<String> solverName = new PrettyColumn<>("Solver");
         PrettyColumn<Integer> pushes = new PrettyColumn<>("Pushes");
@@ -83,11 +105,13 @@ public class ListReports extends TableCommand {
         PrettyColumn<Long> time = new PrettyColumn<>("Time");
         time.setToString(time1 -> PrettyTable.wrap(Utils.prettyDate(time1)));
 
-        for (SolverReport s : solverReports) {
+        for (Pair<SolverReport, Integer> p : solverReports) {
+            SolverReport s = p.getLeft();
             ISolverStatistics stats = s.getStatistics();
 
             packName.add(s.getParameters().getLevel().getPack().name());
-            index.add(Alignment.RIGHT, s.getParameters().getLevel().getIndex() + 1);
+            level.add(Alignment.RIGHT, s.getParameters().getLevel().getIndex() + 1);
+            report.add(p.getRight());
             status.add(s.getStatus());
             solverName.add(s.getSolverName());
             pushes.add(Alignment.RIGHT, s.numberOfPushes());
@@ -97,7 +121,8 @@ public class ListReports extends TableCommand {
         }
 
         table.addColumn(packName);
-        table.addColumn(index);
+        table.addColumn(level);
+        table.addColumn(report);
         table.addColumn(status);
         table.addColumn(solverName);
         table.addColumn(pushes);
@@ -111,7 +136,10 @@ public class ListReports extends TableCommand {
         if (stats) {
             out.println();
             // use stream api to simplify printStats
-            printStats(out, solverReports.stream().filter(SolverReport::isSolved).collect(Collectors.toList()));
+            printStats(out, solverReports.stream()
+                    .map(Pair::getLeft)
+                    .filter(SolverReport::isSolved)
+                    .collect(Collectors.toList()));
         }
     }
 
