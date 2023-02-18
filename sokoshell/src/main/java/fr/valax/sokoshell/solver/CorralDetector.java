@@ -72,6 +72,10 @@ public class CorralDetector {
                     } else {
                         newCorral(t);
                     }
+                } else {
+                    int i = t.getIndex();
+                    parent[i] = -1;
+                    rank[i] = -1;
                 }
 
                 left = t;
@@ -276,7 +280,13 @@ public class CorralDetector {
      * @return the corral in which the tile is
      */
     public Corral findCorral(TileInfo tile) {
-        return corrals[find(tile.getIndex())];
+        int i = tile.getIndex();
+
+        if (parent[i] < 0) {
+            return null;
+        }
+
+        return corrals[find(i)];
     }
 
     public Collection<Corral> getCorrals() {

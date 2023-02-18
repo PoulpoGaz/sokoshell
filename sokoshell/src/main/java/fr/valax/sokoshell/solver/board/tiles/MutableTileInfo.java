@@ -46,7 +46,7 @@ public class MutableTileInfo extends GenericTileInfo {
      */
     protected TargetRemoteness nearestTarget;
 
-    private List<Corral> adjacentCorrals = new ArrayList<>(4);
+    protected final List<Corral> adjacentCorrals = new ArrayList<>(4);
 
 
     // Dynamic information

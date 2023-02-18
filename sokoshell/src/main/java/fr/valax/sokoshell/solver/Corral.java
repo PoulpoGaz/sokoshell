@@ -2,6 +2,8 @@ package fr.valax.sokoshell.solver;
 
 import fr.valax.sokoshell.solver.board.Board;
 import fr.valax.sokoshell.solver.board.Direction;
+import fr.valax.sokoshell.solver.board.mark.FixedSizeMarkSystem;
+import fr.valax.sokoshell.solver.board.mark.MarkSystem;
 import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 
 import java.util.*;
@@ -22,66 +24,133 @@ public class Corral {
     protected boolean containsPlayer;
     protected boolean isPICorral;
 
+
     protected final Set<State> visited = new HashSet<>();
     protected final Queue<State> toVisit = new ArrayDeque<>();
+    protected final FixedSizeMarkSystem reachable;
 
     public Corral(int id, Board board) {
         this.id = id;
         this.board = board;
+        this.reachable = new FixedSizeMarkSystem(board.getWidth() * board.getHeight());
     }
 
-    public boolean isDeadlock(State state) {
+    public boolean isDeadlock(State originalState) {
         if (!isPICorral) {
             return false;
         }
 
-        // remove crates
-        for (int crate : state.cratesIndices()) {
-            if (!isInCorral(board, crate)) {
-                board.getAt(crate).removeCrate();;
-            }
-        }
-
         boolean deadlock = true;
+        State firstState = removeOutsideCrate(originalState);
 
-        for (TileInfo crate : barrier) {
-            for (Direction dir : Direction.VALUES) {
-                TileInfo player = crate.adjacent(dir.negate());
+        visited.add(firstState);
+        toVisit.add(firstState);
 
-                if (player.isReachable()) {
-                    TileInfo crateDest = crate.adjacent(dir);
+        while (!toVisit.isEmpty() && visited.size() < 1000 && deadlock) {
+            State s = toVisit.remove();
 
-                    if (crateDest.isSolid()) {
-                        continue;
-                    }
+            board.addStateCrates(s);
 
-                    crateDest.addCrate();
-                    crate.removeCrate();
-
-                    if (!FreezeDeadlockDetector.checkFreezeDeadlock(crateDest)) {
-                        deadlock = false;
-                    }
-
-                    crateDest.removeCrate();
-                    crate.addCrate();
-                }
+            if (FreezeDeadlockDetector.checkFreezeDeadlock(board, s)) {
+                board.removeStateCrates(s);
+                continue;
             }
+
+            findReachableCases(board.getAt(s.playerPos()));
+            deadlock = addChildrenStates(s);
+
+            board.removeStateCrates(s);
         }
 
         visited.clear();
         toVisit.clear();
 
         // re-add crates
-        for (int crate : state.cratesIndices()) {
-            if (!isInCorral(board, crate)) {
-                board.getAt(crate).addCrate();;
-            }
-        }
+        board.addStateCrates(originalState);
 
         return deadlock;
     }
 
-    private boolean isInCorral(Board board, int crate) {
+    /**
+     * @param state current state
+     * @return true if not a deadlock
+     */
+    private boolean addChildrenStates(State state) {
+        int[] cratesIndices = state.cratesIndices();
+        for (int i = 0; i < cratesIndices.length; i++) {
+            TileInfo crate = board.getAt(cratesIndices[i]);
+
+            for (Direction dir : Direction.VALUES) {
+                TileInfo player = crate.adjacent(dir.negate());
+
+                // also checks if tile is solid: a solid tile is never reachable
+                if (!reachable.isMarked(player.getIndex())) {
+                    continue;
+                }
+
+                TileInfo dest = crate.adjacent(dir);
+                if (dest.isSolid() || dest.isDeadTile()) {
+                    continue;
+                }
+
+                if (!isInCorral(dest)) {
+                    return false;
+                }
+
+                // create sub state
+                int newPlayerPos = board.topLeftReachablePosition(crate, dest);
+                State sub = state.child(newPlayerPos, i, dest.getIndex());
+
+                if (visited.add(sub)) {
+                    toVisit.offer(sub);
+                }
+            }
+        }
+
+        return true;
+    }
+
+    private void findReachableCases(TileInfo tile) {
+        reachable.unmarkAll();
+        findReachableCases_aux(tile);
+    }
+
+    private void findReachableCases_aux(TileInfo tile) {
+        reachable.mark(tile.getIndex());
+        for (Direction d : Direction.VALUES) {
+            TileInfo adjacent = tile.adjacent(d);
+
+            // the second part of the condition avoids to check already processed cases
+            if (!adjacent.isSolid() && !reachable.isMarked(adjacent.getIndex())) {
+                findReachableCases_aux(adjacent);
+            }
+        }
+    }
+
+    /**
+     * Remove crates that are not part of the corral
+     * and create a new state without these crates
+     * @param state current state
+     * @return a state without crate outside the corral
+     */
+    private State removeOutsideCrate(State state) {
+        int[] newCrates = new int[crates.size()];
+        int[] oldCrates = state.cratesIndices();
+        int j = 0;
+        for (int i = 0; i < oldCrates.length; i++) {
+            if (isInCorral(oldCrates[i])) {
+                newCrates[j] = oldCrates[i];
+                j++;
+            } else {
+                board.getAt(oldCrates[i]).removeCrate();
+            }
+        }
+
+
+        return new State(state.playerPos(), newCrates, null);
+    }
+
+    private boolean isInCorral(int crate) {
         TileInfo tile = board.getAt(crate);
 
         List<Corral> adjacentCorrals = tile.getAdjacentCorrals();
@@ -94,6 +163,16 @@ public class Corral {
         }
 
         return false;
+    }
+
+    private boolean isInCorral(TileInfo tile) {
+        Corral c = board.getCorral(tile);
+
+        if (c == null) {
+            return isInCorral(tile.getIndex());
+        } else {
+            return c == this;
+        }
     }
 
     public int getTopX() {
