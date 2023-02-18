@@ -51,6 +51,11 @@ public class SolutionCommand extends LevelCommand {
         if (!noAnimation) {
             showAnimator(s);
         } else {
+            if (!sokoshell().isPromptEnabled()) {
+                err.println("Animator not available when prompt is disabled");
+                return FAILURE;
+            }
+
             List<Move> moves = s.getFullSolution();
 
             for (Move m : moves) {

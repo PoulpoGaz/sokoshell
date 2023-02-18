@@ -21,6 +21,11 @@ public class PlayCommand extends LevelCommand {
 
     @Override
     protected int executeImpl(InputStream in, PrintStream out, PrintStream err) throws InvalidArgument {
+        if (!sokoshell().isPromptEnabled()) {
+            err.println("Animator not available when prompt is disabled");
+            return FAILURE;
+        }
+
         Level l = getLevel(pack, level);
 
         PlayCommand.GameController controller = new PlayCommand.GameController(l);

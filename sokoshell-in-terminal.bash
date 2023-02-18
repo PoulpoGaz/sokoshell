@@ -6,7 +6,7 @@ DEBUG=0
 MAIN_CLASS=fr.valax.sokoshell.SokoShell
 N=0
 
-while getopts dm: opt; do
+while getopts :dm: opt; do
   case "$opt" in
     d)
       DEBUG=1
@@ -17,7 +17,7 @@ while getopts dm: opt; do
       ((N += 2))
       ;;
     \?)
-      exit 1
+      break
   esac
 done
 

@@ -12,7 +12,7 @@ import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 
-public class NotificationHandler {
+public class NotificationHandler implements INotificationHandler {
 
     private static final int MAX_NOTIFICATION = 100;
 
@@ -36,6 +36,7 @@ public class NotificationHandler {
         }
     }
 
+    @Override
     public void newNotification(AttributedString message) {
         notifications.offer(new Notification(message, System.currentTimeMillis()));
 
@@ -46,10 +47,7 @@ public class NotificationHandler {
         updateStatus();
     }
 
-    public void newNotification(String message) {
-        newNotification(new AttributedString(message));
-    }
-
+    @Override
     public void updateStatus() {
         if (status == null || suspend || SOKOSHELL.isShutdown()) {
             return;
@@ -82,14 +80,16 @@ public class NotificationHandler {
         lineReader.redisplay();
     }
 
-    public void suspendStatus() {
+    @Override
+    public void suspend() {
         if (status != null) {
             status.suspend();
             suspend = true;
         }
     }
 
-    public void restoreStatus() {
+    @Override
+    public void restore() {
         if (status != null) {
             status.restore();
             updateStatus();
@@ -97,23 +97,22 @@ public class NotificationHandler {
         }
     }
 
-    public void clearStatus() {
+    @Override
+    public void clear() {
         if (status != null) {
             status.reset();
         }
     }
 
+    @Override
     public void shutdown() {
         if (status != null) {
             status.reset();
         }
     }
 
+    @Override
     public Queue<Notification> getNotifications() {
         return notifications;
-    }
-
-    private record Notification(AttributedString message, long time) {
-
     }
 }

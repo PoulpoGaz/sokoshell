@@ -70,17 +70,18 @@ public class SokoShell {
     public static final SokoShell INSTANCE = new SokoShell();
 
     public static void main(String[] args) {
-        Path sokoshellrc;
-        if (args.length == 0) {
-            sokoshellrc = USER_HOME.resolve(".%src".formatted(NAME));
-        } else if (args.length == 1) {
-            sokoshellrc = Path.of(args[0]);
-        } else {
-            System.err.println("Too many arguments. Only accept one file");
-            return;
+        boolean noPrompt = false;
+
+        Path sokoshellrc = USER_HOME.resolve(".%src".formatted(NAME));
+        for (String str : args) {
+            if (str.equals("--no-prompt") || str.equals("-n")) {
+                noPrompt = true;
+            } else {
+                sokoshellrc = Path.of(args[0]);
+            }
         }
 
-        SokoShell.INSTANCE.loop(sokoshellrc);
+        SokoShell.INSTANCE.run(sokoshellrc, noPrompt);
     }
 
 
@@ -91,7 +92,7 @@ public class SokoShell {
     private LineReaderImpl reader;
     private Terminal terminal;
 
-
+    private boolean promptEnabled;
 
     private final ExecutorService executor = Executors.newCachedThreadPool();
     private final ScheduledExecutorService scheduledExecutor =
@@ -106,7 +107,7 @@ public class SokoShell {
 
     private final TaskList taskList;
 
-    private NotificationHandler notificationHandler;
+    private INotificationHandler notificationHandler;
 
     private Pack selectedPack = null;
     private int selectedLevel = -1;
@@ -198,6 +199,22 @@ public class SokoShell {
 
     // READING AND EXECUTING
 
+    private void run(Path sokoshellrc, boolean noPrompt) {
+        promptEnabled = !noPrompt;
+        if (noPrompt) {
+            cli.setStdIn(System.in);
+            cli.setStdOut(System.out);
+
+            try {
+                executeStartupScript(sokoshellrc);
+            } finally {
+                shutdown();
+            }
+        } else {
+            loop(sokoshellrc);
+        }
+    }
+
     /**
      * Initialize terminal, command line and line reader.
      * Execute startup script
@@ -280,7 +297,9 @@ public class SokoShell {
             }
         }
 
-        System.out.println("Goodbye!");
+        if (promptEnabled) {
+            System.out.println("Goodbye!");
+        }
     }
 
 
@@ -349,8 +368,10 @@ public class SokoShell {
     private int clear(InputStream in, PrintStream out, PrintStream err) {
         if (reader != null) {
             reader.clearScreen();
-            notificationHandler.clearStatus();
-            notificationHandler.getNotifications().clear();
+
+            if (notificationHandler != null) {
+                notificationHandler.clear();
+            }
         }
 
         return SUCCESS;
@@ -583,9 +604,13 @@ public class SokoShell {
         getNotificationHandler().newNotification(message);
     }
 
-    public NotificationHandler getNotificationHandler() {
+    public INotificationHandler getNotificationHandler() {
         if (notificationHandler == null) {
-            notificationHandler = new NotificationHandler(reader);
+            if (promptEnabled) {
+                notificationHandler = new NotificationHandler(reader);
+            } else {
+                notificationHandler = INotificationHandler.newFalseNotificationHandler();
+            }
         }
 
         return notificationHandler;
@@ -601,5 +626,9 @@ public class SokoShell {
 
     public boolean isShutdown() {
         return isShutdown;
+    }
+
+    public boolean isPromptEnabled() {
+        return promptEnabled;
     }
 }

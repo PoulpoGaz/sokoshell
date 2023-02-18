@@ -76,6 +76,19 @@ public class MutableBoard extends GenericBoard {
         corralDetector = new CorralDetector(this);
     }
 
+    public MutableBoard(int width, int height) {
+        super(width, height);
+
+        this.content = new TileInfo[height][width];
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                this.content[y][x] = new MutableTileInfo(this, Tile.FLOOR, x, y);
+            }
+        }
+
+        corralDetector = new CorralDetector(this);
+    }
+
     /**
      * Creates a copy of 'other'. It doesn't copy solver information
      *

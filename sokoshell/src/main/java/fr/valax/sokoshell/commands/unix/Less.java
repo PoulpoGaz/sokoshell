@@ -69,6 +69,11 @@ public class Less extends AbstractCommand {
 
     @Override
     public int executeImpl(InputStream in, PrintStream out, PrintStream err) {
+        if (!sokoshell().isPromptEnabled()) {
+            err.println("Less not available when prompt is disabled");
+            return FAILURE;
+        }
+
         String[] options = getOptions(in);
 
         try {

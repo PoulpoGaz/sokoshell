@@ -92,7 +92,7 @@ public class SolveCommand extends AbstractCommand {
             lastTask = newTask(solver, tracker, parameters, levels, packRequest);
         }
 
-        if (waitUntilFinished) {
+        if (waitUntilFinished || !sokoshell().isPromptEnabled()) {
             while (lastTask.getTaskStatus() == TaskStatus.PENDING ||
                     lastTask.getTaskStatus() == TaskStatus.RUNNING) {
                 Thread.onSpinWait();

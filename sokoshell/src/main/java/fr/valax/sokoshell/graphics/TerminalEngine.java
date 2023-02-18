@@ -148,7 +148,7 @@ public class TerminalEngine implements AutoCloseable {
         running = true;
         tps = 0;
 
-        SokoShell.INSTANCE.getNotificationHandler().suspendStatus();
+        SokoShell.INSTANCE.getNotificationHandler().suspend();
 
         display = new Display(terminal, true);
         display.setDelayLineWrap(false);
@@ -328,7 +328,7 @@ public class TerminalEngine implements AutoCloseable {
         terminal.puts(InfoCmp.Capability.keypad_local);
         terminal.writer().flush();
 
-        SokoShell.INSTANCE.getNotificationHandler().restoreStatus();
+        SokoShell.INSTANCE.getNotificationHandler().restore();
 
         readerFuture = null;
         reader = null;
