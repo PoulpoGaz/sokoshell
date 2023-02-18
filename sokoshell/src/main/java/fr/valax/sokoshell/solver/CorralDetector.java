@@ -23,14 +23,15 @@ public class CorralDetector {
 
     private final Set<Corral> currentCorrals;
 
-    public CorralDetector(int size) {
+    public CorralDetector(Board board) {
+        int size = board.getWidth() * board.getHeight();
         parent = new int[size];
         rank = new int[size];
         corrals = new Corral[size];
 
         for (int i = 0; i < parent.length; i++) {
             parent[i] = i;
-            corrals[i] = new Corral(i);
+            corrals[i] = new Corral(i, board);
         }
 
         currentCorrals = new HashSet<>(size);

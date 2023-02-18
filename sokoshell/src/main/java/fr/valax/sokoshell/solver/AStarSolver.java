@@ -4,7 +4,6 @@ import fr.poulpogaz.json.IJsonReader;
 import fr.poulpogaz.json.IJsonWriter;
 import fr.poulpogaz.json.JsonException;
 import fr.valax.sokoshell.commands.AbstractCommand;
-import fr.valax.sokoshell.solver.board.Board;
 import fr.valax.sokoshell.solver.collections.SolverPriorityQueue;
 import fr.valax.sokoshell.solver.heuristic.GreedyHeuristic;
 import fr.valax.sokoshell.solver.heuristic.Heuristic;
@@ -15,7 +14,7 @@ import org.jline.reader.LineReader;
 import java.io.IOException;
 import java.util.List;
 
-public class AStarSolver extends BruteforceSolver<WeightedState> {
+public class AStarSolver extends AbstractSolver<WeightedState> {
 
     private Heuristic heuristic;
 

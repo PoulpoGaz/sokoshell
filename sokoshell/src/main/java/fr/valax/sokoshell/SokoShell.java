@@ -120,8 +120,8 @@ public class SokoShell {
     private SokoShell() {
         cli = createCommandLine();
 
-        addSolver(BasicBruteforceSolver.newBFSSolver());
-        addSolver(BasicBruteforceSolver.newDFSSolver());
+        addSolver(BruteforceSolver.newBFSSolver());
+        addSolver(BruteforceSolver.newDFSSolver());
         addSolver(new AStarSolver());
 
         addBoardStyle(BasicStyle.DEFAULT_STYLE);

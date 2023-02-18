@@ -18,7 +18,7 @@ public class CorralDetectorTest {
         Level level = TestUtils.getLevel(Path.of("levels8xv/Original.8xv"), 0);
         MutableBoard board = new MutableBoard(level);
 
-        CorralDetector corralDetector = new CorralDetector(board.getWidth() * board.getHeight());
+        CorralDetector corralDetector = new CorralDetector(board);
 
         corralDetector.findCorral(board, level.getPlayerX(), level.getPlayerY());
         corralDetector.findPICorral(board, level.getInitialState().cratesIndices());
@@ -36,7 +36,7 @@ public class CorralDetectorTest {
         Level level = TestUtils.getLevel(Path.of("levels8xv/Original.8xv"), 1);
         MutableBoard board = new MutableBoard(level);
 
-        CorralDetector corralDetector = new CorralDetector(board.getWidth() * board.getHeight());
+        CorralDetector corralDetector = new CorralDetector(board);
         corralDetector.findCorral(board, level.getPlayerX(), level.getPlayerY());
 
         print(corralDetector.getCorrals());
@@ -50,7 +50,7 @@ public class CorralDetectorTest {
         board.removeStateCrates(level.getInitialState());
         board.getAt(7, 7).addCrate();;
 
-        CorralDetector corralDetector = new CorralDetector(board.getWidth() * board.getHeight());
+        CorralDetector corralDetector = new CorralDetector(board);
         corralDetector.findCorral(board, 6, 7);
 
         print(corralDetector.getCorrals());
@@ -62,7 +62,7 @@ public class CorralDetectorTest {
         Level level = TestUtils.getLevel(Path.of("TIPEex.8xv"), 8);
         MutableBoard board = new MutableBoard(level);
 
-        CorralDetector corralDetector = new CorralDetector(board.getWidth() * board.getHeight());
+        CorralDetector corralDetector = new CorralDetector(board);
 
         corralDetector.findCorral(board, level.getPlayerX(), level.getPlayerY());
         corralDetector.findPICorral(board, level.getInitialState().cratesIndices());
@@ -74,7 +74,7 @@ public class CorralDetectorTest {
         Level level = TestUtils.getLevel(Path.of("TIPEex.8xv"), 9);
         MutableBoard board = new MutableBoard(level);
 
-        CorralDetector corralDetector = new CorralDetector(board.getWidth() * board.getHeight());
+        CorralDetector corralDetector = new CorralDetector(board);
 
         corralDetector.findCorral(board, level.getPlayerX(), level.getPlayerY());
         corralDetector.findPICorral(board, level.getInitialState().cratesIndices());
@@ -86,7 +86,7 @@ public class CorralDetectorTest {
         Level level = TestUtils.getLevel(Path.of("TIPEex.8xv"), 10);
         MutableBoard board = new MutableBoard(level);
 
-        CorralDetector corralDetector = new CorralDetector(board.getWidth() * board.getHeight());
+        CorralDetector corralDetector = new CorralDetector(board);
 
         corralDetector.findCorral(board, level.getPlayerX(), level.getPlayerY());
         corralDetector.findPICorral(board, level.getInitialState().cratesIndices());
@@ -98,7 +98,7 @@ public class CorralDetectorTest {
         Level level = TestUtils.getLevel(Path.of("levels8xv/Original.8xv"), 3);
         MutableBoard board = new MutableBoard(level);
 
-        CorralDetector corralDetector = new CorralDetector(board.getWidth() * board.getHeight());
+        CorralDetector corralDetector = new CorralDetector(board);
 
         board.removeStateCrates(level.getInitialState());
         board.getAt(3, 7).addCrate();

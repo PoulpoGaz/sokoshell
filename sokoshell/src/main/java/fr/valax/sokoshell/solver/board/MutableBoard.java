@@ -73,7 +73,7 @@ public class MutableBoard extends GenericBoard {
             }
         }
 
-        corralDetector = new CorralDetector(width * height);
+        corralDetector = new CorralDetector(this);
     }
 
     /**
@@ -95,7 +95,7 @@ public class MutableBoard extends GenericBoard {
             }
         }
 
-        corralDetector = new CorralDetector(width * height);
+        corralDetector = new CorralDetector(this);
 
         if (copyStatic) {
             copyStaticInformation(other);

@@ -19,7 +19,7 @@ public class AbstractSolverTest {
 
         Board board = new MutableBoard(level);
         board.removeStateCrates(level.getInitialState());
-        //mR.setShowDeadTiles(true);
+        style.setDrawDeadTiles(true);
         style.print(level);
         System.out.println("Computing dead positions...");
 
@@ -66,9 +66,6 @@ public class AbstractSolverTest {
         Assertions.assertNotNull(pack.levels());
         Assertions.assertNotEquals(0, pack.nLevels());
 
-
-        BasicBruteforceSolver solver = BasicBruteforceSolver.newBFSSolver();
-
         for (Level level : pack.levels()) {
             Board board = new MutableBoard(level);
             State init = level.getInitialState();
@@ -78,7 +75,7 @@ public class AbstractSolverTest {
             board.computeDeadTiles();
             board.addStateCrates(init);
 
-            System.out.println(solver.checkFreezeDeadlock(board, level.getInitialState()));
+            System.out.println(FreezeDeadlockDetector.checkFreezeDeadlock(board, level.getInitialState()));
 
         }
     }
@@ -87,9 +84,7 @@ public class AbstractSolverTest {
     void freezeDeadlockTest2() {
         Level level = TestUtils.getLevel(Path.of("levels8xv/Aruba10.8xv"), 46 - 1);
         BoardStyle style = TestUtils.getStyle(Path.of("isekai/isekai.style"));
-        //mr.setShowDeadTiles(true);
-
-        BasicBruteforceSolver solver = BasicBruteforceSolver.newBFSSolver();
+        style.setDrawDeadTiles(true);
 
         Board board = new MutableBoard(level);
         State init = level.getInitialState();
@@ -103,16 +98,16 @@ public class AbstractSolverTest {
         board.addStateCrates(myState);
 
         style.print(board, myState.playerPos() % board.getWidth(), myState.playerPos() / board.getWidth());
-        System.out.println(solver.checkFreezeDeadlock(board, myState));
+        System.out.println(FreezeDeadlockDetector.checkFreezeDeadlock(board, myState));
     }
 
     @Test
     void freezeDeadlockTest3() {
         Level level = TestUtils.getLevel(Path.of("levels8xv/Original.8xv"), 48 - 1);
         BoardStyle style = TestUtils.getStyle(Path.of("isekai/isekai.style"));
-        //mr.setShowDeadTiles(true);
+        style.setDrawDeadTiles(true);
 
-        BasicBruteforceSolver solver = BasicBruteforceSolver.newBFSSolver();
+        BruteforceSolver solver = BruteforceSolver.newBFSSolver();
 
         Board board = new MutableBoard(level);
         State init = level.getInitialState();
@@ -125,7 +120,7 @@ public class AbstractSolverTest {
         board.addStateCrates(myState);
 
         style.print(board, myState.playerPos() % board.getWidth(), myState.playerPos() / board.getWidth());
-        System.out.println(solver.checkFreezeDeadlock(board, myState));
+        System.out.println(FreezeDeadlockDetector.checkFreezeDeadlock(board, myState));
     }
 
     @Test
@@ -151,7 +146,10 @@ public class AbstractSolverTest {
 
         State state = new State(player, new int[] {c1, c2, c3}, 0, null);
         corralDetector.findCorral(board, playerX, playerY);
-        BasicBruteforceSolver solver = BasicBruteforceSolver.newBFSSolver();
-        System.out.println(solver.checkPICorralDeadlock(board, state));
+        corralDetector.findPICorral(board, state.cratesIndices());
+
+        for (Corral c : corralDetector.getCorrals()) {
+            System.out.printf("%d - %d. deadlock? %s%n", c.getTopX(), c.getTopY(), c.isDeadlock(state));
+        }
     }
 }
