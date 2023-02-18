@@ -1,5 +1,6 @@
 package fr.valax.sokoshell.solver;
 
+import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 import fr.valax.sokoshell.solver.collections.SolverCollection;
 
 import java.util.ArrayDeque;
@@ -28,10 +29,10 @@ public abstract class BruteforceSolver extends AbstractSolver<State> {
     }
 
     @Override
-    protected void addState(int crateIndex, int crateX, int crateY, int crateDestX, int crateDestY) {
-        final int i = board.topLeftReachablePosition(crateX, crateY, crateDestX, crateDestY);
+    protected void addState(int crateIndex, TileInfo crate, TileInfo crateDest) {
+        final int i = board.topLeftReachablePosition(crate, crateDest);
         // The new player position is the crate position
-        State s = toProcess.cachedState().child(i, crateIndex, crateDestY * board.getWidth() + crateDestX);
+        State s = toProcess.cachedState().child(i, crateIndex, crateDest.getIndex());
 
         if (processed.add(s)) {
             toProcess.addState(s);

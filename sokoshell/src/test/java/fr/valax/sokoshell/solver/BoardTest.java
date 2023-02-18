@@ -25,7 +25,7 @@ public class BoardTest {
         Level level = TestUtils.getLevel(Path.of("../levels/levels8xv/Original.8xv"));
         Board board = new MutableBoard(level);
 
-        int i = board.topLeftReachablePosition(5, 7, 5, 6);
+        int i = board.topLeftReachablePosition(board.getAt(5, 7), board.getAt(5, 6));
 
         assertEquals(3, i % board.getWidth());
         assertEquals(4, i / board.getWidth());

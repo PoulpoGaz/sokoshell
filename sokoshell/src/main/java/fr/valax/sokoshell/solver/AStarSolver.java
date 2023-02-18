@@ -4,6 +4,7 @@ import fr.poulpogaz.json.IJsonReader;
 import fr.poulpogaz.json.IJsonWriter;
 import fr.poulpogaz.json.JsonException;
 import fr.valax.sokoshell.commands.AbstractCommand;
+import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 import fr.valax.sokoshell.solver.collections.SolverPriorityQueue;
 import fr.valax.sokoshell.solver.heuristic.GreedyHeuristic;
 import fr.valax.sokoshell.solver.heuristic.Heuristic;
@@ -43,11 +44,10 @@ public class AStarSolver extends AbstractSolver<WeightedState> {
     }
 
     @Override
-    protected void addState(int crateIndex, int crateX, int crateY, int crateDestX, int crateDestY) {
-        final int i = board.topLeftReachablePosition(crateX, crateY, crateDestX, crateDestY);
+    protected void addState(int crateIndex, TileInfo crate, TileInfo crateDest) {
+        final int i = board.topLeftReachablePosition(crate, crateDest);
         // The new player position is the crate position
-        WeightedState s = toProcess.cachedState().child(i, crateIndex,
-                                          crateDestY * board.getWidth() + crateDestX);
+        WeightedState s = toProcess.cachedState().child(i, crateIndex, crateDest.getIndex());
         s.setHeuristic(heuristic.compute(s));
 
         if (processed.add(s)) {

@@ -934,20 +934,21 @@ public class MutableBoard extends GenericBoard {
      * @see MarkSystem
      * @see Mark
      */
-    public int topLeftReachablePosition(int crateToMoveX, int crateToMoveY, int destX, int destY) {
+    @Override
+    public int topLeftReachablePosition(TileInfo crate, TileInfo crateDest) {
         // temporary move the crate
-        getAt(crateToMoveX, crateToMoveY).removeCrate();
-        getAt(destX, destY).addCrate();
+        crate.removeCrate();
+        crateDest.addCrate();
 
         topX = width;
         topY = height;
 
         markSystem.unmarkAll();
-        topLeftReachablePosition_aux(getAt(crateToMoveX, crateToMoveY));
+        topLeftReachablePosition_aux(crate);
 
         // undo
-        getAt(crateToMoveX, crateToMoveY).addCrate();
-        getAt(destX, destY).removeCrate();
+        crate.addCrate();
+        crateDest.removeCrate();
 
         return topY * width + topX;
     }

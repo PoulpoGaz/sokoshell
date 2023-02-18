@@ -149,7 +149,7 @@ public abstract class GenericBoard implements Board {
     }
 
     @Override
-    public int topLeftReachablePosition(int crateToMoveX, int crateToMoveY, int destX, int destY) {
+    public int topLeftReachablePosition(TileInfo crate, TileInfo crateDest) {
         throw new UnsupportedOperationException("Board is not intended for solvers");
     }
 

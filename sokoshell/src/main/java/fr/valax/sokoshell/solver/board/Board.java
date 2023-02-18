@@ -400,7 +400,7 @@ public interface Board {
 
     /**
      * This method compute the top left reachable position of the player of pushing a crate
-     * at (crateToMoveX, crateToMoveY) to (destX, destY). It is used to calculate the position
+     * at crate to crateDest. It is used to calculate the position
      * of the player in a {@link State}.
      * This is also an example of use of {@link MarkSystem}
      *
@@ -408,7 +408,7 @@ public interface Board {
      * @see MarkSystem
      * @see Mark
      */
-    int topLeftReachablePosition(int crateToMoveX, int crateToMoveY, int destX, int destY);
+    int topLeftReachablePosition(TileInfo crate, TileInfo crateDest);
 
     /**
      * @param tile tile
