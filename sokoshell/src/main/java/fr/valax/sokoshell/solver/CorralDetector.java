@@ -2,12 +2,11 @@ package fr.valax.sokoshell.solver;
 
 import fr.valax.sokoshell.solver.board.Board;
 import fr.valax.sokoshell.solver.board.Direction;
+import fr.valax.sokoshell.solver.board.tiles.MutableTileInfo;
+import fr.valax.sokoshell.solver.board.tiles.Tile;
 import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * A union find structure to find corral in a map.
@@ -55,31 +54,32 @@ public class CorralDetector {
         int w = board.getWidth();
 
         for (int y = 1; y < h - 1; y++) {
+            TileInfo left = board.getAt(0, y);
+
             for (int x = 1; x < w - 1; x++) {
                 TileInfo t = board.getAt(x, y);
 
                 if (!t.isSolid()) {
                     TileInfo up = board.getAt(x, y - 1);
-                    TileInfo left = board.getAt(x - 1, y);
 
-                    Corral corral;
                     if (!up.isSolid() && !left.isSolid()) {
                         addToCorral(t, up);
-                        corral = mergeTwoCorrals(up, left);
+                        mergeTwoCorrals(up, left);
                     } else if (!up.isSolid()) {
-                        corral = addToCorral(t, up);
+                        addToCorral(t, up);
                     } else if (!left.isSolid()) {
-                        corral = addToCorral(t, left);
+                        addToCorral(t, left);
                     } else {
-                        corral = newCorral(t);
-                    }
-
-                    if (t.isAt(playerX, playerY)) {
-                        corral.containsPlayer = true;
+                        newCorral(t);
                     }
                 }
+
+                left = t;
             }
         }
+
+        int playerCorral = find(playerY * board.getWidth() + playerX);
+        corrals[playerCorral].containsPlayer = true;
     }
 
     /**
@@ -188,25 +188,21 @@ public class CorralDetector {
      * and {@code dest} must be in separate trees.
      * This method breaks the union find structure.
      * So, it must be used carefully.
-     * @return the corral in which was added the tile
      */
-    private Corral addToCorral(TileInfo tile, TileInfo inCorral) {
+    private void addToCorral(TileInfo tile, TileInfo inCorral) {
         int i = tile.getIndex();
         int rootI = find(inCorral.getIndex());
 
         parent[i] = rootI;
         rank[i] = 0;
-
-        return corrals[rootI];
     }
 
     /**
      * Remove a node from his tree and create a new tree.
      * This method breaks the union find structure.
      * So, it must be used carefully.
-     * @return the new corral
      */
-    private Corral newCorral(TileInfo tile) {
+    private void newCorral(TileInfo tile) {
         int i = tile.getIndex();
         parent[i] = i;
         rank[i] = 0;
@@ -220,8 +216,6 @@ public class CorralDetector {
         corral.topY = tile.getY();
 
         currentCorrals.add(corral);
-
-        return corral;
     }
 
     private void removeCorral(TileInfo tile) {
@@ -230,7 +224,7 @@ public class CorralDetector {
         rank[i] = 0;
     }
 
-    private Corral mergeTwoCorrals(TileInfo inCorral1, TileInfo inCorral2) {
+    private void mergeTwoCorrals(TileInfo inCorral1, TileInfo inCorral2) {
         int corral1I = find(inCorral1.getIndex());
         int corral2I = find(inCorral2.getIndex());
 
@@ -261,11 +255,7 @@ public class CorralDetector {
                 newCorral.topX = oldCorral.topX;
                 newCorral.topY = oldCorral.topY;
             }
-
-            return newCorral;
         }
-
-        return corrals[corral1I];
     }
 
 
@@ -289,7 +279,7 @@ public class CorralDetector {
         return corrals[find(tile.getIndex())];
     }
 
-    public Set<Corral> getCorrals() {
+    public Collection<Corral> getCorrals() {
         return currentCorrals;
     }
 }

@@ -107,8 +107,6 @@ public class AbstractSolverTest {
         BoardStyle style = TestUtils.getStyle(Path.of("isekai/isekai.style"));
         style.setDrawDeadTiles(true);
 
-        BruteforceSolver solver = BruteforceSolver.newBFSSolver();
-
         Board board = new MutableBoard(level);
         State init = level.getInitialState();
 

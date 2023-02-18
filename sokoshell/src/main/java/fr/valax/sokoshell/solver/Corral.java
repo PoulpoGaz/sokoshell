@@ -68,6 +68,9 @@ public class Corral {
             }
         }
 
+        visited.clear();
+        toVisit.clear();
+
         // re-add crates
         for (int crate : state.cratesIndices()) {
             if (!isInCorral(board, crate)) {

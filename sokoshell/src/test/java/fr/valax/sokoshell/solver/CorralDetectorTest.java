@@ -8,6 +8,7 @@ import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -111,7 +112,7 @@ public class CorralDetectorTest {
         print(corralDetector.getCorrals());
     }
 
-    private static void print(Set<Corral> corrals) {
+    private static void print(Collection<Corral> corrals) {
         System.out.println("~~~~~~~~~~~~~~~~~~~~");
         System.out.printf("Number of corrals: %d%n", corrals.size());
         for (Corral c : corrals) {
