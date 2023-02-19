@@ -26,10 +26,10 @@ public class Level extends ImmutableBoard {
     private final List<SolverReport> solverReports;
 
     // number of crate or crate on target
-    private final int numberOfCrate;
+    private final int numberOfCrates;
 
     // number of crate, crate on target, floor and target
-    private final int numberOfNonWall;
+    private final int numberOfNonWalls;
 
     private BigInteger maxNumberOfStateEstimation;
 
@@ -53,8 +53,8 @@ public class Level extends ImmutableBoard {
             }
         }
 
-        this.numberOfCrate = numCrate;
-        this.numberOfNonWall = numFloor;
+        this.numberOfCrates = numCrate;
+        this.numberOfNonWalls = numFloor;
     }
 
     public void writeSolutions(JsonPrettyWriter jpw) throws JsonException, IOException {
@@ -112,30 +112,30 @@ public class Level extends ImmutableBoard {
     public BigInteger estimateNumberOfState() {
         if (maxNumberOfStateEstimation == null) {
             // + 1 for numberOfCrate because we also consider the player
-            maxNumberOfStateEstimation = Utils.binomial(numberOfNonWall, numberOfCrate + 1);
+            maxNumberOfStateEstimation = Utils.binomial(numberOfNonWalls, numberOfCrates + 1);
         }
 
         return maxNumberOfStateEstimation;
     }
 
     public BigInteger estimateNumberOfState(int nDeadTile) {
-        int nFloor = numberOfNonWall - nDeadTile;
+        int nFloor = numberOfNonWalls - nDeadTile;
 
-        return Utils.binomial(nFloor, numberOfCrate + 1);
+        return Utils.binomial(nFloor, numberOfCrates + 1);
     }
 
     /**
      * @return the number of crate in this level
      */
-    public int getNumberOfCrate() {
-        return numberOfCrate;
+    public int getNumberOfCrates() {
+        return numberOfCrates;
     }
 
     /**
      * @return the number of non-wall (floor, target, crate, crate on target)
      */
-    public int getNumberOfNonWall() {
-        return numberOfNonWall;
+    public int getNumberOfNonWalls() {
+        return numberOfNonWalls;
     }
 
     /**

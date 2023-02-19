@@ -18,6 +18,7 @@ import java.util.List;
 public class AStarSolver extends AbstractSolver<WeightedState> {
 
     private Heuristic heuristic;
+    private int lowerBound;
 
     public AStarSolver() {
         super(A_STAR);
@@ -39,8 +40,9 @@ public class AStarSolver extends AbstractSolver<WeightedState> {
     @Override
     protected void addInitialState(Level level) {
         final State s = level.getInitialState();
+        lowerBound = heuristic.compute(s);
 
-        toProcess.addState(new WeightedState(s, 0, heuristic.compute(s)));
+        toProcess.addState(new WeightedState(s, 0, lowerBound));
     }
 
     @Override
@@ -59,6 +61,11 @@ public class AStarSolver extends AbstractSolver<WeightedState> {
     protected void addParameters(List<SolverParameter> parameters) {
         super.addParameters(parameters);
         parameters.add(new HeuristicParameter());
+    }
+
+    @Override
+    public int lowerBound() {
+        return lowerBound;
     }
 
     protected static class HeuristicParameter extends SolverParameter {
