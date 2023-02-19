@@ -1,5 +1,6 @@
 package fr.valax.sokoshell.solver;
 
+import fr.valax.sokoshell.graphics.style.BasicStyle;
 import fr.valax.sokoshell.solver.board.*;
 import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 import fr.valax.sokoshell.solver.collections.SolverCollection;
@@ -19,6 +20,8 @@ public abstract class AbstractSolver<S extends State> implements Trackable, Solv
     protected static final String ACCURATE = "accurate";
 
     protected final String name;
+
+    protected final DeadlockTable table = DeadlockTable.generate2(3, -1 );
 
     protected SolverCollection<S> toProcess;
     protected final Set<State> processed = new HashSet<>();
@@ -276,7 +279,21 @@ public abstract class AbstractSolver<S extends State> implements Trackable, Solv
                 }
             }
 
-            addStateCheckForGoalMacro(crateIndex, crate, crateDest);
+            crate.removeCrate();
+            crateDest.addCrate();
+            boolean deadlock = table.isDeadlock(crate, d);
+            if (deadlock) {
+                if (!FreezeDeadlockDetector.checkFreezeDeadlock(crateDest)) {
+                    System.out.println(crate.getX() + " - " + crate.getY() + " --> " + d);
+                    BasicStyle.XSB_STYLE.print(board, crate.getX(), crate.getY());
+                }
+            }
+            crate.addCrate();
+            crateDest.removeCrate();
+
+            if (!deadlock) {
+                addStateCheckForGoalMacro(crateIndex, crate, crateDest);
+            }
         }
     }
 
