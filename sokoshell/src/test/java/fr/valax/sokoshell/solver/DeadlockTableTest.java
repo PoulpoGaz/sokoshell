@@ -43,6 +43,22 @@ public class DeadlockTableTest {
     }
 
     @Test
+    void test2() throws IOException {
+        DeadlockTable table = DeadlockTable.read(Path.of("../4x4.table"));
+
+        Level l = TestUtils.getLevel("""
+                ########
+                # $ $  #
+                # $$$  #
+                #  @   #
+                #      #
+                ########
+                """);
+
+        System.out.println(table.isDeadlock(l.getAt(3, 2), Direction.UP));
+    }
+
+    @Test
     void write() throws IOException {
         State.initZobristValues(100);
         DeadlockTable table = DeadlockTable.generate(3);

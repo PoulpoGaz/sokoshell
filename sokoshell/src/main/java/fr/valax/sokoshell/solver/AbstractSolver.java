@@ -6,6 +6,8 @@ import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 import fr.valax.sokoshell.solver.collections.SolverCollection;
 import fr.valax.sokoshell.utils.SizeOf;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.*;
 
 /**
@@ -21,7 +23,7 @@ public abstract class AbstractSolver<S extends State> implements Trackable, Solv
 
     protected final String name;
 
-    protected final DeadlockTable table = DeadlockTable.generate2(3, -1 );
+    protected final DeadlockTable table;
 
     protected SolverCollection<S> toProcess;
     protected final Set<State> processed = new HashSet<>();
@@ -40,6 +42,12 @@ public abstract class AbstractSolver<S extends State> implements Trackable, Solv
 
     public AbstractSolver(String name) {
         this.name = name;
+
+        try {
+            table = DeadlockTable.read(Path.of("4x4.table"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -282,12 +290,6 @@ public abstract class AbstractSolver<S extends State> implements Trackable, Solv
             crate.removeCrate();
             crateDest.addCrate();
             boolean deadlock = table.isDeadlock(crate, d);
-            if (deadlock) {
-                if (!FreezeDeadlockDetector.checkFreezeDeadlock(crateDest)) {
-                    System.out.println(crate.getX() + " - " + crate.getY() + " --> " + d);
-                    BasicStyle.XSB_STYLE.print(board, crate.getX(), crate.getY());
-                }
-            }
             crate.addCrate();
             crateDest.removeCrate();
 

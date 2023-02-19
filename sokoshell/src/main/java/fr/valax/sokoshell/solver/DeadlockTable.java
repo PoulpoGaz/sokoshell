@@ -50,6 +50,10 @@ public class DeadlockTable {
     public boolean isDeadlock(TileInfo player, Direction pushDir) {
         Board board = player.getBoard();
 
+        if (player.adjacent(pushDir).isCrateOnTarget()) {
+            return false;
+        }
+
         return switch (pushDir) {
             case LEFT -> isDeadlock((t) -> board.safeGetAt(player.getX() + t.y, player.getY() + t.x));
             case UP -> isDeadlock((t) -> board.safeGetAt(player.getX() + t.x, player.getY() + t.y));
@@ -74,7 +78,8 @@ public class DeadlockTable {
         return switch (tile.getTile()) {
             case FLOOR, TARGET -> floorChild.isDeadlock(getTile);
             case WALL -> wallChild.isDeadlock(getTile);
-            case CRATE, CRATE_ON_TARGET -> crateChild.isDeadlock(getTile);
+            case CRATE -> crateChild.isDeadlock(getTile);
+            case CRATE_ON_TARGET -> false;
         };
     }
 
