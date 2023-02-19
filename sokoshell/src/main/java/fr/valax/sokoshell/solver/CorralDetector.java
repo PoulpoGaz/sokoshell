@@ -123,11 +123,20 @@ public class CorralDetector {
                 // the crate is inside a corral
                 // and not a part of a barrier
                 adj.get(0).crates.add(crate);
+
+                if (crate.isCrate()) {
+                    adj.get(0).onlyCrateOnTarget = false;
+                }
             } else if (adj.size() > 1) {
                 // crate is a part of a barrier
                 for (int i = 0; i < adj.size(); i++) {
-                    adj.get(i).crates.add(crate);
-                    adj.get(i).barrier.add(crate);
+                    Corral corral = adj.get(i);
+                    corral.crates.add(crate);
+                    corral.barrier.add(crate);
+
+                    if (crate.isCrate()) {
+                        corral.onlyCrateOnTarget = false;
+                    }
                 }
 
                 // reduce number of false PI corral.
@@ -214,6 +223,7 @@ public class CorralDetector {
         Corral corral = corrals[i];
         corral.containsPlayer = false;
         corral.isPICorral = true;
+        corral.onlyCrateOnTarget = true;
         corral.crates.clear();
         corral.barrier.clear();
         corral.topX = tile.getX();

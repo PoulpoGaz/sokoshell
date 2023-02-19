@@ -23,6 +23,7 @@ public class Corral {
     protected final List<TileInfo> crates = new ArrayList<>();
     protected boolean containsPlayer;
     protected boolean isPICorral;
+    protected boolean onlyCrateOnTarget; // true if all crates in crates are crate on target
 
 
     protected final Set<State> visited = new HashSet<>();
@@ -36,7 +37,7 @@ public class Corral {
     }
 
     public boolean isDeadlock(State originalState) {
-        if (!isPICorral) {
+        if (!isPICorral || onlyCrateOnTarget) {
             return false;
         }
 
