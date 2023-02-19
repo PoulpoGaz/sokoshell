@@ -25,7 +25,8 @@ shift $N
 
 # compile and run
 
-/opt/maven/bin/mvn compile
+# DO NOT MODIFY!!!!! IT'S SUPER ANNOYING!!!! ADD MVN TO YOUR PATH!!!!!
+mvn compile
 
 PATH_TO_PROJECT=$('pwd')
 
