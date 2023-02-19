@@ -77,6 +77,15 @@ public class Corral {
      */
     private boolean addChildrenStates(State state) {
         int[] cratesIndices = state.cratesIndices();
+
+        int numOnTarget = 0;
+        for (int crate : cratesIndices) {
+            if (board.getAt(crate).isCrateOnTarget()) {
+                numOnTarget++;
+            }
+        }
+
+
         for (int i = 0; i < cratesIndices.length; i++) {
             TileInfo crate = board.getAt(cratesIndices[i]);
 
@@ -93,7 +102,13 @@ public class Corral {
                     continue;
                 }
 
+                // a crate can be moved outside the corral
                 if (!isInCorral(dest)) {
+                    return false;
+                }
+
+                // all crates of the corral can be moved to a target
+                if (dest.isTarget() && numOnTarget == cratesIndices.length - 1) {
                     return false;
                 }
 
