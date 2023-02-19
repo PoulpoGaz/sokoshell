@@ -33,6 +33,11 @@ public interface Trackable extends Solver {
     int currentQueueSize();
 
     /**
+     * @return lower bound from initial state
+     */
+    int lowerBound();
+
+    /**
      * @return the time in milliseconds at which the solver was started
      */
     long timeStarted();

@@ -26,7 +26,9 @@ public class LightweightTracker implements Tracker {
             long currentQueueSize = trackable.currentQueueSize();
             long currentTime = System.currentTimeMillis();
 
-            area += (currentTime - lastTime) * (currentQueueSize + lastQueueSize) / 2d;
+            if (lastTime - currentTime >= 1) {
+                area += (currentTime - lastTime) * (currentQueueSize + lastQueueSize) / 2d;
+            }
 
             lastQueueSize = currentQueueSize;
             lastTime = currentTime;
@@ -42,21 +44,25 @@ public class LightweightTracker implements Tracker {
 
     @Override
     public ISolverStatistics getStatistics(Trackable trackable) {
+        updateStatistics(trackable);
+
         long runTime = trackable.timeEnded() - trackable.timeStarted();
         long nodePerSeconds = 1000L * trackable.nStateExplored() / runTime;
 
         return new Statistics(trackable.timeStarted(), trackable.timeEnded(),
-                trackable.nStateExplored(), nodePerSeconds, (int) (area / runTime));
+                trackable.nStateExplored(), nodePerSeconds, (int) (area / runTime),
+                trackable.lowerBound());
     }
 
     protected record Statistics(long timeStarted, long timeEnded,
                                 int totalStateExplored, long nodeExploredPerSeconds,
-                                int averageQueueSize) implements ISolverStatistics {
+                                int averageQueueSize, int lowerBound) implements ISolverStatistics {
 
         @Override
         public PrettyTable printStatistics(PrintStream out, PrintStream err) {
             ISolverStatistics.super.printStatistics(out, err);
 
+            out.printf("Total state explored: %d%n", totalStateExplored);
             out.printf("Average queue size: %d%n", averageQueueSize());
             out.printf("Node explored per seconds: %d%n",  nodeExploredPerSeconds());
 

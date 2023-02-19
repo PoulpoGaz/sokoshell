@@ -4,9 +4,13 @@ import fr.poulpogaz.json.utils.Pair;
 import fr.valax.args.CommandLine;
 import fr.valax.args.api.Option;
 import fr.valax.args.utils.ArgsUtils;
+import fr.valax.interval.Interval;
+import fr.valax.interval.ParseException;
+import fr.valax.interval.Set;
 import fr.valax.sokoshell.SolverTask;
 import fr.valax.sokoshell.solver.ISolverStatistics;
 import fr.valax.sokoshell.solver.Level;
+import fr.valax.sokoshell.solver.Pack;
 import fr.valax.sokoshell.solver.SolverReport;
 import fr.valax.sokoshell.utils.Alignment;
 import fr.valax.sokoshell.utils.PrettyColumn;
@@ -15,8 +19,12 @@ import fr.valax.sokoshell.utils.Utils;
 import org.jline.reader.Candidate;
 import org.jline.reader.LineReader;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,8 +40,14 @@ public class ListReports extends TableCommand {
     @Option(names = {"t", "task-index"}, hasArgument = true, argName = "Task index")
     private Integer taskIndex;
 
+    @Option(names = {"R", "reports"}, hasArgument = true)
+    private String reportIndex;
+
     @Option(names = {"s", "stats"})
     private boolean stats;
+
+    @Option(names = {"e", "export-csv"}, hasArgument = true)
+    private Path exportCSV;
 
     @Override
     public int executeImpl(InputStream in, PrintStream out, PrintStream err) throws InvalidArgument {
@@ -41,30 +55,62 @@ public class ListReports extends TableCommand {
             column = "Date";
         }
 
+        List<Pair<SolverReport, Integer>> reports = getReports(err);
+        if (reports == null) {
+            return FAILURE;
+        }
+
+        if (exportCSV != null) {
+            try {
+                exportCSV(reports);
+            } catch (IOException e) {
+                e.printStackTrace(err);
+                return FAILURE;
+            }
+        } else {
+            print(out, err, reports);
+        }
+
+        return SUCCESS;
+    }
+
+    private List<Pair<SolverReport, Integer>> getReports(PrintStream err) throws InvalidArgument {
+        Set reportsSet;
+        try {
+            if (reportIndex == null) {
+                reportsSet = Interval.all();
+            } else {
+                reportsSet = parser.parse(reportIndex);
+            }
+        } catch (ParseException e) {
+            throw new InvalidArgument(e);
+        }
+
         if (taskIndex != null) {
             SolverTask task = sokoshell().getTaskList().getTask(taskIndex);
 
             if (task == null) {
                 err.printf("Can't find task n°%d%n", taskIndex);
-                return FAILURE;
+                return null;
             } else {
                 List<SolverReport> reports = task.getSolutions();
 
                 if (reports == null) {
                     err.println("This task is running or has no solution");
-                    return FAILURE;
+                    return null;
                 } else {
                     List<Pair<SolverReport, Integer>> reportsWithIndex = new ArrayList<>();
 
                     for (SolverReport r : reports) {
                         int i = r.getLevel().indexOf(r);
 
-                        if (i >= 0) { // happen when the report was removed
+                        if (i >= 0  // happen when the report was removed
+                                && reportsSet.contains(i)) {
                             reportsWithIndex.add(new Pair<>(r, i));
                         }
                     }
 
-                    list(out, err, reportsWithIndex);
+                    return reportsWithIndex;
                 }
             }
         } else {
@@ -73,17 +119,18 @@ public class ListReports extends TableCommand {
             List<Pair<SolverReport, Integer>> solverReports = new ArrayList<>();
             for (Level level : levels) {
                 for (int i = 0; i < level.numberOfSolverReport(); i++) {
-                    solverReports.add(new Pair<>(level.getSolverReport(i), i));
+                    if (reportsSet.contains(i)) {
+                        solverReports.add(new Pair<>(level.getSolverReport(i), i));
+                    }
                 }
             }
 
-            list(out, err, solverReports);
+            return solverReports;
         }
-
-        return SUCCESS;
     }
 
-    private void list(PrintStream out, PrintStream err, List<Pair<SolverReport, Integer>> solverReports) {
+
+    private void print(PrintStream out, PrintStream err, List<Pair<SolverReport, Integer>> solverReports) {
         if (solverReports.isEmpty()) {
             out.println("No report found");
             return;
@@ -272,6 +319,70 @@ public class ListReports extends TableCommand {
 
         l = maxPushesReport.getLevel();
         out.printf("Level with longest solution: %s pushes - %s #%d%n", maxPushes, l.getPack().name(), l.getIndex() + 1);
+    }
+
+    private void exportCSV(List<Pair<SolverReport, Integer>> reports) throws IOException {
+        try (BufferedWriter bw = Files.newBufferedWriter(exportCSV)) {
+            // wow
+            bw.write("Pack,Level,Report,Solver,Status,Date,Moves,Pushes,Time (sec),Width,Height,Floors,Crates,LowerBound");
+            bw.newLine();
+
+            for (Pair<SolverReport, Integer> pair : reports) {
+                SolverReport report = pair.getLeft();
+                Level level = report.getLevel();
+
+                bw.write(quote(level.getPack().name()));
+                bw.write(',');
+                bw.write(Integer.toString(level.getIndex()));
+                bw.write(',');
+                bw.write(pair.getRight().toString());
+                bw.write(',');
+                bw.write(report.getSolverName());
+                bw.write(',');
+                bw.write(report.getStatus());
+                bw.write(',');
+
+                ISolverStatistics stats = report.getStatistics();
+                bw.write(Utils.formatDate(stats.timeStarted()));
+                bw.write(',');
+                bw.write(Integer.toString(report.numberOfMoves()));
+                bw.write(',');
+                bw.write(Integer.toString(report.numberOfPushes()));
+                bw.write(',');
+                bw.write(Long.toString(stats.runTime() / 1000));
+                bw.write(',');
+                bw.write(Integer.toString(level.getWidth()));
+                bw.write(',');
+                bw.write(Integer.toString(level.getHeight()));
+                bw.write(',');
+                bw.write(Integer.toString(level.getNumberOfNonWalls()));
+                bw.write(',');
+                bw.write(Integer.toString(level.getNumberOfCrates()));
+                bw.write(',');
+                bw.write(Integer.toString(stats.lowerBound()));
+                bw.newLine();
+            }
+        }
+    }
+
+    private String quote(String str) {
+        if (str.contains(",")) {
+            StringBuilder sb = new StringBuilder();
+
+            sb.append('"');
+            for (int i = 0; i < str.length(); i++) {
+                if (str.charAt(i) == '"') {
+                    sb.append("\"\""); // double quote!
+                } else {
+                    sb.append(str.charAt(i));
+                }
+            }
+            sb.append('"');
+
+            return sb.toString();
+        } else {
+            return str;
+        }
     }
 
     @Override

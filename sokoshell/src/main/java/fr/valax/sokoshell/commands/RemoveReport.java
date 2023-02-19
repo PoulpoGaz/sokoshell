@@ -21,7 +21,7 @@ public class RemoveReport extends AbstractCommand {
     @Option(names = {"l", "levels"}, hasArgument = true, argName = "Index of the levels")
     private String levelsIndices;
 
-    @Option(names = {"r", "reports"}, hasArgument = true, argName = "Index of the reports to remove")
+    @Option(names = {"R", "reports"}, hasArgument = true, argName = "Index of the reports to remove", optional = false)
     private String reportsIndices;
 
     @Override

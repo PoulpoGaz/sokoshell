@@ -39,6 +39,11 @@ public abstract class BruteforceSolver extends AbstractSolver<State> {
         }
     }
 
+    @Override
+    public int lowerBound() {
+        return -1;
+    }
+
     /**
      * Base class for DFS and BFS solvers collection (both of them use {@link ArrayDeque}), the only difference being in
      * which side of the queue is used (end => FIFO => DFS, start => LIFO => BFS)

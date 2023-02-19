@@ -52,7 +52,8 @@ public class DefaultTracker implements Tracker {
         add(end, trackable.nStateExplored(), trackable.currentQueueSize());
 
         stats.add(0, new InstantStatistic(trackable.timeStarted(), 0, 0));
-        return new SolverStatistics(stats, trackable.timeStarted(), trackable.timeEnded());
+        return new SolverStatistics(stats, trackable.timeStarted(), trackable.timeEnded(),
+                trackable.lowerBound());
     }
 
     private void add(long time, int state, int queue) {
@@ -76,11 +77,13 @@ public class DefaultTracker implements Tracker {
 
         private final long timeStarted; // in millis
         private final long timeEnded; // in millis
+        private final int lowerBound;
 
-        public SolverStatistics(List<InstantStatistic> statistics, long timeStarted, long timeEnded) {
+        public SolverStatistics(List<InstantStatistic> statistics, long timeStarted, long timeEnded, int lowerBound) {
             this.statistics = statistics;
             this.timeStarted = timeStarted;
             this.timeEnded = timeEnded;
+            this.lowerBound = lowerBound;
         }
 
         @Override
@@ -151,8 +154,14 @@ public class DefaultTracker implements Tracker {
         }
 
         @Override
+        public int lowerBound() {
+            return lowerBound;
+        }
+
+        @Override
         public PrettyTable printStatistics(PrintStream out, PrintStream err) {
             ISolverStatistics.super.printStatistics(out, err);
+            out.printf("Lower bound: %d%n", lowerBound);
 
             if (!statistics.isEmpty()) {
                 out.printf("Average queue size: %d%n", averageQueueSize());

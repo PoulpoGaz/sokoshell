@@ -56,6 +56,11 @@ public interface ISolverStatistics extends Serializable {
     int averageQueueSize();
 
     /**
+     * @return lower bound or -1
+     */
+    int lowerBound();
+
+    /**
      * Print statistics to out.
      *
      * @param out standard output stream
@@ -89,6 +94,11 @@ public interface ISolverStatistics extends Serializable {
 
         @Override
         public int averageQueueSize() {
+            return -1;
+        }
+
+        @Override
+        public int lowerBound() {
             return -1;
         }
     }
