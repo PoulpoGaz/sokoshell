@@ -76,10 +76,10 @@ public class DeadlockTable {
         }
 
         return switch (tile.getTile()) {
-            case FLOOR, TARGET -> floorChild.isDeadlock(getTile);
+            case FLOOR -> floorChild.isDeadlock(getTile);
             case WALL -> wallChild.isDeadlock(getTile);
             case CRATE -> crateChild.isDeadlock(getTile);
-            case CRATE_ON_TARGET -> false;
+            default -> false;
         };
     }
 

@@ -37,7 +37,7 @@ public class Corral {
     }
 
     public boolean isDeadlock(State originalState) {
-        if (!isPICorral || onlyCrateOnTarget) {
+        if (!isPICorral || onlyCrateOnTarget || crates.size() == originalState.cratesIndices().length) {
             return false;
         }
 
@@ -47,7 +47,7 @@ public class Corral {
         visited.add(firstState);
         toVisit.add(firstState);
 
-        while (!toVisit.isEmpty() && visited.size() < 1000 && deadlock) {
+        while (!toVisit.isEmpty() && deadlock) {
             State s = toVisit.remove();
 
             board.addStateCrates(s);
@@ -61,6 +61,10 @@ public class Corral {
             deadlock = addChildrenStates(s);
 
             board.removeStateCrates(s);
+
+            if (visited.size() >= 1000) {
+                deadlock = false;
+            }
         }
 
         visited.clear();
