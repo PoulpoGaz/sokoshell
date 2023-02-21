@@ -66,6 +66,7 @@ public class SokoShell {
     public static final Path HISTORY = USER_HOME.resolve(".%s_history".formatted(NAME));
 
     public static final Path EXPORT_FOLDER = Path.of("export");
+    public static final Path ERROR_FILE = Path.of("errors");
 
     public static final SokoShell INSTANCE = new SokoShell();
 

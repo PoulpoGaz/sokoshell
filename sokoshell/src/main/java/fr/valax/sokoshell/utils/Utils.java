@@ -32,6 +32,13 @@ public class Utils {
         append(sw.toString(), path);
     }
 
+    public static void append(String message, Throwable e, Path path) {
+        StringWriter sw = new StringWriter();
+        sw.append("Error: ").append(message).append(System.lineSeparator());
+        e.printStackTrace(new PrintWriter(sw));
+        append(sw.toString(), path);
+    }
+
     public static void append(String str, Path path) {
         try (BufferedWriter bw = Files.newBufferedWriter(path, StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {
             bw.write(str);

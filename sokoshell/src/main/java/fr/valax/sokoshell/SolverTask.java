@@ -134,7 +134,15 @@ public class SolverTask {
                 changeStatus(TaskStatus.FINISHED);
             }
         } catch (Throwable e) {
-            Utils.append(e, Path.of("errors"));
+            if (currentLevel >= 0 && currentLevel < levels.size()) {
+                Level level = levels.get(currentLevel);
+                String message = "Failed to solve level %d of %s".formatted(level.getIndex(), level.getPack().name());
+                Utils.append(message, e,SokoShell.ERROR_FILE);
+                System.err.println(message);
+            } else {
+                Utils.append(e, SokoShell.ERROR_FILE);
+            }
+
             e.printStackTrace();
             changeStatus(TaskStatus.ERROR);
         } finally {
