@@ -109,6 +109,10 @@ public class SolverTask {
                 Level level = levels.get(currentLevel);
                 SolverParameters parameters = new SolverParameters(solver.getName(), level, params);
 
+                if (!SokoShell.INSTANCE.isPromptEnabled()) {
+                    System.out.printf("Solving level %d of %s%n", level.getIndex() + 1, level.getPack().name());
+                }
+
                 SolverReport solverReport = solver.solve(parameters);
                 level.addSolverReport(solverReport);
                 solverReports.add(solverReport);

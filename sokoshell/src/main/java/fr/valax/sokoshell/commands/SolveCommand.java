@@ -157,6 +157,11 @@ public class SolveCommand extends AbstractCommand {
 
     private SolverTask newTask(Solver solver, Tracker tracker, List<SolverParameter> params, List<Level> levels, String packRequest) {
         SolverTask task = new SolverTask(solver, tracker, params, levels, packRequest, nullSafeToString(this.levels));
+
+        if (!sokoshell().isPromptEnabled()) {
+            task.start(false);
+        }
+
         TaskList list = sokoshell().getTaskList();
 
         if (toTheTop) {
