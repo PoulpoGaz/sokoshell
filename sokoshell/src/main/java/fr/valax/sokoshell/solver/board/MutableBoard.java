@@ -571,25 +571,53 @@ public class MutableBoard extends GenericBoard {
                 } else if (pushDir2 == null) {
                     pushDir2 = dir;
                 } else {
-                    return null;
+                    return null; // too many direction
                 }
             }
         }
 
-        if (pushDir1 == null) {
+        if (pushDir1 == null) { // all adjacents tiles are wall, ie init is alone, nerver happen see LevelBuilder
             return null;
         } else if (pushDir2 == null) {
+            /*
+                We are in this case:
+                  |$|
+                 $| |$
+             */
+
             Tunnel tunnel = new Tunnel();
             tunnel.setStart(init);
             tunnel.setEnd(init);
-            tunnel.setEnd(init.adjacent(pushDir1));
+            tunnel.setEndOut(init.adjacent(pushDir1));
             init.setTunnel(tunnel);
 
             growTunnel(tunnel, init.adjacent(pushDir1), pushDir1);
             return tunnel;
         } else {
+            /*
+                Either:
+                #| |#
+                Either:
+                 |#|
+                #| |
+             */
             boolean onlyPlayer = false;
+
             if (pushDir1.negate() != pushDir2) {
+                /*
+                    First case:
+                      |#|
+                     #|i|
+                      | |#
+                    if init is like this, then this is a tunnel and a crate
+                    mustn't be pushed inside.
+
+                    Second case:
+                      |#|
+                     #|i|
+                      | |
+                    ie not tunnel
+                */
                 if (init.adjacent(pushDir1).adjacent(pushDir2).isSolid()) {
                     onlyPlayer = true;
                 } else {
@@ -599,7 +627,7 @@ public class MutableBoard extends GenericBoard {
 
             Tunnel tunnel = new Tunnel();
             tunnel.setEnd(init);
-            tunnel.setEnd(init.adjacent(pushDir1));
+            tunnel.setEndOut(init.adjacent(pushDir1));
             tunnel.setPlayerOnlyTunnel(onlyPlayer);
             init.setTunnel(tunnel);
 
@@ -636,8 +664,12 @@ public class MutableBoard extends GenericBoard {
 
         if (!pos.isTarget()) {
             pos.setTunnel(t);
-            if (left.isSolid() && right.isSolid()) {
-                if (front.isSolid() || front.isMarked()) {
+            if (left.isSolid() && right.isSolid() && front.isSolid()) {
+                t.setPlayerOnlyTunnel(true);
+                t.setEnd(pos);
+                t.setEndOut(null);
+            } else if (left.isSolid() && right.isSolid()) {
+                if (front.isMarked()) {
                     t.setEnd(pos);
                     t.setEndOut(front);
                 } else {
@@ -646,7 +678,7 @@ public class MutableBoard extends GenericBoard {
                 return;
             } else if (right.isSolid() && front.isSolid()) {
                 t.setPlayerOnlyTunnel(true);
-                if (left.isSolid() || left.isMarked()) {
+                if (left.isMarked()) {
                     t.setEnd(pos);
                     t.setEndOut(left);
                 } else {
@@ -655,7 +687,7 @@ public class MutableBoard extends GenericBoard {
                 return;
             } else if (left.isSolid() && front.isSolid()) {
                 t.setPlayerOnlyTunnel(true);
-                if (right.isSolid() || right.isMarked()) {
+                if (right.isMarked()) {
                     t.setEnd(pos);
                     t.setEndOut(right);
                 } else {
@@ -670,7 +702,6 @@ public class MutableBoard extends GenericBoard {
         t.setEndOut(pos);
         t.setEnd(pos.adjacent(dir.negate()));
     }
-
 
     /**
      * Finds room based on tunnel. Basically all tile that aren't in a tunnel are in room.

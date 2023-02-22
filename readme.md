@@ -72,3 +72,18 @@ Thinking about this, it should also work for multiple push of the same crate (fo
 ### Tunnels
 
 Remove playerOnlyTunnel with one exit.
+Detect 0 length tunnel:
+```
+$$$$$$$$$$
+$  $     $
+$        $
+$   $    $
+$$$$$$$$$$
+```
+
+### PI corral
+
+Multi pi corral
+corral
+
+XSokoban 36, 55, 61
