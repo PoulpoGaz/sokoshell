@@ -17,9 +17,9 @@ public class ReachableTiles {
         return reachable.isMarked(tile.getIndex());
     }
 
-    public void findReachableCases(TileInfo tile) {
+    public void findReachableCases(TileInfo origin) {
         reachable.unmarkAll();
-        findReachableCases_aux(tile);
+        findReachableCases_aux(origin);
     }
 
     private void findReachableCases_aux(TileInfo tile) {

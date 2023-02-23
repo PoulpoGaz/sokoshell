@@ -28,12 +28,12 @@ public class Corral {
 
     protected final Set<State> visited = new HashSet<>();
     protected final Queue<State> toVisit = new ArrayDeque<>();
-    protected final FixedSizeMarkSystem reachable;
+    protected final ReachableTiles reachable;
 
     public Corral(int id, Board board) {
         this.id = id;
         this.board = board;
-        this.reachable = new FixedSizeMarkSystem(board.getWidth() * board.getHeight());
+        this.reachable = new ReachableTiles(board);
     }
 
     public boolean isDeadlock(State originalState) {
@@ -57,7 +57,7 @@ public class Corral {
                 continue;
             }
 
-            findReachableCases(board.getAt(s.playerPos()));
+            reachable.findReachableCases(board.getAt(s.playerPos()));
             deadlock = addChildrenStates(s);
 
             board.removeStateCrates(s);
@@ -98,7 +98,7 @@ public class Corral {
                 TileInfo player = crate.adjacent(dir.negate());
 
                 // also checks if tile is solid: a solid tile is never reachable
-                if (!reachable.isMarked(player.getIndex())) {
+                if (!reachable.isReachable(player)) {
                     continue;
                 }
 
@@ -128,23 +128,6 @@ public class Corral {
         }
 
         return true;
-    }
-
-    private void findReachableCases(TileInfo tile) {
-        reachable.unmarkAll();
-        findReachableCases_aux(tile);
-    }
-
-    private void findReachableCases_aux(TileInfo tile) {
-        reachable.mark(tile.getIndex());
-        for (Direction d : Direction.VALUES) {
-            TileInfo adjacent = tile.adjacent(d);
-
-            // the second part of the condition avoids to check already processed cases
-            if (!adjacent.isSolid() && !reachable.isMarked(adjacent.getIndex())) {
-                findReachableCases_aux(adjacent);
-            }
-        }
     }
 
     /**
