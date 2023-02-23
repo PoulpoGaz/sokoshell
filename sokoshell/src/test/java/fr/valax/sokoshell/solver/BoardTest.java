@@ -38,22 +38,19 @@ public class BoardTest {
     @Test
     void findTunnelTest() {
         Set<TTunnel> tunnelsSet = new HashSet<>();
-        tunnelsSet.add(new TTunnel(4, 4, 3, 5,    5, 4, 3, 6,    true,  false));
-        tunnelsSet.add(new TTunnel(5, 5, 5, 6,    5, 4, 5, 7,    false, false));
-        tunnelsSet.add(new TTunnel(8, 4, 8, 6,    7, 4, 8, 7,    true,  false));
-        tunnelsSet.add(new TTunnel(4, 7, 4, 7,    3, 7, 5, 7,    false, false));
-        tunnelsSet.add(new TTunnel(6, 7, 7, 7,    5, 7, 8, 7,    false, false));
-        tunnelsSet.add(new TTunnel(5, 8, 9, 8,    5, 7, 9, 7,    true,  false));
-        tunnelsSet.add(new TTunnel(10, 7, 10, 7,  9, 7, 11, 7,   false, true));
-        tunnelsSet.add(new TTunnel(11, 8, 11, 8,  11, 7, -1, -1, false, true));
-        tunnelsSet.add(new TTunnel(12, 7, 13, 7,  11, 7, 14, 7,  false, true));
+        tunnelsSet.add(new TTunnel(4, 4, 3, 5,    5, 4, 3, 6,   true,  false));
+        tunnelsSet.add(new TTunnel(5, 5, 5, 6,    5, 4, 5, 7,   false, false));
+        tunnelsSet.add(new TTunnel(8, 4, 8, 6,    7, 4, 8, 7,   true,  false));
+        tunnelsSet.add(new TTunnel(4, 7, 4, 7,    3, 7, 5, 7,   false, false));
+        tunnelsSet.add(new TTunnel(6, 7, 7, 7,    5, 7, 8, 7,   false, false));
+        tunnelsSet.add(new TTunnel(5, 8, 9, 8,    5, 7, 9, 7,   true,  false));
+        tunnelsSet.add(new TTunnel(10, 7, 13, 7,  9, 7, 14, 7,  false, true));
 
         Level level = TestUtils.getLevel(Path.of("levels8xv/Original.8xv"));
         Board board = new MutableBoard(level);
         State.initZobristValues(board.getWidth() * board.getHeight());
         board.removeStateCrates(level.getInitialState());
-        board.computeFloors();
-        board.findTunnels();
+        board.initForSolver();
 
         List<Tunnel> tunnels = board.getTunnels();
 

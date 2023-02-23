@@ -311,6 +311,8 @@ public class MutableBoard extends GenericBoard {
         computeDeadTiles();
         findTunnels();
         findRooms();
+        removeUselessTunnels();
+        finishComputingTunnels();
         tryComputePackingOrder();
         computeTileToTargetsDistances();
 
@@ -533,20 +535,6 @@ public class MutableBoard extends GenericBoard {
             Tunnel tunnel = buildTunnel(t);
 
             if (tunnel != null) {
-                // compute tunnel exits
-                tunnel.createTunnelExits();
-
-                // compute oneway property
-                if (tunnel.getStartOut() == null || tunnel.getEndOut() == null) {
-                    tunnel.setOneway(true);
-                } else {
-                    tunnel.getStart().addCrate();
-                    corralDetector.findCorral(this, tunnel.getStartOut().getX(), tunnel.getStartOut().getY());
-                    tunnel.getStart().removeCrate();
-
-                    tunnel.setOneway(!tunnel.getEndOut().isReachable());
-                }
-
                 tunnels.add(tunnel);
             }
         });
@@ -742,6 +730,108 @@ public class MutableBoard extends GenericBoard {
         }
     }
 
+    private void removeUselessTunnels() {
+        for (int i = 0; i < tunnels.size(); i++) {
+            Tunnel t = tunnels.get(i);
+            if (t.getStartOut() == null || t.getEndOut() == null) {
+                Room room = t.getRooms().get(0); // tunnel is linked to exactly one room
+                room.tunnels.remove(t); // detach the tunnel
+
+                if (room.tunnels.size() == 2 && room.tiles.size() == 1) {
+                    // room is now useless
+                    // we are in one of the following cases:
+                    // ###    # #
+                    //     or #
+                    // #_#    #_#
+                    // _ indicates the tunnel to remove
+
+                    // dir is the direction the player need to take to exit the tunnel
+                    Direction dir;
+                    if (t.getStartOut() == null) {
+                        dir = t.getEnd().direction(t.getEndOut());
+                    } else {
+                        dir = t.getStart().direction(t.getStartOut());
+                    }
+
+                    Tunnel t1 = room.tunnels.get(0);
+                    Tunnel t2 = room.tunnels.get(1);
+                    TileInfo roomTile = room.getTiles().get(0);
+
+                    roomTile.setRoom(null);
+                    merge(t1, t2, roomTile);
+                    if (!roomTile.adjacent(dir).isSolid()) {
+                        // second case
+                        // tunnel became in every case player only
+                        t1.setPlayerOnlyTunnel(false);
+                    }
+
+                    // remove t2, taking care of i
+                    int j = tunnels.indexOf(t2);
+                    tunnels.remove(j);
+                    if (j < i) {
+                        i--;
+                    }
+                }
+
+                tunnels.remove(i);
+                i--;
+            }
+        }
+    }
+
+    /**
+     * Merge two tunnels, t1 will hold the result.
+     * start, end, startOut, endOut, playerOnlyTunnel are updated.
+     * For each tile in t2, tunnel is replaced by t1
+     */
+    private void merge(Tunnel t1, Tunnel t2, TileInfo toAdd) {
+        if (t1.getStartOut() == toAdd) {
+            if (t2.getStartOut() == toAdd) {
+                t1.setStart(t2.getEnd());
+                t1.setStartOut(t2.getEndOut());
+            } else {
+                t1.setStart(t2.getStart());
+                t1.setStartOut(t2.getStartOut());
+            }
+        } else {
+            if (t2.getStartOut() == toAdd) {
+                t1.setEnd(t2.getEnd());
+                t1.setEndOut(t2.getEndOut());
+            } else {
+                t1.setEnd(t2.getStart());
+                t1.setEndOut(t2.getStartOut());
+            }
+        }
+
+        forEachNotWall((t) -> {
+            if (t.getTunnel() == t2) {
+                t.setTunnel(t1);
+            }
+        });
+
+        toAdd.setTunnel(t1);
+        t1.setPlayerOnlyTunnel(t1.isPlayerOnlyTunnel() && t2.isPlayerOnlyTunnel());
+    }
+
+    private void finishComputingTunnels() {
+        for (int i = 0; i < tunnels.size(); i++) {
+            Tunnel tunnel = tunnels.get(i);
+
+            // compute tunnel exits
+            tunnel.createTunnelExits();
+
+            // compute oneway property
+            if (tunnel.getStartOut() == null || tunnel.getEndOut() == null) {
+                tunnel.setOneway(true);
+            } else {
+                tunnel.getStart().addCrate();
+                corralDetector.findCorral(this, tunnel.getStartOut().getX(), tunnel.getStartOut().getY());
+                tunnel.getStart().removeCrate();
+
+                tunnel.setOneway(!tunnel.getEndOut().isReachable());
+            }
+        }
+    }
 
     /**
      * Compute packing order. No crate should be on the board
