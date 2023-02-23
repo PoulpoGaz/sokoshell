@@ -14,7 +14,7 @@ public class FreezeDeadlockDetector {
         for (int crate : crates) {
             TileInfo info = board.getAt(crate);
 
-            if (info.isCrate() && checkFreezeDeadlock(info)) {
+            if (checkFreezeDeadlock(info)) {
                 return true;
             }
         }
@@ -22,13 +22,18 @@ public class FreezeDeadlockDetector {
         return false;
     }
 
-
     public static boolean checkFreezeDeadlock(TileInfo crate) {
-        return checkAxisFreezeDeadlock(crate, Direction.LEFT) &&
-                checkAxisFreezeDeadlock(crate, Direction.UP);
+        return crate.isCrate() &&
+                checkFreezeDeadlockRec(crate, Direction.LEFT) &&
+                checkFreezeDeadlockRec(crate, Direction.UP);
     }
 
-    private static boolean checkAxisFreezeDeadlock(TileInfo current, Direction axis) {
+    private static boolean checkFreezeDeadlockRec(TileInfo crate) {
+        return checkFreezeDeadlockRec(crate, Direction.LEFT) &&
+                checkFreezeDeadlockRec(crate, Direction.UP);
+    }
+
+    private static boolean checkFreezeDeadlockRec(TileInfo current, Direction axis) {
         boolean deadlock = false;
 
         TileInfo left = current.safeAdjacent(axis);
@@ -46,11 +51,11 @@ public class FreezeDeadlockDetector {
             current.setTile(Tile.WALL);
 
             if (left != null && left.anyCrate()) {
-                deadlock = checkFreezeDeadlock(left);
+                deadlock = checkFreezeDeadlockRec(left);
             }
 
             if (!deadlock && right != null && right.anyCrate()) {
-                deadlock = checkFreezeDeadlock(right);
+                deadlock = checkFreezeDeadlockRec(right);
             }
 
             current.setTile(oldCurr);

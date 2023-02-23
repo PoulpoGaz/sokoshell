@@ -3,6 +3,7 @@ package fr.valax.sokoshell.solver;
 import fr.valax.sokoshell.SokoShell;
 import fr.valax.sokoshell.graphics.style.BasicStyle;
 import fr.valax.sokoshell.solver.board.*;
+import fr.valax.sokoshell.solver.board.tiles.Tile;
 import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 import fr.valax.sokoshell.solver.collections.SolverCollection;
 import fr.valax.sokoshell.utils.SizeOf;
@@ -117,11 +118,6 @@ public abstract class AbstractSolver<S extends State> implements Trackable, Solv
                 break;
             }
 
-            if (FreezeDeadlockDetector.checkFreezeDeadlock(board, state)) {
-                board.removeStateCratesAndReset(state);
-                continue;
-            }
-
             int playerX = board.getX(state.playerPos());
             int playerY = board.getY(state.playerPos());
 
@@ -226,7 +222,7 @@ public abstract class AbstractSolver<S extends State> implements Trackable, Solv
                 TileInfo dest = crate.getTunnelExit().getExit(pushDir);
 
                 if (dest != null && !dest.isSolid()) {
-                    addStateCheckForGoalMacro(crateIndex, crate, dest);
+                    addStateCheckForGoalMacro(crateIndex, crate, dest, pushDir);
                 }
             }
         }
@@ -267,19 +263,22 @@ public abstract class AbstractSolver<S extends State> implements Trackable, Solv
                 // and only if this tunnel isn't oneway
                 if (!tunnel.isPlayerOnlyTunnel()) {
                     TileInfo newDest = null;
+                    Direction pushDir = null;
 
                     if (crate == tunnel.getStartOut()) {
                         if (tunnel.getEndOut() != null && !tunnel.getEndOut().anyCrate()) {
                             newDest = tunnel.getEndOut();
+                            pushDir = tunnel.getEnd().direction(tunnel.getEndOut());
                         }
                     } else {
                         if (tunnel.getStartOut() != null && !tunnel.getStartOut().anyCrate()) {
                             newDest = tunnel.getStartOut();
+                            pushDir = tunnel.getStart().direction(tunnel.getStartOut());
                         }
                     }
 
                     if (newDest != null && !newDest.isDeadTile()) {
-                        addStateCheckForGoalMacro(crateIndex, crate, newDest);
+                        addStateCheckForGoalMacro(crateIndex, crate, newDest, pushDir);
                     }
                 }
 
@@ -288,28 +287,47 @@ public abstract class AbstractSolver<S extends State> implements Trackable, Solv
                 }
             }
 
-            crate.removeCrate();
-            crateDest.addCrate();
-            boolean deadlock = table.isDeadlock(crate, d);
-            crate.addCrate();
-            crateDest.removeCrate();
-
-            if (!deadlock) {
-                addStateCheckForGoalMacro(crateIndex, crate, crateDest);
-            }
+            addStateCheckForGoalMacro(crateIndex, crate, crateDest, d);
         }
     }
 
-    protected void addStateCheckForGoalMacro(int crateIndex, TileInfo crate, TileInfo dest) {
+    protected void addStateCheckForGoalMacro(int crateIndex, TileInfo crate, TileInfo dest, Direction pushDir) {
         Room room = dest.getRoom();
         if (room != null && board.isGoalRoomLevel() && room.getPackingOrderIndex() >= 0) {
             // goal macro!
             TileInfo newDest = room.getPackingOrder().get(room.getPackingOrderIndex());
 
-            addState(crateIndex, crate, newDest);
+            addState(crateIndex, crate, newDest, null);
         } else {
-            addState(crateIndex, crate, dest);
+            addState(crateIndex, crate, dest, pushDir);
         }
+    }
+
+    /**
+     * Check if the move leads to a deadlock.
+     * Only for simple deadlock that don't require
+     * lots of computation like PI Corral deadlock
+     *
+     * @param crate crate to move
+     * @param crateDest crate destination
+     * @param pushDir push dir of the player. If the move is a macro move,
+     *                it is the last push done by the player. It can be null
+     * @return true if deadlock
+     */
+    protected boolean checkDeadlockBeforeAdding(TileInfo crate, TileInfo crateDest, Direction pushDir) {
+        crate.removeCrate();
+        crateDest.addCrate();
+
+        boolean deadlock = FreezeDeadlockDetector.checkFreezeDeadlock(crateDest);
+
+        if (!deadlock && pushDir != null) {
+            deadlock = table.isDeadlock(crateDest.adjacent(pushDir.negate()), pushDir);
+        }
+
+        crate.addCrate();
+        crateDest.removeCrate();
+
+        return deadlock;
     }
 
     /**
@@ -319,8 +337,10 @@ public abstract class AbstractSolver<S extends State> implements Trackable, Solv
      * @param crateIndex the crate's index that moves
      * @param crate crate to move
      * @param crateDest crate destination
+     * @param pushDir push dir of the player. If the move is a macro move,
+     *                it is the last push done by the player. It can be null
      */
-    protected abstract void addState(int crateIndex, TileInfo crate, TileInfo crateDest);
+    protected abstract void addState(int crateIndex, TileInfo crate, TileInfo crateDest, Direction pushDir);
 
     protected boolean hasTimedOut(long timeout) {
         return timeout > 0 && timeout + timeStart < System.currentTimeMillis();
