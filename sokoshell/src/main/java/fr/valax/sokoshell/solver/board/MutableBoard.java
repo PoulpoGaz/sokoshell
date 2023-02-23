@@ -1,5 +1,8 @@
 package fr.valax.sokoshell.solver.board;
 
+import fr.valax.sokoshell.SokoShell;
+import fr.valax.sokoshell.graphics.Graphics;
+import fr.valax.sokoshell.graphics.Surface;
 import fr.valax.sokoshell.solver.Corral;
 import fr.valax.sokoshell.solver.State;
 import fr.valax.sokoshell.solver.CorralDetector;
@@ -656,6 +659,7 @@ public class MutableBoard extends GenericBoard {
                 t.setPlayerOnlyTunnel(true);
                 t.setEnd(pos);
                 t.setEndOut(null);
+                return;
             } else if (left.isSolid() && right.isSolid()) {
                 if (front.isMarked()) {
                     t.setEnd(pos);
@@ -717,14 +721,19 @@ public class MutableBoard extends GenericBoard {
         }
 
         for (Direction dir : Direction.VALUES) {
-            TileInfo adj = tile.safeAdjacent(dir);
+            TileInfo adj = tile.adjacent(dir);
 
-            if (adj != null && !adj.isSolid()) {
+            if (!adj.isSolid()) {
                 if (!adj.isInATunnel() && !adj.isInARoom()) {
                     expandRoom(room, adj);
                 } else if (adj.isInATunnel()) {
-                    room.addTunnel(adj.getTunnel());
-                    adj.getTunnel().addRoom(room);
+                    // avoid add two times a tunnel to a room
+                    // It occurs when a tunnel has his two entrance
+                    // connected to a room
+                    if (room.tunnels == null || !room.tunnels.contains(adj.getTunnel())) {
+                        room.addTunnel(adj.getTunnel());
+                        adj.getTunnel().addRoom(room);
+                    }
                 }
             }
         }
@@ -757,8 +766,7 @@ public class MutableBoard extends GenericBoard {
                     Tunnel t2 = room.tunnels.get(1);
                     TileInfo roomTile = room.getTiles().get(0);
 
-                    roomTile.setRoom(null);
-                    merge(t1, t2, roomTile);
+                    merge(t1, t2, room);
                     if (!roomTile.adjacent(dir).isSolid()) {
                         // second case
                         // tunnel became in every case player only
@@ -774,6 +782,11 @@ public class MutableBoard extends GenericBoard {
                 }
 
                 tunnels.remove(i);
+                forEachNotWall((tunnel) -> {
+                    if (tunnel.getTunnel() == t) {
+                        tunnel.setTunnel(null);
+                    }
+                });
                 i--;
             }
         }
@@ -781,10 +794,12 @@ public class MutableBoard extends GenericBoard {
 
     /**
      * Merge two tunnels, t1 will hold the result.
-     * start, end, startOut, endOut, playerOnlyTunnel are updated.
+     * For each tunnel, start, end, startOut, endOut, playerOnlyTunnel, rooms are updated.
      * For each tile in t2, tunnel is replaced by t1
      */
-    private void merge(Tunnel t1, Tunnel t2, TileInfo toAdd) {
+    private void merge(Tunnel t1, Tunnel t2, Room room) {
+        TileInfo toAdd = room.getTiles().get(0);
+
         if (t1.getStartOut() == toAdd) {
             if (t2.getStartOut() == toAdd) {
                 t1.setStart(t2.getEnd());
@@ -809,8 +824,18 @@ public class MutableBoard extends GenericBoard {
             }
         });
 
+        toAdd.setRoom(null);
         toAdd.setTunnel(t1);
         t1.setPlayerOnlyTunnel(t1.isPlayerOnlyTunnel() && t2.isPlayerOnlyTunnel());
+        t1.rooms.remove(room);
+        t2.rooms.remove(room);
+
+        for (Room r : t2.rooms) {
+            r.tunnels.remove(t2);
+            r.tunnels.add(t1);
+        }
+
+        t1.rooms.addAll(t2.rooms);
     }
 
     private void finishComputingTunnels() {

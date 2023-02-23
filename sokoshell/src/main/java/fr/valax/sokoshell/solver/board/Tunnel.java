@@ -153,6 +153,30 @@ public class Tunnel {
         isOneway = oneway;
     }
 
+    @Override
+    public String toString() {
+        if (startOut == null) {
+            return "closed - (%d; %d) --> (%d; %d) - (%d; %d). only player? %s. one way? %s"
+                    .formatted(start.getX(), start.getY(),
+                            end.getX(), end.getY(),
+                            endOut.getX(), endOut.getY(),
+                            playerOnlyTunnel, isOneway);
+        } else if (endOut == null) {
+            return "(%d; %d) - (%d; %d) --> (%d; %d) - closed. only player? %s. one way? %s"
+                    .formatted(startOut.getX(), startOut.getY(),
+                            start.getX(), start.getY(),
+                            end.getX(), end.getY(),
+                            playerOnlyTunnel, isOneway);
+        } else {
+            return "(%d; %d) - (%d; %d) --> (%d; %d) - (%d; %d). only player? %s. one way? %s"
+                    .formatted(startOut.getX(), startOut.getY(),
+                            start.getX(), start.getY(),
+                            end.getX(), end.getY(),
+                            endOut.getX(), endOut.getY(),
+                            playerOnlyTunnel, isOneway);
+        }
+    }
+
     /**
      * Added to every tile that is inside a tunnel.
      * It contains for each direction where is the exit:
