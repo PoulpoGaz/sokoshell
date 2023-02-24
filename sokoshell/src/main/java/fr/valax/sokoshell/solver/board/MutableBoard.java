@@ -1,15 +1,15 @@
 package fr.valax.sokoshell.solver.board;
 
-import fr.valax.sokoshell.SokoShell;
-import fr.valax.sokoshell.graphics.Graphics;
-import fr.valax.sokoshell.graphics.Surface;
 import fr.valax.sokoshell.solver.Corral;
-import fr.valax.sokoshell.solver.State;
 import fr.valax.sokoshell.solver.CorralDetector;
+import fr.valax.sokoshell.solver.State;
 import fr.valax.sokoshell.solver.board.mark.AbstractMarkSystem;
 import fr.valax.sokoshell.solver.board.mark.Mark;
 import fr.valax.sokoshell.solver.board.mark.MarkSystem;
-import fr.valax.sokoshell.solver.board.tiles.*;
+import fr.valax.sokoshell.solver.board.tiles.GenericTileInfo;
+import fr.valax.sokoshell.solver.board.tiles.MutableTileInfo;
+import fr.valax.sokoshell.solver.board.tiles.Tile;
+import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 import fr.valax.sokoshell.solver.pathfinder.CrateAStar;
 import fr.valax.sokoshell.solver.pathfinder.CratePlayerAStar;
 import fr.valax.sokoshell.solver.pathfinder.PlayerAStar;

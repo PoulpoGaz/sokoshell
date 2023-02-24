@@ -1,6 +1,5 @@
 package fr.valax.sokoshell.solver;
 
-import fr.valax.sokoshell.graphics.style.BasicStyle;
 import fr.valax.sokoshell.solver.board.Board;
 import fr.valax.sokoshell.solver.board.Direction;
 import fr.valax.sokoshell.solver.board.MutableBoard;

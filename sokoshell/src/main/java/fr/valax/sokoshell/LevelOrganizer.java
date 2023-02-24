@@ -4,7 +4,6 @@ import fr.poulpogaz.json.JsonException;
 import fr.valax.sokoshell.readers.PackReaders;
 import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.solver.Pack;
-import fr.valax.sokoshell.solver.board.Board;
 
 import java.io.IOException;
 import java.nio.file.Files;

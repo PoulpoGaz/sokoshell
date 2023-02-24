@@ -3,7 +3,6 @@ package fr.valax.sokoshell;
 import fr.valax.sokoshell.solver.*;
 import fr.valax.sokoshell.utils.Utils;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

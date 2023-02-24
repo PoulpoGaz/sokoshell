@@ -1,9 +1,6 @@
 package fr.valax.sokoshell.solver;
 
-import fr.valax.sokoshell.SokoShell;
-import fr.valax.sokoshell.graphics.style.BasicStyle;
 import fr.valax.sokoshell.solver.board.*;
-import fr.valax.sokoshell.solver.board.tiles.Tile;
 import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 import fr.valax.sokoshell.solver.collections.SolverCollection;
 import fr.valax.sokoshell.utils.SizeOf;
@@ -105,7 +102,7 @@ public abstract class AbstractSolver<S extends State> implements Trackable, Solv
                 break;
             }
 
-            if (hasRamExceeded(maxRam, accurate, nState)) {
+            if (hasRamExceeded(maxRam, accurate)) {
                 endStatus = SolverReport.RAM_EXCEED;
                 break;
             }
@@ -346,12 +343,20 @@ public abstract class AbstractSolver<S extends State> implements Trackable, Solv
         return timeout > 0 && timeout + timeStart < System.currentTimeMillis();
     }
 
-    protected boolean hasRamExceeded(long maxRam, boolean detailed, int nCrate) {
+    protected boolean hasRamExceeded(long maxRam, boolean accurate) {
         if (maxRam > 0) {
-            if (detailed) {
-                return SizeOf.approxSizeOf(processed, nCrate) >= maxRam;
-            } else {
-                return SizeOf.approxSizeOf2(processed, nCrate) >= maxRam;
+            State curr = currentState();
+
+            if (curr != null) {
+                long stateSize;
+                if (accurate) {
+                    stateSize = curr.approxSizeOfAccurate();
+                } else {
+                    stateSize = curr.approxSizeOf();
+                }
+
+                return SizeOf.approxSizeOf(processed, stateSize) +
+                        toProcess.size() * stateSize >= maxRam;
             }
         }
 

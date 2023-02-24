@@ -2,8 +2,6 @@ package fr.valax.sokoshell.solver;
 
 import fr.valax.sokoshell.solver.board.Board;
 import fr.valax.sokoshell.solver.board.Direction;
-import fr.valax.sokoshell.solver.board.mark.FixedSizeMarkSystem;
-import fr.valax.sokoshell.solver.board.mark.MarkSystem;
 import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 
 import java.util.*;

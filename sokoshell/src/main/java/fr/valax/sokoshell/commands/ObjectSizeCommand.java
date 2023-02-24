@@ -34,11 +34,13 @@ public class ObjectSizeCommand extends AbstractCommand {
                 out.println(SizeOf.getHashMapLayout().toPrintable());
                 out.println(SizeOf.getHashMapNodeLayout().toPrintable());
                 out.println(SizeOf.getStateLayout().toPrintable());
+                out.println(SizeOf.getWeightedStateLayout().toPrintable());
                 out.println(SizeOf.getIntArrayLayout().toPrintable());
             } else {
                 out.printf("Hash map size: %s%n", SizeOf.getHashMapLayout().instanceSize());
                 out.printf("Hash map node size: %s%n", SizeOf.getHashMapNodeLayout().instanceSize());
                 out.printf("State size: %s%n", SizeOf.getStateLayout().instanceSize());
+                out.printf("Weighted state size: %s%n", SizeOf.getWeightedStateLayout().instanceSize());
                 out.printf("Int array size: %s%n", SizeOf.getIntArrayLayout().instanceSize());
             }
 

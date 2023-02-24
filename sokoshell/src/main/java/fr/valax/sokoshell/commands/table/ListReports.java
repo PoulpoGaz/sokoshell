@@ -10,7 +10,6 @@ import fr.valax.interval.Set;
 import fr.valax.sokoshell.SolverTask;
 import fr.valax.sokoshell.solver.ISolverStatistics;
 import fr.valax.sokoshell.solver.Level;
-import fr.valax.sokoshell.solver.Pack;
 import fr.valax.sokoshell.solver.SolverReport;
 import fr.valax.sokoshell.utils.Alignment;
 import fr.valax.sokoshell.utils.PrettyColumn;

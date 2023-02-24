@@ -1,5 +1,7 @@
 package fr.valax.sokoshell.solver;
 
+import fr.valax.sokoshell.utils.SizeOf;
+
 import java.util.Arrays;
 import java.util.Random;
 
@@ -49,6 +51,10 @@ public class State {
     protected final int hash;
     protected final State parent;
 
+    public State(int playerPos, int[] cratesIndices, State parent) {
+        this(playerPos, cratesIndices, hashCode(playerPos, cratesIndices), parent);
+    }
+
     public State(int playerPos, int[] cratesIndices, int hash, State parent) {
         this.playerPos = playerPos;
         this.cratesIndices = cratesIndices;
@@ -73,9 +79,43 @@ public class State {
         return new State(newPlayerPos, newCrates, hash, this);
     }
 
-    public State(int playerPos, int[] cratesIndices, State parent) {
-        this(playerPos, cratesIndices, hashCode(playerPos, cratesIndices), parent);
+    public long approxSizeOfAccurate() {
+        return SizeOf.getStateLayout().instanceSize() +
+                SizeOf.getIntArrayLayout().instanceSize() +
+                (long) Integer.BYTES * cratesIndices.length;
     }
+
+    public long approxSizeOf() {
+        return 32 +
+                16 +
+                (long) Integer.BYTES * cratesIndices.length;
+    }
+
+    /**
+     * The index of the case of the board on which the player is.
+     */
+    public int playerPos() {
+        return playerPos;
+    }
+
+    /**
+     * The index of the cases of the board on which the crates are.
+     */
+    public int[] cratesIndices() {
+        return cratesIndices;
+    }
+
+    public int hash() {
+        return hash;
+    }
+
+    /**
+     * The state in which the board was before coming to this state.
+     */
+    public State parent() {
+        return parent;
+    }
+
 
     @Override
     public boolean equals(Object o) {
@@ -150,30 +190,4 @@ public class State {
 
         return sb.toString();
     }
-
-    /**
-     * The index of the case of the board on which the player is.
-     */
-    public int playerPos() {
-        return playerPos;
-    }
-
-    /**
-     * The index of the cases of the board on which the crates are.
-     */
-    public int[] cratesIndices() {
-        return cratesIndices;
-    }
-
-    public int hash() {
-        return hash;
-    }
-
-    /**
-     * The state in which the board was before coming to this state.
-     */
-    public State parent() {
-        return parent;
-    }
-
 }

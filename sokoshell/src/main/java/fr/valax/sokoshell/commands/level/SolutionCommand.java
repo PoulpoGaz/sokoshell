@@ -17,7 +17,6 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.ListIterator;
 
 public class SolutionCommand extends LevelCommand {
 

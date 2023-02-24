@@ -1,7 +1,6 @@
 package fr.valax.sokoshell.graphics.style;
 
 import fr.valax.sokoshell.graphics.Color;
-import fr.valax.sokoshell.graphics.Graphics;
 import fr.valax.sokoshell.graphics.GraphicsUtils;
 import fr.valax.sokoshell.solver.board.Direction;
 import fr.valax.sokoshell.solver.board.tiles.Tile;

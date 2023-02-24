@@ -1,6 +1,5 @@
 package fr.valax.sokoshell.solver.board.tiles;
 
-import fr.valax.sokoshell.graphics.style.BasicStyle;
 import fr.valax.sokoshell.solver.Corral;
 import fr.valax.sokoshell.solver.board.MutableBoard;
 import fr.valax.sokoshell.solver.board.Room;
@@ -8,7 +7,6 @@ import fr.valax.sokoshell.solver.board.Tunnel;
 import fr.valax.sokoshell.solver.board.mark.Mark;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**

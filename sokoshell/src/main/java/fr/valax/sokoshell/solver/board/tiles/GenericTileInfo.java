@@ -1,12 +1,8 @@
 package fr.valax.sokoshell.solver.board.tiles;
 
-import fr.valax.sokoshell.commands.AbstractCommand;
 import fr.valax.sokoshell.solver.board.Board;
-import fr.valax.sokoshell.solver.board.Direction;
 import fr.valax.sokoshell.solver.board.Room;
 import fr.valax.sokoshell.solver.board.Tunnel;
-
-import java.util.AbstractList;
 
 /**
  * A {@code package-private} class meant to be use as a base class for {@link TileInfo} implementations.

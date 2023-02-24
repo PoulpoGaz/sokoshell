@@ -1,9 +1,11 @@
 package fr.valax.sokoshell.utils;
 
 import fr.valax.sokoshell.solver.State;
+import fr.valax.sokoshell.solver.WeightedState;
 import org.openjdk.jol.info.ClassLayout;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
 public class SizeOf {
@@ -13,9 +15,10 @@ public class SizeOf {
     private static ClassLayout HASH_MAP_LAYOUT;
     private static ClassLayout HASH_MAP_NODE_LAYOUT;
     private static ClassLayout STATE_LAYOUT;
+    private static ClassLayout WEIGHTED_STATE_LAYOUT;
     private static ClassLayout INT_ARRAY_LAYOUT;
 
-    public static void initialize() {
+    public static synchronized void initialize() {
         if (initialized) {
             return;
         }
@@ -29,23 +32,21 @@ public class SizeOf {
         }
 
         STATE_LAYOUT = ClassLayout.parseClass(State.class);
+        WEIGHTED_STATE_LAYOUT = ClassLayout.parseClass(WeightedState.class);
         INT_ARRAY_LAYOUT = ClassLayout.parseClass(int[].class);
 
         initialized = true;
     }
 
-    public static long approxSizeOf(Set<State> map, int nCrate) {
-        // hash map size can be neglected
-        return map.size() * (
-                HASH_MAP_NODE_LAYOUT.instanceSize() +
-                        STATE_LAYOUT.instanceSize() +
-                        INT_ARRAY_LAYOUT.instanceSize() +
-                        (long) Integer.BYTES * nCrate);
+    public static long approxSizeOf(Set<?> set, long contentSize) {
+        return set.size() * (HASH_MAP_NODE_LAYOUT.instanceSize() + contentSize);
     }
 
-    public static long approxSizeOf2(Set<State> set, int nCrate) {
-        // hash map size can be neglected
-        return set.size() * (32 + 32 + 16 + (long) Integer.BYTES * nCrate);
+    /**
+     * @param list an {@link java.util.ArrayList}
+     */
+    public static long approxSizeOf(List<?> list, long contentSize) {
+        return list.size() * contentSize;
     }
 
     public static ClassLayout getHashMapLayout() {
@@ -56,11 +57,15 @@ public class SizeOf {
         return HASH_MAP_NODE_LAYOUT;
     }
 
-    public static ClassLayout getIntArrayLayout() {
-        return INT_ARRAY_LAYOUT;
-    }
-
     public static ClassLayout getStateLayout() {
         return STATE_LAYOUT;
+    }
+
+    public static ClassLayout getWeightedStateLayout() {
+        return WEIGHTED_STATE_LAYOUT;
+    }
+
+    public static ClassLayout getIntArrayLayout() {
+        return INT_ARRAY_LAYOUT;
     }
 }

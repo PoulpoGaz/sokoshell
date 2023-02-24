@@ -2,11 +2,12 @@ package fr.valax.sokoshell.solver;
 
 import fr.valax.sokoshell.solver.board.Board;
 import fr.valax.sokoshell.solver.board.Direction;
-import fr.valax.sokoshell.solver.board.tiles.MutableTileInfo;
-import fr.valax.sokoshell.solver.board.tiles.Tile;
 import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * A union find structure to find corral in a map.

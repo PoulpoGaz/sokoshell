@@ -1,5 +1,7 @@
 package fr.valax.sokoshell.solver;
 
+import fr.valax.sokoshell.utils.SizeOf;
+
 /**
  * A simple derivation of State with a weight, i.e. something to rank the states.
  * Used for instance by {@link AStarSolver}
@@ -21,19 +23,33 @@ public class WeightedState extends State {
     }
 
     /**
-     * The state weight, which is the sum of its cost and its heuristic.
-     */
-    public int weight() {
-        return cost() + heuristic();
-    }
-
-    /**
      * <strong>This function does NOT compute the heuristic of the child state.</strong>
      * Use {@link WeightedState#setHeuristic(int)} to set it after calling this method.
      */
     public WeightedState child(int newPlayerPos, int crateToMove, int crateDestination) {
         return new WeightedState(super.child(newPlayerPos, crateToMove, crateDestination),
-                                 cost(), 0);
+                cost(), 0);
+    }
+
+    @Override
+    public long approxSizeOfAccurate() {
+        return SizeOf.getWeightedStateLayout().instanceSize() +
+                SizeOf.getIntArrayLayout().instanceSize() +
+                (long) Integer.BYTES * cratesIndices.length;
+    }
+
+    @Override
+    public long approxSizeOf() {
+        return 40 +
+                16 +
+                (long) Integer.BYTES * cratesIndices.length;
+    }
+
+    /**
+     * The state weight, which is the sum of its cost and its heuristic.
+     */
+    public int weight() {
+        return cost() + heuristic();
     }
 
     /**

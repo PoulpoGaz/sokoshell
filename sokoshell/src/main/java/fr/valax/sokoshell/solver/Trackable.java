@@ -1,10 +1,6 @@
 package fr.valax.sokoshell.solver;
 
 import fr.valax.sokoshell.solver.board.Board;
-import fr.valax.sokoshell.solver.board.Room;
-import fr.valax.sokoshell.solver.board.Tunnel;
-
-import java.util.List;
 
 /**
  * A solver that implements this interface allows
