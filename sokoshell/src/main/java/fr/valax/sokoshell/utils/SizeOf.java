@@ -43,7 +43,7 @@ public class SizeOf {
     }
 
     public static long approxSizeOf(Set<?> set, long contentSize) {
-        return set.size() * (HASH_MAP_NODE_LAYOUT.instanceSize() + contentSize);
+        return set.size() * (32 + contentSize);
     }
 
     public static ClassLayout getHashMapLayout() {
