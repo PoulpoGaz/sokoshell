@@ -38,15 +38,12 @@ public class SizeOf {
         initialized = true;
     }
 
-    public static long approxSizeOf(Set<?> set, long contentSize) {
+    public static long approxSizeOfAccurate(Set<?> set, long contentSize) {
         return set.size() * (HASH_MAP_NODE_LAYOUT.instanceSize() + contentSize);
     }
 
-    /**
-     * @param list an {@link java.util.ArrayList}
-     */
-    public static long approxSizeOf(List<?> list, long contentSize) {
-        return list.size() * contentSize;
+    public static long approxSizeOf(Set<?> set, long contentSize) {
+        return set.size() * (HASH_MAP_NODE_LAYOUT.instanceSize() + contentSize);
     }
 
     public static ClassLayout getHashMapLayout() {

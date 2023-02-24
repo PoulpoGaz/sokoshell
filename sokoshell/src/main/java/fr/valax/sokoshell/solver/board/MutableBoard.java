@@ -1030,7 +1030,7 @@ public class MutableBoard extends GenericBoard {
 
                     final int targetIndex = targetIndices.get(j);
                     final int d = (t.isFloor() || t.isTarget()
-                                   ? playerAStar.findPath(t, getAt(targetIndex), null, null).getDist() //t.manhattanDistance(getAt(targetIndex))
+                                   ? playerAStar.findPath(t, getAt(targetIndex), null, null).getDist()
                                    : 0);
 
 

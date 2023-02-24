@@ -349,14 +349,16 @@ public abstract class AbstractSolver<S extends State> implements Trackable, Solv
 
             if (curr != null) {
                 long stateSize;
+                long ramUsed;
                 if (accurate) {
                     stateSize = curr.approxSizeOfAccurate();
+                    ramUsed = SizeOf.approxSizeOfAccurate(processed, stateSize);
                 } else {
                     stateSize = curr.approxSizeOf();
+                    ramUsed = SizeOf.approxSizeOf(processed, stateSize);
                 }
 
-                return SizeOf.approxSizeOf(processed, stateSize) +
-                        toProcess.size() * stateSize >= maxRam;
+                return ramUsed + toProcess.size() * stateSize >= maxRam;
             }
         }
 
