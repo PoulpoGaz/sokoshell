@@ -112,6 +112,34 @@ public class CorralDetectorTest {
         print(corralDetector.getCorrals());
     }
 
+    @Test
+    void iCorralTest() {
+        Level level = TestUtils.getLevel("""
+                #######
+                #   @ #
+                #     #
+                # $$$ #
+                # # # #
+                # $ $ #
+                #  $  #
+                #     #
+                #######
+                """);
+
+        State.initZobristValues(100);
+
+        MutableBoard board = new MutableBoard(level);
+        board.getCorralDetector().findCorral(board, level.getPlayerX(), level.getPlayerY());
+        board.getCorralDetector().preComputePICorral(board, level.getInitialState().cratesIndices());
+
+        for (Corral c : board.getCorralDetector().getCorrals()) {
+            if (!c.containsPlayer()) {
+                System.out.println(board.getCorralDetector().isICorral(c));
+                System.out.println(board.getCorralDetector().isPICorral(c));
+            }
+        }
+    }
+
     private static void print(Collection<Corral> corrals) {
         System.out.println("~~~~~~~~~~~~~~~~~~~~");
         System.out.printf("Number of corrals: %d%n", corrals.size());

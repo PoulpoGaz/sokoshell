@@ -2,12 +2,10 @@ package fr.valax.sokoshell.solver;
 
 import fr.valax.sokoshell.solver.board.Board;
 import fr.valax.sokoshell.solver.board.Direction;
+import fr.valax.sokoshell.solver.board.tiles.Tile;
 import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * A union find structure to find corral in a map.
@@ -93,8 +91,76 @@ public class CorralDetector {
      * @param crates crates on the board
      */
     public void findPICorral(Board board, int[] crates) {
-        // compute adjacent corrals of crates, barriers
-        // this step can also reduce the number of false PI corral
+        preComputePICorral(board, crates);
+
+        for (Corral c : corrals) {
+            if (!c.containsPlayer()) {
+                c.isPICorral = isPICorral(c);
+            } else {
+                c.isPICorral = false;
+            }
+        }
+    }
+
+    protected boolean isICorral(Corral corral) {
+        for (TileInfo crate : corral.barrier) {
+            for (Direction dir : Direction.VALUES) {
+                TileInfo crateDest = crate.adjacent(dir);
+                if (crateDest.isSolid()) {
+                    continue;
+                }
+
+                TileInfo player = crate.adjacent(dir.negate());
+                if (player.isSolid()) {
+                    continue;
+                }
+
+                Corral corralDest = findCorral(crateDest);
+                Corral playerCorral = findCorral(player);
+
+                if (corralDest == playerCorral) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    protected boolean isPICorral(Corral corral) {
+        for (TileInfo crate : corral.barrier) {
+            for (Direction dir : Direction.VALUES) {
+                TileInfo crateDest = crate.adjacent(dir);
+                if (crateDest.isSolid()) {
+                    continue;
+                }
+
+                TileInfo player = crate.adjacent(dir.negate());
+                if (player.isWall()) {
+                    continue;
+                } else if (player.anyCrate()) {
+                    if (!corral.barrier.contains(player)) {
+                        return false;
+                    }
+                    continue;
+                }
+
+                Corral corralDest = findCorral(crateDest);
+                Corral playerCorral = findCorral(player);
+
+                if (playerCorral.containsPlayer() && playerCorral == corralDest) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Compute adjacent corrals of crates, barriers and various property of Corral
+     */
+    protected void preComputePICorral(Board board, int[] crates) {
         for (int crateI : crates) {
             TileInfo crate = board.getAt(crateI);
 
@@ -102,7 +168,7 @@ public class CorralDetector {
             adj.clear();
 
             // find adjacent corrals
-            boolean playerCorralAdjacent = false;
+            boolean adjacentToPlayerCorral = false;
             for (Direction dir : Direction.VALUES) {
                 TileInfo tile = crate.adjacent(dir);
                 if (tile.isSolid()) {
@@ -116,7 +182,7 @@ public class CorralDetector {
                 }
 
                 if (corral.containsPlayer()) {
-                    playerCorralAdjacent = true;
+                    adjacentToPlayerCorral = true;
                 }
             }
 
@@ -134,67 +200,22 @@ public class CorralDetector {
                     Corral corral = adj.get(i);
                     corral.crates.add(crate);
                     corral.barrier.add(crate);
+                    corral.adjacentToPlayerCorral |= adjacentToPlayerCorral;
 
                     if (crate.isCrate()) {
                         corral.onlyCrateOnTarget = false;
                     }
-                }
 
-                // reduce number of false PI corral.
-                // PI corral must have for unique corral neighbor
-                // the 'player corral'. Therefore, if the crate
-                // has more than 3 adjacent corrals or if the
-                // adjacent corrals doesn't contain the player,
-                // all the adjacent corral cannot be PI corral
-                if (adj.size() >= 3 || !playerCorralAdjacent) {
-                    // either too many corrals are linked, either the player isn't involved
-                    for (int i = 0; i < adj.size(); i++) {
-                        adj.get(i).isPICorral = false;
+                    for (int j = i + 1; j < adj.size(); j++) {
+                        Corral corral2 = adj.get(j);
+
+                        if (corral.adjacentCorrals.add(corral2)) {
+                            corral2.adjacentCorrals.add(corral);
+                        }
                     }
                 }
             }
         }
-
-        // finish computing pi corral property
-        for (int i = 0; i < corrals.length; i++) {
-            Corral c = corrals[i];
-
-            if (c.containsPlayer() || !c.isPICorral()) {
-                c.isPICorral = false;
-                continue;
-            }
-
-            // at this step, we know that c has for unique
-            // corral neighbor the 'player corral'.
-            // We only need to check that every crate in the barrier
-            // can be pushed inside the corral.
-            List<TileInfo> barrier = c.barrier;
-            for (int j = 0; j < barrier.size(); j++) {
-                TileInfo crate = barrier.get(j);
-                if (!canBePushedInside(crate, Direction.LEFT) && !canBePushedInside(crate, Direction.UP)) {
-                    c.isPICorral = false;
-                    break;
-                }
-            }
-        }
-    }
-
-    /**
-     * This method assume that adjacent tiles of {@code crate}
-     * are player-reachable.
-     *
-     * @param crate the crate
-     * @param axis axis
-     * @return true if {@code crate} can be pushed on the given axis
-     */
-    private boolean canBePushedInside(TileInfo crate, Direction axis) {
-        TileInfo front = crate.adjacent(axis);
-        if (front.isSolid()) {
-            return false;
-        }
-
-        TileInfo back = crate.adjacent(axis.negate());
-        return !back.isSolid();
     }
 
     /**
@@ -227,16 +248,11 @@ public class CorralDetector {
         corral.onlyCrateOnTarget = true;
         corral.crates.clear();
         corral.barrier.clear();
+        corral.adjacentCorrals.clear();
         corral.topX = tile.getX();
         corral.topY = tile.getY();
 
         currentCorrals.add(corral);
-    }
-
-    private void removeCorral(TileInfo tile) {
-        int i = tile.getIndex();
-        parent[i] = i;
-        rank[i] = 0;
     }
 
     private void mergeTwoCorrals(TileInfo inCorral1, TileInfo inCorral2) {

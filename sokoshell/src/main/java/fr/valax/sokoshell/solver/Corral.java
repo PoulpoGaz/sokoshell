@@ -14,14 +14,17 @@ public class Corral {
     protected int topX;
     protected int topY;
 
+    protected final Set<Corral> adjacentCorrals = new HashSet<>();
+
     /**
-     * All crates that inside the corral or surrounding the corral
+     * All crates that are inside the corral and surrounding the corral
      */
     protected final List<TileInfo> barrier = new ArrayList<>();
     protected final List<TileInfo> crates = new ArrayList<>();
     protected boolean containsPlayer;
+    protected boolean adjacentToPlayerCorral; // the player corral is adjacent to itself
     protected boolean isPICorral;
-    protected boolean onlyCrateOnTarget; // true if all crates in crates are crate on target
+    protected boolean onlyCrateOnTarget; // true if all crates in crates list are crate on target
 
 
     protected final Set<State> visited = new HashSet<>();
