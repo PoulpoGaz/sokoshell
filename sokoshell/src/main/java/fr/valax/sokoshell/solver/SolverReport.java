@@ -232,7 +232,7 @@ public class SolverReport {
         String str1 = style.drawToString(board, board.getX(current.playerPos()), board.getY(current.playerPos())).toAnsi();
         board.removeStateCrates(current);
         board.addStateCrates(next);
-        String str2 = style.drawToString(board, board.getX(next.playerPos()), board.getY(next.playerPos())).toString();
+        String str2 = style.drawToString(board, board.getX(next.playerPos()), board.getY(next.playerPos())).toAnsi();
 
         return new IllegalStateException("""
                 Can't find path between two states:

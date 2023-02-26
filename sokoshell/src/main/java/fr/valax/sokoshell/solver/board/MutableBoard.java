@@ -1,5 +1,7 @@
 package fr.valax.sokoshell.solver.board;
 
+import fr.valax.sokoshell.SokoShell;
+import fr.valax.sokoshell.graphics.Surface;
 import fr.valax.sokoshell.solver.Corral;
 import fr.valax.sokoshell.solver.CorralDetector;
 import fr.valax.sokoshell.solver.State;
@@ -739,6 +741,9 @@ public class MutableBoard extends GenericBoard {
         }
     }
 
+    /**
+     * Due to this, SokHard 49 can't be solved...
+     */
     private void removeUselessTunnels() {
         for (int i = 0; i < tunnels.size(); i++) {
             Tunnel t = tunnels.get(i);
@@ -746,7 +751,7 @@ public class MutableBoard extends GenericBoard {
                 Room room = t.getRooms().get(0); // tunnel is linked to exactly one room
                 room.tunnels.remove(t); // detach the tunnel
 
-                if (room.tunnels.size() == 2 && room.tiles.size() == 1) {
+                if (room.tunnels.size() == 2 && room.tiles.size() == 1 && !room.isGoalRoom()) {
                     // room is now useless
                     // we are in one of the following cases:
                     // ###    # #
@@ -770,7 +775,7 @@ public class MutableBoard extends GenericBoard {
                     if (!roomTile.adjacent(dir).isSolid()) {
                         // second case
                         // tunnel became in every case player only
-                        t1.setPlayerOnlyTunnel(false);
+                        t1.setPlayerOnlyTunnel(true);
                     }
 
                     // remove t2, taking care of i
@@ -826,7 +831,7 @@ public class MutableBoard extends GenericBoard {
 
         toAdd.setRoom(null);
         toAdd.setTunnel(t1);
-        t1.setPlayerOnlyTunnel(t1.isPlayerOnlyTunnel() && t2.isPlayerOnlyTunnel());
+        t1.setPlayerOnlyTunnel(t1.isPlayerOnlyTunnel() || t2.isPlayerOnlyTunnel());
         t1.rooms.remove(room);
         t2.rooms.remove(room);
 

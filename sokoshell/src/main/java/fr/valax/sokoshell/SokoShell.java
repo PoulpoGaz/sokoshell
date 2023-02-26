@@ -128,6 +128,7 @@ public class SokoShell {
 
         addBoardStyle(BasicStyle.DEFAULT_STYLE);
         addBoardStyle(BasicStyle.XSB_STYLE);
+        selectedStyle = BasicStyle.DEFAULT_STYLE;
 
         taskList = new TaskList();
     }

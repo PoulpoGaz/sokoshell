@@ -184,7 +184,6 @@ public abstract class AbstractSolver<S extends State> implements Trackable, Solv
 
         int[] cratesIndices = state.cratesIndices();
         for (int crateIndex = 0; crateIndex < cratesIndices.length; crateIndex++) {
-
             int crate = cratesIndices[crateIndex];
 
             TileInfo crateTile = board.getAt(crate);
