@@ -22,11 +22,36 @@ For IntelliJ IDEA:
 
 ## Results
 
-| Solver | Suite / Levels        | Time limit | Solved | Error / Other             | Total | Start date       | End date         | Total run time |
-|--------|-----------------------|------------|--------|---------------------------|-------|------------------|------------------|----------------|
-| DFS    | Large test suite      | 30 sec     | 1732   | 8 errors - 46 no solution | 3272  | 10/12/2022 15:28 | 11/12/2022 04:43 | 13h 45min      |
-| DFS    | GroupEffort small set | 30 sec     | 47     | 1 no solution             | 200   | 11/12/2022 16:19 | 11/12/2022 17:43 | 1h 24min       |
-| A*     | GroupEffort small set | 3 min      | 87     | 24 timeout - 89 errors    | 200   | 15/02/2023 7:18  | 15/02/2023 8:56  | 1h 38min       |
+| Solver | Suite / Levels        | Time limit | Solved | Error / Other                           | Total | Start date       | End date         | Total run time    |
+|--------|-----------------------|------------|--------|-----------------------------------------|-------|------------------|------------------|-------------------|
+| DFS    | Large test suite      | 30 sec     | 1732   | 8 errors - 46 no solution               | 3272  | 10/12/2022 15:28 | 11/12/2022 04:43 | 13h 45min         |
+| DFS    | GroupEffort small set | 30 sec     | 47     | 1 no solution                           | 200   | 11/12/2022 16:19 | 11/12/2022 17:43 | 1h 24min          |
+| A*     | GroupEffort small set | 3 min      | 87     | 24 timeout - 89 errors                  | 200   | 15/02/2023 7:18  | 15/02/2023 8:56  | 1h 38min          |
+| A*     | Large test suite      | 3min       | 2095   | 1171 timeout - 4 errors - 2 no solution | 3272  | 24/02/2023 19:21 | 27/02/2023 09:40 | 2 days 14h 19 min |
+
+### Detailed results for 4-th line
+
+#### State statistics
+Total number of state explored: 963611941
+Average state explored per report: 459957
+Level with the least explored state: 0 - GrigrSpecial_40 #40 (all crates are on target...)
+Level with the most explored state: 13555057 - Sven_1623 #143 (approx 7Gi RAM)
+
+#### Time statistics
+Total run time: 3 h 42 min 52.73 s (+ 3min * 1171 = 2.43 days)
+Average run time per report: 6.38 s
+Fastest solved level: in 0 ms - Microban II_135 #2
+Slowest solved level: in 2 min 52.57 s - Sven_1623 #997
+
+#### Solution length (moves)
+Average solution length per report: 296
+Level with shortest solution: 0 moves - GrigrSpecial_40 #40 (151 levels are solved in 0ms)
+Level with longest solution: 5037 moves - Microban II_135 #134 (22 levels are solved in more than 2 min, 52 between 1 and 2 min)
+
+#### Solution length (pushes)
+Average solution length per report: 59
+Level with shortest solution: 0 pushes - GrigrSpecial_40 #40
+Level with longest solution: 616 pushes - Sven_1623 #45
 
 ## Ideas
 

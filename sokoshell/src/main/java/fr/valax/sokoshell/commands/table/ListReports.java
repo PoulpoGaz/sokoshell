@@ -238,11 +238,11 @@ public class ListReports extends TableCommand {
             }
 
             long time = stats.runTime();
-            if (time < minMoves) {
+            if (time < minTime) {
                 minTime = time;
                 minTimeReport = report;
             }
-            if (time > maxMoves) {
+            if (time > maxTime) {
                 maxTime = time;
                 maxTimeReport = report;
             }
