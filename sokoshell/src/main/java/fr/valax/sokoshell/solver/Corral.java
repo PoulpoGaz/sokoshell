@@ -8,6 +8,10 @@ import java.util.*;
 
 public class Corral {
 
+    public static final int POTENTIAL_PI_CORRAL = 0;
+    public static final int IS_A_PI_CORRAL = 1;
+    public static final int NOT_A_PI_CORRAL = 2;
+
     protected final int id;
     protected final Board board;
 
@@ -23,8 +27,9 @@ public class Corral {
     protected final List<TileInfo> crates = new ArrayList<>();
     protected boolean containsPlayer;
     protected boolean adjacentToPlayerCorral; // the player corral is adjacent to itself
-    protected boolean isPICorral;
+    protected int isPICorral;
     protected boolean onlyCrateOnTarget; // true if all crates in crates list are crate on target
+    protected boolean isValid = false;
 
 
     protected final Set<State> visited = new HashSet<>();
@@ -38,7 +43,7 @@ public class Corral {
     }
 
     public boolean isDeadlock(State originalState) {
-        if (!isPICorral || onlyCrateOnTarget || crates.size() == originalState.cratesIndices().length) {
+        if (!isPICorral() || onlyCrateOnTarget || crates.size() == originalState.cratesIndices().length) {
             return false;
         }
 
@@ -157,16 +162,7 @@ public class Corral {
     private boolean isInCorral(int crate) {
         TileInfo tile = board.getAt(crate);
 
-        List<Corral> adjacentCorrals = tile.getAdjacentCorrals();
-        for (int i = 0; i < adjacentCorrals.size(); i++) {
-            Corral adj = adjacentCorrals.get(i);
-
-            if (adj == this) {
-                return true;
-            }
-        }
-
-        return false;
+        return crates.contains(tile);
     }
 
     private boolean isInCorral(TileInfo tile) {
@@ -200,7 +196,7 @@ public class Corral {
     }
 
     public boolean isPICorral() {
-        return isPICorral;
+        return isPICorral == IS_A_PI_CORRAL;
     }
 
     @Override

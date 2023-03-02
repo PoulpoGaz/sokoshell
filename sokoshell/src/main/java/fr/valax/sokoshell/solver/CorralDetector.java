@@ -1,8 +1,8 @@
 package fr.valax.sokoshell.solver;
 
+import fr.valax.args.utils.ArgsUtils;
 import fr.valax.sokoshell.solver.board.Board;
 import fr.valax.sokoshell.solver.board.Direction;
-import fr.valax.sokoshell.solver.board.tiles.Tile;
 import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 
 import java.util.*;
@@ -20,6 +20,8 @@ public class CorralDetector {
     private final int[] rank;
 
     private final Set<Corral> currentCorrals;
+
+    private int realNumberOfCorral;
 
     public CorralDetector(Board board) {
         int size = board.getWidth() * board.getHeight();
@@ -75,6 +77,7 @@ public class CorralDetector {
                     int i = t.getIndex();
                     parent[i] = -1;
                     rank[i] = -1;
+                    corrals[i].isValid = false;
                 }
 
                 left = t;
@@ -83,6 +86,8 @@ public class CorralDetector {
 
         int playerCorral = find(playerY * board.getWidth() + playerX);
         corrals[playerCorral].containsPlayer = true;
+
+        realNumberOfCorral = currentCorrals.size();
     }
 
     /**
@@ -93,11 +98,27 @@ public class CorralDetector {
     public void findPICorral(Board board, int[] crates) {
         preComputePICorral(board, crates);
 
-        for (Corral c : corrals) {
+        List<Corral> corrals = new ArrayList<>(currentCorrals);
+
+        for (int i = 0; i < corrals.size(); i++) {
+            Corral c = corrals.get(i);
+
             if (!c.containsPlayer()) {
-                c.isPICorral = isPICorral(c);
+                if (isPICorral(c)) {
+                    c.isPICorral = Corral.IS_A_PI_CORRAL;
+                    corrals.remove(i);
+                    i--;
+                }
             } else {
-                c.isPICorral = false;
+                c.isPICorral = Corral.NOT_A_PI_CORRAL;
+                corrals.remove(i);
+                i--;
+            }
+        }
+
+        for (Corral c : corrals) {
+            if (c.isValid && c.isPICorral == Corral.POTENTIAL_PI_CORRAL) {
+                mergeWithAdjacents(board, c);
             }
         }
     }
@@ -128,6 +149,10 @@ public class CorralDetector {
     }
 
     protected boolean isPICorral(Corral corral) {
+        if (!corral.adjacentToPlayerCorral || corral.adjacentCorrals.size() != 1) {
+            return false;
+        }
+
         for (TileInfo crate : corral.barrier) {
             for (Direction dir : Direction.VALUES) {
                 TileInfo crateDest = crate.adjacent(dir);
@@ -139,9 +164,9 @@ public class CorralDetector {
                 if (player.isWall()) {
                     continue;
                 } else if (player.anyCrate()) {
-                    if (!corral.barrier.contains(player)) {
+                    /*if (!corral.crates.contains(player) && !corral.barrier.contains(player)) {
                         return false;
-                    }
+                    }*/
                     continue;
                 }
 
@@ -155,6 +180,112 @@ public class CorralDetector {
         }
 
         return true;
+    }
+
+    protected void mergeWithAdjacents(Board board, Corral corral) {
+        while (corral.adjacentCorrals.size() > 1) {
+            Iterator<Corral> iterator = corral.adjacentCorrals.iterator();
+            Corral adj = null;
+
+            while (iterator.hasNext()) {
+                adj = iterator.next();
+
+                if (adj.isPICorral()) {
+                    return;
+                }
+
+                if (!adj.containsPlayer) {
+                    break;
+                }
+            }
+
+            corral = fullyMergeTwoCorrals(board, corral, adj);
+        }
+
+        if (isPICorral(corral)) {
+            corral.isPICorral = Corral.IS_A_PI_CORRAL;
+        } else {
+            corral.isPICorral = Corral.NOT_A_PI_CORRAL;
+        }
+    }
+
+    private Corral fullyMergeTwoCorrals(Board board, Corral a, Corral b) {
+        Corral corral = mergeTwoCorrals(board.getAt(a.getTopX(), a.getTopY()), board.getAt(b.getTopX(), b.getTopY()));
+
+        if (corral == b) {
+            b = a; // this way, we can deal with corral (before a) and b, without doing disjonction.
+        }
+
+        // Merge properties. It is assumed that a and b doesn't contain the player
+        // topX, topY are already updated
+        // the set currentCorrals was also updated.
+        corral.adjacentToPlayerCorral |= b.adjacentToPlayerCorral;
+        corral.onlyCrateOnTarget &= b.onlyCrateOnTarget;
+
+        // update adjacentCorrals
+        // Add all adjacents corral of b to corral, but corral is adjacent to b,
+        // we must remove it. The remove is done before addAll because the resulting
+        // set is likely to be bigger than b one.
+        b.adjacentCorrals.remove(corral);
+        for (Corral bAdj : b.adjacentCorrals) {
+            bAdj.adjacentCorrals.remove(b);
+
+            if (bAdj != corral) {
+                bAdj.adjacentCorrals.add(corral);
+            }
+        }
+        corral.adjacentCorrals.remove(b);
+        corral.adjacentCorrals.addAll(b.adjacentCorrals);
+
+        // update barrier and crates
+        for (TileInfo tile : b.crates) {
+            if (!corral.crates.contains(tile)) {
+                corral.crates.add(tile);
+            }
+        }
+
+        // merge the two barrier. Some crates aren't in a barrier.
+        for (TileInfo tile : b.barrier) {
+            if (!corral.barrier.contains(tile)) {
+                corral.barrier.add(tile);
+            }
+        }
+
+
+        int[] adjacents = new int[4];
+        int size;
+        for (int i = 0; i < corral.barrier.size(); i++) {
+            TileInfo crate = corral.barrier.get(i);
+            size = 0;
+            for (Direction dir : Direction.VALUES) {
+                TileInfo tile = crate.adjacent(dir);
+                if (tile.isSolid()) {
+                    continue;
+                }
+
+                Corral adj = findCorral(tile);
+
+                boolean new_ = true;
+                for (int k = 0; k < size; k++) {
+                    if (adjacents[k] == adj.id) {
+                        new_ = false;
+                        break;
+                    }
+                }
+
+                if (new_) {
+                    adjacents[size] = adj.id;
+                    size++;
+                }
+            }
+
+            if (size <= 1) { // not in barrier !
+                corral.barrier.remove(i);
+                i--;
+            }
+        }
+
+        return corral;
     }
 
     /**
@@ -244,8 +375,9 @@ public class CorralDetector {
 
         Corral corral = corrals[i];
         corral.containsPlayer = false;
-        corral.isPICorral = true;
+        corral.isPICorral = Corral.POTENTIAL_PI_CORRAL;
         corral.onlyCrateOnTarget = true;
+        corral.isValid = true;
         corral.crates.clear();
         corral.barrier.clear();
         corral.adjacentCorrals.clear();
@@ -255,7 +387,7 @@ public class CorralDetector {
         currentCorrals.add(corral);
     }
 
-    private void mergeTwoCorrals(TileInfo inCorral1, TileInfo inCorral2) {
+    private Corral mergeTwoCorrals(TileInfo inCorral1, TileInfo inCorral2) {
         int corral1I = find(inCorral1.getIndex());
         int corral2I = find(inCorral2.getIndex());
 
@@ -279,6 +411,7 @@ public class CorralDetector {
             Corral newCorral = corrals[newCorralI];
             Corral oldCorral = corrals[oldCorralI];
 
+            oldCorral.isValid = false;
             currentCorrals.remove(oldCorral);
             newCorral.containsPlayer |= oldCorral.containsPlayer();
 
@@ -286,7 +419,11 @@ public class CorralDetector {
                 newCorral.topX = oldCorral.topX;
                 newCorral.topY = oldCorral.topY;
             }
+
+            return newCorral;
         }
+
+        return corrals[corral1I];
     }
 
 
@@ -318,5 +455,9 @@ public class CorralDetector {
 
     public Collection<Corral> getCorrals() {
         return currentCorrals;
+    }
+
+    public int getRealNumberOfCorral() {
+        return realNumberOfCorral;
     }
 }
