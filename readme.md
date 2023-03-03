@@ -109,3 +109,7 @@ $$$$$$$$$$
 
 Multi pi corral
 corral
+
+## Resources
+
+<a href="http://sokobano.de/wiki/" target="_blank"><img border="0" title="Go to SokobanWiki!" src="http://sokobano.de/wiki/images/Sokowiki-01.gif"></a>

@@ -341,19 +341,4 @@ public interface TileInfo {
      * supported by this TileInfo
      */
     void setNearestTarget(TargetRemoteness nearestTarget);
-
-
-    /**
-     * Only for crates. Returns adjacent corrals
-     * @return adjacent corrals
-     */
-    List<Corral> getAdjacentCorrals();
-
-    /**
-     * Only for crates. Returns true if it is in a barrier
-     * @return true if the crate is in a barrier
-     */
-    default boolean isInABarrier() {
-        return getAdjacentCorrals().size() > 2;
-    }
 }

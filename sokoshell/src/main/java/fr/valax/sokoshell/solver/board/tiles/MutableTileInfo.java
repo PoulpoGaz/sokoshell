@@ -193,9 +193,4 @@ public class MutableTileInfo extends GenericTileInfo {
     public void setNearestTarget(TargetRemoteness nearestTarget) {
         this.nearestTarget = nearestTarget;
     }
-
-    @Override
-    public List<Corral> getAdjacentCorrals() {
-        return adjacentCorrals;
-    }
 }

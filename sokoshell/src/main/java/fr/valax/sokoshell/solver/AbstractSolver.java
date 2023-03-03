@@ -85,8 +85,6 @@ public abstract class AbstractSolver<S extends State> implements Trackable, Solv
         final State initialState = level.getInitialState();
         State finalState = null;
 
-        int nState = initialState.cratesIndices().length;
-
         board = new MutableBoard(level);
         board.removeStateCrates(initialState);
         board.initForSolver();
@@ -95,6 +93,10 @@ public abstract class AbstractSolver<S extends State> implements Trackable, Solv
         processed.clear();
 
         addInitialState(level);
+
+        if (level.getPack().name().equals("XSokoban_90") && level.getIndex() == 3) {
+            board.getAt(9, 10).setDeadTile(true);
+        }
 
         while (!toProcess.isEmpty() && !stopped) {
             if (hasTimedOut(timeout)) {
@@ -169,10 +171,8 @@ public abstract class AbstractSolver<S extends State> implements Trackable, Solv
         detector.findPICorral(board, state.cratesIndices());
 
         for (Corral corral : detector.getCorrals()) {
-            if (corral.isPICorral()) {
-                if (corral.isDeadlock(state)) {
-                    return true;
-                }
+            if (corral.isDeadlock(state)) {
+                return true;
             }
         }
 

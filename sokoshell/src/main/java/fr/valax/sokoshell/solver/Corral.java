@@ -47,6 +47,8 @@ public class Corral {
             return false;
         }
 
+        addFrozenCrates(originalState);
+
         boolean deadlock = true;
         State firstState = removeOutsideCrate(originalState);
 
@@ -134,6 +136,35 @@ public class Corral {
         }
 
         return true;
+    }
+
+    private void addFrozenCrates(State state) {
+        for (int i : state.cratesIndices) {
+            TileInfo crate = board.getAt(i);
+
+            if (crates.contains(crate)) {
+                continue;
+            }
+
+            if (isFrozen(crate, Direction.LEFT) && isFrozen(crate, Direction.UP)) {
+                crates.add(crate);
+            }
+        }
+    }
+
+    /**
+     * True if the crate is almost frozen ie right now it can be moved
+     * in the axis: it happens when an adjacent tile on the axis is solid.
+     * The adjacent tile must be in the corral is it is a crate
+     */
+    private boolean isFrozen(TileInfo tile, Direction axis) {
+        TileInfo left = tile.adjacent(axis);
+        TileInfo right = tile.adjacent(axis.negate());
+
+        return left.isWall() ||
+                left.anyCrate() && crates.contains(left) ||
+                right.isWall() ||
+                right.anyCrate() && crates.contains(right);
     }
 
     /**

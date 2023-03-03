@@ -153,4 +153,140 @@ public class CorralTest {
             System.out.printf("%d - %d. pi-corral? %s deadlock? %s%n", c.getTopX(), c.getTopY(), c.isPICorral(), c.isDeadlock(state));
         }
     }
+
+    @Test
+    void coralTest4() {
+        Level level = TestUtils.getLevel(Path.of("levels8xv/Original.8xv"), 8);
+        MutableBoard board = new MutableBoard(level);
+        CorralDetector corralDetector = board.getCorralDetector();
+
+        int[] crates = new int[] {
+                board.getIndex(3, 10),
+                board.getIndex(6, 9),
+                board.getIndex(6, 10),
+                board.getIndex(6, 11),
+                board.getIndex(7, 7)
+        };
+
+        int playerX = 6;
+        int playerY = 7;
+        int player  = board.getIndex(playerX, playerY);
+
+        board.removeStateCrates(level.getInitialState());
+        board.computeFloors();
+        board.computeDeadTiles();
+
+        State state = new State(player, crates, 0, null);
+        board.addStateCrates(state);
+
+        BasicStyle.XSB_STYLE.print(board, playerX, playerY);
+
+        corralDetector.findCorral(board, playerX, playerY);
+        corralDetector.findPICorral(board, state.cratesIndices());
+
+        for (Corral c : corralDetector.getCorrals()) {
+            System.out.printf("%d - %d. pi-corral? %s deadlock? %s%n", c.getTopX(), c.getTopY(), c.isPICorral(), c.isDeadlock(state));
+        }
+    }
+
+    @Test
+    void corralTest5() {
+        Level level = TestUtils.getLevel(Path.of("TIPEex.8xv"), 11);
+
+        MutableBoard board = new MutableBoard(level);
+        CorralDetector corralDetector = board.getCorralDetector();
+
+        int playerX = 4;
+        int playerY = 2;
+
+        State state = level.getInitialState();
+        board.removeStateCrates(state);
+        board.computeFloors();
+        board.computeDeadTiles();
+        board.addStateCrates(state);
+
+        BasicStyle.XSB_STYLE.print(board, playerX, playerY);
+
+        corralDetector.findCorral(board, playerX, playerY);
+        for (Corral c : corralDetector.getCorrals()) {
+            System.out.printf("%d - %d. pi-corral? %s deadlock? %s%n", c.getTopX(), c.getTopY(), c.isPICorral(), c.isDeadlock(state));
+        }
+        System.out.println("--");
+        corralDetector.findPICorral(board, state.cratesIndices());
+            for (Corral c : corralDetector.getCorrals()) {
+            System.out.printf("%d - %d. pi-corral? %s deadlock? %s%n", c.getTopX(), c.getTopY(), c.isPICorral(), c.isDeadlock(state));
+        }
+    }
+
+    @Test
+    void corralTest6() {
+        Level level = TestUtils.getLevel(Path.of("levels8xv/Original.8xv"), 8);
+        MutableBoard board = new MutableBoard(level);
+        CorralDetector corralDetector = board.getCorralDetector();
+
+        int[] crates = new int[] {
+                board.getIndex(9, 7),
+                board.getIndex(9, 8),
+                board.getIndex(10, 8),
+                board.getIndex(10, 9),
+                board.getIndex(7, 7),
+        };
+
+        int playerX = 6;
+        int playerY = 7;
+        int player  = board.getIndex(playerX, playerY);
+
+        board.removeStateCrates(level.getInitialState());
+        board.computeFloors();
+        board.computeDeadTiles();
+
+        State state = new State(player, crates, 0, null);
+        board.addStateCrates(state);
+
+        BasicStyle.XSB_STYLE.print(board, playerX, playerY);
+
+        corralDetector.findCorral(board, playerX, playerY);
+        corralDetector.findPICorral(board, state.cratesIndices());
+
+        for (Corral c : corralDetector.getCorrals()) {
+            System.out.printf("%d - %d. pi-corral? %s deadlock? %s%n", c.getTopX(), c.getTopY(), c.isPICorral(), c.isDeadlock(state));
+        }
+    }
+
+    @Test
+    void corralTest7() {
+        Level level = TestUtils.getLevel(Path.of("levels8xv/Original.8xv"), 10);
+        MutableBoard board = new MutableBoard(level);
+        CorralDetector corralDetector = board.getCorralDetector();
+
+        int[] crates = new int[] {
+                board.getIndex(5, 3),
+                board.getIndex(5, 4),
+                board.getIndex(5, 5),
+                board.getIndex(7, 3),
+                board.getIndex(7, 4),
+                board.getIndex(8, 3),
+                board.getIndex(1, 10),
+        };
+
+        int playerX = 4;
+        int playerY = 3;
+        int player  = board.getIndex(playerX, playerY);
+
+        board.removeStateCrates(level.getInitialState());
+        board.computeFloors();
+        board.computeDeadTiles();
+
+        State state = new State(player, crates, 0, null);
+        board.addStateCrates(state);
+
+        BasicStyle.XSB_STYLE.print(board, playerX, playerY);
+
+        corralDetector.findCorral(board, playerX, playerY);
+        corralDetector.findPICorral(board, state.cratesIndices());
+
+        for (Corral c : corralDetector.getCorrals()) {
+            System.out.printf("%d - %d. pi-corral? %s deadlock? %s%n", c.getTopX(), c.getTopY(), c.isPICorral(), c.isDeadlock(state));
+        }
+    }
 }

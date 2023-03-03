@@ -227,6 +227,7 @@ public class CorralDetector {
         // we must remove it. The remove is done before addAll because the resulting
         // set is likely to be bigger than b one.
         b.adjacentCorrals.remove(corral);
+        // also update adjacent of b
         for (Corral bAdj : b.adjacentCorrals) {
             bAdj.adjacentCorrals.remove(b);
 
@@ -292,10 +293,11 @@ public class CorralDetector {
      * Compute adjacent corrals of crates, barriers and various property of Corral
      */
     protected void preComputePICorral(Board board, int[] crates) {
+        List<Corral> adj = new ArrayList<>();
+
         for (int crateI : crates) {
             TileInfo crate = board.getAt(crateI);
 
-            List<Corral> adj = crate.getAdjacentCorrals();
             adj.clear();
 
             // find adjacent corrals

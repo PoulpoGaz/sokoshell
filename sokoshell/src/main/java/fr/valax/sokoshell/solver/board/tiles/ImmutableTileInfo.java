@@ -85,14 +85,4 @@ public class ImmutableTileInfo extends GenericTileInfo {
     public TargetRemoteness[] getTargets() {
         return null;
     }
-
-    @Override
-    public List<Corral> getAdjacentCorrals() {
-        return null;
-    }
-
-    @Override
-    public boolean isInABarrier() {
-        return false;
-    }
 }

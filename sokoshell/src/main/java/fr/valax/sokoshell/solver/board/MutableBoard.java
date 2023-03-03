@@ -1424,16 +1424,6 @@ public class MutableBoard extends GenericBoard {
         public TargetRemoteness[] getTargets() {
             return targets;
         }
-
-        @Override
-        public List<Corral> getAdjacentCorrals() {
-            return null;
-        }
-
-        @Override
-        public boolean isInABarrier() {
-            return false;
-        }
     }
 
     private static class ImmutableTunnel extends Tunnel {
