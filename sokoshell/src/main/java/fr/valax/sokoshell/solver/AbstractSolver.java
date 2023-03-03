@@ -1,8 +1,10 @@
 package fr.valax.sokoshell.solver;
 
+import fr.valax.sokoshell.graphics.style.BasicStyle;
 import fr.valax.sokoshell.solver.board.*;
 import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 import fr.valax.sokoshell.solver.collections.SolverCollection;
+import fr.valax.sokoshell.solver.pathfinder.CrateAStar;
 import fr.valax.sokoshell.utils.SizeOf;
 
 import java.io.IOException;
@@ -117,9 +119,6 @@ public abstract class AbstractSolver<S extends State> implements Trackable, Solv
                 break;
             }
 
-            board.computeTunnelStatus(state);
-            board.computePackingOrderProgress(state);
-
             int playerX = board.getX(state.playerPos());
             int playerY = board.getY(state.playerPos());
 
@@ -130,6 +129,10 @@ public abstract class AbstractSolver<S extends State> implements Trackable, Solv
                 board.removeStateCrates(state);
                 continue;
             }
+
+            // compute after checking for corral deadlock, as corral deadlock deals with tunnels
+            board.computeTunnelStatus(state);
+            board.computePackingOrderProgress(state);
 
             addChildrenStates();
             board.removeStateCrates(state);
@@ -197,6 +200,8 @@ public abstract class AbstractSolver<S extends State> implements Trackable, Solv
 
                 if (r.isGoalRoom() && r.getPackingOrderIndex() >= 0) {
                     continue;
+                } else {
+                    tryGoalCut(crateIndex, crateTile);
                 }
             }
 
@@ -205,6 +210,38 @@ public abstract class AbstractSolver<S extends State> implements Trackable, Solv
                 addChildrenStatesInTunnel(crateIndex, crateTile);
             } else {
                 addChildrenStatesDefault(crateIndex, crateTile);
+            }
+        }
+    }
+
+    protected void tryGoalCut(int crateIndex, TileInfo crate) {
+        // only works because rooms have one entry
+        CrateAStar crateAStar = board.getCrateAStar();
+        List<Room> rooms = board.getRooms();
+        for (int i = 0; i < rooms.size(); i++) {
+            Room r = rooms.get(i);
+
+            Tunnel tunnel = r.getTunnels().get(0);
+            TileInfo entrance;
+            if (tunnel.getStartOut().getRoom() == r) {
+                entrance = tunnel.getStartOut();
+            } else {
+                entrance = tunnel.getEndOut();
+            }
+
+            if (r.isGoalRoom() && r.getPackingOrderIndex() >= 0) {
+                for (Direction d : Direction.VALUES) {
+                    TileInfo player = crate.adjacent(d);
+
+                    if (!player.isReachable()) {
+                        continue;
+                    }
+
+
+                    if (crateAStar.hasPath(player, null, crate, entrance)) {
+                        addStateCheckForGoalMacro(crateIndex, crate, entrance, null);
+                    }
+                }
             }
         }
     }

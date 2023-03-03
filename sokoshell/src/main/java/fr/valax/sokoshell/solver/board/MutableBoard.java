@@ -1157,6 +1157,18 @@ public class MutableBoard extends GenericBoard {
         return isGoalRoomLevel;
     }
 
+    public PlayerAStar getPlayerAStar() {
+        return playerAStar;
+    }
+
+    public CrateAStar getCrateAStar() {
+        return crateAStar;
+    }
+
+    public CratePlayerAStar getCratePlayerAStar() {
+        return cratePlayerAStar;
+    }
+
     @Override
     public Corral getCorral(TileInfo tile) {
         return corralDetector.findCorral(tile);

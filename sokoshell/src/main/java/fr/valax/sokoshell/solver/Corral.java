@@ -2,6 +2,7 @@ package fr.valax.sokoshell.solver;
 
 import fr.valax.sokoshell.solver.board.Board;
 import fr.valax.sokoshell.solver.board.Direction;
+import fr.valax.sokoshell.solver.board.Tunnel;
 import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 
 import java.util.*;
@@ -32,9 +33,10 @@ public class Corral {
     protected boolean isValid = false;
 
 
-    protected final Set<State> visited = new HashSet<>();
-    protected final Queue<State> toVisit = new ArrayDeque<>();
+    protected final Set<CorralState> visited = new HashSet<>();
+    protected final Queue<CorralState> toVisit = new ArrayDeque<>();
     protected final ReachableTiles reachable;
+    private CorralState currentState;
 
     public Corral(int id, Board board) {
         this.id = id;
@@ -48,27 +50,31 @@ public class Corral {
         }
 
         addFrozenCrates(originalState);
+        if (crates.size() == originalState.cratesIndices().length) {
+            return false;
+        }
 
         boolean deadlock = true;
-        State firstState = removeOutsideCrate(originalState);
+        CorralState firstState = removeOutsideCrate(originalState);
 
         visited.add(firstState);
         toVisit.add(firstState);
 
         while (!toVisit.isEmpty() && deadlock) {
-            State s = toVisit.remove();
+            currentState = toVisit.remove();
 
-            board.addStateCrates(s);
+            board.addStateCrates(currentState);
 
-            if (FreezeDeadlockDetector.checkFreezeDeadlock(board, s)) {
-                board.removeStateCrates(s);
+            if (FreezeDeadlockDetector.checkFreezeDeadlock(board, currentState)) {
+                board.removeStateCrates(currentState);
                 continue;
             }
 
-            reachable.findReachableCases(board.getAt(s.playerPos()));
-            deadlock = addChildrenStates(s);
+            board.computeTunnelStatus(currentState);
+            reachable.findReachableCases(board.getAt(currentState.playerPos()));
+            deadlock = addChildrenStates();
 
-            board.removeStateCrates(s);
+            board.removeStateCrates(currentState);
 
             if (visited.size() >= 1000) {
                 deadlock = false;
@@ -82,60 +88,6 @@ public class Corral {
         board.addStateCrates(originalState);
 
         return deadlock;
-    }
-
-    /**
-     * @param state current state
-     * @return true if not a deadlock
-     */
-    private boolean addChildrenStates(State state) {
-        int[] cratesIndices = state.cratesIndices();
-
-        int numOnTarget = 0;
-        for (int crate : cratesIndices) {
-            if (board.getAt(crate).isCrateOnTarget()) {
-                numOnTarget++;
-            }
-        }
-
-
-        for (int i = 0; i < cratesIndices.length; i++) {
-            TileInfo crate = board.getAt(cratesIndices[i]);
-
-            for (Direction dir : Direction.VALUES) {
-                TileInfo player = crate.adjacent(dir.negate());
-
-                // also checks if tile is solid: a solid tile is never reachable
-                if (!reachable.isReachable(player)) {
-                    continue;
-                }
-
-                TileInfo dest = crate.adjacent(dir);
-                if (dest.isSolid() || dest.isDeadTile()) {
-                    continue;
-                }
-
-                // a crate can be moved outside the corral
-                if (!isInCorral(dest)) {
-                    return false;
-                }
-
-                // all crates of the corral can be moved to a target
-                if (dest.isTarget() && numOnTarget == cratesIndices.length - 1) {
-                    return false;
-                }
-
-                // create sub state
-                int newPlayerPos = board.topLeftReachablePosition(crate, dest);
-                State sub = state.child(newPlayerPos, i, dest.getIndex());
-
-                if (visited.add(sub)) {
-                    toVisit.offer(sub);
-                }
-            }
-        }
-
-        return true;
     }
 
     private void addFrozenCrates(State state) {
@@ -167,27 +119,190 @@ public class Corral {
                 right.anyCrate() && crates.contains(right);
     }
 
+
+    /**
+     * @return false if not a deadlock
+     */
+    private boolean addChildrenStates() {
+        int[] cratesIndices = currentState.cratesIndices();
+
+        boolean deadlock = true;
+        for (int i = 0; i < cratesIndices.length && deadlock; i++) {
+            TileInfo crate = board.getAt(cratesIndices[i]);
+
+            if (crate.isInATunnel()) {
+                deadlock = addChildrenStatesInTunnel(i, crate);
+            } else {
+                deadlock = addChildrenStatesDefault(i, crate);
+            }
+        }
+
+        return deadlock;
+    }
+
+    //
+    // THE TWO FOLLOWING METHODS ARE COPIED FROM ABSTRACT SOLVER.
+    // I hope that one day, I will change that
+    //
+
+    protected boolean addChildrenStatesInTunnel(int crateIndex, TileInfo crate) {
+        // the crate is in a tunnel. two possibilities: move to tunnel.startOut or tunnel.endOut
+        // this part of the code assume that there is no other crate in the tunnel.
+        // normally, this is impossible...
+
+        for (Direction pushDir : Direction.VALUES) {
+            TileInfo player = crate.adjacent(pushDir.negate());
+
+            if (reachable.isReachable(player)) {
+                TileInfo dest = crate.getTunnelExit().getExit(pushDir);
+
+                if (dest != null && !dest.isSolid()) {
+                    if (!addState(crateIndex, crate, dest, pushDir)) {
+                        return false; // not a deadlock
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
+    protected boolean addChildrenStatesDefault(int crateIndex, TileInfo crate) {
+        for (Direction d : Direction.VALUES) {
+            TileInfo crateDest = crate.adjacent(d);
+            if (crateDest.isSolid()) {
+                continue; // The destination case is not empty
+            }
+
+            if (crateDest.isDeadTile()) {
+                continue; // Useless to push a crate on a dead position
+            }
+
+            TileInfo player = crate.adjacent(d.negate());
+            if (!reachable.isReachable(player)) {
+                // The player cannot reach the case to push the crate
+                // also checks if tile is solid: a solid tile is never reachable
+                continue;
+            }
+
+
+            // check for tunnel
+            Tunnel tunnel = crateDest.getTunnel();
+
+            // the crate will be pushed inside the tunnel
+            if (tunnel != null) {
+                if (tunnel.crateInside()) { // pushing inside will lead to a corral deadlock
+                    continue;
+                }
+
+                // ie the crate can't be pushed to the other extremities of the tunnel
+                // however, sometimes (boxxle 24) it is useful to push the crate inside
+                // the tunnel. That's why the second addState is done (after this if)
+                // and only if this tunnel isn't oneway
+                if (!tunnel.isPlayerOnlyTunnel()) {
+                    TileInfo newDest = null;
+                    Direction pushDir = null;
+
+                    if (crate == tunnel.getStartOut()) {
+                        if (tunnel.getEndOut() != null && !tunnel.getEndOut().anyCrate()) {
+                            newDest = tunnel.getEndOut();
+                            pushDir = tunnel.getEnd().direction(tunnel.getEndOut());
+                        }
+                    } else {
+                        if (tunnel.getStartOut() != null && !tunnel.getStartOut().anyCrate()) {
+                            newDest = tunnel.getStartOut();
+                            pushDir = tunnel.getStart().direction(tunnel.getStartOut());
+                        }
+                    }
+
+                    if (newDest != null && !newDest.isDeadTile()) {
+                        if (!addState(crateIndex, crate, newDest, pushDir)) {
+                            return false;
+                        }
+                    }
+                }
+
+                if (tunnel.isOneway()) {
+                    continue;
+                }
+            }
+
+            if (!addState(crateIndex, crate, crateDest, d)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @return false if not a deadlock
+     */
+    private boolean addState(int crateIndex, TileInfo crate, TileInfo dest, Direction pushDir) {
+        // a crate can be moved outside the corral
+        if (!isInCorral(dest)) {
+            return false;
+        }
+
+        // all crates of the corral can be moved to a target
+
+        int n = 0;
+        for (int i : currentState.cratesIndices()) {
+            if (i != crate.getIndex() && board.getAt(i).isCrateOnTarget()) {
+                n++;
+            }
+        }
+
+        if (dest.isTarget() && n + 1 == currentState.cratesIndices.length) { // TODO: crate may be on target
+            return false;
+        }
+
+        // create sub state
+        int newPlayerPos = board.topLeftReachablePosition(crate, dest);
+        CorralState sub = currentState.child(newPlayerPos, crateIndex, dest.getIndex());
+
+        if (crate.isCrate() && dest.isTarget()) {
+            sub.increaseNumberOnTarget();
+        } else if (crate.isCrateOnTarget() && dest.isFloor()) {
+            sub.decreaseNumberOnTarget();
+        }
+
+        if (visited.add(sub)) {
+            toVisit.offer(sub);
+        }
+
+        return true;
+    }
+
     /**
      * Remove crates that are not part of the corral
      * and create a new state without these crates
      * @param state current state
      * @return a state without crate outside the corral
      */
-    private State removeOutsideCrate(State state) {
+    private CorralState removeOutsideCrate(State state) {
+        int numOnTarget = 0;
+
         int[] newCrates = new int[crates.size()];
         int[] oldCrates = state.cratesIndices();
         int j = 0;
         for (int i = 0; i < oldCrates.length; i++) {
+            TileInfo crate = board.getAt(oldCrates[i]);
             if (isInCorral(oldCrates[i])) {
+                if (crate.isCrateOnTarget()) {
+                    numOnTarget++;
+                }
+
                 newCrates[j] = oldCrates[i];
                 j++;
             } else {
-                board.getAt(oldCrates[i]).removeCrate();
+                crate.removeCrate();
             }
         }
 
-
-        return new State(state.playerPos(), newCrates, null);
+        CorralState corralState = new CorralState(state.playerPos(), newCrates, null);
+        corralState.setNumOnTarget(numOnTarget);
+        return corralState;
     }
 
     private boolean isInCorral(int crate) {
@@ -241,5 +356,43 @@ public class Corral {
         if (!(o instanceof Corral corral)) return false;
 
         return id == corral.id;
+    }
+
+    private static class CorralState extends State {
+
+        private int numOnTarget;
+
+        public CorralState(int playerPos, int[] cratesIndices, State parent) {
+            super(playerPos, cratesIndices, parent);
+        }
+
+        public CorralState(int playerPos, int[] cratesIndices, int hash, State parent) {
+            super(playerPos, cratesIndices, hash, parent);
+        }
+
+        private CorralState(State state) {
+            super(state.playerPos, state.cratesIndices, state.hash, state.parent);
+        }
+
+        @Override
+        public CorralState child(int newPlayerPos, int crateToMove, int crateDestination) {
+            return new CorralState(super.child(newPlayerPos, crateToMove, crateDestination));
+        }
+
+        public void increaseNumberOnTarget() {
+            numOnTarget++;
+        }
+
+        public void decreaseNumberOnTarget() {
+            numOnTarget--;
+        }
+
+        public int getNumOnTarget() {
+            return numOnTarget;
+        }
+
+        public void setNumOnTarget(int numOnTarget) {
+            this.numOnTarget = numOnTarget;
+        }
     }
 }
