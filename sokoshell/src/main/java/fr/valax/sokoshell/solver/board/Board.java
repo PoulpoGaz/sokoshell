@@ -333,21 +333,17 @@ public interface Board {
     void forEachNotWall(Consumer<TileInfo> consumer);
 
     /**
-     * Removes the crates of the given state from the content array.
-     * It also does a small analyse of the state: set {@link Tunnel#crateInside()}
-     * to true if there is effectively a crate inside
-     *
-     * @param state The state with the crates
+     * Compute which tunnel contains a crate
+     * @param state current state
      */
-    void addStateCratesAndAnalyse(State state);
+    void computeTunnelStatus(State state);
 
     /**
-     * Removes the crates of the given state from the content array.
-     * Also reset analyse did by {@link #addStateCratesAndAnalyse(State)}
-     *
-     * @param state The state with the crates
+     * Compute packing order progress for each room if the level
+     * is a goal room level
+     * @param state current state
      */
-    void removeStateCratesAndReset(State state);
+    void computePackingOrderProgress(State state);
 
     // ************
     // * ANALYSIS *

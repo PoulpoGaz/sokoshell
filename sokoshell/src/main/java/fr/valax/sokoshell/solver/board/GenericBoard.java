@@ -114,12 +114,12 @@ public abstract class GenericBoard implements Board {
     }
 
     @Override
-    public void addStateCratesAndAnalyse(State state) {
+    public void computeTunnelStatus(State state) {
         throw new UnsupportedOperationException("Board is not intended for solvers");
     }
 
     @Override
-    public void removeStateCratesAndReset(State state) {
+    public void computePackingOrderProgress(State state) {
         throw new UnsupportedOperationException("Board is not intended for solvers");
     }
 

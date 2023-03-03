@@ -110,12 +110,15 @@ public abstract class AbstractSolver<S extends State> implements Trackable, Solv
             }
 
             S state = toProcess.peekAndCacheState();
-            board.addStateCratesAndAnalyse(state);
+            board.addStateCrates(state);
 
             if (board.isCompletedWith(state)) {
                 finalState = state;
                 break;
             }
+
+            board.computeTunnelStatus(state);
+            board.computePackingOrderProgress(state);
 
             int playerX = board.getX(state.playerPos());
             int playerY = board.getY(state.playerPos());
@@ -124,12 +127,12 @@ public abstract class AbstractSolver<S extends State> implements Trackable, Solv
             detector.findCorral(board, playerX, playerY);
 
             if (checkPICorralDeadlock(state)) {
-                board.removeStateCratesAndReset(state);
+                board.removeStateCrates(state);
                 continue;
             }
 
             addChildrenStates();
-            board.removeStateCratesAndReset(state);
+            board.removeStateCrates(state);
         }
 
         // END OF RESEARCH

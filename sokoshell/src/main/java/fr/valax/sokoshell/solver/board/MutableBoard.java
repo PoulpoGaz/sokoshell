@@ -369,19 +369,13 @@ public class MutableBoard extends GenericBoard {
         }
     }
 
-    /**
-     * Removes the crates of the given state from the content array.
-     * It also does a small analyse of the state: set {@link Tunnel#crateInside()}
-     * to true if there is effectively a crate inside
-     *
-     * @param state The state with the crates
-     */
-    public void addStateCratesAndAnalyse(State state) {
-        for (int i : state.cratesIndices()) {
-            TileInfo tile = getAt(i);
-            tile.addCrate();
+    public void computeTunnelStatus(State state) {
+        for (int i = 0; i < tunnels.size(); i++) {
+            tunnels.get(i).setCrateInside(false);
+        }
 
-            Tunnel t = tile.getTunnel();
+        for (int i : state.cratesIndices()) {
+            Tunnel t = getAt(i).getTunnel();
             if (t != null) {
                 // TODO: do the check but need to check if player is between two crates in a tunnel: see boxxle 53
                 /*if (t.crateInside()) { // THIS IS VERY IMPORTANT -> see tunnels
@@ -390,70 +384,60 @@ public class MutableBoard extends GenericBoard {
 
                 t.setCrateInside(true);
             }
-
-            if (isGoalRoomLevel) {
-                Room r = tile.getRoom();
-                if (r != null && r.isGoalRoom() && tile.isCrate()) { // crate whereas a goal room must contain crate on target
-                    r.setPackingOrderIndex(-1);
-                }
-            }
-        }
-
-        if (isGoalRoomLevel) {
-            for (int i = 0; i < rooms.size(); i++) {
-                Room r = rooms.get(i);
-
-                if (r.isGoalRoom() && r.getPackingOrderIndex() >= 0) {
-                    List<TileInfo> order = r.getPackingOrder();
-
-                    // find the first non crate on target tile
-                    // if the room is completed, then index is equals to -1
-                    int index = -1;
-                    for (int j = 0; j < order.size(); j++) {
-                        TileInfo tile = order.get(j);
-
-                        if (!tile.isCrateOnTarget()) {
-                            index = j;
-                            break;
-                        }
-                    }
-
-                    // checks that remaining aren't crate on target
-                    for (int j = index + 1; j < order.size(); j++) {
-                        TileInfo tile = order.get(j);
-
-                        if (tile.isCrateOnTarget()) {
-                            index = -1;
-                            break;
-                        }
-                    }
-
-                    r.setPackingOrderIndex(index);
-                } else {
-                    r.setPackingOrderIndex(-1);
-                }
-            }
         }
     }
 
-    /**
-     * Removes the crates of the given state from the content array.
-     * Also reset analyse did by {@link #addStateCratesAndAnalyse(State)}
-     *
-     * @param state The state with the crates
-     */
-    public void removeStateCratesAndReset(State state) {
+    public void computePackingOrderProgress(State state) {
+        if (!isGoalRoomLevel) {
+            return;
+        }
+
+        for (int i = 0; i < rooms.size(); i++) {
+            rooms.get(i).setPackingOrderIndex(0);
+        }
+
         for (int i : state.cratesIndices()) {
-            getAt(i).removeCrate();
+            TileInfo tile = getAt(i);
+
+            Room r = tile.getRoom();
+            if (r != null) {
+                if (r.isGoalRoom() && tile.isCrate()) { // crate whereas a goal room must contain crate on target
+                    r.setPackingOrderIndex(-1);
+                }
+            }
         }
 
-        for (int i = 0; i < tunnels.size(); i++) {
-            tunnels.get(i).setCrateInside(false);
-        }
+        for (int i = 0; i < rooms.size(); i++) {
+            Room r = rooms.get(i);
 
-        if (isGoalRoomLevel) {
-            for (int i = 0; i < rooms.size(); i++) {
-                rooms.get(i).setPackingOrderIndex(0);
+            if (r.isGoalRoom() && r.getPackingOrderIndex() >= 0) {
+                List<TileInfo> order = r.getPackingOrder();
+
+                // find the first non crate on target tile
+                // if the room is completed, then index is equals to -1
+                int index = -1;
+                for (int j = 0; j < order.size(); j++) {
+                    TileInfo tile = order.get(j);
+
+                    if (!tile.isCrateOnTarget()) {
+                        index = j;
+                        break;
+                    }
+                }
+
+                // checks that remaining aren't crate on target
+                for (int j = index + 1; j < order.size(); j++) {
+                    TileInfo tile = order.get(j);
+
+                    if (tile.isCrateOnTarget()) {
+                        index = -1;
+                        break;
+                    }
+                }
+
+                r.setPackingOrderIndex(index);
+            } else {
+                r.setPackingOrderIndex(-1);
             }
         }
     }
