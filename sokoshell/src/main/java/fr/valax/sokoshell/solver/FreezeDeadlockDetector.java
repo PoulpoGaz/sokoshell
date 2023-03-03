@@ -36,25 +36,24 @@ public class FreezeDeadlockDetector {
     private static boolean checkFreezeDeadlockRec(TileInfo current, Direction axis) {
         boolean deadlock = false;
 
-        TileInfo left = current.safeAdjacent(axis);
-        TileInfo right = current.safeAdjacent(axis.negate());
+        TileInfo left = current.adjacent(axis);
+        TileInfo right = current.adjacent(axis.negate());
 
-        if ((left != null && left.isWall()) || (right != null && right.isWall())) { // rule 1
+        if (left.isWall() || right.isWall()) { // rule 1
             deadlock = true;
 
-        } else if ((left == null || left.isDeadTile()) &&
-                (right == null || right.isDeadTile())) { // rule 2
-
+        } else if (left.isDeadTile() && right.isDeadTile()) { // rule 2
             deadlock = true;
+
         } else { // rule 3
             Tile oldCurr = current.getTile();
             current.setTile(Tile.WALL);
 
-            if (left != null && left.anyCrate()) {
+            if (left.anyCrate()) {
                 deadlock = checkFreezeDeadlockRec(left);
             }
 
-            if (!deadlock && right != null && right.anyCrate()) {
+            if (!deadlock && right.anyCrate()) {
                 deadlock = checkFreezeDeadlockRec(right);
             }
 
