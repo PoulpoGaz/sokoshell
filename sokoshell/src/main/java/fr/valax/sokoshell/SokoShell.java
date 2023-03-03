@@ -125,6 +125,7 @@ public class SokoShell {
         addSolver(BruteforceSolver.newBFSSolver());
         addSolver(BruteforceSolver.newDFSSolver());
         addSolver(new AStarSolver());
+        addSolver(new BabyFESSSolver());
 
         addBoardStyle(BasicStyle.DEFAULT_STYLE);
         addBoardStyle(BasicStyle.XSB_STYLE);
