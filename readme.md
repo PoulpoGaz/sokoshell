@@ -28,6 +28,7 @@ For IntelliJ IDEA:
 | DFS    | GroupEffort small set | 30 sec     | 47     | 1 no solution                           | 200   | 11/12/2022 16:19 | 11/12/2022 17:43 | 1h 24min          |
 | A*     | GroupEffort small set | 3 min      | 87     | 24 timeout - 89 errors                  | 200   | 15/02/2023 7:18  | 15/02/2023 8:56  | 1h 38min          |
 | A*     | Large test suite      | 3min       | 2095   | 1171 timeout - 4 errors - 2 no solution | 3272  | 24/02/2023 19:21 | 27/02/2023 09:40 | 2 days 14h 19 min |
+| fess0  | XSokoban_90           | 10min      | 14     | 76 timeout                              | 90    | 03/03/2023 20:35 | 04/03/2023 09:20 | 12h 45 min        |
 
 ### Detailed results for 4-th line
 
@@ -50,8 +51,32 @@ Level with longest solution: 5037 moves - Microban II_135 #134 (22 levels are so
 
 #### Solution length (pushes)
 Average solution length per report: 59
-Level with shortest solution: 0 pushes - GrigrSpecial_40 #40
-Level with longest solution: 616 pushes - Sven_1623 #45
+Level with the shortest solution: 0 pushes - GrigrSpecial_40 #40
+Level with the longest solution: 616 pushes - Sven_1623 #45
+
+### Detailed results for 5-th line
+
+#### State statistics
+Total number of state explored: 7037622
+Average state explored per report: 502687
+Level with the least explored state: 78 - XSokoban_90 #1
+Level with the most explored state: 5708403 - XSokoban_90 #43
+
+#### Time statistics
+Total run time: 14 min 58.55 s
+Average run time per report: 1 min 4.18 s
+Fastest solved level: in 16 ms - XSokoban_90 #5
+Slowest solved level: in 9 min 23.29 s - XSokoban_90 #64
+
+#### Solution length (moves)
+Average solution length per report: 710
+Level with shortest solution: 324 moves - XSokoban_90 #6
+Level with longest solution: 1522 moves - XSokoban_90 #43
+
+#### Solution length (pushes)
+Average solution length per report: 219
+Level with the shortest solution: 110 pushes - XSokoban_90 #6
+Level with the longest solution: 425 pushes - XSokoban_90 #4
 
 ## Ideas
 

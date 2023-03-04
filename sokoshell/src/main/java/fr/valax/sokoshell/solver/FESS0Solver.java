@@ -14,7 +14,7 @@ public class FESS0Solver extends AbstractSolver<FESS0Solver.FESS0State> {
     private int lowerBound;
 
     public FESS0Solver() {
-        super("baby-fess");
+        super("fess0");
     }
 
     @Override
