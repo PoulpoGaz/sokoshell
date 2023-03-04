@@ -134,7 +134,7 @@ public abstract class AbstractSolver<S extends State> implements Trackable, Solv
             board.computeTunnelStatus(state);
             board.computePackingOrderProgress(state);
 
-            addChildrenStates();
+            addChildrenStates(board.getAt(playerX, playerY));
             board.removeStateCrates(state);
         }
 
@@ -185,14 +185,12 @@ public abstract class AbstractSolver<S extends State> implements Trackable, Solv
         return false;
     }
 
-    protected void addChildrenStates() {
-        S state = toProcess.cachedState();
+    protected void addChildrenStates(TileInfo player) {
+        Corral playerCorral = board.getCorralDetector().findCorral(player);
 
-        int[] cratesIndices = state.cratesIndices();
-        for (int crateIndex = 0; crateIndex < cratesIndices.length; crateIndex++) {
-            int crate = cratesIndices[crateIndex];
-
-            TileInfo crateTile = board.getAt(crate);
+        List<TileInfo> crates = playerCorral.getCrates();
+        for (int i = 0; i < crates.size(); i++) {
+            TileInfo crateTile = crates.get(i);
 
             // check if the crate is already at his destination
             if (board.isGoalRoomLevel() && crateTile.isInARoom()) {
@@ -201,20 +199,22 @@ public abstract class AbstractSolver<S extends State> implements Trackable, Solv
                 if (r.isGoalRoom() && r.getPackingOrderIndex() >= 0) {
                     continue;
                 } else {
-                    tryGoalCut(crateIndex, crateTile);
+                    tryGoalCut(crateTile);
                 }
             }
 
             Tunnel tunnel = crateTile.getTunnel();
             if (tunnel != null) {
-                addChildrenStatesInTunnel(crateIndex, crateTile);
+                addChildrenStatesInTunnel(crateTile);
             } else {
-                addChildrenStatesDefault(crateIndex, crateTile);
+                addChildrenStatesDefault(crateTile);
             }
         }
     }
 
-    protected void tryGoalCut(int crateIndex, TileInfo crate) {
+    protected void tryGoalCut(TileInfo crate) {
+        TileInfo player = board.getAt(currentState().playerPos());
+
         // only works because rooms have one entry
         CrateAStar crateAStar = board.getCrateAStar();
         List<Room> rooms = board.getRooms();
@@ -230,23 +230,14 @@ public abstract class AbstractSolver<S extends State> implements Trackable, Solv
             }
 
             if (r.isGoalRoom() && r.getPackingOrderIndex() >= 0) {
-                for (Direction d : Direction.VALUES) {
-                    TileInfo player = crate.adjacent(d);
-
-                    if (!player.isReachable()) {
-                        continue;
-                    }
-
-
-                    if (crateAStar.hasPath(player, null, crate, entrance)) {
-                        addStateCheckForGoalMacro(crateIndex, crate, entrance, null);
-                    }
+                if (crateAStar.hasPath(player, null, crate, entrance)) {
+                    addStateCheckForGoalMacro(crate, entrance, null);
                 }
             }
         }
     }
 
-    protected void addChildrenStatesInTunnel(int crateIndex, TileInfo crate) {
+    protected void addChildrenStatesInTunnel(TileInfo crate) {
         // the crate is in a tunnel. two possibilities: move to tunnel.startOut or tunnel.endOut
         // this part of the code assume that there is no other crate in the tunnel.
         // normally, this is impossible...
@@ -258,13 +249,13 @@ public abstract class AbstractSolver<S extends State> implements Trackable, Solv
                 TileInfo dest = crate.getTunnelExit().getExit(pushDir);
 
                 if (dest != null && !dest.isSolid()) {
-                    addStateCheckForGoalMacro(crateIndex, crate, dest, pushDir);
+                    addStateCheckForGoalMacro(crate, dest, pushDir);
                 }
             }
         }
     }
 
-    protected void addChildrenStatesDefault(int crateIndex, TileInfo crate) {
+    protected void addChildrenStatesDefault(TileInfo crate) {
         for (Direction d : Direction.VALUES) {
 
             TileInfo crateDest = crate.adjacent(d);
@@ -314,7 +305,7 @@ public abstract class AbstractSolver<S extends State> implements Trackable, Solv
                     }
 
                     if (newDest != null && !newDest.isDeadTile()) {
-                        addStateCheckForGoalMacro(crateIndex, crate, newDest, pushDir);
+                        addStateCheckForGoalMacro(crate, newDest, pushDir);
                     }
                 }
 
@@ -323,19 +314,19 @@ public abstract class AbstractSolver<S extends State> implements Trackable, Solv
                 }
             }
 
-            addStateCheckForGoalMacro(crateIndex, crate, crateDest, d);
+            addStateCheckForGoalMacro(crate, crateDest, d);
         }
     }
 
-    protected void addStateCheckForGoalMacro(int crateIndex, TileInfo crate, TileInfo dest, Direction pushDir) {
+    protected void addStateCheckForGoalMacro(TileInfo crate, TileInfo dest, Direction pushDir) {
         Room room = dest.getRoom();
         if (room != null && board.isGoalRoomLevel() && room.getPackingOrderIndex() >= 0) {
             // goal macro!
             TileInfo newDest = room.getPackingOrder().get(room.getPackingOrderIndex());
 
-            addState(crateIndex, crate, newDest, null);
+            addState(crate, newDest, null);
         } else {
-            addState(crateIndex, crate, dest, pushDir);
+            addState(crate, dest, pushDir);
         }
     }
 
@@ -370,13 +361,12 @@ public abstract class AbstractSolver<S extends State> implements Trackable, Solv
      * Add a state to the processed set. If it wasn't already added, it is added to
      * the toProcess queue. The move is unchecked
      *
-     * @param crateIndex the crate's index that moves
      * @param crate crate to move
      * @param crateDest crate destination
      * @param pushDir push dir of the player. If the move is a macro move,
      *                it is the last push done by the player. It can be null
      */
-    protected abstract void addState(int crateIndex, TileInfo crate, TileInfo crateDest, Direction pushDir);
+    protected abstract void addState(TileInfo crate, TileInfo crateDest, Direction pushDir);
 
     protected boolean hasTimedOut(long timeout) {
         return timeout > 0 && timeout + timeStart < System.currentTimeMillis();

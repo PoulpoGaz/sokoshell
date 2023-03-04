@@ -1,13 +1,10 @@
 package fr.valax.sokoshell.solver.board.tiles;
 
-import fr.valax.sokoshell.solver.Corral;
+import fr.valax.sokoshell.solver.State;
 import fr.valax.sokoshell.solver.board.MutableBoard;
 import fr.valax.sokoshell.solver.board.Room;
 import fr.valax.sokoshell.solver.board.Tunnel;
 import fr.valax.sokoshell.solver.board.mark.Mark;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Mutable implementation of {@link TileInfo}.
@@ -44,7 +41,10 @@ public class MutableTileInfo extends GenericTileInfo {
      */
     protected TargetRemoteness nearestTarget;
 
-    protected final List<Corral> adjacentCorrals = new ArrayList<>(4);
+    /**
+     * The index of this crate in the {@link State#cratesIndices()} array
+     */
+    protected int crateIndex;
 
 
     // Dynamic information
@@ -192,5 +192,15 @@ public class MutableTileInfo extends GenericTileInfo {
     @Override
     public void setNearestTarget(TargetRemoteness nearestTarget) {
         this.nearestTarget = nearestTarget;
+    }
+
+    @Override
+    public int getCrateIndex() {
+        return crateIndex;
+    }
+
+    @Override
+    public void setCrateIndex(int crateIndex) {
+        this.crateIndex = crateIndex;
     }
 }

@@ -135,6 +135,11 @@ public abstract class GenericTileInfo implements TileInfo {
     }
 
     @Override
+    public void setCrateIndex(int index) {
+        throw new UnsupportedOperationException("Immutable object");
+    }
+
+    @Override
     public int hashCode() {
         return y * board.getWidth() + x;
     }

@@ -30,14 +30,14 @@ public abstract class BruteforceSolver extends AbstractSolver<State> {
     }
 
     @Override
-    protected void addState(int crateIndex, TileInfo crate, TileInfo crateDest, Direction pushDir) {
+    protected void addState(TileInfo crate, TileInfo crateDest, Direction pushDir) {
         if (checkDeadlockBeforeAdding(crate, crateDest, pushDir)) {
             return;
         }
 
         final int i = board.topLeftReachablePosition(crate, crateDest);
         // The new player position is the crate position
-        State s = toProcess.cachedState().child(i, crateIndex, crateDest.getIndex());
+        State s = toProcess.cachedState().child(i, crate.getCrateIndex(), crateDest.getIndex());
 
         if (processed.add(s)) {
             toProcess.addState(s);

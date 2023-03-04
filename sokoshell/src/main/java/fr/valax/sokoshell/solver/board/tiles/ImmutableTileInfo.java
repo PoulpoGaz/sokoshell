@@ -1,11 +1,8 @@
 package fr.valax.sokoshell.solver.board.tiles;
 
-import fr.valax.sokoshell.solver.Corral;
 import fr.valax.sokoshell.solver.board.ImmutableBoard;
 import fr.valax.sokoshell.solver.board.Room;
 import fr.valax.sokoshell.solver.board.Tunnel;
-
-import java.util.List;
 
 /**
  * Immutable implementation of {@link TileInfo}.
@@ -84,5 +81,10 @@ public class ImmutableTileInfo extends GenericTileInfo {
     @Override
     public TargetRemoteness[] getTargets() {
         return null;
+    }
+
+    @Override
+    public int getCrateIndex() {
+        return -1;
     }
 }

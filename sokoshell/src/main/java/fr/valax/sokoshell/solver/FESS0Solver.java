@@ -8,12 +8,12 @@ import fr.valax.sokoshell.solver.heuristic.Heuristic;
 
 import java.util.PriorityQueue;
 
-public class BabyFESSSolver extends AbstractSolver<BabyFESSSolver.BabyFESSState> {
+public class FESS0Solver extends AbstractSolver<FESS0Solver.FESS0State> {
 
     private Heuristic heuristic;
     private int lowerBound;
 
-    public BabyFESSSolver() {
+    public FESS0Solver() {
         super("baby-fess");
     }
 
@@ -34,20 +34,20 @@ public class BabyFESSSolver extends AbstractSolver<BabyFESSSolver.BabyFESSState>
 
         lowerBound = heuristic.compute(s);
 
-        BabyFESSState state = new BabyFESSState(s, 0, lowerBound, detector.getRealNumberOfCorral(), countPackedCrate(s));
+        FESS0State state = new FESS0State(s, 0, lowerBound, detector.getRealNumberOfCorral(), countPackedCrate(s));
 
         toProcess.addState(state);
     }
 
     @Override
-    protected void addState(int crateIndex, TileInfo crate, TileInfo crateDest, Direction pushDir) {
+    protected void addState(TileInfo crate, TileInfo crateDest, Direction pushDir) {
         if (checkDeadlockBeforeAdding(crate, crateDest, pushDir)) {
             return;
         }
 
         final int i = board.topLeftReachablePosition(crate, crateDest);
         // The new player position is the crate position
-        BabyFESSState s = toProcess.cachedState().child(i, crateIndex, crateDest.getIndex());
+        FESS0State s = toProcess.cachedState().child(i, crate.getCrateIndex(), crateDest.getIndex());
         s.setHeuristic(heuristic.compute(s));
         s.setConnectivity(board.getCorralDetector().getRealNumberOfCorral());
         s.setPacking(countPackedCrate(s));
@@ -74,56 +74,56 @@ public class BabyFESSSolver extends AbstractSolver<BabyFESSSolver.BabyFESSState>
         return lowerBound;
     }
 
-    private static class SolverPriorityQueue extends PriorityQueue<BabyFESSState>
-            implements SolverCollection<BabyFESSState> {
+    private static class SolverPriorityQueue extends PriorityQueue<FESS0State>
+            implements SolverCollection<FESS0State> {
 
-        private BabyFESSState cachedState;
+        private FESS0State cachedState;
 
         @Override
-        public void addState(BabyFESSState state) {
+        public void addState(FESS0State state) {
             offer(state);
         }
 
         @Override
-        public BabyFESSState popState() {
+        public FESS0State popState() {
             return poll();
         }
 
         @Override
-        public BabyFESSState peekState() {
+        public FESS0State peekState() {
             return peek();
         }
 
         @Override
-        public BabyFESSState peekAndCacheState() {
+        public FESS0State peekAndCacheState() {
             cachedState = popState();
             return cachedState;
         }
 
         @Override
-        public BabyFESSState cachedState() {
+        public FESS0State cachedState() {
             return cachedState;
         }
     }
 
-    protected static class BabyFESSState extends WeightedState implements Comparable<BabyFESSState> {
+    protected static class FESS0State extends WeightedState implements Comparable<FESS0State> {
 
         private int connectivity;
         private int packing;
 
-        public BabyFESSState(int playerPos, int[] cratesIndices, int hash, State parent, int cost, int heuristic) {
+        public FESS0State(int playerPos, int[] cratesIndices, int hash, State parent, int cost, int heuristic) {
             super(playerPos, cratesIndices, hash, parent, cost, heuristic);
         }
 
-        public BabyFESSState(State state, int cost, int heuristic, int connectivity, int packing) {
+        public FESS0State(State state, int cost, int heuristic, int connectivity, int packing) {
             super(state, cost, heuristic);
             this.connectivity = connectivity;
             this.packing = packing;
         }
 
         @Override
-        public BabyFESSState child(int newPlayerPos, int crateToMove, int crateDestination) {
-            return new BabyFESSState(super.child(newPlayerPos, crateToMove, crateDestination),
+        public FESS0State child(int newPlayerPos, int crateToMove, int crateDestination) {
+            return new FESS0State(super.child(newPlayerPos, crateToMove, crateDestination),
                     cost(), 0, 0, 0);
         }
 
@@ -144,13 +144,13 @@ public class BabyFESSSolver extends AbstractSolver<BabyFESSSolver.BabyFESSState>
         }
 
         @Override
-        public int compareTo(BabyFESSState o) {
+        public int compareTo(FESS0State o) {
             // compare in reverse order because
             // java PriorityQueue is a min-queue
             return compare(o, this);
         }
 
-        private static int compare(BabyFESSState a, BabyFESSState b) {
+        private static int compare(FESS0State a, FESS0State b) {
             // -1 if this < o
             //  0 if this = o
             //  1 if this > o

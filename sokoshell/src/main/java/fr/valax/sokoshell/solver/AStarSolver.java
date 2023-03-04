@@ -47,14 +47,14 @@ public class AStarSolver extends AbstractSolver<WeightedState> {
     }
 
     @Override
-    protected void addState(int crateIndex, TileInfo crate, TileInfo crateDest, Direction pushDir) {
+    protected void addState(TileInfo crate, TileInfo crateDest, Direction pushDir) {
         if (checkDeadlockBeforeAdding(crate, crateDest, pushDir)) {
             return;
         }
 
         final int i = board.topLeftReachablePosition(crate, crateDest);
         // The new player position is the crate position
-        WeightedState s = toProcess.cachedState().child(i, crateIndex, crateDest.getIndex());
+        WeightedState s = toProcess.cachedState().child(i, crate.getCrateIndex(), crateDest.getIndex());
         s.setHeuristic(heuristic.compute(s));
 
         if (processed.add(s)) {

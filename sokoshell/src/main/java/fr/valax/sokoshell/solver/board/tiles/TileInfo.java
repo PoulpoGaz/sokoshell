@@ -213,6 +213,14 @@ public interface TileInfo {
         return getY() * getBoard().getWidth() + getX();
     }
 
+    /**
+     * Represents the index of this crate in {@link fr.valax.sokoshell.solver.State#cratesIndices()}
+     * array.
+     * @return -1 if not set or the index of this crate in
+     *         {@link fr.valax.sokoshell.solver.State#cratesIndices()} array.
+     */
+    int getCrateIndex();
+
     TargetRemoteness getNearestTarget();
 
     TargetRemoteness[] getTargets();
@@ -341,4 +349,9 @@ public interface TileInfo {
      * supported by this TileInfo
      */
     void setNearestTarget(TargetRemoteness nearestTarget);
+
+    /**
+     * @see #getCrateIndex()
+     */
+    void setCrateIndex(int index);
 }

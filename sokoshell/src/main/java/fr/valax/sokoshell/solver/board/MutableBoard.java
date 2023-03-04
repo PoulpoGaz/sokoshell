@@ -244,8 +244,12 @@ public class MutableBoard extends GenericBoard {
      * @param state The state with the crates
      */
     public void addStateCrates(State state) {
-        for (int i : state.cratesIndices()) {
-            getAt(i).addCrate();
+        int[] cratesIndices = state.cratesIndices();
+        for (int j = 0; j < cratesIndices.length; j++) {
+            int i = cratesIndices[j];
+            TileInfo crate = getAt(i);
+            crate.setCrateIndex(j);
+            crate.addCrate();
         }
     }
 
@@ -256,7 +260,9 @@ public class MutableBoard extends GenericBoard {
      */
     public void removeStateCrates(State state) {
         for (int i : state.cratesIndices()) {
-            getAt(i).removeCrate();
+            TileInfo crate = getAt(i);
+            crate.setCrateIndex(-1);
+            crate.removeCrate();
         }
     }
 
@@ -1409,6 +1415,11 @@ public class MutableBoard extends GenericBoard {
         @Override
         public boolean isMarked() {
             return false;
+        }
+
+        @Override
+        public int getCrateIndex() {
+            return -1;
         }
 
         @Override
