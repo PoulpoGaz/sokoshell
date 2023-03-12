@@ -49,7 +49,7 @@ Quoi ? Qui ? Quand ? Difficulté ?
 
 * Deadlocks : généralisation dead tiles
 * freeze deadlocks : bloc de caisse qui ne peut plus du tout bouger
-  * caisse geler sur axe horizontal si :
+  * caisse gelée sur axe horizontal si :
     * mur à droite / gauche
     * dead tile à droite / gauche (vérifier si vraiment important)
     * caisse à droite / gaucher qui est gelée (nécessite appel récursif)
@@ -80,7 +80,7 @@ A*. Différentes heuristiques
   * non implémenté, O(n³), lent mais précis
   * Permet de détecter un type de deadlock → bipartite deadlock 
 
-## Optimizations
+## Optimisations
 
 * Pour A*, greedy lower bound, comment marquer des nœuds / cibles comme vues et tous les démarquer en O(1) ? 
   * solution: Soit m un entier. chaque nœud n_i se voit attribuer un entier m_i. 

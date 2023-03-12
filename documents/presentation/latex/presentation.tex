@@ -16,68 +16,121 @@
 
     \section{Principe de résolution}
             \begin{frame}{Arbre des états}
-                \begin{center}
-                    \begin{tikzpicture}
-                        [sibling distance=10em,level distance=6em,
-                        every node/.style={shape=rectangle,draw,align=center}]
+                \centering
+                \noindent\begin{customtree}
+                    \input{content/states_tree.tex}
+                \end{customtree}
+            \end{frame}
 
-                        \node{\includegraphics[width=0.2\textwidth]{exhaustive_search/1.png}}
-                            child{node{\only<2-3>{\includegraphics[width=0.2\textwidth]{exhaustive_search/2.png}}}
-                                child{node{\only<3>{\includegraphics[width=0.2\textwidth]{exhaustive_search/5.png}}}}}
-                            child{node{\only<2-3>{\includegraphics[width=0.2\textwidth]{exhaustive_search/3.png}}}
-                                child{node{\only<3>{\includegraphics[width=0.2\textwidth]{exhaustive_search/4.png}}}}};
-                    \end{tikzpicture}
-                \end{center}
+            \begin{frame}{Exemple développé}
+                \begin{adjustbox}{max totalsize={\textwidth}{\textheight}, center}
+                    \begin{customtree}
+                        \input{content/exhaustive_tree.tex}
+                    \end{customtree}
+                \end{adjustbox}
             \end{frame}
 
             \begin{frame}{Un graphe vu comme un arbre}
+                \begin{adjustbox}{max totalsize={\textwidth}{\textheight}, center}
+                    \begin{customtree}
+                        \input{content/exhaustive_tree.tex}
+
+                        \node(c1)[draw, ellipse, minimum width=4.2cm, minimum height=3.2cm, line width=1mm, red] at (sameState1.center){};
+                        \node(c2)[draw, ellipse, minimum width=4.2cm, minimum height=3.2cm, line width=1mm, red] at (sameState2.center){};
+                        \node(c12)[draw, ellipse, minimum width=4.2cm, minimum height=3.2cm, line width=1mm, red] at (sameState12.center){};
+                        \node(c22)[draw, ellipse, minimum width=4.2cm, minimum height=3.2cm, line width=1mm, red] at (sameState22.center){};
+                        % \node(c2){
+                        %     \draw[line width=2mm,red] (sameState2.center)  circle [x radius=1.8cm, y radius=1.5cm];
+                        % };
+                        % \node(c11){
+                        %     \draw[line width=2mm,red] (sameState12.center)  circle [x radius=1.8cm, y radius=1.5cm];
+                        % };
+                        % \node(c12){
+                        %     \draw[line width=2mm,red] (sameState22.center)  circle [x radius=1.8cm, y radius=1.5cm];
+                        % };
+                        \draw[<->, draw=red, line width = 2mm] (c1.north) |- (c12.west);
+                        \draw[<->, draw=red, line width = 2mm] (c2.east) -| (c22.south);
+                    \end{customtree}
+                \end{adjustbox}
             \end{frame}
 
     \section{Réduction de l'espace de recherche}
-        \begin{frame}{Détection de \textit{deadlocks}}
-            \begin{figure}
-                \centering
-                \subcaptionbox{\textit{Freeze deadlock n°1}}
-                    {\includegraphics{freeze_deadlock/ex_1_dead.png}}
-                \subcaptionbox{\textit{Freeze deadlock n°2}}
-                    {\includegraphics{freeze_deadlock/ex_2_dead.png}}
-                \subcaptionbox{\textit{PI Corral deadlock}}
-                    {\includegraphics{pi_corral_deadlock_dead.png}}
-            \end{figure}
-        \end{frame}
 
-        \begin{frame}{Détection de \textit{freeze deadlocks}}
-            \begin{figure}
+        \subsection{Analyse statique}
+
+            \begin{frame}{Détection des positions mortes \textit{(dead positions)}}
                 \centering
-                \subcaptionbox{Règle n°1}[.3\textwidth]
-                {\includegraphics{freeze_deadlock/rule_1.png}}
-                \subcaptionbox{Règle n°2}[.3\textwidth]
-                {\includegraphics{freeze_deadlock/rule_2.png}}
-                \subcaptionbox{Règle n°3}[.3\textwidth] {
+                \only<1>{
                     \begin{tikzpicture}
-                        \includegraphics{freeze_deadlock/rule_3.png}
-                        % comment mettre un point d'interogation sur les deux caisses ajacentes à la caisse centrale?
-                        % et comment centrer dans un tikzpicture?
+                        \node(before){\includegraphics{dead_positions/example_before.png}};
+                        \node(after)[right=of before]{\includegraphics{dead_positions/example_after.png}};
+                        \draw[->, line width = 0.8mm] (before) -- (after);
                     \end{tikzpicture}
                 }
-            \end{figure}
-        \end{frame}
+                \only<2> {
+                    \begin{enumerate}
+                        \item
+                            \begin{tikzpicture}%[baseline=(c)]
+                                \node(first){\includegraphics{dead_positions/algo_1_1.png}};
+                                \node(second)[right=of first]{\includegraphics{dead_positions/algo_1_2.png}};
+                                \draw[->, line width = 0.8mm] (before) -- (after);
+                            \end{tikzpicture}
+                    \end{enumerate}
+                }
+            \end{frame}
 
-        \begin{frame}{Détection de \textit{freeze deadlocks}}
-            \begin{center}
-                \begin{tikzpicture}
-                    \node(start)                               {\includegraphics[width=0.3\textwidth]{freeze_deadlock/ex_2_dead.png}};
-                    \only<2-4>{\node(first)  [right=of start]  {\includegraphics[width=0.3\textwidth]{freeze_deadlock/ex_2_explanation_1.png}}};
-                    \only<3-4>{\node(second) [below=of first]  {\includegraphics[width=0.3\textwidth]{freeze_deadlock/ex_2_explanation_2.png}}};
-                    \only<4-4>{\node(third)  [left=of second]  {\includegraphics[width=0.3\textwidth]{freeze_deadlock/ex_2_explanation_3.png}}
-                        child{node{Gelée!}}};
+            \begin{frame}{Détection de tunnels et de salles}
+            \end{frame}
 
-                    \only<2-4>{\draw[->] (start.east)  -- (first.west)};
-                    \only<3-4>{\draw[->] (first.south) -- (second.north)};
-                    \only<4-4>{\draw[->] (second.west) -- (third.east)};
-                \end{tikzpicture}
-            \end{center}
-        \end{frame}
+            \begin{frame}{Calcul d'un ordre de rangement \textit{(packing order)}}
+            \end{frame}
+
+        \subsection{Analyse dynamique}
+
+            \begin{frame}{Détection d'impasses \textit{(deadlocks)}}
+                \begin{figure}
+                    \centering
+                    \subcaptionbox{\textit{Freeze deadlock n°1}}
+                        {\includegraphics{freeze_deadlock/ex_1_dead.png}}
+                    \subcaptionbox{\textit{Freeze deadlock n°2}}
+                        {\includegraphics{freeze_deadlock/ex_2_dead.png}}
+                    \subcaptionbox{\textit{PI Corral deadlock}}
+                        {\includegraphics{pi_corral_deadlock_dead.png}}
+                \end{figure}
+            \end{frame}
+
+            \begin{frame}{Détection de \textit{freeze deadlocks}}
+                \begin{figure}
+                    \centering
+                    \subcaptionbox{Règle n°1}[.3\textwidth]
+                    {\includegraphics{freeze_deadlock/rule_1.png}}
+                    \subcaptionbox{Règle n°2}[.3\textwidth]
+                    {\includegraphics{freeze_deadlock/rule_2.png}}
+                    \subcaptionbox{Règle n°3}[.3\textwidth] {
+                        \begin{tikzpicture}
+                            \node{\includegraphics{freeze_deadlock/rule_3.png}};
+                            % comment mettre un point d'interogation sur les deux caisses ajacentes à la caisse centrale?
+                            % et comment centrer dans un tikzpicture?
+                        \end{tikzpicture}
+                    }
+                \end{figure}
+            \end{frame}
+
+            \begin{frame}{Détection de \textit{freeze deadlocks}}
+                \begin{center}
+                    \begin{tikzpicture}
+                        \node(start)                                      {\includegraphics[width=0.3\textwidth]{freeze_deadlock/ex_2_dead.png}};
+                        \node(first)  [visible on=<2-4>, right=of start]  {\includegraphics[width=0.3\textwidth]{freeze_deadlock/ex_2_explanation_1.png}};
+                        \node(second) [visible on=<3-4>, below=of first]  {\includegraphics[width=0.3\textwidth]{freeze_deadlock/ex_2_explanation_2.png}};
+                        \node(third)  [visible on=<4-4>, left=of second]  {\includegraphics[width=0.3\textwidth]{freeze_deadlock/ex_2_explanation_3.png}}
+                            child[visible on=<4-4>]{node{Gelée!}};
+
+                        \draw[->, visible on=<2-4>] (start.east)  -- (first.west);
+                        \draw[->, visible on=<3-4>] (first.south) -- (second.north);
+                        \draw[->, visible on=<4-4>] (second.west) -- (third.east);
+                    \end{tikzpicture}
+                \end{center}
+            \end{frame}
 
     \section{Recherche dirigée par une heuristique}
         \begin{frame}{Heuristique simple \textit{(Simple Lower Bound)}}
