@@ -47,10 +47,17 @@ public class LightweightTracker implements Tracker {
         updateStatistics(trackable);
 
         long runTime = trackable.timeEnded() - trackable.timeStarted();
+        if (runTime == 0) {
+            // Faster than shadow, we need to slow down to avoid division by zero...
+            // (this trick is only for computation, user will still see 0 ms)
+            runTime = 1;
+        }
+
         long nodePerSeconds = 1000L * trackable.nStateExplored() / runTime;
+        int averageQueueSize = (int) (area / runTime);
 
         return new Statistics(trackable.timeStarted(), trackable.timeEnded(),
-                trackable.nStateExplored(), nodePerSeconds, (int) (area / runTime),
+                trackable.nStateExplored(), nodePerSeconds, averageQueueSize,
                 trackable.lowerBound());
     }
 
