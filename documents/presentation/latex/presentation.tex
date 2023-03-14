@@ -11,7 +11,61 @@
 
     \section{Le jeu du Sokoban}
         \begin{frame}{Le jeu du Sokoban}
-            \includegraphics{Original & Extra_1.png}
+            \begin{columns}
+                \begin{column}{0.3\textwidth}
+                    \begin{figure}
+                        \centering
+                        \includegraphics[width=\columnwidth]{creator.jpg} % source: https://shmuplations.com/wp-content/uploads/2022/03/thinkingrabbit04.jpg
+                        \caption*{Hiroyuki Imabayashi}
+                    \end{figure}
+                \end{column}
+                \begin{column}{0.7\textwidth}
+                    \begin{figure}
+                        \centering
+                        \includegraphics[width=\columnwidth]{level_example.png}
+                        \caption*{\textit{Original \& extra}}
+                    \end{figure}
+                \end{column}
+            \end{columns}
+        \end{frame}
+
+        \begin{frame}{Règles}
+
+            \begin{columns}
+                \begin{column}{0.5\textwidth}
+                    \only<1-2>{
+                        \begin{figure}
+                            \centering
+                            \includegraphics{rules/moves.png}
+                            \caption*{Déplacements autorisés}
+                        \end{figure}
+                    }
+                    \only<3>{
+                        \begin{figure}
+                            \centering
+                            \includegraphics{rules/move_no_1.png}
+                            \caption*{\includegraphics[width=\iconwidth]{icons/no.png}}
+                        \end{figure}
+                    }
+                \end{column}
+                \begin{column}{0.5\textwidth}
+                    \only<2>{
+                        \begin{figure}
+                            \centering
+                            \includegraphics{rules/move_yes.png}
+                            \caption*{\includegraphics[width=\iconwidth]{icons/yes.png}}
+                        \end{figure}
+                    }
+                    \only<3>{
+                        \begin{figure}
+                            \centering
+                            \includegraphics{rules/move_no_2.png}
+                            \caption*{\includegraphics[width=\iconwidth]{icons/no.png}}
+                        \end{figure}
+                    }
+                \end{column}
+            \end{columns}
+
         \end{frame}
 
     \section{Principe de résolution}
@@ -39,15 +93,7 @@
                         \node(c2)[draw, ellipse, minimum width=4.2cm, minimum height=3.2cm, line width=1mm, red] at (sameState2.center){};
                         \node(c12)[draw, ellipse, minimum width=4.2cm, minimum height=3.2cm, line width=1mm, red] at (sameState12.center){};
                         \node(c22)[draw, ellipse, minimum width=4.2cm, minimum height=3.2cm, line width=1mm, red] at (sameState22.center){};
-                        % \node(c2){
-                        %     \draw[line width=2mm,red] (sameState2.center)  circle [x radius=1.8cm, y radius=1.5cm];
-                        % };
-                        % \node(c11){
-                        %     \draw[line width=2mm,red] (sameState12.center)  circle [x radius=1.8cm, y radius=1.5cm];
-                        % };
-                        % \node(c12){
-                        %     \draw[line width=2mm,red] (sameState22.center)  circle [x radius=1.8cm, y radius=1.5cm];
-                        % };
+
                         \draw[<->, draw=red, line width = 2mm] (c1.north) |- (c12.west);
                         \draw[<->, draw=red, line width = 2mm] (c2.east) -| (c22.south);
                     \end{customtree}
@@ -64,17 +110,28 @@
                     \begin{tikzpicture}
                         \node(before){\includegraphics{dead_positions/example_before.png}};
                         \node(after)[right=of before]{\includegraphics{dead_positions/example_after.png}};
-                        \draw[->, line width = 0.8mm] (before) -- (after);
+                        \draw[->, line width=\arrowwidth] (before) -- (after);
                     \end{tikzpicture}
                 }
-                \only<2> {
+                \only<2-> {
                     \begin{enumerate}
-                        \item
-                            \begin{tikzpicture}%[baseline=(c)]
-                                \node(first){\includegraphics{dead_positions/algo_1_1.png}};
-                                \node(second)[right=of first]{\includegraphics{dead_positions/algo_1_2.png}};
-                                \draw[->, line width = 0.8mm] (before) -- (after);
-                            \end{tikzpicture}
+                        \only<2>{
+                            \item
+                                \begin{tikzpicture}[baseline]
+                                    \node(first){\includegraphics{dead_positions/algo_1_1.png}};
+                                    \node(second)[right=of first]{\includegraphics{dead_positions/algo_1_2.png}};
+                                    \draw[->, line width=\arrowwidth] (before) -- (after);
+                                \end{tikzpicture}
+                        }
+                        \only<3->{
+                            \setcounter{enumi}{1}
+                            \item
+                                \begin{tikzpicture}[baseline, every node/.style={node distance=0.1cm}]
+                                    \node(first){\includegraphics{dead_positions/algo_2_1.png}};
+                                    \node(second)[right=of first, visible on=<4>]{$\dots$};
+                                    \node[right=of second, visible on=<4>]{\includegraphics{dead_positions/algo_2_2.png}};
+                                \end{tikzpicture}
+                        }
                     \end{enumerate}
                 }
             \end{frame}
@@ -109,7 +166,7 @@
                     \subcaptionbox{Règle n°3}[.3\textwidth] {
                         \begin{tikzpicture}
                             \node{\includegraphics{freeze_deadlock/rule_3.png}};
-                            % comment mettre un point d'interogation sur les deux caisses ajacentes à la caisse centrale?
+                            % comment mettre un point d'interrogation sur les deux caisses ajacentes à la caisse centrale?
                             % et comment centrer dans un tikzpicture?
                         \end{tikzpicture}
                     }
@@ -125,9 +182,9 @@
                         \node(third)  [visible on=<4-4>, left=of second]  {\includegraphics[width=0.3\textwidth]{freeze_deadlock/ex_2_explanation_3.png}}
                             child[visible on=<4-4>]{node{Gelée!}};
 
-                        \draw[->, visible on=<2-4>] (start.east)  -- (first.west);
-                        \draw[->, visible on=<3-4>] (first.south) -- (second.north);
-                        \draw[->, visible on=<4-4>] (second.west) -- (third.east);
+                        \draw[->, line width=\arrowwidth, visible on=<2-4>] (start.east)  -- (first.west);
+                        \draw[->, line width=\arrowwidth, visible on=<3-4>] (first.south) -- (second.north);
+                        \draw[->, line width=\arrowwidth, visible on=<4-4>] (second.west) -- (third.east);
                     \end{tikzpicture}
                 \end{center}
             \end{frame}

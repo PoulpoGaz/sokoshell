@@ -1,0 +1,4 @@
+Images sources
+creator.jpg: https://shmuplations.com/wp-content/uploads/2022/03/thinkingrabbit04.jpg
+icons/yes.png: <a href="https://www.flaticon.com/free-icons/tick" title="tick icons">Tick icons created by kliwir art - Flaticon</a>
+icons/no.png: <a href="https://www.flaticon.com/free-icons/cross" title="cross icons">Cross icons created by hqrloveq - Flaticon</a>

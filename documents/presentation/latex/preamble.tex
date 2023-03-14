@@ -2,6 +2,12 @@
 
 \usetheme[subsectionpage=progressbar]{metropolis}
 
+\makeatletter
+\setlength{\metropolis@titleseparator@linewidth}{3pt}
+\setlength{\metropolis@progressonsectionpage@linewidth}{3pt}
+\setlength{\metropolis@progressinheadfoot@linewidth}{3pt}
+\makeatother
+
 \usepackage{tikz}
 \usetikzlibrary{babel}
 \usetikzlibrary{arrows,shapes,positioning,shadows,trees,calc,fit}
@@ -29,18 +35,28 @@
         level distance = 6em,
         every node/.style = {
             shape=rectangle,
+            line width=0.4mm,
             draw,
-            scale=0.85
+            scale=0.85,
+            inner sep=2pt
         },
         dot/.style = {
-            font = \Large
+            minimum width=1.5em,
+            minimum height=1.8em
         },
-        edge from parent path = {
-            (\tikzparentnode) |-                          % Start from parent
-            ($(\tikzparentnode)!0.5!(\tikzchildnode)$) -| % make an ortho line to mid point
-            (\tikzchildnode)                              % make another ortho to the target
-        }
+        edge from parent/.style = {
+            draw,
+            edge from parent path = {
+                (\tikzparentnode) |-                          % Start from parent
+                ($(\tikzparentnode)!0.5!(\tikzchildnode)$) -| % make an ortho line to mid point
+                (\tikzchildnode)                              % make another ortho to the target
+            },
+            line width=0.4mm
+        },
     ]
 }{
-    \end{tikzpicture}%
+    \end{tikzpicture}
 }
+
+\newcommand\iconwidth{2em}
+\newcommand\arrowwidth{0.8mm}
