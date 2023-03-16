@@ -114,6 +114,13 @@ public class DeadlockTableTest {
         }
     }
 
+    @Test
+    void countNotDetected() throws IOException {
+        State.initZobristValues(100);
+        DeadlockTable table = DeadlockTable.read(Path.of("../4x4.table"));
+        System.out.println(DeadlockTable.countNotDetectedDeadlock(table, 4));
+    }
+
     private void equals(DeadlockTable a, DeadlockTable b, int size) {
         int playerX = size / 2;
         int playerY = size - 1;

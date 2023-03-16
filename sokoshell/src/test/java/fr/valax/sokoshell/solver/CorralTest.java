@@ -289,4 +289,37 @@ public class CorralTest {
             System.out.printf("%d - %d. pi-corral? %s deadlock? %s%n", c.getTopX(), c.getTopY(), c.isPICorral(), c.isDeadlock(state));
         }
     }
+
+    @Test
+    void corralTest8() {
+        Level level = TestUtils.getLevel("""
+                ########
+                #.     #
+                # $ $$ #
+                # $$ $ #
+                # $ $$ #
+                # $$@$ #
+                #     .#
+                ########
+                """);
+        MutableBoard board = new MutableBoard(level);
+        CorralDetector corralDetector = board.getCorralDetector();
+
+        State state = level.getInitialState();
+
+        board.removeStateCrates(state);
+        board.computeFloors();
+        board.computeDeadTiles();
+
+        board.addStateCrates(state);
+
+        BasicStyle.XSB_STYLE.print(board, level.getPlayerX(), level.getPlayerY());
+
+        corralDetector.findCorral(board, level.getPlayerX(), level.getPlayerY());
+        corralDetector.findPICorral(board, state.cratesIndices());
+
+        for (Corral c : corralDetector.getCorrals()) {
+            System.out.printf("%d - %d. pi-corral? %s deadlock? %s%n", c.getTopX(), c.getTopY(), c.isPICorral(), c.isDeadlock(state));
+        }
+    }
 }

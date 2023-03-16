@@ -170,6 +170,10 @@ public class CorralDetector {
                     continue;
                 }
 
+                if (crateDest.isDeadTile()) {
+                    continue; // only consider valid moves
+                }
+
                 Corral corralDest = findCorral(crateDest);
                 Corral playerCorral = findCorral(player);
 

@@ -1,5 +1,7 @@
 package fr.valax.sokoshell.solver;
 
+import fr.valax.sokoshell.graphics.style.BasicStyle;
+import fr.valax.sokoshell.readers.XSBReader;
 import fr.valax.sokoshell.solver.board.Board;
 import fr.valax.sokoshell.solver.board.Direction;
 import fr.valax.sokoshell.solver.board.MutableBoard;
@@ -145,6 +147,58 @@ public class DeadlockTable {
         int d = is.read() & 0xFF;
 
         return (d << 24) | (c << 16) | (b << 8) | a;
+    }
+
+    public static int countNotDetectedDeadlock(DeadlockTable table, int size) {
+        Board board = createBoard(size);
+
+        // no dead tiles by default
+        board.setAt(1, 1, Tile.TARGET);
+        board.setAt(board.getWidth() - 2, board.getHeight() - 2, Tile.TARGET);
+
+        board.computeFloors();
+        board.computeDeadTiles();
+        board.setAt(board.getWidth() / 2, board.getHeight() - 4, Tile.CRATE);
+
+        return countNotDetectedDeadlock(table, board, board.getWidth() / 2, board.getHeight() - 3);
+    }
+
+    private static int countNotDetectedDeadlock(DeadlockTable table, Board board, int playerX, int playerY) {
+        if (table.deadlock == A_DEADLOCK) {
+            State state = createState(board, playerX, playerY);
+
+            if (FreezeDeadlockDetector.checkFreezeDeadlock(board, state)) {
+                return 0;
+            }
+
+            CorralDetector detector = board.getCorralDetector();
+            detector.findCorral(board, playerX, playerY);
+            detector.findPICorral(board, state.cratesIndices());
+
+            for (Corral c : detector.getCorrals()) {
+                if (c.isDeadlock(state)) {
+                    return 0;
+                }
+            }
+
+            BasicStyle.XSB_STYLE.print(board, playerX, playerY);
+
+            return 1; // not detected !
+        } else if (table.deadlock == MAYBE_A_DEADLOCK) {
+            int n = countNotDetectedDeadlock(table.floorChild, board, playerX, playerY);
+
+            board.setAt(playerX + table.x, playerY + table.y, Tile.WALL);
+            n += countNotDetectedDeadlock(table.wallChild, board, playerX, playerY);
+
+            board.setAt(playerX + table.x, playerY + table.y, Tile.CRATE);
+            n += countNotDetectedDeadlock(table.crateChild, board, playerX, playerY);
+
+            board.setAt(playerX + table.x, playerY + table.y, Tile.FLOOR);
+
+            return n;
+        } else {
+            return 0;
+        }
     }
 
 
@@ -322,15 +376,7 @@ public class DeadlockTable {
 
 
     private static boolean isDeadlock_(Board board, int playerX, int playerY) {
-        List<Integer> ints = new ArrayList<>();
-
-        board.forEach(t -> {
-            if (t.anyCrate()) {
-                ints.add(t.getIndex());
-            }
-        });
-
-        State first = new State(playerY * board.getWidth() + playerX, ints.stream().mapToInt(i -> i).toArray(), null);
+        State first = createState(board, playerX, playerY);
 
         ReachableTiles reachableTiles = new ReachableTiles(board);
         HashSet<State> visited = new HashSet<>();
@@ -415,5 +461,17 @@ public class DeadlockTable {
         }
 
         return newArray;
+    }
+
+    private static State createState(Board board, int playerX, int playerY) {
+        List<Integer> ints = new ArrayList<>();
+
+        board.forEach(t -> {
+            if (t.anyCrate()) {
+                ints.add(t.getIndex());
+            }
+        });
+
+        return new State(playerY * board.getWidth() + playerX, ints.stream().mapToInt(i -> i).toArray(), null);
     }
 }
