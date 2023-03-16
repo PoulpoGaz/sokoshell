@@ -2,3 +2,5 @@ Images sources
 creator.jpg: https://shmuplations.com/wp-content/uploads/2022/03/thinkingrabbit04.jpg
 icons/yes.png: <a href="https://www.flaticon.com/free-icons/tick" title="tick icons">Tick icons created by kliwir art - Flaticon</a>
 icons/no.png: <a href="https://www.flaticon.com/free-icons/cross" title="cross icons">Cross icons created by hqrloveq - Flaticon</a>
+warehouse.jpg: https://pbs.twimg.com/media/EyjVShEVEAAQZjK.jpg, found via https://www.google.com/imgres?imgurl=https%3A%2F%2Frepository-images.githubusercontent.com%2F159198801%2F5cbba280-7258-11e9-9c01-492a2fb10b3b&imgrefurl=https%3A%2F%2Fgithub.com%2Fbuda-base%2Fasset-manager%2Fissues&tbnid=929GXOAFvsju_M&vet=12ahUKEwjbqZmR5N79AhX5TKQEHakqBKUQMygAegQIARAq..i&docid=SqulzwuHup9ffM&w=2197&h=1463&q=indiana%20jones%20l%20arche%20perdue%20hangar&ved=2ahUKEwjbqZmR5N79AhX5TKQEHakqBKUQMygAegQIARAq#imgrc=2B29CSUKS4kKlM&imgdii=YGmNqL5VMiJgtM
+city-plan.jpg: https://www.geographicus.com/mm5/graphics/00000001/L/NewYork-bridgesmaverick-1807.jpg

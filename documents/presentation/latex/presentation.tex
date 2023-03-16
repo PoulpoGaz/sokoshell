@@ -36,7 +36,14 @@
                     \only<1-2>{
                         \begin{figure}
                             \centering
-                            \includegraphics{rules/moves.png}
+                            \begin{tikzpicture}
+                            \node[anchor=south west, inner sep=0] (image) at (0,0) {\includegraphics[width=0.9\textwidth]{rules/moves.png}};
+                            \begin{scope}[x={(image.south east)}, y={(image.north west)}]
+                                \draw[help lines, xstep=(1/9)*0.9\textwidth, ystep=(1/6)*0.9\textwidth] (0,0) grid (1,1);
+                                \foreach \x in {0, 1, ..., 9} { \node [anchor=north] at (\x / 10, 0) { 0.\x }; }
+                                \foreach \y in {0, 1, ..., 9} { \node [anchor=east] at (0, \y / 10) { 0.\y }; }
+                            \end{scope}
+                        \end{tikzpicture}
                             \caption*{Déplacements autorisés}
                         \end{figure}
                     }
@@ -65,13 +72,30 @@
                     }
                 \end{column}
             \end{columns}
+        \end{frame}
 
+        \begin{frame}{But du jeu}
+            \centering
+            \begin{columns}
+                \begin{column}{0.5\textwidth}
+                    \includegraphics[width=\columnwidth]{rules/last_move.png}
+                \end{column}
+                \begin{column}{0.5\textwidth}
+                    \includegraphics[width=\columnwidth]{rules/end.png}
+                \end{column}
+            \end{columns}
+        \end{frame}
+
+        \begin{frame}{Lien avec le thème de l'année}
+            \centering
+            \only<1>{\includegraphics[width=0.9\textwidth]{warehouse.jpg}}
+            \only<2>{\includegraphics[width=0.9\textwidth]{city_plan.jpg}}
         \end{frame}
 
     \section{Principe de résolution}
             \begin{frame}{Arbre des états}
                 \centering
-                \noindent\begin{customtree}
+                \begin{customtree}
                     \input{content/states_tree.tex}
                 \end{customtree}
             \end{frame}
@@ -163,6 +187,7 @@
         \subsection{Analyse dynamique}
 
             \begin{frame}{Détection d'impasses \textit{(deadlocks)}}
+                % Ajouter un exemple simple de deaedlock ?
                 \begin{figure}
                     \centering
                     \subcaptionbox{\textit{Freeze deadlock n°1}}
@@ -209,6 +234,10 @@
 
     \section{Recherche dirigée par une heuristique}
         \begin{frame}{Heuristique simple \textit{(Simple Lower Bound)}}
+
+            \only<1>{
+
+            }
         \end{frame}
 
         \begin{frame}{Heuristique gloutonne \textit{(Greedy Lower Bound)}}
