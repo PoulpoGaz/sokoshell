@@ -1,7 +1,6 @@
 package fr.valax.tools;
 
 import fr.poulpogaz.json.JsonException;
-import fr.poulpogaz.json.utils.Pair;
 import fr.valax.args.CommandLineBuilder;
 import fr.valax.args.api.Command;
 import fr.valax.args.api.Option;
@@ -9,8 +8,6 @@ import fr.valax.args.api.VaArgs;
 import fr.valax.args.utils.CommandLineException;
 import fr.valax.sokoshell.graphics.style.BoardStyle;
 import fr.valax.sokoshell.graphics.style.BoardStyleReader;
-import fr.valax.sokoshell.readers.PackReaders;
-import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.solver.board.Direction;
 import fr.valax.sokoshell.solver.board.tiles.Tile;
 
@@ -28,11 +25,11 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-public class SokToPNG implements Command {
+public class XSBToPNG implements Command {
 
     public static void main(String[] args) {
         try {
-            new CommandLineBuilder(new SokToPNG())
+            new CommandLineBuilder(new XSBToPNG())
                     .addDefaultConverters()
                     .build()
                     .execute(args);
@@ -41,10 +38,10 @@ public class SokToPNG implements Command {
         }
     }
 
-    @Option(names = {"s", "source"}, defaultValue = "documents/sok", hasArgument = true)
+    @Option(names = {"s", "source"}, defaultValue = "documents/assets", hasArgument = true)
     private Path source;
 
-    @Option(names = {"d", "destination"}, defaultValue = "documents/sok", hasArgument = true)
+    @Option(names = {"d", "destination"}, defaultValue = "documents/assets\succnapprox", hasArgument = true)
     private Path dest;
 
     @Option(names = {"S", "style"}, defaultValue = "styles/warehouse/warehouse.style", hasArgument = true)
@@ -69,7 +66,7 @@ public class SokToPNG implements Command {
         List<Path> paths;
         if (only.length == 0) {
             try (Stream<Path> stream = Files.walk(source)) {
-                paths = stream.filter((Path p) -> p.toString().endsWith(".sok"))
+                paths = stream.filter((Path p) -> p.toString().endsWith(".xsb"))
                         .map(p -> source.relativize(p))
                         .toList();
             } catch (IOException e) {
@@ -80,7 +77,7 @@ public class SokToPNG implements Command {
             paths = new ArrayList<>(only.length);
 
             for (String path : only) {
-                if (path.endsWith(".sok")) {
+                if (path.endsWith(".xsb")) {
                     paths.add(Path.of(path));
                 }
             }
