@@ -84,6 +84,7 @@ public class BoardStyleReader {
         for (Direction dir : Direction.VALUES) {
             samplers.put(dir.name(), new ArrayList<>());
         }
+        samplers.put(FileBoardStyle.NO_DIRECTION, new ArrayList<>());
         samplers.put(FileBoardStyle.DEAD_TILE, new ArrayList<>());
         samplers.put(FileBoardStyle.ROOM, new ArrayList<>());
         samplers.put(FileBoardStyle.TUNNEL, new ArrayList<>());

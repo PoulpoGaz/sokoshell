@@ -12,6 +12,7 @@
         <module>args</module>
         <module>sokoshell</module>
         <module>interval</module>
+        <module>tools</module>
     </modules>
 
     <properties>

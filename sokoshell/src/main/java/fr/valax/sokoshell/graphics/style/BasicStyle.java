@@ -5,6 +5,7 @@ import fr.valax.sokoshell.graphics.Graphics;
 import fr.valax.sokoshell.graphics.GraphicsUtils;
 import fr.valax.sokoshell.solver.board.Board;
 import fr.valax.sokoshell.solver.board.Direction;
+import fr.valax.sokoshell.solver.board.tiles.Tile;
 import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 
 import java.awt.*;
@@ -66,8 +67,15 @@ public class BasicStyle extends BoardStyle {
     }
 
     @Override
-    public void draw(Graphics g, TileInfo tile, Direction playerDir, int drawX, int drawY, int size) {
-        StyledCharacter s = translateToStyledCharacter(tile, playerDir);
+    public void draw(Graphics g,
+                     TileInfo tile, boolean player, Direction playerDir,
+                     int drawX, int drawY, int size) {
+        draw(g, tile.getTile(), player, playerDir, drawX, drawY, size);
+    }
+
+    @Override
+    public void draw(Graphics g, Tile tile, boolean player, Direction playerDir, int drawX, int drawY, int size) {
+    StyledCharacter s = translateToStyledCharacter(tile, player);
 
         g.setChar(s.getChar());
         g.setStyle(s.getStyle());
@@ -75,8 +83,15 @@ public class BasicStyle extends BoardStyle {
     }
 
     @Override
-    public void draw(Graphics2D g2d, TileInfo tile, Direction playerDir, int drawX, int drawY, int size, int charWidth, int charHeight) {
-        StyledCharacter s = translateToStyledCharacter(tile, playerDir);
+    public void draw(Graphics2D g2d,
+                     TileInfo tile, boolean player, Direction playerDir,
+                     int drawX, int drawY, int size, int charWidth, int charHeight) {
+        draw(g2d, tile.getTile(), player, playerDir, drawX, drawY, size, charWidth, charHeight);
+    }
+
+    @Override
+    public void draw(Graphics2D g2d, Tile tile, boolean player, Direction playerDir, int drawX, int drawY, int size, int charWidth, int charHeight) {
+        StyledCharacter s = translateToStyledCharacter(tile, player);
 
         g2d.translate(drawX, drawY);
         g2d.scale(size, size);
@@ -87,15 +102,15 @@ public class BasicStyle extends BoardStyle {
         g2d.translate(-drawX, -drawY);
     }
 
-    private StyledCharacter translateToStyledCharacter(TileInfo tile, Direction playerDir) {
-        if (playerDir != null) {
-            if (tile.isTarget()) {
+    private StyledCharacter translateToStyledCharacter(Tile tile, boolean player) {
+        if (player) {
+            if (tile == Tile.TARGET) {
                 return playerOnTarget;
             } else {
-                return player;
+                return this.player;
             }
         } else {
-            return switch (tile.getTile()) {
+            return switch (tile) {
                 case FLOOR ->  floor;
                 case WALL -> wall;
                 case CRATE -> crate;

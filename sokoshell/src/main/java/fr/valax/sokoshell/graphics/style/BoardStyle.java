@@ -5,6 +5,7 @@ import fr.valax.sokoshell.graphics.Surface;
 import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.solver.board.Board;
 import fr.valax.sokoshell.solver.board.Direction;
+import fr.valax.sokoshell.solver.board.tiles.Tile;
 import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 import fr.valax.sokoshell.utils.Utils;
 import org.jline.terminal.Terminal;
@@ -61,12 +62,20 @@ public abstract class BoardStyle {
      *
      * @param g graphics to draw with
      * @param tile the tile to draw
-     * @param playerDir not null to draw the player of this direction
+     * @param player true to draw to the player
+     * @param playerDir  the player's direction. If null, implementation can draw specific sprite
+     *                   or draw an existing player direction
      * @param drawX draw x
      * @param drawY draw y
      * @param size size of the tile
      */
-    public abstract void draw(Graphics g, TileInfo tile, Direction playerDir, int drawX, int drawY, int size);
+    public abstract void draw(Graphics g,
+                              TileInfo tile, boolean player, Direction playerDir,
+                              int drawX, int drawY, int size);
+
+    public abstract void draw(Graphics g,
+                              Tile tile, boolean player, Direction playerDir,
+                              int drawX, int drawY, int size);
 
     /**
      * Draw the tile at ({@code drawX}; {@code drawY}) with the specified dimension with java 2D.
@@ -76,18 +85,22 @@ public abstract class BoardStyle {
      *
      * @param g2d        graphics to draw with
      * @param tile       the tile to draw
-     * @param playerDir  not null to draw the player of this direction
+     * @param player     true to draw to the player
+     * @param playerDir  the player's direction. If null, implementation can draw specific sprite
+     *                   or draw an existing player direction
      * @param drawX      draw x
      * @param drawY      draw y
-     * @param size size
+     * @param size       size
      * @param charWidth  width of a char
      * @param charHeight height of a char
      */
     public abstract void draw(Graphics2D g2d,
-                              TileInfo tile, Direction playerDir,
+                              TileInfo tile, boolean player, Direction playerDir,
                               int drawX, int drawY, int size, int charWidth, int charHeight);
 
-
+    public abstract void draw(Graphics2D g2d,
+                              Tile tile, boolean player, Direction playerDir,
+                              int drawX, int drawY, int size, int charWidth, int charHeight);
 
     // Full board drawing to a Stream / Surface
 
@@ -265,11 +278,7 @@ public abstract class BoardStyle {
                 TileInfo tile = board.getAt(x2, y2);
                 int drawX = x2 * size;
                 int drawY = y2 * size;
-                if (player) {
-                    draw(g, tile, playerDir, drawX, drawY, size);
-                } else {
-                    draw(g, tile, null, drawX, drawY, size);
-                }
+                draw(g, tile, player, playerDir, drawX, drawY, size);
             }
         }
     }
@@ -310,11 +319,7 @@ public abstract class BoardStyle {
                 TileInfo tile = board.getAt(x2, y2);
                 int drawX = x2 * size * charWidth;
                 int drawY = y2 * size * charHeight;
-                if (player) {
-                    draw(g2d, tile, playerDir, drawX, drawY, size, charWidth, charHeight);
-                } else {
-                    draw(g2d, tile, null, drawX, drawY, size, charWidth, charHeight);
-                }
+                draw(g2d, tile, player, playerDir, drawX, drawY, size, charWidth, charHeight);
             }
         }
     }
@@ -332,7 +337,7 @@ public abstract class BoardStyle {
 
     /**
      * Returns {@code true} if the size is supported by the style.
-     * An unsupported size can still be passed to {@link #draw(Graphics, TileInfo, Direction, int, int, int)}
+     * An unsupported size can still be passed to {@link #draw(Graphics, TileInfo, boolean, Direction, int, int, int)}
      * but it may produce weird results.
      *
      * @param size size

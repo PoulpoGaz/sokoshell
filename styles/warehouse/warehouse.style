@@ -236,6 +236,7 @@ set-image player_left     16 tileset.png  80 0
 set-image player_right    16 tileset.png  96 0
 set-image player_down     16 tileset.png 112 0
 set-image player_up       16 tileset.png 128 0
+set-image no_direction    16 tileset.png 144 0
 
 
 # ==== MASKS ====

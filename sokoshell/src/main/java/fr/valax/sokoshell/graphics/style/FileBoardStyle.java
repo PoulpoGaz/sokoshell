@@ -23,6 +23,7 @@ import static fr.valax.sokoshell.graphics.GraphicsUtils.*;
  */
 public class FileBoardStyle extends BoardStyle {
 
+    public static final String NO_DIRECTION = "no_direction";
     public static final String DEAD_TILE = "dead_tile";
     public static final String TUNNEL    = "tunnel";
     public static final String ROOM      = "room";
@@ -67,11 +68,24 @@ public class FileBoardStyle extends BoardStyle {
     }
 
     @Override
-    public void draw(Graphics g, TileInfo tile, Direction playerDir, int drawX, int drawY, int size) {
+    public void draw(Graphics g, TileInfo tile, boolean player, Direction playerDir, int drawX, int drawY, int size) {
         int index = findBestSizeIndex(size);
         size = availableSizes[index];
 
-        List<Sampler> samplers = getSamplersFor(tile, playerDir, size);
+        List<Sampler> samplers = getSamplersFor(tile, player, playerDir, size);
+        draw(g, samplers, drawX, drawY, size);
+    }
+
+    @Override
+    public void draw(Graphics g, Tile tile, boolean player, Direction playerDir, int drawX, int drawY, int size) {
+        int index = findBestSizeIndex(size);
+        size = availableSizes[index];
+
+        List<Sampler> samplers = getSamplersFor(tile, player, playerDir, size);
+        draw(g, samplers, drawX, drawY, size);
+    }
+
+    private void draw(Graphics g, List<Sampler> samplers, int drawX, int drawY, int size) {
         StyledCharacter out = new StyledCharacter();
 
         for (int y = 0; y < size; y++) {
@@ -82,20 +96,88 @@ public class FileBoardStyle extends BoardStyle {
         }
     }
 
+
     @Override
     public void draw(Graphics2D g2d,
-                     TileInfo tile, Direction playerDir,
+                     TileInfo tile, boolean player, Direction playerDir,
                      int drawX, int drawY, int size, int charWidth, int charHeight) {
         int index = findBestSizeIndex(size);
         size = availableSizes[index];
 
-        List<Sampler> samplers = getSamplersFor(tile, playerDir, size);
+        List<Sampler> samplers = getSamplersFor(tile, player, playerDir, size);
+        draw(g2d, samplers, drawX, drawY, size, charWidth, charHeight);
+    }
+
+    @Override
+    public void draw(Graphics2D g2d, Tile tile, boolean player, Direction playerDir, int drawX, int drawY, int size, int charWidth, int charHeight) {
+        int index = findBestSizeIndex(size);
+        size = availableSizes[index];
+
+        List<Sampler> samplers = getSamplersFor(tile, player, playerDir, size);
+        draw(g2d, samplers, drawX, drawY, size, charWidth, charHeight);
+    }
+
+    private void draw(Graphics2D g2d, List<Sampler> samplers, int drawX, int drawY, int size, int charWidth, int charHeight) {
         StyledCharacter out = new StyledCharacter();
 
         for (int y = 0; y < size; y++) {
             for (int x = 0; x < size; x++) {
                 fetch(x, y, out, samplers);
                 GraphicsUtils.draw(g2d, out, drawX + x * charWidth, drawY + y * charHeight, charWidth, charHeight, Color.BLACK, Color.WHITE);
+            }
+        }
+    }
+
+    private void fetch(int x, int y, StyledCharacter out, List<Sampler> samplers) {
+        boolean merge = false;
+        for (Sampler sampler : samplers) {
+            if (sampler != null) {
+                sampler.fetch(x, y, out, merge);
+                merge = true;
+            }
+        }
+    }
+
+    protected List<Sampler> getSamplersFor(TileInfo tile, boolean player, Direction playerDir, int size) {
+        Map<String, Sampler> allSamplers = samplersBySize.get(size);
+
+        List<Sampler> samplers = new ArrayList<>();
+        addDefaultSamplers(allSamplers, samplers, tile.getTile(), player, playerDir);
+        if (tile.isDeadTile() && drawDeadTiles) {
+            samplers.add(allSamplers.get(DEAD_TILE));
+        }
+        if (tile.isInATunnel() && drawTunnels) {
+            samplers.add(allSamplers.get(TUNNEL));
+        }
+        if (tile.isInARoom() && drawRooms) {
+            samplers.add(allSamplers.get(ROOM));
+        }
+
+        return samplers;
+    }
+
+    protected List<Sampler> getSamplersFor(Tile tile, boolean player, Direction playerDir, int size) {
+        Map<String, Sampler> allSamplers = samplersBySize.get(size);
+
+        List<Sampler> samplers = new ArrayList<>();
+        addDefaultSamplers(allSamplers, samplers, tile, player, playerDir);
+
+        return samplers;
+    }
+
+    private void addDefaultSamplers(Map<String, Sampler> allSamplers, List<Sampler> dest,
+                                    Tile tile, boolean player, Direction playerDir) {
+        dest.add(allSamplers.get(tile.name()));
+
+        if (player) {
+            if (playerDir == null) {
+                Sampler sampler = allSamplers.get(NO_DIRECTION);
+                if (sampler == null) {
+                    sampler = allSamplers.get(Direction.DOWN.name());
+                }
+                dest.add(sampler);
+            } else {
+                dest.add(allSamplers.get(playerDir.name()));
             }
         }
     }
@@ -162,8 +244,12 @@ public class FileBoardStyle extends BoardStyle {
         return helper.createImage(true, this, size, board, playerX, playerY, playerDir);
     }
 
-    private boolean isImageOnly(int size) {
+    public boolean isImageOnly(int size) {
         Map<String, Sampler> samplers = samplersBySize.get(size);
+
+        if (samplers == null) {
+            return false;
+        }
 
         boolean image = true;
         for (Sampler sampler : samplers.values()) {
@@ -174,38 +260,6 @@ public class FileBoardStyle extends BoardStyle {
         }
 
         return image;
-    }
-
-    private void fetch(int x, int y, StyledCharacter out, List<Sampler> samplers) {
-        boolean merge = false;
-        for (Sampler sampler : samplers) {
-            if (sampler != null) {
-                sampler.fetch(x, y, out, merge);
-                merge = true;
-            }
-        }
-    }
-
-    protected List<Sampler> getSamplersFor(TileInfo tile, Direction playerDir, int size) {
-        Map<String, Sampler> allSamplers = samplersBySize.get(size);
-
-        List<Sampler> samplers = new ArrayList<>();
-        samplers.add(allSamplers.get(tile.getTile().name()));
-
-        if (playerDir != null) {
-            samplers.add(allSamplers.get(playerDir.name()));
-        }
-        if (tile.isDeadTile() && drawDeadTiles) {
-            samplers.add(allSamplers.get(DEAD_TILE));
-        }
-        if (tile.isInATunnel() && drawTunnels) {
-            samplers.add(allSamplers.get(TUNNEL));
-        }
-        if (tile.isInARoom() && drawRooms) {
-            samplers.add(allSamplers.get(ROOM));
-        }
-
-        return samplers;
     }
 
     @Override
