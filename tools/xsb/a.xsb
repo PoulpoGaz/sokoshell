@@ -3,3 +3,12 @@
 #uldr #
 #ULDR #
 #######
+
+LATEX
+\begin{document}
+    \begin{tikzpicture}
+        \begin{sokoban}[$WIDTH$, $HEIGHT$]{$FILE$}
+            \draw[red] (1, 1) rectangle +(5, 3);
+        \end{sokoban}
+    \end{tikzpicture}
+\end{document}

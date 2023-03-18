@@ -14,10 +14,7 @@ import fr.valax.sokoshell.solver.board.tiles.Tile;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -90,6 +87,8 @@ public class XSBToPNG implements Command {
         } catch (JsonException | IOException e) {
             e.printStackTrace();
             return FAILURE;
+        } finally {
+            LatexWriter.cleanup();
         }
 
         return SUCCESS;
@@ -109,8 +108,14 @@ public class XSBToPNG implements Command {
         }
         System.out.printf("Exporting %s to %s%n", level, dest);
 
-        BufferedImage image = createImage(style, level);
-        ImageIO.write(image, "png", dest.toFile());
+        Data data = readLevel(level);
+        BufferedImage image = createImage(style, data.board());
+
+        if (data.latex() != null) {
+            LatexWriter.write(dest, image, data);
+        } else {
+            ImageIO.write(image, "png", dest.toFile());
+        }
     }
 
     private Path getDestination(Path levelRelative) {
@@ -126,9 +131,7 @@ public class XSBToPNG implements Command {
         }
     }
 
-    private BufferedImage createImage(BoardStyle style, Path level) throws IOException {
-        SokToPNGTile[][] tiles = readLevel(level);
-
+    private BufferedImage createImage(BoardStyle style, SokToPNGTile[][] tiles) {
         int width = tiles[0].length;
         int height = tiles.length;
         int size = style.findBestSize(Integer.MAX_VALUE);
@@ -155,39 +158,53 @@ public class XSBToPNG implements Command {
 
     private static final Pattern LINE_PATTERN = Pattern.compile("^[#@+$*. -_udlrUDLR]*$");
 
-    private SokToPNGTile[][] readLevel(Path level) throws IOException {
+    private Data readLevel(Path level) throws IOException {
         int width = 0;
-        List<String> lines = new ArrayList<>();
+        List<String> boardLines = new ArrayList<>();
+        List<String> latexLines = null;
         try (BufferedReader br = Files.newBufferedReader(level)) {
             String line;
 
+            boolean levelRead = false;
+            boolean inLatex = false;
             while ((line = br.readLine()) != null) {
                 if (line.isEmpty()) {
-                    break;
+                    if (boardLines.isEmpty()) {
+                        continue;
+                    }
+
+                    levelRead = true;
                 }
 
-                if (LINE_PATTERN.matcher(line).matches()) {
-                    lines.add(line);
-                    width = Math.max(width, line.length());
+                if (!levelRead) {
+                    if (LINE_PATTERN.matcher(line).matches()) {
+                        boardLines.add(line);
+                        width = Math.max(width, line.length());
+                    }
+                } else if (inLatex) {
+                    latexLines.add(line);
+                } else if (line.startsWith("LATEX")) {
+                    inLatex = true;
+                    latexLines = new ArrayList<>();
                 }
             }
         }
 
-        SokToPNGTile[][] tiles = new SokToPNGTile[lines.size()][width];
+        SokToPNGTile[][] board = new SokToPNGTile[boardLines.size()][width];
 
-        for (int y = 0; y < lines.size(); y++) {
-            String line = lines.get(y);
+        for (int y = 0; y < boardLines.size(); y++) {
+            String line = boardLines.get(y);
             int x = 0;
-            for (x = 0; x < line.length(); x++) {
-                tiles[y][x] = fromChar(line.charAt(x));
+            for (; x < line.length(); x++) {
+                board[y][x] = fromChar(line.charAt(x));
             }
 
             for (; x < width; x++) {
-                tiles[y][x] = new SokToPNGTile(Tile.FLOOR);
+                board[y][x] = new SokToPNGTile(Tile.FLOOR);
             }
         }
 
-        return tiles;
+        return new Data(board, latexLines);
     }
 
     private SokToPNGTile fromChar(char c) {
@@ -232,12 +249,5 @@ public class XSBToPNG implements Command {
     @Override
     public boolean addHelp() {
         return true;
-    }
-
-    private record SokToPNGTile(Tile tile, boolean player, Direction direction) {
-
-        private SokToPNGTile(Tile tile) {
-            this(tile, false, null);
-        }
     }
 }

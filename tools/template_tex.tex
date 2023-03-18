@@ -1,0 +1,80 @@
+\documentclass[
+    convert={density=300, outext=.png},
+    command=\unexpanded{-quality 90}
+]{standalone}
+
+\usepackage{tikz}
+\usetikzlibrary{babel}
+\usetikzlibrary{shapes, positioning, calc}
+\usetikzlibrary{math}
+
+\usepackage{graphics}
+
+% French language support (e.g. date format)
+\usepackage[french]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern} % for missing fonts (e.g. italic in titles)
+
+\makeatletter
+
+\newif\iftikz@sok@grid
+\tikz@sok@gridfalse
+
+\pgfkeys{
+    /tikz/.cd,
+    sok/img width/.initial = -1cm,
+    sok/x/.initial = 0,
+    sok/y/.initial = 0,
+    sok/width/.initial = 1,
+    sok/height/.initial = 1,
+    sok/grid/.code={\tikz@sok@gridtrue},
+}
+
+% https://tex.stackexchange.com/questions/27836/saving-computed-number-registers-for-access-outside-body-of-let-operation
+\pgfkeys{/tikz/savenumber/.code 2 args={\global\edef#1{#2}}}
+
+\newenvironment{sokoban}[2][]{
+    \tikzset{#1}% read key values
+
+    \pgfmathsetlengthmacro{\imageWidth}{\pgfkeysvalueof{/tikz/sok/img width}};
+    \pgfmathsetlengthmacro{\x}         {\pgfkeysvalueof{/tikz/sok/x}};
+    \pgfmathsetlengthmacro{\y}         {\pgfkeysvalueof{/tikz/sok/y}};
+    \pgfmathsetmacro{\width}           {\pgfkeysvalueof{/tikz/sok/width}};
+    \pgfmathsetmacro{\height}          {\pgfkeysvalueof{/tikz/sok/height}};
+
+    % draw image with specified width
+    \node[anchor=north west, inner sep=0] (image) at (\x, \y) {
+        % https://tex.stackexchange.com/questions/531866/ifnum-of-variable
+        \pgfmathparse{\imageWidth<0}
+        \ifnum\pgfmathresult=1
+        \includegraphics{#2}
+        \else
+        \includegraphics[width=\imageWidth]{#2}
+        \fi
+    };
+
+    \path
+        let \p{east} = (image.east),
+            \p{west} = (image.west),
+    \n{width} = {\x{east}-\x{west}}
+    in
+    [savenumber={\imageWidth}{\n{width}}];
+
+    \begin{scope}[xshift = \x,
+        yshift = \y,
+        x = \imageWidth / \width,
+        y = -\imageWidth / \width]
+        \iftikz@sok@grid
+        \draw[help lines, xstep=1, ystep=-1, color=blue] (0, 0) grid (\width, \height);
+        \fi
+        }{
+    \end{scope}
+}
+
+\makeatother
+
+\newcommand{\fsokoban}[3]{
+    \begin{sokoban}[sok/width=#2, sok/height=#3]{#1}
+
+    \end{sokoban}
+}
