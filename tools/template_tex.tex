@@ -20,6 +20,9 @@
 \newif\iftikz@sok@grid
 \tikz@sok@gridfalse
 
+\newif\iftikz@sok@numbers
+\tikz@sok@numbersfalse
+
 \pgfkeys{
     /tikz/.cd,
     sok/img width/.initial = -1cm,
@@ -28,6 +31,9 @@
     sok/width/.initial = 1,
     sok/height/.initial = 1,
     sok/grid/.code={\tikz@sok@gridtrue},
+    sok/grid color/.initial = blue,
+    sok/grid line width/.initial = 0.2pt,
+    sok/numbers/.code={\tikz@sok@numberstrue}
 }
 
 % https://tex.stackexchange.com/questions/27836/saving-computed-number-registers-for-access-outside-body-of-let-operation
@@ -56,16 +62,31 @@
     \path
         let \p{east} = (image.east),
             \p{west} = (image.west),
-    \n{width} = {\x{east}-\x{west}}
-    in
-    [savenumber={\imageWidth}{\n{width}}];
+            \n{width} = {\x{east}-\x{west}}
+        in
+            [savenumber={\imageWidth}{\n{width}}];
 
     \begin{scope}[xshift = \x,
         yshift = \y,
         x = \imageWidth / \width,
         y = -\imageWidth / \width]
         \iftikz@sok@grid
-        \draw[help lines, xstep=1, ystep=-1, color=blue] (0, 0) grid (\width, \height);
+            \draw[help lines, xstep=1, ystep=-1,
+                  color=\pgfkeysvalueof{/tikz/sok/grid color},
+                  line width = \pgfkeysvalueof{/tikz/sok/grid line width}]
+                  (0, 0) grid (\width, \height);
+        \fi
+
+        \iftikz@sok@numbers
+            \pgfmathparse{\width - 1}
+            \foreach \xl in {0, 1, ..., \pgfmathresult} {
+                \node[scale=\imageWidth / 100] at (0.5 + \xl, -0.4) {\xl};
+            }
+
+            \pgfmathparse{\height - 1}
+            \foreach \yl in {0, 1, ..., \pgfmathresult} {
+                \node[scale=\imageWidth / 100] at (-0.3, 0.5 + \yl) {\yl};
+            }
         \fi
         }{
     \end{scope}

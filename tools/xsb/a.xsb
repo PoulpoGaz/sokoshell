@@ -7,7 +7,7 @@
 LATEX
 \begin{document}
     \begin{tikzpicture}
-        \begin{sokoban}[$WIDTH$, $HEIGHT$]{$FILE$}
+        \begin{sokoban}[$WIDTH$, $HEIGHT$, sok/numbers, sok/grid]{$FILE$}
             \draw[red] (1, 1) rectangle +(5, 3);
         \end{sokoban}
     \end{tikzpicture}

@@ -4,3 +4,12 @@
 #    l@r#
 #  #  d #
 #########
+
+LATEX
+\begin{document}
+    \begin{tikzpicture}
+        \begin{sokoban}[$WIDTH$, $HEIGHT$, sok/numbers]{$FILE$}
+
+        \end{sokoban}
+    \end{tikzpicture}
+\end{document}
