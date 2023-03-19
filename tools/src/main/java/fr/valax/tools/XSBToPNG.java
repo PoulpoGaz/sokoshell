@@ -144,6 +144,10 @@ public class XSBToPNG implements Command {
                 for (int x = 0; x < width; x++) {
                     SokToPNGTile tile = tiles[y][x];
 
+                    if (tile == null) {
+                        continue;
+                    }
+
                     style.draw(g2d, tile.tile(), tile.player(), tile.direction(), x * size, y * size, size, 1, 1);
                 }
             }
@@ -209,8 +213,9 @@ public class XSBToPNG implements Command {
 
     private SokToPNGTile fromChar(char c) {
         return switch (c) {
+            case '_' -> null;
             case ' ', '-' -> new SokToPNGTile(Tile.FLOOR);
-            case '#', '_' -> new SokToPNGTile(Tile.WALL);
+            case '#' -> new SokToPNGTile(Tile.WALL);
             case '$' -> new SokToPNGTile(Tile.CRATE);
             case '.' -> new SokToPNGTile(Tile.TARGET);
             case '*' -> new SokToPNGTile(Tile.CRATE_ON_TARGET);

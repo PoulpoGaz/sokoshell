@@ -8,7 +8,7 @@
 LATEX
 \begin{document}
     \begin{tikzpicture}
-        \begin{sokoban}[$WIDTH$, $HEIGHT$, sok/numbers]{$FILE$}
+        \begin{sokoban}[$WIDTH$, $HEIGHT$, sok/numbers, sok/grid]{$FILE$}
 
         \end{sokoban}
     \end{tikzpicture}
