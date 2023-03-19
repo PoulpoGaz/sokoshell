@@ -1,6 +1,7 @@
 package fr.valax.sokoshell.graphics;
 
 import fr.valax.sokoshell.SokoShell;
+import org.jline.builtins.Nano;
 import org.jline.keymap.BindingReader;
 import org.jline.keymap.KeyMap;
 import org.jline.terminal.Attributes;
@@ -65,6 +66,14 @@ public class TerminalEngine implements AutoCloseable {
         this.hasMouseSupport = terminal.hasMouseSupport();
 
         keyMap.setAmbiguousTimeout(100L);
+
+        // Must be here, see https://github.com/jline/jline3/issues/306
+        // Otherwise, key like enter, up, etc. won't work properly
+        attr = terminal.enterRawMode();
+
+        terminal.puts(InfoCmp.Capability.enter_ca_mode);
+        terminal.puts(InfoCmp.Capability.keypad_xmit);
+        terminal.writer().flush();
     }
 
     /**
@@ -154,12 +163,6 @@ public class TerminalEngine implements AutoCloseable {
         display.setDelayLineWrap(false);
 
         reader = new BindingReader(terminal.reader());
-
-        attr = terminal.enterRawMode();
-
-        terminal.puts(InfoCmp.Capability.enter_ca_mode);
-        terminal.puts(InfoCmp.Capability.keypad_xmit);
-        terminal.writer().flush();
 
         display.clear();
         display.reset();

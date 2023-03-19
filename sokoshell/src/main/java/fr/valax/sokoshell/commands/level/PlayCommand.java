@@ -1,7 +1,9 @@
 package fr.valax.sokoshell.commands.level;
 
-import fr.valax.sokoshell.SokoShell;
+import fr.valax.sokoshell.Exporter;
 import fr.valax.sokoshell.graphics.*;
+import fr.valax.sokoshell.graphics.export.ExportListener;
+import fr.valax.sokoshell.graphics.export.ExportPopup;
 import fr.valax.sokoshell.graphics.layout.*;
 import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.solver.board.Board;
@@ -9,7 +11,6 @@ import fr.valax.sokoshell.solver.board.Direction;
 import fr.valax.sokoshell.solver.board.MutableBoard;
 import fr.valax.sokoshell.solver.board.tiles.Tile;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.Path;
@@ -36,8 +37,10 @@ public class PlayCommand extends LevelCommand {
             Key.DOWN.bind(engine);
             Key.UP.bind(engine);
             Key.ENTER.bind(engine);
+            Key.E.bind(engine);
             Key.CTRL_E.bind(engine);
             Key.ESCAPE.bind(engine);
+            Key.SPACE.bind(engine);
             engine.setRootComponent(new PlayComponent(l, controller));
             engine.show();
         }
@@ -65,6 +68,7 @@ public class PlayCommand extends LevelCommand {
         private Label pushesLabel;
 
         private BoardComponent boardComponent;
+        private EphemeralLabel exportLabel;
 
         public PlayComponent(Level level, GameController controller) {
             this.level = level;
@@ -83,6 +87,8 @@ public class PlayCommand extends LevelCommand {
             boardComponent.setBoard(controller.getBoard());
             updateComponents();
 
+            exportLabel = new EphemeralLabel();
+            exportLabel.setHorizAlign(Label.WEST);
 
             Component innerTop = new Component();
             innerTop.setLayout(new GridLayout());
@@ -99,7 +105,7 @@ public class PlayCommand extends LevelCommand {
             HorizontalConstraint hc = new HorizontalConstraint();
             hc.fillYAxis = true;
             hc.endComponent = true;
-            innerCenter.add(new ExportComponent(this::export), hc);
+            innerCenter.add(exportLabel, hc);
             hc.endComponent = false;
             hc.orientation = HorizontalLayout.Orientation.RIGHT;
             innerCenter.add(new MemoryBar(), hc);
@@ -114,23 +120,6 @@ public class PlayCommand extends LevelCommand {
             setLayout(new BorderLayout());
             add(bot, BorderLayout.SOUTH);
             add(boardComponent, BorderLayout.CENTER);
-        }
-
-        private String export() {
-            if (boardComponent.getBoard() == null) {
-                return null;
-            }
-
-            try {
-                Path out = SokoShell.INSTANCE
-                        .exportPNG(level.getPack(), level,
-                                controller.getBoard(), controller.getPlayerX(), controller.getPlayerY(),
-                                controller.getLastDir());
-
-                return out.toString();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
         }
 
         @Override
@@ -150,18 +139,46 @@ public class PlayCommand extends LevelCommand {
                 controller.move(Direction.DOWN);
                 updateComponents();
             } else if (keyPressed(Key.E)) {
-                Direction lastMove = controller.getLastDir();
-                if (lastMove == null) {
-                    lastMove = Direction.DOWN;
+                export();
+            } else if (keyPressed(Key.CTRL_E)) {
+                exportWithPopup();
+            }
+        }
+
+        private void export() {
+            Exporter exporter = new Exporter();
+            exporter.setBoard(boardComponent.getBoard());
+            exporter.setOut(sokoshell().getStandardExportPath(level.getPack(), level));
+            exporter.setPlayerX(controller.getPlayerX());
+            exporter.setPlayerY(controller.getPlayerY());
+            exporter.setPlayerDir(controller.getLastDir());
+
+            Path out = exporter.silentExport();
+            if (out != null) {
+                exportLabel.setText(out.toString());
+                exportLabel.show();
+            }
+        }
+
+        private void exportWithPopup() {
+            ExportPopup exportPopup = ExportPopup.show(getEngine());
+            exportPopup.setBoard(boardComponent.getBoard());
+            exportPopup.setOut(sokoshell().getStandardExportPath(level.getPack(), level));
+            exportPopup.setPlayerX(controller.getPlayerX());
+            exportPopup.setPlayerY(controller.getPlayerY());
+            exportPopup.setPlayerDir(controller.getLastDir());
+            exportPopup.addExportListener(new ExportListener() {
+                @Override
+                public void exportCanceled() {
+
                 }
 
-                try {
-                    sokoshell().exportPNG(level.getPack(), level, controller.getBoard(),
-                            controller.getPlayerX(), controller.getPlayerY(), lastMove);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
+                @Override
+                public void exportDone(Path out) {
+                    exportLabel.setText(out.toString());
+                    exportLabel.show();
                 }
-            }
+            });
         }
 
         private void updateComponents() {

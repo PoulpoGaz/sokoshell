@@ -644,6 +644,8 @@ public class Component {
         for (int i = 0; i < components.size(); i++) {
             components.get(i).setTerminal(terminal, engine);
         }
+
+        valid = false;
     }
 
     public Terminal getTerminal() {

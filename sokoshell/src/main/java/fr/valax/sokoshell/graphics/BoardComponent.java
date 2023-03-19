@@ -7,12 +7,15 @@ import fr.valax.sokoshell.solver.board.Direction;
 
 public class BoardComponent extends Component {
 
-    private Direction playerDir = Direction.DOWN;
+    private Direction playerDir;
     private Board board;
     private int playerX;
     private int playerY;
 
-    private boolean showLegend = true;
+    private boolean drawLegend = true;
+    private boolean drawDeadTiles;
+    private boolean drawRooms;
+    private boolean drawTunnels;
 
     public BoardComponent() {
 
@@ -23,11 +26,23 @@ public class BoardComponent extends Component {
         if (board != null) {
             BoardStyle style = SokoShell.INSTANCE.getBoardStyle();
 
-            if (showLegend) {
+            boolean oldDeadTiles = style.isDrawDeadTiles();
+            boolean oldRooms = style.isDrawRooms();
+            boolean oldTunnel = style.isDrawTunnels();
+
+            style.setDrawDeadTiles(drawDeadTiles);
+            style.setDrawRooms(drawRooms);
+            style.setDrawTunnels(drawTunnels);
+
+            if (drawLegend) {
                 style.drawCenteredWithLegend(g, 0, 0, getWidth(), getHeight(), board, playerX, playerY, playerDir);
             } else {
                 style.drawCentered(g, 0, 0, getWidth(), getHeight(), board, playerX, playerY, playerDir);
             }
+
+            style.setDrawDeadTiles(oldDeadTiles);
+            style.setDrawRooms(oldRooms);
+            style.setDrawTunnels(oldTunnel);
         }
     }
 
@@ -47,7 +62,7 @@ public class BoardComponent extends Component {
     }
 
     public void setPlayerDir(Direction playerDir) {
-        if (playerDir != null && playerDir != this.playerDir) {
+        if (playerDir != this.playerDir) {
             this.playerDir = playerDir;
             repaint();
         }
@@ -75,13 +90,46 @@ public class BoardComponent extends Component {
         }
     }
 
-    public boolean isShowLegend() {
-        return showLegend;
+    public boolean isDrawLegend() {
+        return drawLegend;
     }
 
-    public void setShowLegend(boolean showLegend) {
-        if (showLegend != this.showLegend) {
-            this.showLegend = showLegend;
+    public void setDrawLegend(boolean showLegend) {
+        if (showLegend != this.drawLegend) {
+            this.drawLegend = showLegend;
+            repaint();
+        }
+    }
+
+    public boolean isDrawDeadTiles() {
+        return drawDeadTiles;
+    }
+
+    public void setDrawDeadTiles(boolean drawDeadTiles) {
+        if (this.drawDeadTiles != drawDeadTiles) {
+            this.drawDeadTiles = drawDeadTiles;
+            repaint();
+        }
+    }
+
+    public boolean isDrawRooms() {
+        return drawRooms;
+    }
+
+    public void setDrawRooms(boolean drawRooms) {
+        if (this.drawRooms != drawRooms) {
+            this.drawRooms = drawRooms;
+            repaint();
+        }
+    }
+
+    public boolean isDrawTunnels() {
+        return drawTunnels;
+    }
+
+    public void setDrawTunnels(boolean drawTunnels) {
+        if (this.drawTunnels != drawTunnels) {
+            this.drawTunnels = drawTunnels;
             repaint();
         }
     }

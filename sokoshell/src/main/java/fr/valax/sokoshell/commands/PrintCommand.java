@@ -79,11 +79,11 @@ public class PrintCommand extends AbstractCommand {
                 }
 
                 if (export) {
-                    try {
+                    /*try {
                         sokoshell().exportPNG(l.getPack(), l, l, l.getPlayerX(), l.getPlayerY(), playerDir);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
-                    }
+                    }*/
                 }
             }
         }

@@ -1,19 +1,20 @@
 package fr.valax.sokoshell.commands;
 
+import fr.valax.sokoshell.Exporter;
 import fr.valax.sokoshell.SokoShell;
 import fr.valax.sokoshell.SolverTask;
 import fr.valax.sokoshell.TaskStatus;
 import fr.valax.sokoshell.graphics.*;
+import fr.valax.sokoshell.graphics.export.ExportListener;
+import fr.valax.sokoshell.graphics.export.ExportPopup;
 import fr.valax.sokoshell.graphics.layout.*;
 import fr.valax.sokoshell.graphics.style.BoardStyle;
 import fr.valax.sokoshell.solver.*;
 import fr.valax.sokoshell.solver.board.Board;
-import fr.valax.sokoshell.solver.board.Direction;
 import fr.valax.sokoshell.solver.board.MutableBoard;
 import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 import fr.valax.sokoshell.utils.Utils;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.math.BigInteger;
@@ -55,7 +56,14 @@ public class MonitorCommand extends AbstractCommand {
 
     private void initEngine(TerminalEngine engine, SolverTask task) {
         Key.CTRL_D.bind(engine); // dead tiles
+        Key.E.bind(engine);      // export
         Key.CTRL_E.bind(engine); // export
+        Key.SPACE.bind(engine);  // export
+        Key.ENTER.bind(engine);  // export
+        Key.LEFT.bind(engine);  // export
+        Key.RIGHT.bind(engine);  // export
+        Key.DOWN.bind(engine);  // export
+        Key.UP.bind(engine);  // export
         Key.CTRL_L.bind(engine); // legend
         Key.CTRL_R.bind(engine); // rooms
         Key.CTRL_T.bind(engine); // tunnels
@@ -115,6 +123,8 @@ public class MonitorCommand extends AbstractCommand {
 
         private BoardComponent boardComponent;
         private boolean isUsingStaticBoard = false;
+
+        private final EphemeralLabel exportLabel = new EphemeralLabel();
 
         public Monitor(SolverTask task) {
             this.task = task;
@@ -184,6 +194,7 @@ public class MonitorCommand extends AbstractCommand {
             packLabel.setHorizAlign(Label.WEST);
             levelLabel.setHorizAlign(Label.WEST);
             maxNumberOfStateLabel.setHorizAlign(Label.WEST);
+            exportLabel.setHorizAlign(Label.WEST);
 
             Component innerTop = new Component();
             innerTop.setLayout(new GridLayout());
@@ -204,7 +215,7 @@ public class MonitorCommand extends AbstractCommand {
             HorizontalConstraint hc = new HorizontalConstraint();
             hc.fillYAxis = true;
             hc.endComponent = true;
-            innerCenter.add(new ExportComponent(this::export), hc);
+            innerCenter.add(exportLabel, hc);
             hc.endComponent = false;
             hc.orientation = HorizontalLayout.Orientation.RIGHT;
             innerCenter.add(new MemoryBar(), hc);
@@ -219,23 +230,6 @@ public class MonitorCommand extends AbstractCommand {
             return component;
         }
 
-        private String export() {
-            if (boardComponent.getBoard() == null) {
-                return null;
-            }
-
-            try {
-                Path out = SokoShell.INSTANCE
-                        .exportPNG(currentPack, currentLevel,
-                                boardComponent.getBoard(), boardComponent.getPlayerX(), boardComponent.getPlayerY(),
-                                Direction.DOWN);
-
-                return out.toString();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
         @Override
         protected void updateComponent() {
             if (keyPressed(Key.ESCAPE)) {
@@ -243,20 +237,19 @@ public class MonitorCommand extends AbstractCommand {
                 return;
             }
             if (keyPressed(Key.CTRL_L)) {
-                boardComponent.setShowLegend(!boardComponent.isShowLegend());
+                boardComponent.setDrawLegend(!boardComponent.isDrawLegend());
             }
 
-            BoardStyle currentStyle = SokoShell.INSTANCE.getBoardStyle();
             if (keyPressed(Key.CTRL_D)) {
-                currentStyle.setDrawDeadTiles(!currentStyle.isDrawDeadTiles());
+                boardComponent.setDrawDeadTiles(true);
                 repaint();
             }
             if (keyPressed(Key.CTRL_R)) {
-                currentStyle.setDrawRooms(!currentStyle.isDrawRooms());
+                boardComponent.setDrawRooms(true);
                 repaint();
             }
             if (keyPressed(Key.CTRL_T)) {
-                currentStyle.setDrawTunnels(!currentStyle.isDrawTunnels());
+                boardComponent.setDrawTunnels(true);
                 repaint();
             }
 
@@ -287,6 +280,52 @@ public class MonitorCommand extends AbstractCommand {
                 stateExploredLabel.setText(Integer.toString(trackable.nStateExplored()));
                 queueSizeLabel.setText(Integer.toString(trackable.currentQueueSize()));
             }
+
+            if (boardComponent.getBoard() != null) {
+                if (keyPressed(Key.E)) {
+                    export();
+                } else if (keyPressed(Key.CTRL_E)) {
+                    exportWithPopup();
+                }
+            }
+        }
+
+        private void export() {
+            Exporter exporter = new Exporter();
+            exporter.setBoard(boardComponent.getBoard());
+            if (currentLevel != null) {
+                exporter.setOut(SokoShell.INSTANCE.getStandardExportPath(currentLevel.getPack(), currentLevel));
+            }
+            exporter.setPlayerX(boardComponent.getPlayerX());
+            exporter.setPlayerY(boardComponent.getPlayerY());
+
+            Path out = exporter.silentExport();
+            if (out != null) {
+                exportLabel.setText(out.toString());
+                exportLabel.show();
+            }
+        }
+
+        private void exportWithPopup() {
+            ExportPopup exportPopup = ExportPopup.show(getEngine());
+            exportPopup.setBoard(boardComponent.getBoard());
+            if (currentLevel != null) {
+                exportPopup.setOut(SokoShell.INSTANCE.getStandardExportPath(currentLevel.getPack(), currentLevel));
+            }
+            exportPopup.setPlayerX(boardComponent.getPlayerX());
+            exportPopup.setPlayerY(boardComponent.getPlayerY());
+            exportPopup.addExportListener(new ExportListener() {
+                @Override
+                public void exportCanceled() {
+
+                }
+
+                @Override
+                public void exportDone(Path out) {
+                    exportLabel.setText(out.toString());
+                    exportLabel.show();
+                }
+            });
         }
 
         private void changeLevel() {

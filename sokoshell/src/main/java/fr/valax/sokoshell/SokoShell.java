@@ -416,32 +416,16 @@ public class SokoShell {
     }
 
 
-    public Path exportPNG(Pack pack, Level level, Board board,
-                          int playerX, int playerY, Direction playerDir)
-            throws IOException {
-        BufferedImage image = selectedStyle.createImageWithLegend(board, playerX, playerY, playerDir);
-
-        Path out;
+    public Path getStandardExportPath(Pack pack, Level level) {
         if (pack == null && level == null) {
-            out = EXPORT_FOLDER.resolve("level.png");
+            return EXPORT_FOLDER.resolve("level");
         } else if (pack != null && level == null) {
-            out = EXPORT_FOLDER.resolve(pack.name() + ".png");
+            return EXPORT_FOLDER.resolve(pack.name());
         } else if (pack == null) {
-            out = EXPORT_FOLDER.resolve((level.getIndex() + 1) + ".png");
+            return EXPORT_FOLDER.resolve(String.valueOf((level.getIndex() + 1)));
         } else {
-            out = EXPORT_FOLDER.resolve(pack.name() + "_" + (level.getIndex() + 1) + ".png");
+            return EXPORT_FOLDER.resolve(pack.name() + "_" + (level.getIndex() + 1));
         }
-
-        out = Utils.checkExists(out);
-
-        Path parent = out.getParent();
-        if (pack != null && Files.notExists(parent)) {
-            Files.createDirectories(parent);
-        }
-
-        ImageIO.write(image, "png", out.toFile());
-
-        return out;
     }
 
 

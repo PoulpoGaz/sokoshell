@@ -2,6 +2,7 @@ package fr.valax.sokoshell.graphics;
 
 import fr.valax.sokoshell.graphics.style.StyledCharacter;
 import org.jline.utils.AttributedCharSequence;
+import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;
 import org.jline.utils.WCWidth;
 
@@ -315,5 +316,28 @@ public class GraphicsUtils {
         }
 
         return newFont;
+    }
+
+    /**
+     * Compute preferred size for simple components containing only text.
+     * @param insets component insets
+     * @param text component text
+     * @return preferred size
+     */
+    public static Dimension preferredSize(Insets insets, AttributedCharSequence text) {
+        Dimension dim = new Dimension();
+        dim.width = insets.right + insets.left;
+        dim.height = insets.top + insets.bottom;
+
+        if (text != null) {
+            int len = text.columnLength();
+
+            if (len != 0) {
+                dim.width += len;
+                dim.height++;
+            }
+        }
+
+        return dim;
     }
 }

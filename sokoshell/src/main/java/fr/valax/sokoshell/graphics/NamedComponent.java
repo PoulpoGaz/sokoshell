@@ -112,7 +112,7 @@ public class NamedComponent {
                         name.setBounds(0, 0, 0, 0);
                         comp.setBounds(x, y, w, h);
                     } else if (namePrefSize.width + minGap + compPrefSize.width >= w) {
-                        int nameW = w - compPrefSize.width;
+                        int nameW = w - compPrefSize.width - minGap;
 
                         name.setBounds(x, y, nameW, h);
                         comp.setBounds(x + nameW + minGap, y, w - nameW - minGap, h);

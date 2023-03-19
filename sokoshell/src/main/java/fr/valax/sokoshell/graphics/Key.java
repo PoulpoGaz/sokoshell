@@ -81,7 +81,7 @@ public interface Key {
     Key RIGHT = new InfoCmpCapabilityKey(InfoCmp.Capability.key_right);
     Key DOWN = new InfoCmpCapabilityKey(InfoCmp.Capability.key_down);
     Key UP = new InfoCmpCapabilityKey(InfoCmp.Capability.key_up);
-    Key ENTER = new InfoCmpCapabilityKey(InfoCmp.Capability.key_enter);
+    Key ENTER = new SimpleKey("\r"); // TODO: for some reason, using InfoCmp.Capability.key_enter doesn't work.
     Key BACKSPACE = new InfoCmpCapabilityKey(InfoCmp.Capability.key_backspace);
 
     Key ESCAPE = new SimpleKey(KeyMap.esc());

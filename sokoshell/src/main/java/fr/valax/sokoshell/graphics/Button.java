@@ -56,21 +56,7 @@ public class Button extends Component {
 
     @Override
     protected Dimension compPreferredSize() {
-        Dimension dim = new Dimension();
-        Insets i = getInsets();
-        dim.width = i.right + i.left;
-        dim.height = i.top + i.bottom;
-
-        if (text != null) {
-            int len = text.columnLength();
-
-            if (len != 0) {
-                dim.width += len;
-                dim.height++;
-            }
-        }
-
-        return dim;
+        return GraphicsUtils.preferredSize(getInsets(), text);
     }
 
     public void addActionListener(ActionListener listener) {

@@ -31,8 +31,10 @@ public class BorderLayout implements Layout {
 
     @Override
     public void addComponent(Component component, Object constraints) {
-        if (constraints instanceof Integer c) {
+        if (constraints == null) {
+            center = component;
 
+        } else if (constraints instanceof Integer c) {
             if (c == NORTH) {
                 north = component;
             } else if (c == SOUTH) {

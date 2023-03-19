@@ -2,10 +2,7 @@ package fr.valax.sokoshell.graphics;
 
 import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
-import org.jline.utils.AttributedString;
-import org.jline.utils.AttributedStringBuilder;
-import org.jline.utils.AttributedStyle;
-import org.jline.utils.Display;
+import org.jline.utils.*;
 
 import java.awt.*;
 import java.io.PrintStream;
@@ -194,7 +191,7 @@ public class Surface {
      * @param x destination x
      * @param y destination y
      */
-    public void draw(AttributedString str, int x, int y) {
+    public void draw(AttributedCharSequence str, int x, int y) {
         draw(str, 0, str.length(), x, y, str.columnLength());
     }
 
@@ -208,7 +205,7 @@ public class Surface {
      * @param x destination x
      * @param y destination y
      */
-    public void draw(AttributedString str, int start, int end, int x, int y) {
+    public void draw(AttributedCharSequence str, int start, int end, int x, int y) {
         draw(str, start, end, x, y, str.columnLength());
     }
 

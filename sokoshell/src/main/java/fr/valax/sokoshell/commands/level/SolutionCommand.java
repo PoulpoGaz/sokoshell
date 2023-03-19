@@ -1,8 +1,11 @@
 package fr.valax.sokoshell.commands.level;
 
 import fr.valax.args.api.Option;
+import fr.valax.sokoshell.Exporter;
 import fr.valax.sokoshell.SokoShell;
 import fr.valax.sokoshell.graphics.*;
+import fr.valax.sokoshell.graphics.export.ExportListener;
+import fr.valax.sokoshell.graphics.export.ExportPopup;
 import fr.valax.sokoshell.graphics.layout.*;
 import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.solver.SolverReport;
@@ -12,7 +15,6 @@ import fr.valax.sokoshell.solver.board.Move;
 import fr.valax.sokoshell.solver.board.MutableBoard;
 import fr.valax.sokoshell.solver.board.tiles.Tile;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.Path;
@@ -83,6 +85,7 @@ public class SolutionCommand extends LevelCommand {
             Key.ENTER.bind(engine);
             Key.SPACE.bind(engine);
             Key.R.bind(engine);
+            Key.E.bind(engine);
             Key.CTRL_E.bind(engine);
             Key.ESCAPE.bind(engine);
             engine.setRootComponent(new SolutionComponent(animator));
@@ -124,6 +127,8 @@ public class SolutionCommand extends LevelCommand {
 
         private BoardComponent boardComponent;
 
+        private EphemeralLabel exportLabel;
+
         public SolutionComponent(SolutionAnimator animator) {
             this.animator = animator;
             lastTime = System.currentTimeMillis();
@@ -146,6 +151,9 @@ public class SolutionCommand extends LevelCommand {
 
             updateComponents();
 
+            exportLabel = new EphemeralLabel();
+            exportLabel.setHorizAlign(Label.WEST);
+
             Component innerTop = new Component();
             innerTop.setLayout(new GridLayout());
             GridLayoutConstraints glc = new GridLayoutConstraints();
@@ -163,7 +171,7 @@ public class SolutionCommand extends LevelCommand {
             HorizontalConstraint hc = new HorizontalConstraint();
             hc.fillYAxis = true;
             hc.endComponent = true;
-            innerCenter.add(new ExportComponent(this::export), hc);
+            innerCenter.add(exportLabel, hc);
             hc.endComponent = false;
             hc.orientation = HorizontalLayout.Orientation.RIGHT;
             innerCenter.add(new MemoryBar(), hc);
@@ -181,37 +189,18 @@ public class SolutionCommand extends LevelCommand {
             add(boardComponent, BorderLayout.CENTER);
         }
 
-        private String export() {
-            if (boardComponent.getBoard() == null) {
-                return null;
-            }
+        private void updateComponents() {
+            movesLabel.setText("%d/%d".formatted(animator.getMoveCount(), animator.numberOfMoves()));
+            pushesLabel.setText("%d/%d".formatted(animator.getPushCount(), animator.numberOfPushes()));
+            speedLabel.setText(Integer.toString(speed));
 
-            try {
-                Level l = animator.getSolution().getLevel();
-
-                Path out = SokoShell.INSTANCE
-                        .exportPNG(l.getPack(), l,
-                                animator.getBoard(), animator.getPlayerX(), animator.getPlayerY(),
-                                animator.getLastMove());
-
-                return out.toString();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            boardComponent.setPlayerX(animator.getPlayerX());
+            boardComponent.setPlayerY(animator.getPlayerY());
+            boardComponent.setPlayerDir(animator.getLastMove());
+            boardComponent.repaint();
         }
 
-        private int speedToMillis() {
-            double a = -0.000072192;
-            double b = 0.0073860;
-            double c = -0.33061;
-            double d = 8.8405;
-
-            double speedSquare = speed * speed;
-            return (int) Math.exp(
-                a * speed * speedSquare  + b * speedSquare + c * speed + d
-            );
-        }
-
+        @Override
         public void updateComponent() {
             if (!paused) {
                 animate();
@@ -247,7 +236,67 @@ public class SolutionCommand extends LevelCommand {
             } else if (keyPressed(Key.R)) {
                 animator.reset();
                 updateComponents();
+            } else if (keyPressed(Key.E)) {
+                export();
+            } else if (keyPressed(Key.CTRL_E)) {
+                exportWithPopup();
             }
+        }
+
+        private void export() {
+            Level level = animator.getSolution().getLevel();
+
+            Exporter exporter = new Exporter();
+            exporter.setBoard(boardComponent.getBoard());
+            exporter.setOut(SokoShell.INSTANCE.getStandardExportPath(level.getPack(), level));
+            exporter.setPlayerX(animator.getPlayerX());
+            exporter.setPlayerY(animator.getPlayerY());
+            exporter.setPlayerDir(animator.getLastMove());
+
+            Path out = exporter.silentExport();
+            if (out != null) {
+                exportLabel.setText(out.toString());
+                exportLabel.show();
+            }
+        }
+
+        private void exportWithPopup() {
+            boolean forcePause;
+            if (!paused) {
+                forcePause = true;
+                paused = true;
+            } else {
+                forcePause = false;
+            }
+
+            Level level = animator.getSolution().getLevel();
+
+            ExportPopup exportPopup = ExportPopup.show(getEngine());
+            exportPopup.setBoard(boardComponent.getBoard());
+            exportPopup.setOut(SokoShell.INSTANCE.getStandardExportPath(level.getPack(), level));
+            exportPopup.setPlayerX(animator.getPlayerX());
+            exportPopup.setPlayerY(animator.getPlayerY());
+            exportPopup.setPlayerDir(animator.getLastMove());
+            exportPopup.addExportListener(new ExportListener() {
+                @Override
+                public void exportCanceled() {
+                    if (forcePause) {
+                        paused = false;
+                        lastTime = System.currentTimeMillis();
+                    }
+                }
+
+                @Override
+                public void exportDone(Path out) {
+                    exportLabel.setText(out.toString());
+                    exportLabel.show();
+
+                    if (forcePause) {
+                        paused = false;
+                        lastTime = System.currentTimeMillis();
+                    }
+                }
+            });
         }
 
         private void animate() {
@@ -274,15 +323,16 @@ public class SolutionCommand extends LevelCommand {
             }
         }
 
-        private void updateComponents() {
-            movesLabel.setText("%d/%d".formatted(animator.getMoveCount(), animator.numberOfMoves()));
-            pushesLabel.setText("%d/%d".formatted(animator.getPushCount(), animator.numberOfPushes()));
-            speedLabel.setText(Integer.toString(speed));
+        private int speedToMillis() {
+            double a = -0.000072192;
+            double b = 0.0073860;
+            double c = -0.33061;
+            double d = 8.8405;
 
-            boardComponent.setPlayerX(animator.getPlayerX());
-            boardComponent.setPlayerY(animator.getPlayerY());
-            boardComponent.setPlayerDir(animator.getLastMove());
-            boardComponent.repaint();
+            double speedSquare = speed * speed;
+            return (int) Math.exp(
+                    a * speed * speedSquare  + b * speedSquare + c * speed + d
+            );
         }
     }
 
