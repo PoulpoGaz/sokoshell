@@ -167,6 +167,7 @@ public class ExportPopup extends fr.valax.sokoshell.graphics.Component {
             exporter.setDeadTiles(deadTiles.isSelected());
             exporter.setRooms(rooms.isSelected());
             exporter.setTunnels(tunnels.isSelected());
+            exporter.setLegend(legend.isSelected());
             exporter.setXSB(xsb.isSelected());
             exporter.setOut(out);
 

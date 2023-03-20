@@ -6,6 +6,7 @@ import fr.valax.sokoshell.graphics.export.ExportListener;
 import fr.valax.sokoshell.graphics.export.ExportPopup;
 import fr.valax.sokoshell.graphics.layout.*;
 import fr.valax.sokoshell.solver.Level;
+import fr.valax.sokoshell.solver.State;
 import fr.valax.sokoshell.solver.board.Board;
 import fr.valax.sokoshell.solver.board.Direction;
 import fr.valax.sokoshell.solver.board.MutableBoard;
@@ -148,14 +149,14 @@ public class PlayCommand extends LevelCommand {
         private void export() {
             Exporter exporter = new Exporter();
             exporter.setBoard(boardComponent.getBoard());
-            exporter.setOut(sokoshell().getStandardExportPath(level.getPack(), level));
+            exporter.setOut(sokoshell().getStandardExportPath(level));
             exporter.setPlayerX(controller.getPlayerX());
             exporter.setPlayerY(controller.getPlayerY());
             exporter.setPlayerDir(controller.getLastDir());
 
             Path out = exporter.silentExport();
             if (out != null) {
-                exportLabel.setText(out.toString());
+                exportLabel.setText("Exported to " + out);
                 exportLabel.show();
             }
         }
@@ -163,7 +164,7 @@ public class PlayCommand extends LevelCommand {
         private void exportWithPopup() {
             ExportPopup exportPopup = ExportPopup.show(getEngine());
             exportPopup.setBoard(boardComponent.getBoard());
-            exportPopup.setOut(sokoshell().getStandardExportPath(level.getPack(), level));
+            exportPopup.setOut(sokoshell().getStandardExportPath(level));
             exportPopup.setPlayerX(controller.getPlayerX());
             exportPopup.setPlayerY(controller.getPlayerY());
             exportPopup.setPlayerDir(controller.getLastDir());
@@ -175,7 +176,7 @@ public class PlayCommand extends LevelCommand {
 
                 @Override
                 public void exportDone(Path out) {
-                    exportLabel.setText(out.toString());
+                    exportLabel.setText("Exported to " + out);
                     exportLabel.show();
                 }
             });

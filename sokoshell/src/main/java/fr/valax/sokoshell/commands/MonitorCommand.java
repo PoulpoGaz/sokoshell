@@ -294,14 +294,14 @@ public class MonitorCommand extends AbstractCommand {
             Exporter exporter = new Exporter();
             exporter.setBoard(boardComponent.getBoard());
             if (currentLevel != null) {
-                exporter.setOut(SokoShell.INSTANCE.getStandardExportPath(currentLevel.getPack(), currentLevel));
+                exporter.setOut(SokoShell.INSTANCE.getStandardExportPath(currentLevel));
             }
             exporter.setPlayerX(boardComponent.getPlayerX());
             exporter.setPlayerY(boardComponent.getPlayerY());
 
             Path out = exporter.silentExport();
             if (out != null) {
-                exportLabel.setText(out.toString());
+                exportLabel.setText("Exported to " + out);
                 exportLabel.show();
             }
         }
@@ -310,7 +310,7 @@ public class MonitorCommand extends AbstractCommand {
             ExportPopup exportPopup = ExportPopup.show(getEngine());
             exportPopup.setBoard(boardComponent.getBoard());
             if (currentLevel != null) {
-                exportPopup.setOut(SokoShell.INSTANCE.getStandardExportPath(currentLevel.getPack(), currentLevel));
+                exportPopup.setOut(SokoShell.INSTANCE.getStandardExportPath(currentLevel));
             }
             exportPopup.setPlayerX(boardComponent.getPlayerX());
             exportPopup.setPlayerY(boardComponent.getPlayerY());
@@ -322,7 +322,7 @@ public class MonitorCommand extends AbstractCommand {
 
                 @Override
                 public void exportDone(Path out) {
-                    exportLabel.setText(out.toString());
+                    exportLabel.setText("Exported to " + out);
                     exportLabel.show();
                 }
             });

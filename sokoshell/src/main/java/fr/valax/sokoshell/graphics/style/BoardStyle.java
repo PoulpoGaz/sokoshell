@@ -166,16 +166,10 @@ public abstract class BoardStyle {
     public void drawCentered(Graphics g,
                              int x, int y, int width, int height,
                              Board board, int playerX, int playerY, Direction playerDir) {
-        double yRatio = (double) height / board.getHeight();
-        double xRatio = (double) width / board.getWidth();
-
-        int s = (int) Math.min(xRatio, yRatio);
-
-        if (s <= 0) {
+        int s = findBestSize(board, width, height);
+        if (s < 0) {
             return;
         }
-
-        s = findBestSize(s);
 
         int w = s * board.getWidth();
         int h = s * board.getHeight();
@@ -191,16 +185,7 @@ public abstract class BoardStyle {
     public void drawCenteredWithLegend(Graphics g,
                                        int x, int y, int width, int height,
                                        Board board, int playerX, int playerY, Direction playerDir) {
-        double yRatio = (double) (height - 1) / board.getHeight();
-        double xRatio = (double) (width - 1) / board.getWidth();
-
-        int s = (int) Math.min(xRatio, yRatio);
-
-        if (s <= 0) {
-            return;
-        }
-
-        s = findBestSize(s);
+        int s = findBestSize(board, width, height);
         if (s < 0) {
             return;
         }
@@ -334,6 +319,19 @@ public abstract class BoardStyle {
      * @return the best size
      */
     public abstract int findBestSize(int size);
+
+    public int findBestSize(Board board, int width, int height) {
+        double yRatio = (double) (height - 1) / board.getHeight();
+        double xRatio = (double) (width - 1) / board.getWidth();
+
+        int s = (int) Math.min(xRatio, yRatio);
+
+        if (s <= 0) {
+            return -1;
+        }
+
+        return findBestSize(s);
+    }
 
     /**
      * Returns {@code true} if the size is supported by the style.

@@ -5,6 +5,7 @@ import fr.valax.sokoshell.solver.Level;
 import fr.valax.sokoshell.solver.Pack;
 import fr.valax.sokoshell.solver.board.Board;
 import fr.valax.sokoshell.solver.board.Direction;
+import fr.valax.sokoshell.solver.board.tiles.Tile;
 import fr.valax.sokoshell.solver.board.tiles.TileInfo;
 import fr.valax.sokoshell.utils.Utils;
 
@@ -182,25 +183,37 @@ public class Exporter {
     private char getChar(TileInfo tile) {
         boolean player = playerX == tile.getX() && playerY == tile.getY();
 
-        return switch (tile.getTile()) {
-            case WALL -> '#';
-            case CRATE -> '$';
-            case CRATE_ON_TARGET -> '*';
-            case FLOOR -> {
-                if (player) {
-                    yield '@';
+        Tile t = tile.getTile();
+        if (player) {
+            if (playerDir == null) {
+                if (t == Tile.FLOOR) {
+                    return '@';
                 } else {
-                    yield ' ';
+                    return '+';
                 }
-            }
-            case TARGET -> {
-                if (player) {
-                    yield '+';
-                } else {
-                    yield  '.';
+            } else {
+                char c = switch (playerDir) {
+                    case UP -> 'u';
+                    case RIGHT -> 'r';
+                    case DOWN -> 'd';
+                    case LEFT -> 'l';
+                };
+
+                if (t == Tile.FLOOR) {
+                    return c;
                 }
+
+                return Character.toUpperCase(c);
             }
-        };
+        } else {
+            return switch (t) {
+                case WALL -> '#';
+                case CRATE -> '$';
+                case CRATE_ON_TARGET -> '*';
+                case FLOOR -> ' ';
+                case TARGET -> '.';
+            };
+        }
     }
 
     public void setLevel(Level level) {
@@ -208,7 +221,7 @@ public class Exporter {
     }
 
     public void setLevel(Level level, Board board, int playerX, int playerY, Direction playerDir) {
-        out = SokoShell.INSTANCE.getStandardExportPath(level.getPack(), level);
+        out = SokoShell.INSTANCE.getStandardExportPath(level);
         this.board = board;
         this.playerX = playerX;
         this.playerY = playerY;

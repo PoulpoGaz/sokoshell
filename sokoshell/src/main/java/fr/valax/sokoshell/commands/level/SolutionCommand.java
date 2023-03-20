@@ -248,14 +248,14 @@ public class SolutionCommand extends LevelCommand {
 
             Exporter exporter = new Exporter();
             exporter.setBoard(boardComponent.getBoard());
-            exporter.setOut(SokoShell.INSTANCE.getStandardExportPath(level.getPack(), level));
+            exporter.setOut(SokoShell.INSTANCE.getStandardExportPath(level));
             exporter.setPlayerX(animator.getPlayerX());
             exporter.setPlayerY(animator.getPlayerY());
             exporter.setPlayerDir(animator.getLastMove());
 
             Path out = exporter.silentExport();
             if (out != null) {
-                exportLabel.setText(out.toString());
+                exportLabel.setText("Exported to " + out);
                 exportLabel.show();
             }
         }
@@ -273,7 +273,7 @@ public class SolutionCommand extends LevelCommand {
 
             ExportPopup exportPopup = ExportPopup.show(getEngine());
             exportPopup.setBoard(boardComponent.getBoard());
-            exportPopup.setOut(SokoShell.INSTANCE.getStandardExportPath(level.getPack(), level));
+            exportPopup.setOut(SokoShell.INSTANCE.getStandardExportPath(level));
             exportPopup.setPlayerX(animator.getPlayerX());
             exportPopup.setPlayerY(animator.getPlayerY());
             exportPopup.setPlayerDir(animator.getLastMove());
@@ -288,7 +288,7 @@ public class SolutionCommand extends LevelCommand {
 
                 @Override
                 public void exportDone(Path out) {
-                    exportLabel.setText(out.toString());
+                    exportLabel.setText("Exported to " + out);
                     exportLabel.show();
 
                     if (forcePause) {

@@ -416,6 +416,10 @@ public class SokoShell {
     }
 
 
+    public Path getStandardExportPath(Level level) {
+        return getStandardExportPath(level.getPack(), level);
+    }
+
     public Path getStandardExportPath(Pack pack, Level level) {
         if (pack == null && level == null) {
             return EXPORT_FOLDER.resolve("level");
