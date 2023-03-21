@@ -1,4 +1,4 @@
-\documentclass{beamer}
+\documentclass[]{beamer}
 
 \usetheme[subsectionpage=progressbar]{metropolis}
 
@@ -29,33 +29,34 @@
 \usepackage[T1]{fontenc}
 \usepackage{lmodern} % for missing fonts (e.g. italic in titles)
 
-\newenvironment{customtree}{
-    \begin{tikzpicture}
-        [sibling distance = 10em,
-        level distance = 6em,
-        every node/.style = {
-            shape=rectangle,
-            line width=0.4mm,
-            draw,
-            scale=0.85,
-            inner sep=2pt
-        },
-        dot/.style = {
-            minimum width=1.5em,
-            minimum height=1.8em
-        },
-        edge from parent/.style = {
-            draw,
-            edge from parent path = {
-                (\tikzparentnode) |-                          % Start from parent
-                ($(\tikzparentnode)!0.5!(\tikzchildnode)$) -| % make an ortho line to mid point
-                (\tikzchildnode)                              % make another ortho to the target
+\newenvironment{customtree}[1][0.8]{
+    \begin{adjustbox}{max totalsize={\textwidth}{\textheight}, center}
+        \begin{tikzpicture}
+            [sibling distance = 10em,
+            level distance = 7em,
+            every node/.style = {
+                % minimum width=10em,
+                shape=rectangle,
+                % line width=0.4mm,
+                scale=#1,
+                inner sep=0pt,
+                outer sep=0pt
             },
-            line width=0.4mm
-        },
-    ]
+            edge from parent/.style = {
+                draw,
+                edge from parent path = {
+                    (\tikzparentnode) |-                          % Start from parent
+                    ($(\tikzparentnode)!0.5!(\tikzchildnode)$) -| % make an ortho line to mid point
+                    (\tikzchildnode)                              % make another ortho to the target
+                },
+                line width=0.4mm
+            },
+            % root/.style = {
+            % },
+        ]
 }{
-    \end{tikzpicture}
+        \end{tikzpicture}
+    \end{adjustbox}
 }
 
 \newcommand\iconwidth{2em}

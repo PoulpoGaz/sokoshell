@@ -23,7 +23,7 @@
                     \begin{figure}
                         \centering
                         \includegraphics[width=\columnwidth]{level_example.png}
-                        \caption*{\textit{Original \& extra}}
+                        \caption*{\textit{XSokoban}}
                     \end{figure}
                 \end{column}
             \end{columns}
@@ -89,34 +89,32 @@
 
     \section{Principe de résolution}
             \begin{frame}{Arbre des états}
-                \centering
                 \begin{customtree}
                     \input{content/states_tree.tex}
                 \end{customtree}
             \end{frame}
 
             \begin{frame}{Exemple développé}
-                \begin{adjustbox}{max totalsize={\textwidth}{\textheight}, center}
-                    \begin{customtree}
-                        \input{content/exhaustive_tree.tex}
-                    \end{customtree}
-                \end{adjustbox}
+                \begin{customtree}
+                    \input{content/exhaustive_tree.tex}
+
+                    % Put it but not draw it to have the same width on the next slide
+                    \node(c22)[ellipse, minimum width=4.2cm, minimum height=3.2cm, line width=1mm, red] at (sameState22.center){};
+                \end{customtree}
             \end{frame}
 
             \begin{frame}{Un graphe vu comme un arbre}
-                \begin{adjustbox}{max totalsize={\textwidth}{\textheight}, center}
-                    \begin{customtree}
-                        \input{content/exhaustive_tree.tex}
+                \begin{customtree}
+                    \input{content/exhaustive_tree.tex}
 
-                        \node(c1)[draw, ellipse, minimum width=4.2cm, minimum height=3.2cm, line width=1mm, red] at (sameState1.center){};
-                        \node(c2)[draw, ellipse, minimum width=4.2cm, minimum height=3.2cm, line width=1mm, red] at (sameState2.center){};
-                        \node(c12)[draw, ellipse, minimum width=4.2cm, minimum height=3.2cm, line width=1mm, red] at (sameState12.center){};
-                        \node(c22)[draw, ellipse, minimum width=4.2cm, minimum height=3.2cm, line width=1mm, red] at (sameState22.center){};
+                    \node(c1)[draw, ellipse, minimum width=4.2cm, minimum height=3.2cm, line width=1mm, red] at (sameState1.center){};
+                    \node(c2)[draw, ellipse, minimum width=4.2cm, minimum height=3.2cm, line width=1mm, red] at (sameState2.center){};
+                    \node(c12)[draw, ellipse, minimum width=4.2cm, minimum height=3.2cm, line width=1mm, red] at (sameState12.center){};
+                    \node(c22)[draw, ellipse, minimum width=4.2cm, minimum height=3.2cm, line width=1mm, red] at (sameState22.center){};
 
-                        \draw[<->, draw=red, line width = 2mm] (c1.north) |- (c12.west);
-                        \draw[<->, draw=red, line width = 2mm] (c2.east) -| (c22.south);
-                    \end{customtree}
-                \end{adjustbox}
+                    \draw[<->, draw=red, line width = 2mm] (c1.north) |- (c12.west);
+                    \draw[<->, draw=red, line width = 2mm] (c2.east) -| (c22.south);
+                \end{customtree}
             \end{frame}
 
     \section{Réduction de l'espace de recherche}
