@@ -38,7 +38,7 @@ public class XSBToPNG implements Command {
     @Option(names = {"s", "source"}, defaultValue = "documents/assets", hasArgument = true)
     private Path source;
 
-    @Option(names = {"d", "destination"}, defaultValue = "documents/assets\succnapprox", hasArgument = true)
+    @Option(names = {"d", "destination"}, defaultValue = "documents/assets", hasArgument = true)
     private Path dest;
 
     @Option(names = {"S", "style"}, defaultValue = "styles/warehouse/warehouse.style", hasArgument = true)

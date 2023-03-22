@@ -238,6 +238,18 @@ set-image player_down     16 tileset.png 112 0
 set-image player_up       16 tileset.png 128 0
 set-image no_direction    16 tileset.png 144 0
 
+# ==== SIZE 50 ====
+set-image floor           50 tileset.png   0 60
+set-image wall            50 tileset.png  50 60
+set-image crate           50 tileset.png 100 60
+set-image crate_on_target 50 tileset.png 150 60
+set-image target          50 tileset.png 200 60
+merge 50 floor target
+set-image player_left     50 tileset.png 250 60
+set-image player_right    50 tileset.png 300 60
+set-image player_down     50 tileset.png 350 60
+set-image player_up       50 tileset.png 400 60
+set-image no_direction    50 tileset.png 450 60
 
 # ==== MASKS ====
 set-mask dead_tile  1 255 0 0 64
