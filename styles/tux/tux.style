@@ -1,0 +1,21 @@
+# Use some sprites from supertux (https://github.com/SuperTux/supertux/)
+# Sprites are rescaled to make them fit in a 64x64 box.
+# Unfinished as player_up and player_down are missing...
+
+name Tux
+author PoulpoGaz
+version 0.1
+
+set-image floor           64 tileset.png   0 0
+set-image wall            64 tileset.png  64 0
+set-image crate           64 tileset.png 128 0
+set-image crate_on_target 64 tileset.png 128 0
+set-image target          64 tileset.png 192 0
+merge 64 floor target
+merge 64 floor crate
+merge 64 target crate_on_target
+
+set-image player_left     64 tileset.png 256 0
+set-image player_up       64 tileset.png 256 0
+set-image player_right    64 tileset.png 320 0
+set-image player_down     64 tileset.png 320 0
