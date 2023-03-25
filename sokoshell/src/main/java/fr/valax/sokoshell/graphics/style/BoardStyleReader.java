@@ -203,6 +203,7 @@ public class BoardStyleReader {
     }
 
     public FileBoardStyle read(Path file) throws IOException {
+        line = 0;
         folder = file.getParent();
 
         try {
