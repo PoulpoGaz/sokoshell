@@ -36,7 +36,8 @@ public class Corral {
     protected final Set<CorralState> visited = new HashSet<>();
     protected final Queue<CorralState> toVisit = new ArrayDeque<>();
     protected final ReachableTiles reachable;
-    private CorralState currentState;
+    protected CorralState currentState;
+    protected DeadlockTable deadlockTable;
 
     public Corral(int id, Board board) {
         this.id = id;
@@ -250,6 +251,10 @@ public class Corral {
             return false;
         }
 
+        if (deadlockTable.isDeadlock(crate.adjacent(pushDir.negate()), pushDir)) {
+            return true; // current state is a deadlock, we need to continue the research
+        }
+
         // all crates of the corral can be moved to a target
 
         int n = 0;
@@ -349,6 +354,14 @@ public class Corral {
 
     public boolean isPICorral() {
         return isPICorral == IS_A_PI_CORRAL;
+    }
+
+    public DeadlockTable getDeadlockTable() {
+        return deadlockTable;
+    }
+
+    public void setDeadlockTable(DeadlockTable deadlockTable) {
+        this.deadlockTable = deadlockTable;
     }
 
     @Override

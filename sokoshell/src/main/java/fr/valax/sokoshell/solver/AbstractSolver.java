@@ -90,6 +90,7 @@ public abstract class AbstractSolver<S extends State> implements Trackable, Solv
         board = new MutableBoard(level);
         board.removeStateCrates(initialState);
         board.initForSolver();
+        board.getCorralDetector().setDeadlockTable(table);
 
         init(params);
         processed.clear();

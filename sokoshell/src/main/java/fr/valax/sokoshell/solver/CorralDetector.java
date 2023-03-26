@@ -466,4 +466,10 @@ public class CorralDetector {
     public int getRealNumberOfCorral() {
         return realNumberOfCorral;
     }
+
+    public void setDeadlockTable(DeadlockTable table) {
+        for (Corral c : corrals) {
+            c.setDeadlockTable(table);
+        }
+    }
 }
