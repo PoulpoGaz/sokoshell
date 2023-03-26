@@ -167,6 +167,7 @@ public class DeadlockTable {
         if (table.deadlock == A_DEADLOCK) {
             State state = createState(board, playerX, playerY);
 
+            // but dead tiles aren't computed...
             if (FreezeDeadlockDetector.checkFreezeDeadlock(board, state)) {
                 return 0;
             }
@@ -175,15 +176,21 @@ public class DeadlockTable {
             detector.findCorral(board, playerX, playerY);
             detector.findPICorral(board, state.cratesIndices());
 
+            boolean deadlock = false;
             for (Corral c : detector.getCorrals()) {
-                if (c.isDeadlock(state)) {
-                    return 0;
+                if (c.isDeadlock(state, true)) {
+                    deadlock = true;
+                    break;
                 }
             }
 
-            BasicStyle.XSB_STYLE.print(board, playerX, playerY);
+            if (deadlock) {
+                return 0;
+            } else {
+                BasicStyle.XSB_STYLE.print(board, playerX, playerY);
 
-            return 1; // not detected !
+                return 1; // not detected !
+            }
         } else if (table.deadlock == MAYBE_A_DEADLOCK) {
             int n = countNotDetectedDeadlock(table.floorChild, board, playerX, playerY);
 

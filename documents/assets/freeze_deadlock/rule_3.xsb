@@ -1,1 +1,12 @@
 $$$
+
+LATEX
+
+\begin{document}
+    \begin{tikzpicture}
+        \begin{sokoban}[$WIDTH$, $HEIGHT$]{$FILE$}
+            \node[white, scale=5] at (0.45, 0.5) {?};
+            \node[white, scale=5] at (2.45, 0.5) {?};
+        \end{sokoban}
+    \end{tikzpicture}
+\end{document}

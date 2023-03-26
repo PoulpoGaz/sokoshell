@@ -213,7 +213,7 @@ public class CorralTest {
         }
         System.out.println("--");
         corralDetector.findPICorral(board, state.cratesIndices());
-            for (Corral c : corralDetector.getCorrals()) {
+        for (Corral c : corralDetector.getCorrals()) {
             System.out.printf("%d - %d. pi-corral? %s deadlock? %s%n", c.getTopX(), c.getTopY(), c.isPICorral(), c.isDeadlock(state));
         }
     }

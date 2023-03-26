@@ -1,0 +1,44 @@
+###################
+#####   ###########
+#####   ###########
+#####   ###########
+###      ##########
+### # ## ##########
+#   # ## #####    #
+#        $        #
+##### ### # ##    #
+#####     #########
+###################
+
+LATEX
+
+\begin{document}
+    \begin{tikzpicture}
+        \begin{sokoban}[$WIDTH$, $HEIGHT$]{$FILE$}
+            \draw[red, ->, line width=8] (9.5, 7.5) -- (14.5, 7.5);
+
+            \fill[yellow, fill opacity=0.2] (3, 4) rectangle +(1, 1);
+            \fill[yellow, fill opacity=0.2] (4, 4) rectangle +(1, 1);
+            \fill[yellow, fill opacity=0.2] (8, 4) rectangle +(1, 1);
+            \fill[yellow, fill opacity=0.2] (3, 5) rectangle +(1, 1);
+            \fill[yellow, fill opacity=0.2] (5, 5) rectangle +(1, 1);
+            \fill[yellow, fill opacity=0.2] (8, 5) rectangle +(1, 1);
+            \fill[yellow, fill opacity=0.2] (5, 6) rectangle +(1, 1);
+            \fill[yellow, fill opacity=0.2] (8, 6) rectangle +(1, 1);
+            \fill[yellow, fill opacity=0.2] (4, 7) rectangle +(1, 1);
+            \fill[yellow, fill opacity=0.2] (6, 7) rectangle +(1, 1);
+            \fill[yellow, fill opacity=0.2] (7, 7) rectangle +(1, 1);
+            \fill[yellow, fill opacity=0.2] (10, 7) rectangle +(1, 1);
+            \fill[yellow, fill opacity=0.2] (11, 7) rectangle +(1, 1);
+            \fill[yellow, fill opacity=0.2] (12, 7) rectangle +(1, 1);
+            \fill[yellow, fill opacity=0.2] (13, 7) rectangle +(1, 1);
+            \fill[yellow, fill opacity=0.2] (5, 8) rectangle +(1, 1);
+            \fill[yellow, fill opacity=0.2] (9, 8) rectangle +(1, 1);
+            \fill[yellow, fill opacity=0.2] (5, 9) rectangle +(1, 1);
+            \fill[yellow, fill opacity=0.2] (6, 9) rectangle +(1, 1);
+            \fill[yellow, fill opacity=0.2] (7, 9) rectangle +(1, 1);
+            \fill[yellow, fill opacity=0.2] (8, 9) rectangle +(1, 1);
+            \fill[yellow, fill opacity=0.2] (9, 9) rectangle +(1, 1);
+        \end{sokoban}
+    \end{tikzpicture}
+\end{document}

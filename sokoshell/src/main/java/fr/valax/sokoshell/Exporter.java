@@ -157,16 +157,16 @@ public class Exporter {
                 for (int x = 0; x < board.getWidth(); x++) {
                     TileInfo tileInfo = board.getAt(x, y);
                     String color = null;
-                    if (tileInfo.isDeadTile()) {
+                    if (tileInfo.isDeadTile() && deadTiles) {
                         color = "red";
-                    } else if (tileInfo.isInARoom()) {
+                    } else if (tileInfo.isInARoom() && rooms) {
                         color = "blue";
-                    } else if (tileInfo.isInATunnel()) {
+                    } else if (tileInfo.isInATunnel() && tunnels) {
                         color = "yellow";
                     }
 
                     if (color != null) {
-                        bw.append("        \\fill[%s, fill opacity=0.2] (%d, %d) rectangle +(1, 1);".formatted(color, x, y));
+                        bw.append("            \\fill[%s, fill opacity=0.2] (%d, %d) rectangle +(1, 1);".formatted(color, x, y));
                         bw.newLine();
                     }
                 }

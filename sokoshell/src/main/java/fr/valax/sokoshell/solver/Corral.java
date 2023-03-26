@@ -45,12 +45,18 @@ public class Corral {
     }
 
     public boolean isDeadlock(State originalState) {
-        if (!isPICorral() || onlyCrateOnTarget || crates.size() == originalState.cratesIndices().length) {
+        return isDeadlock(originalState, false);
+    }
+
+    public boolean isDeadlock(State originalState, boolean forceContainsAllCrate) {
+        if (!isPICorral() ||
+                onlyCrateOnTarget ||
+                !forceContainsAllCrate && crates.size() == originalState.cratesIndices().length) {
             return false;
         }
 
         addFrozenCrates(originalState);
-        if (crates.size() == originalState.cratesIndices().length) {
+        if (!forceContainsAllCrate && crates.size() == originalState.cratesIndices().length) {
             return false;
         }
 
