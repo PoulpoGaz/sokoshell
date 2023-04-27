@@ -1,82 +1,17 @@
 # SokoShell
 
-Version 0.1
-
-### How to debug and keep autocompletion?
-
-For IntelliJ IDEA:
-* Create a `Remote JVM Debug` configuration. Values by default are great.
-* Start sokoshell with `bash sokoshell-in-terminal.bash -d`
-* Wait until the compilation is finished
-* Start the previously created `Remote JVM Debug` configuration.
-
-
-### TODO
-
-| TODO                                                                                                                                                   | DONE?       |
-|:-------------------------------------------------------------------------------------------------------------------------------------------------------|-------------|
-| deadlocks:<ul><li>corral</li><li>closed diagonals</li><li>bipartite deadlocks</li></ul>                                                                | no          |
-| A* pushes lower bound calculation :<ul><li>greedy</li><li>real distance (a* pathfinder)</li><li>optimal</li><li>according to player position</li></ul> | in progress |
-| goal cuts -> packing order                                                                                                                             | no          |
-| charts comparing optimization                                                                                                                          | no          |
+Version 1.0-SNAPSHOT
 
 ## Results
 
-| Solver | Suite / Levels        | Time limit | Solved | Error / Other                           | Total | Start date       | End date         | Total run time    |
-|--------|-----------------------|------------|--------|-----------------------------------------|-------|------------------|------------------|-------------------|
-| DFS    | Large test suite      | 30 sec     | 1732   | 8 errors - 46 no solution               | 3272  | 10/12/2022 15:28 | 11/12/2022 04:43 | 13h 45min         |
-| DFS    | GroupEffort small set | 30 sec     | 47     | 1 no solution                           | 200   | 11/12/2022 16:19 | 11/12/2022 17:43 | 1h 24min          |
-| A*     | GroupEffort small set | 3 min      | 87     | 24 timeout - 89 errors                  | 200   | 15/02/2023 7:18  | 15/02/2023 8:56  | 1h 38min          |
-| A*     | Large test suite      | 3min       | 2095   | 1171 timeout - 4 errors - 2 no solution | 3272  | 24/02/2023 19:21 | 27/02/2023 09:40 | 2 days 14h 19 min |
-| fess0  | XSokoban_90           | 10min      | 14     | 76 timeout                              | 90    | 03/03/2023 20:35 | 04/03/2023 09:20 | 12h 45 min        |
-
-### Detailed results for 4-th line
-
-#### State statistics
-Total number of state explored: 963611941
-Average state explored per report: 459957
-Level with the least explored state: 0 - GrigrSpecial_40 #40 (all crates are on target...)
-Level with the most explored state: 13555057 - Sven_1623 #143 (approx 7Gi RAM)
-
-#### Time statistics
-Total run time: 3 h 42 min 52.73 s (+ 3min * 1171 = 2.43 days)
-Average run time per report: 6.38 s
-Fastest solved level: in 0 ms - Microban II_135 #2
-Slowest solved level: in 2 min 52.57 s - Sven_1623 #997
-
-#### Solution length (moves)
-Average solution length per report: 296
-Level with shortest solution: 0 moves - GrigrSpecial_40 #40 (151 levels are solved in 0ms)
-Level with longest solution: 5037 moves - Microban II_135 #134 (22 levels are solved in more than 2 min, 52 between 1 and 2 min)
-
-#### Solution length (pushes)
-Average solution length per report: 59
-Level with the shortest solution: 0 pushes - GrigrSpecial_40 #40
-Level with the longest solution: 616 pushes - Sven_1623 #45
-
-### Detailed results for 5-th line
-
-#### State statistics
-Total number of state explored: 7037622
-Average state explored per report: 502687
-Level with the least explored state: 78 - XSokoban_90 #1
-Level with the most explored state: 5708403 - XSokoban_90 #43
-
-#### Time statistics
-Total run time: 14 min 58.55 s
-Average run time per report: 1 min 4.18 s
-Fastest solved level: in 16 ms - XSokoban_90 #5
-Slowest solved level: in 9 min 23.29 s - XSokoban_90 #64
-
-#### Solution length (moves)
-Average solution length per report: 710
-Level with shortest solution: 324 moves - XSokoban_90 #6
-Level with longest solution: 1522 moves - XSokoban_90 #43
-
-#### Solution length (pushes)
-Average solution length per report: 219
-Level with the shortest solution: 110 pushes - XSokoban_90 #6
-Level with the longest solution: 425 pushes - XSokoban_90 #4
+| Solver | Suite / Levels        | Time limit | Solved | Error / Other                               | Total | Start date       | End date         | Total run time   |
+|--------|-----------------------|------------|--------|---------------------------------------------|-------|------------------|------------------|------------------|
+| DFS    | Large test suite      | 30 sec     | 1732   | 8 errors - 46 no solution                   | 3272  | 10/12/2022 15:28 | 11/12/2022 04:43 | 13h 45min        |
+| DFS    | GroupEffort small set | 30 sec     | 47     | 1 no solution                               | 200   | 11/12/2022 16:19 | 11/12/2022 17:43 | 1h 24min         |
+| A*     | GroupEffort small set | 3 min      | 87     | 24 timeout - 89 errors                      | 200   | 15/02/2023 7:18  | 15/02/2023 8:56  | 1h 38min         |
+| A*     | Large test suite      | 3min       | 2095   | 1171 timeout - 4 errors - 2 no solution     | 3272  | 24/02/2023 19:21 | 27/02/2023 09:40 | 2 days 14h 19min |
+| fess0  | XSokoban_90           | 10min      | 14     | 76 timeout                                  | 90    | 03/03/2023 20:35 | 04/03/2023 09:20 | 12h 45min        |
+| fess0  | large_text_suite      | 10min      | 2273   | 946 timeout - 51 ram exceed - 2 no solution | 3272  | 16/04/2023 15:54 | 24/04/2023 02:21 | 7 days 10h 25min |
 
 ## Ideas
 
@@ -130,10 +65,18 @@ $   $    $
 $$$$$$$$$$
 ```
 
-### PI corral
+### Deadlocks
 
-Multi pi corral
-corral
+Detect closed diagonal deadlocks
+
+## Developers
+### Debugging in a an external terminal
+
+For IntelliJ IDEA:
+* Create a `Remote JVM Debug` configuration. Values by default are great.
+* Start sokoshell with `bash sokoshell-in-terminal.bash -d` (d for debug)
+* Wait until the compilation is finished
+* Start the previously created `Remote JVM Debug` configuration.
 
 ## Resources
 

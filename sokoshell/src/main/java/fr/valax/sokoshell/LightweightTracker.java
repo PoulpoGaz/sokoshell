@@ -71,9 +71,14 @@ public class LightweightTracker implements Tracker {
 
             out.printf("Total state explored: %d%n", totalStateExplored);
             out.printf("Average queue size: %d%n", averageQueueSize());
-            out.printf("Node explored per seconds: %d%n",  nodeExploredPerSeconds());
+            out.printf("State explored per seconds: %d%n",  stateExploredPerSeconds());
 
             return null;
+        }
+
+        @Override
+        public long stateExploredPerSeconds() {
+            return nodeExploredPerSeconds;
         }
     }
 }

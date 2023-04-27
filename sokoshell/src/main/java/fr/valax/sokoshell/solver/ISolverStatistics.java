@@ -46,9 +46,9 @@ public interface ISolverStatistics extends Serializable {
     int totalStateExplored();
 
     /**
-     * @return number of node explored per seconds or -1
+     * @return number of state explored per seconds or -1
      */
-    long nodeExploredPerSeconds();
+    long stateExploredPerSeconds();
 
     /**
      * @return average queue size or -1
@@ -88,7 +88,7 @@ public interface ISolverStatistics extends Serializable {
         }
 
         @Override
-        public long nodeExploredPerSeconds() {
+        public long stateExploredPerSeconds() {
             return -1;
         }
 

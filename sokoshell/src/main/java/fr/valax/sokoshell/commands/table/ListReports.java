@@ -18,14 +18,12 @@ import fr.valax.sokoshell.utils.Utils;
 import org.jline.reader.Candidate;
 import org.jline.reader.LineReader;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class ListReports extends TableCommand {
@@ -184,7 +182,6 @@ public class ListReports extends TableCommand {
             // use stream api to simplify printStats
             printStats(out, solverReports.stream()
                     .map(Pair::getLeft)
-                    .filter(SolverReport::isSolved)
                     .collect(Collectors.toList()));
         }
     }
@@ -193,131 +190,62 @@ public class ListReports extends TableCommand {
      * Very repetitive method...
      */
     private void printStats(PrintStream out, List<SolverReport> solverReports) {
-        int minState = Integer.MAX_VALUE;
-        SolverReport minStateReport = null;
-        int maxState = 0;
-        SolverReport maxStateReport = null;
-        long stateSum = 0; // a long is probably is good idea here
-        // number of report that have precise statistics about the number of state explored
-        int numReportWithState = 0;
-
-        long minTime = Integer.MAX_VALUE;
-        SolverReport minTimeReport = null;
-        long maxTime = 0;
-        SolverReport maxTimeReport = null;
-        long timeSum = 0;
-
-        int minMoves = Integer.MAX_VALUE;
-        SolverReport minMovesReport = null;
-        int maxMoves = 0;
-        SolverReport maxMovesReport = null;
-        int movesSum = 0;
-
-        int minPushes = Integer.MAX_VALUE;
-        SolverReport minPushesReport = null;
-        int maxPushes = 0;
-        SolverReport maxPushesReport = null;
-        int pushesSum = 0;
+        Statistic stateStat = new Statistic();
+        Statistic statePerSecondStat = new Statistic();
+        Statistic timeStat = new Time();
+        Statistic moveStat = new Statistic();
+        Statistic pushStat = new Statistic();
 
         for (SolverReport report : solverReports) {
             ISolverStatistics stats = report.getStatistics();
 
+            // states
             if (stats.totalStateExplored() >= 0) {
-                int state = stats.totalStateExplored();
-                if (state < minState) {
-                    minState = state;
-                    minStateReport = report;
-                }
-                if (state > maxState) {
-                    maxState = state;
-                    maxStateReport = report;
-                }
-                stateSum += state;
-
-                numReportWithState++;
+                stateStat.add(report, stats.totalStateExplored());
             }
 
-            long time = stats.runTime();
-            if (time < minTime) {
-                minTime = time;
-                minTimeReport = report;
+            if (stats.stateExploredPerSeconds() >= 0) {
+                statePerSecondStat.add(report, stats.stateExploredPerSeconds());
             }
-            if (time > maxTime) {
-                maxTime = time;
-                maxTimeReport = report;
-            }
-            timeSum += time;
 
-            if (report.numberOfMoves() < minMoves) {
-                minMoves = report.numberOfMoves();
-                minMovesReport = report;
+            timeStat.add(report, stats.runTime());
+            if (report.isSolved()) {
+                moveStat.add(report, report.numberOfMoves());
+                pushStat.add(report, report.numberOfPushes());
             }
-            if (report.numberOfMoves() > maxMoves) {
-                maxMoves = report.numberOfMoves();
-                maxMovesReport = report;
-            }
-            movesSum += report.numberOfMoves();
-
-            if (report.numberOfPushes() < minPushes) {
-                minPushes = report.numberOfPushes();
-                minPushesReport = report;
-            }
-            if (report.numberOfPushes() > maxPushes) {
-                maxPushes = report.numberOfPushes();
-                maxPushesReport = report;
-            }
-            pushesSum += report.numberOfPushes();
         }
 
+        out.println("* State statistics *");
+        stateStat.print(out,
+                "Total number of state explored: %s%n",
+                "Average state explored per report: %s%n",
+                "Level with the least explored state: %s - %s #%d%n",
+                "Level with the most explored state: %s - %s #%d%n");
+        statePerSecondStat.print(out, null, "Average state explored per second: %s%n", null, null);
 
-        out.println("Below statics are valid for solved levels");
-
-        // finally print!
-        if (numReportWithState > 0) {
-            out.println("* State statistics *");
-            out.printf("Total number of state explored: %d%n", stateSum);
-            out.printf("Average state explored per report: %d%n", stateSum / numReportWithState);
-
-            Level l = minStateReport.getLevel();
-            out.printf("Level with the least explored state: %d - %s #%d%n", minState, l.getPack().name(), l.getIndex() + 1);
-
-            l = maxStateReport.getLevel();
-            out.printf("Level with the most explored state: %d - %s #%d%n", maxState, l.getPack().name(), l.getIndex() + 1);
-            out.println();
-        }
-
-
+        out.println();
         out.println("* Time statistics *");
-        out.printf("Total run time: %s%n", Utils.prettyDate(timeSum));
-        out.printf("Average run time per report: %s%n", Utils.prettyDate(timeSum / solverReports.size()));
+        timeStat.print(out,
+                "Total run time: %s%n",
+                "Average run time: %s%n",
+                "Fastest solved level: in %s - %s #%d%n",
+                "Slowest solved level: in %s - %s #%d%n");
 
-        Level l = minTimeReport.getLevel();
-        out.printf("Fastest solved level: in %s - %s #%d%n", Utils.prettyDate(minTime), l.getPack().name(), l.getIndex() + 1);
-
-        l = maxTimeReport.getLevel();
-        out.printf("Slowest solved level: in %s - %s #%d%n", Utils.prettyDate(maxTime), l.getPack().name(), l.getIndex() + 1);
         out.println();
-
-
         out.println("* Solution length (moves) *");
-        out.printf("Average solution length per report: %d%n", movesSum / solverReports.size());
+        moveStat.print(out,
+                null,
+                "Average solution length: %s%n",
+                "Level with the shortest solution: %s moves - %s #%d%n",
+                "Level with the longest solution: %s moves - %s #%d%n");
 
-        l = minMovesReport.getLevel();
-        out.printf("Level with shortest solution: %s moves - %s #%d%n", minMoves, l.getPack().name(), l.getIndex() + 1);
-
-        l = maxMovesReport.getLevel();
-        out.printf("Level with longest solution: %s moves - %s #%d%n", maxMoves, l.getPack().name(), l.getIndex() + 1);
         out.println();
-
-
         out.println("* Solution length (pushes) *");
-        out.printf("Average solution length per report: %d%n", pushesSum / solverReports.size());
-
-        l = minPushesReport.getLevel();
-        out.printf("Level with shortest solution: %s pushes - %s #%d%n", minPushes, l.getPack().name(), l.getIndex() + 1);
-
-        l = maxPushesReport.getLevel();
-        out.printf("Level with longest solution: %s pushes - %s #%d%n", maxPushes, l.getPack().name(), l.getIndex() + 1);
+        pushStat.print(out,
+                null,
+                "Average solution length: %s%n",
+                "Level with the shortest solution: %s pushes - %s #%d%n",
+                "Level with the longest solution: %s pushes - %s #%d%n");
     }
 
     private void exportCSV(List<Pair<SolverReport, Integer>> reports) throws IOException {
@@ -403,6 +331,109 @@ public class ListReports extends TableCommand {
     public void complete(LineReader reader, String commandString, CommandLine.CommandSpec command, List<Candidate> candidates, CommandLine.OptionSpec option, String argument) {
         if (option != null && ArgsUtils.contains(option.getShortNames(), 'p')) {
             sokoshell().addPackCandidates(candidates);
+        }
+    }
+
+    private static class Statistic {
+
+        protected long min = Integer.MAX_VALUE;
+        protected SolverReport minReport;
+        protected long max = Integer.MIN_VALUE;
+        protected SolverReport maxReport;
+        protected long sum;
+
+        protected int num; // number of elements
+
+        public void add(SolverReport r, long l) {
+            num++;
+            sum += l;
+
+            if (l < min) {
+                minReport = r;
+                min = l;
+            }
+            if (l > max) {
+                maxReport = r;
+                max = l;
+            }
+        }
+
+        public void print(PrintStream out,
+                          String totalFormat, String averageFormat,
+                          String minFormat, String maxFormat) {
+            if (sum == 0) {
+                return;
+            }
+
+            if (totalFormat != null) {
+                out.printf(totalFormat, numberToString(sum));
+            }
+            if (averageFormat != null) {
+                out.printf(averageFormat, numberToString(getAverage()));
+            }
+            if (minFormat != null) {
+                out.printf(minFormat, numberToString(min), minReport.getPack().name(), minReport.getLevel().getIndex() + 1);
+            }
+            if (maxFormat != null) {
+                out.printf(maxFormat, numberToString(max), maxReport.getPack().name(), maxReport.getLevel().getIndex() + 1);
+            }
+        }
+
+        protected String numberToString(long number) {
+            return Long.toString(number);
+        }
+
+        public long getMin() {
+            return min;
+        }
+
+        public SolverReport getMinReport() {
+            return minReport;
+        }
+
+        public long getMax() {
+            return max;
+        }
+
+        public SolverReport getMaxReport() {
+            return maxReport;
+        }
+
+        public long getSum() {
+            return sum;
+        }
+
+        public int getNum() {
+            return num;
+        }
+
+        public long getAverage() {
+            return sum / num;
+        }
+    }
+
+    private static class Time extends Statistic {
+
+        @Override
+        public void add(SolverReport r, long l) {
+            num++;
+            sum += l;
+
+            if (r.isSolved()) {
+                if (l < min) {
+                    minReport = r;
+                    min = l;
+                }
+                if (l > max) {
+                    maxReport = r;
+                    max = l;
+                }
+            }
+        }
+
+        @Override
+        protected String numberToString(long number) {
+            return Utils.prettyDate(number);
         }
     }
 }

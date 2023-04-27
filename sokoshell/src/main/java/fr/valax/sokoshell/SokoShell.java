@@ -59,7 +59,7 @@ import static org.jline.utils.AttributedStyle.*;
  */
 public class SokoShell {
 
-    public static final String VERSION = "0.1";
+    public static final String VERSION = "1.0-SNAPSHOT";
     public static final String NAME = "sokoshell";
 
     public static final Path USER_HOME = Path.of(System.getProperty("user.home"));

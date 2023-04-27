@@ -106,7 +106,7 @@ public class DefaultTracker implements Tracker {
         }
 
         @Override
-        public long nodeExploredPerSeconds() {
+        public long stateExploredPerSeconds() {
             if (statistics.isEmpty()) {
                 return -1;
             }
@@ -165,7 +165,7 @@ public class DefaultTracker implements Tracker {
 
             if (!statistics.isEmpty()) {
                 out.printf("Average queue size: %d%n", averageQueueSize());
-                out.printf("Node explored per seconds: %d%n",  nodeExploredPerSeconds());
+                out.printf("State explored per seconds: %d%n",  stateExploredPerSeconds());
                 out.println();
 
                 PrettyTable table = new PrettyTable();
