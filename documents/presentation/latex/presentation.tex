@@ -29,23 +29,31 @@
             \end{columns}
         \end{frame}
 
-        \begin{frame}{Règles}
+        \begin{frame}{But du jeu}
+            \centering
+            \resizebox{\textwidth}{!}{%
+                \begin{tikzpicture}
+                    \node (start) {\includegraphics[width=0.5\textwidth]{rules/game_start.png}};
+                    \node (end) [right=of start]{\includegraphics[width=0.5\textwidth]{rules/game_end.png}};
+                    \draw[->, line width=1mm] (start.north east) to[out=60,in=130] node (label) [anchor=south, midway] {Déplacements} (end.north west);
+                \end{tikzpicture}
+            }
+        \end{frame}
 
-            \begin{columns}
+        \begin{frame}{Règles}
+            \begin{columns}\usetikzlibrary{shadows,shapes,positioning}
                 \begin{column}{0.5\textwidth}
                     \only<1-2>{
                         \begin{figure}
                             \centering
-                            \begin{tikzpicture}
-                            \node[anchor=south west, inner sep=0] (image) at (0,0) {\includegraphics[width=0.9\textwidth]{rules/moves.png}};
-                        \end{tikzpicture}
+                            \includegraphics[width=0.9\textwidth]{rules/moves.png}
                             \caption*{Déplacements autorisés}
                         \end{figure}
                     }
                     \only<3>{
                         \begin{figure}
                             \centering
-                            \includegraphics{rules/move_no_1.png}
+                            \includegraphics[width=0.9\textwidth]{rules/move_no_1.png}
                             \caption*{\includegraphics[width=\iconwidth]{icons/no.png}}
                         \end{figure}
                     }
@@ -54,14 +62,14 @@
                     \only<2>{
                         \begin{figure}
                             \centering
-                            \includegraphics{rules/move_yes.png}
+                            \includegraphics[width=0.9\textwidth]{rules/move_yes.png}
                             \caption*{\includegraphics[width=\iconwidth]{icons/yes.png}}
                         \end{figure}
                     }
                     \only<3>{
                         \begin{figure}
                             \centering
-                            \includegraphics{rules/move_no_2.png}
+                            \includegraphics[width=0.9\textwidth]{rules/move_no_2.png}
                             \caption*{\includegraphics[width=\iconwidth]{icons/no.png}}
                         \end{figure}
                     }
@@ -69,16 +77,28 @@
             \end{columns}
         \end{frame}
 
-        \begin{frame}{But du jeu}
+        \begin{frame}{Tuiles} 
             \centering
-            \begin{columns}
-                \begin{column}{0.5\textwidth}
-                    \includegraphics[width=\columnwidth]{rules/last_move.png}
-                \end{column}
-                \begin{column}{0.5\textwidth}
-                    \includegraphics[width=\columnwidth]{rules/end.png}
-                \end{column}
-            \end{columns}
+
+            \includegraphics[width=0.5\textwidth]{tiles/tilemap.png}
+
+            \resizebox{\textwidth}{!}{%
+                \begin{tabular}{ c c c c c }
+                    \includegraphics[width=0.2\textwidth]{tiles/wall.png} &
+                    \includegraphics[width=0.2\textwidth]{tiles/floor.png} &
+                    \includegraphics[width=0.2\textwidth]{tiles/crate.png} &
+                    \includegraphics[width=0.2\textwidth]{tiles/target.png} &
+                    \includegraphics[width=0.2\textwidth]{tiles/crate_on_target.png} \\
+                   \textbf{Mur} & Sol & \textbf{Caisse} & Cible & \textbf{Caisse sur une cible} \\
+                \end{tabular}
+            }
+
+            % For some reason, the minted environement is not working
+            \only<2>{
+                \mint{java}|enum Tile {WALL, FLOOR, CRATE, TARGET, CRATE_ON_TARGET};|
+                \mint{java}|Tile[][] map = new Tile[height][width];|
+            }
+           
         \end{frame}
 
         \begin{frame}{Lien avec le thème de l'année}

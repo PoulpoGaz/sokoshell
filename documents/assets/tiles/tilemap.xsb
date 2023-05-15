@@ -1,0 +1,13 @@
+#######
+# $ . #
+#* $ .#
+#######
+
+LATEX
+
+\begin{document}
+    \begin{tikzpicture}
+        \begin{sokoban}[$WIDTH$, $HEIGHT$, sok/grid]{$FILE$}
+        \end{sokoban}
+    \end{tikzpicture}
+\end{document}
