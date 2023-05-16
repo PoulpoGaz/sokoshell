@@ -1,0 +1,30 @@
+########
+#.  ## #
+#. $ $ #
+#.  $  #
+########
+
+LATEX
+
+\begin{document}
+    \begin{tikzpicture}
+        \begin{sokoban}[$WIDTH$, $HEIGHT$]{$FILE$}
+            \draw[red, ->, line width=8]
+                (3.3, 2.5) --
+                node[white, draw, circle, inner sep=0.1mm, ultra thick, below=1mm, scale=4] {2}
+                (1.7, 2.5);
+            \draw[red, ->, line width=8]
+                (5.5, 2.3) to[bend right]
+                node[white, draw, circle, inner sep=0.1mm, ultra thick, above=1mm, scale=4] {4}
+                (1.5, 2.3);
+            \draw[red, ->, line width=8]
+                (4.3, 3.5) --
+                node[white, draw, circle, inner sep=0.1mm, ultra thick, below=1mm, scale=4] {3}
+                (1.7, 3.5);
+
+            \node[scale=5] at (3.5, 2.5) {1};
+            \node[scale=5] at (5.5, 2.5) {2};
+            \node[scale=5] at (4.5, 3.5) {3};
+        \end{sokoban}
+    \end{tikzpicture}
+\end{document}

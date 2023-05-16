@@ -1,198 +1,198 @@
 \begin{frame}{\textit{Greedy Lower Bound} en $\mathcal{O}(n^2)$}
-            \begin{minipage}{0.5\textwidth}
-                % number from Aymeric_Du_Peloux_282 lvl4
-                \centering
-                \begin{tikzpicture}[list/.style={rectangle split, rectangle split parts=2,draw},
-                                    mat/.style={ampersand replacement=\&, nodes={draw, inner sep=.3333em}, inner sep=0}]
-                    { [start chain=going below]
-                        \only<1-2>{
-                            \node [list, on chain] (A) {1};
-                            \node [list, on chain] (B) {2};
-                            \node [list, on chain] (C) {3};
-                            \node [list, on chain] (D) {4};
+    \begin{minipage}{0.5\textwidth}
+        % number from Aymeric_Du_Peloux_282 lvl4
+        \centering
+        \begin{tikzpicture}[list/.style={rectangle split, rectangle split parts=2,draw},
+                            mat/.style={ampersand replacement=\&, nodes={draw, inner sep=.3333em}, inner sep=0}]
+            { [start chain=going below]
+                \only<1-2>{
+                    \node [list, on chain] (A) {1};
+                    \node [list, on chain] (B) {2};
+                    \node [list, on chain] (C) {3};
+                    \node [list, on chain] (D) {4};
 
-                            \matrix [mat, right=of A] (a) {
-                                \node (a11) {3}; \& \node (a12) {4}; \& \node (a13) {1}; \& \node (a14) {2}; \\ % target
-                                \node (a21) {1}; \& \node (a22) {1}; \& \node (a23) {2}; \& \node (a24) {4}; \\ % distance
-                            };
+                    \matrix [mat, right=of A] (a) {
+                        \node (a11) {3}; \& \node (a12) {4}; \& \node (a13) {1}; \& \node (a14) {2}; \\ % target
+                        \node (a21) {1}; \& \node (a22) {1}; \& \node (a23) {2}; \& \node (a24) {4}; \\ % distance
+                    };
 
-                            \matrix [mat, right=of B] (b) {
-                                \node (b11) {1}; \& \node (b12) {3}; \& \node (b13) {4}; \& \node (b14) {2}; \\
-                                \node (b21) {1}; \& \node (b22) {2}; \& \node (b23) {2}; \& \node (b24) {3}; \\
-                            };
+                    \matrix [mat, right=of B] (b) {
+                        \node (b11) {1}; \& \node (b12) {3}; \& \node (b13) {4}; \& \node (b14) {2}; \\
+                        \node (b21) {1}; \& \node (b22) {2}; \& \node (b23) {2}; \& \node (b24) {3}; \\
+                    };
 
-                            \matrix [mat, right=of C] (c) {
-                                \node (c11) {1}; \& \node (c12) {4}; \& \node (c13) {2}; \& \node (c14) {3}; \\
-                                \node (c21) {2}; \& \node (c22) {3}; \& \node (c23) {4}; \& \node (c24) {5}; \\
-                            };
+                    \matrix [mat, right=of C] (c) {
+                        \node (c11) {1}; \& \node (c12) {4}; \& \node (c13) {2}; \& \node (c14) {3}; \\
+                        \node (c21) {2}; \& \node (c22) {3}; \& \node (c23) {4}; \& \node (c24) {5}; \\
+                    };
 
-                            \matrix [mat, right=of D] (d) {
-                                \node (d11) {1}; \& \node (d12) {3}; \& \node (d13) {4}; \& \node (d14) {2}; \\
-                                \node (d21) {3}; \& \node (d22) {4}; \& \node (d23) {4}; \& \node (d24) {5}; \\
-                            };
+                    \matrix [mat, right=of D] (d) {
+                        \node (d11) {1}; \& \node (d12) {3}; \& \node (d13) {4}; \& \node (d14) {2}; \\
+                        \node (d21) {3}; \& \node (d22) {4}; \& \node (d23) {4}; \& \node (d24) {5}; \\
+                    };
 
-                            \draw [*->] (A.two) -- (B);
-                            \draw [*->] (B.two) -- (C);
-                            \draw [*->] (C.two) -- (D);
+                    \draw [*->] (A.two) -- (B);
+                    \draw [*->] (B.two) -- (C);
+                    \draw [*->] (C.two) -- (D);
 
-                            \draw [*->] (A.two) -- (a);
-                            \draw [*->] (B.two) -- (b);
-                            \draw [*->] (C.two) -- (c);
-                            \draw [*->] (D.two) -- (d);
+                    \draw [*->] (A.two) -- (a);
+                    \draw [*->] (B.two) -- (b);
+                    \draw [*->] (C.two) -- (c);
+                    \draw [*->] (D.two) -- (d);
 
-                            \draw [->] ($(a11)+(0,0.7cm)$) -- (a11);
-                            \draw [->] ($(b11)+(0,0.7cm)$) -- (b11);
-                            \draw [->] ($(c11)+(0,0.7cm)$) -- (c11);
-                            \draw [->] ($(d11)+(0,0.7cm)$) -- (d11);
-                        }
+                    \draw [->] ($(a11)+(0,0.7cm)$) -- (a11);
+                    \draw [->] ($(b11)+(0,0.7cm)$) -- (b11);
+                    \draw [->] ($(c11)+(0,0.7cm)$) -- (c11);
+                    \draw [->] ($(d11)+(0,0.7cm)$) -- (d11);
+                }
 
-                        \only<2>{
-                            \node [draw, ellipse, red] at (b21) {};
+                \only<2>{
+                    \node [draw, ellipse, red] at (b21) {};
 
-                            \draw (a13.north west) -- (a23.south east);
-                            \draw (a13.north east) -- (a23.south west);
+                    \draw (a13.north west) -- (a23.south east);
+                    \draw (a13.north east) -- (a23.south west);
 
-                            \draw (c11.north west) -- (c21.south east);
-                            \draw (c11.north east) -- (c21.south west);
+                    \draw (c11.north west) -- (c21.south east);
+                    \draw (c11.north east) -- (c21.south west);
 
-                            \draw (d11.north west) -- (d21.south east);
-                            \draw (d11.north east) -- (d21.south west);
-                        }
+                    \draw (d11.north west) -- (d21.south east);
+                    \draw (d11.north east) -- (d21.south west);
+                }
 
-                        \only<3-4>{
-                            \node [list, on chain] (A) {1};
-                            \node [list, on chain] (C) {3};
-                            \node [list, on chain] (D) {4};
+                \only<3-4>{
+                    \node [list, on chain] (A) {1};
+                    \node [list, on chain] (C) {3};
+                    \node [list, on chain] (D) {4};
 
-                            \matrix [mat, right=of A] (a) {
-                                \node (a11) {3}; \& \node (a12) {4}; \& \node (a13) {1}; \& \node (a14) {2}; \\ % target
-                                \node (a21) {1}; \& \node (a22) {1}; \& \node (a23) {2}; \& \node (a24) {4}; \\ % distance
-                            };
+                    \matrix [mat, right=of A] (a) {
+                        \node (a11) {3}; \& \node (a12) {4}; \& \node (a13) {1}; \& \node (a14) {2}; \\ % target
+                        \node (a21) {1}; \& \node (a22) {1}; \& \node (a23) {2}; \& \node (a24) {4}; \\ % distance
+                    };
 
-                            \matrix [mat, right=of C] (c) {
-                                \node (c11) {1}; \& \node (c12) {4}; \& \node (c13) {2}; \& \node (c14) {3}; \\
-                                \node (c21) {2}; \& \node (c22) {3}; \& \node (c23) {4}; \& \node (c24) {5}; \\
-                            };
+                    \matrix [mat, right=of C] (c) {
+                        \node (c11) {1}; \& \node (c12) {4}; \& \node (c13) {2}; \& \node (c14) {3}; \\
+                        \node (c21) {2}; \& \node (c22) {3}; \& \node (c23) {4}; \& \node (c24) {5}; \\
+                    };
 
-                            \matrix [mat, right=of D] (d) {
-                                \node (d11) {1}; \& \node (d12) {3}; \& \node (d13) {4}; \& \node (d14) {2}; \\
-                                \node (d21) {3}; \& \node (d22) {4}; \& \node (d23) {4}; \& \node (d24) {5}; \\
-                            };
+                    \matrix [mat, right=of D] (d) {
+                        \node (d11) {1}; \& \node (d12) {3}; \& \node (d13) {4}; \& \node (d14) {2}; \\
+                        \node (d21) {3}; \& \node (d22) {4}; \& \node (d23) {4}; \& \node (d24) {5}; \\
+                    };
 
-                            \draw [*->] (A.two) -- (C);
-                            \draw [*->] (C.two) -- (D);
+                    \draw [*->] (A.two) -- (C);
+                    \draw [*->] (C.two) -- (D);
 
-                            \draw [*->] (A.two) -- (a);
-                            \draw [*->] (C.two) -- (c);
-                            \draw [*->] (D.two) -- (d);
-
-
-                            \draw (a13.north west) -- (a23.south east);
-                            \draw (a13.north east) -- (a23.south west);
-
-                            \draw (c11.north west) -- (c21.south east);
-                            \draw (c11.north east) -- (c21.south west);
-
-                            \draw (d11.north west) -- (d21.south east);
-                            \draw (d11.north east) -- (d21.south west);
-                        }
-
-                        \only<3>{
-                            \draw [->] ($(a11)+(0,0.7cm)$) -- (a11);
-                            \draw [->] ($(c11)+(0,0.7cm)$) -- (c11);
-                            \draw [->] ($(d11)+(0,0.7cm)$) -- (d11);
-                        }
-
-                        \only<4>{
-                            \node [draw, ellipse, red] at (a21) {};
-
-                            \draw (c14.north west) -- (c24.south east);
-                            \draw (c14.north east) -- (c24.south west);
-
-                            \draw (d12.north west) -- (d22.south east);
-                            \draw (d12.north east) -- (d22.south west);
-
-                            \draw [->] ($(a11)+(0,0.7cm)$) -- (a11);
-                            \draw [->] ($(c12)+(0,0.7cm)$) -- (c12);
-                            \draw [->] ($(d12)+(0,0.7cm)$) -- (d12);
-                        }
-
-                        \only<5-6>{
-                            \node [list, on chain] (C) {3};
-                            \node [list, on chain] (D) {4};
-
-                            \matrix [mat, right=of C] (c) {
-                                \node (c11) {1}; \& \node (c12) {4}; \& \node (c13) {2}; \& \node (c14) {3}; \\
-                                \node (c21) {2}; \& \node (c22) {3}; \& \node (c23) {4}; \& \node (c24) {5}; \\
-                            };
-
-                            \matrix [mat, right=of D] (d) {
-                                \node (d11) {1}; \& \node (d12) {3}; \& \node (d13) {4}; \& \node (d14) {2}; \\
-                                \node (d21) {3}; \& \node (d22) {4}; \& \node (d23) {4}; \& \node (d24) {5}; \\
-                            };
-
-                            \draw [*->] (C.two) -- (D);
-
-                            \draw [*->] (C.two) -- (c);
-                            \draw [*->] (D.two) -- (d);
+                    \draw [*->] (A.two) -- (a);
+                    \draw [*->] (C.two) -- (c);
+                    \draw [*->] (D.two) -- (d);
 
 
-                            \draw (c11.north west) -- (c21.south east);
-                            \draw (c11.north east) -- (c21.south west);
-                            \draw (c14.north west) -- (c24.south east);
-                            \draw (c14.north east) -- (c24.south west);
+                    \draw (a13.north west) -- (a23.south east);
+                    \draw (a13.north east) -- (a23.south west);
 
-                            \draw (d11.north west) -- (d21.south east);
-                            \draw (d11.north east) -- (d21.south west);
-                            \draw (d12.north west) -- (d22.south east);
-                            \draw (d12.north east) -- (d22.south west);
-                        }
+                    \draw (c11.north west) -- (c21.south east);
+                    \draw (c11.north east) -- (c21.south west);
 
-                        \only<5>{
-                            \draw [->] ($(c12)+(0,0.7cm)$) -- (c12);
-                            \draw [->] ($(d12)+(0,0.7cm)$) -- (d12);
-                        }
+                    \draw (d11.north west) -- (d21.south east);
+                    \draw (d11.north east) -- (d21.south west);
+                }
 
-                        \only<6>{
-                            \node [draw, ellipse, red] at (c22) {};
+                \only<3>{
+                    \draw [->] ($(a11)+(0,0.7cm)$) -- (a11);
+                    \draw [->] ($(c11)+(0,0.7cm)$) -- (c11);
+                    \draw [->] ($(d11)+(0,0.7cm)$) -- (d11);
+                }
 
-                            \draw (d13.north west) -- (d23.south east);
-                            \draw (d13.north east) -- (d23.south west);
+                \only<4>{
+                    \node [draw, ellipse, red] at (a21) {};
 
-                            \draw [->] ($(c12)+(0,0.7cm)$) -- (c12);
-                            \draw [->] ($(d13)+(0,0.7cm)$) -- (d13);
-                        }
+                    \draw (c14.north west) -- (c24.south east);
+                    \draw (c14.north east) -- (c24.south west);
 
-                        \only<7>{
-                            \node [list, on chain] (D) {4};
+                    \draw (d12.north west) -- (d22.south east);
+                    \draw (d12.north east) -- (d22.south west);
 
-                            \matrix [mat, right=of D] (d) {
-                                \node (d11) {1}; \& \node (d12) {3}; \& \node (d13) {4}; \& \node (d14) {2}; \\
-                                \node (d21) {3}; \& \node (d22) {4}; \& \node (d23) {4}; \& \node (d24) {5}; \\
-                            };
+                    \draw [->] ($(a11)+(0,0.7cm)$) -- (a11);
+                    \draw [->] ($(c12)+(0,0.7cm)$) -- (c12);
+                    \draw [->] ($(d12)+(0,0.7cm)$) -- (d12);
+                }
 
-                            \draw [*->] (D.two) -- (d);
-                            \draw [->] ($(d14)+(0,0.7cm)$) -- (d14);
+                \only<5-6>{
+                    \node [list, on chain] (C) {3};
+                    \node [list, on chain] (D) {4};
 
-                            \draw (d11.north west) -- (d21.south east);
-                            \draw (d11.north east) -- (d21.south west);
-                            \draw (d12.north west) -- (d22.south east);
-                            \draw (d12.north east) -- (d22.south west);
-                            \draw (d13.north west) -- (d23.south east);
-                            \draw (d13.north east) -- (d23.south west);
+                    \matrix [mat, right=of C] (c) {
+                        \node (c11) {1}; \& \node (c12) {4}; \& \node (c13) {2}; \& \node (c14) {3}; \\
+                        \node (c21) {2}; \& \node (c22) {3}; \& \node (c23) {4}; \& \node (c24) {5}; \\
+                    };
 
-                            \node [draw, ellipse, red] at (d24) {};
-                        }
-                    }
-                \end{tikzpicture}
-            \end{minipage}
-            \begin{minipage}{0.4\textwidth}
-                \begin{center}
-                    \only<1>{$h=$}
-                    \only<2-3>{$h=1+$}
-                    \only<4-5>{$h=1+1+$}
-                    \only<6>{$h=1+1+3+$}
-                    \only<7>{$h=1+1+3+5=10$}
-                \end{center}
-            \end{minipage}
-        \end{frame}
+                    \matrix [mat, right=of D] (d) {
+                        \node (d11) {1}; \& \node (d12) {3}; \& \node (d13) {4}; \& \node (d14) {2}; \\
+                        \node (d21) {3}; \& \node (d22) {4}; \& \node (d23) {4}; \& \node (d24) {5}; \\
+                    };
+
+                    \draw [*->] (C.two) -- (D);
+
+                    \draw [*->] (C.two) -- (c);
+                    \draw [*->] (D.two) -- (d);
+
+
+                    \draw (c11.north west) -- (c21.south east);
+                    \draw (c11.north east) -- (c21.south west);
+                    \draw (c14.north west) -- (c24.south east);
+                    \draw (c14.north east) -- (c24.south west);
+
+                    \draw (d11.north west) -- (d21.south east);
+                    \draw (d11.north east) -- (d21.south west);
+                    \draw (d12.north west) -- (d22.south east);
+                    \draw (d12.north east) -- (d22.south west);
+                }
+
+                \only<5>{
+                    \draw [->] ($(c12)+(0,0.7cm)$) -- (c12);
+                    \draw [->] ($(d12)+(0,0.7cm)$) -- (d12);
+                }
+
+                \only<6>{
+                    \node [draw, ellipse, red] at (c22) {};
+
+                    \draw (d13.north west) -- (d23.south east);
+                    \draw (d13.north east) -- (d23.south west);
+
+                    \draw [->] ($(c12)+(0,0.7cm)$) -- (c12);
+                    \draw [->] ($(d13)+(0,0.7cm)$) -- (d13);
+                }
+
+                \only<7>{
+                    \node [list, on chain] (D) {4};
+
+                    \matrix [mat, right=of D] (d) {
+                        \node (d11) {1}; \& \node (d12) {3}; \& \node (d13) {4}; \& \node (d14) {2}; \\
+                        \node (d21) {3}; \& \node (d22) {4}; \& \node (d23) {4}; \& \node (d24) {5}; \\
+                    };
+
+                    \draw [*->] (D.two) -- (d);
+                    \draw [->] ($(d14)+(0,0.7cm)$) -- (d14);
+
+                    \draw (d11.north west) -- (d21.south east);
+                    \draw (d11.north east) -- (d21.south west);
+                    \draw (d12.north west) -- (d22.south east);
+                    \draw (d12.north east) -- (d22.south west);
+                    \draw (d13.north west) -- (d23.south east);
+                    \draw (d13.north east) -- (d23.south west);
+
+                    \node [draw, ellipse, red] at (d24) {};
+                }
+            }
+        \end{tikzpicture}
+    \end{minipage}
+    \begin{minipage}{0.4\textwidth}
+        \begin{center}
+            \only<1>{$h=$}
+            \only<2-3>{$h=1+$}
+            \only<4-5>{$h=1+1+$}
+            \only<6>{$h=1+1+3+$}
+            \only<7>{$h=1+1+3+5=10$}
+        \end{center}
+    \end{minipage}
+\end{frame}

@@ -1,0 +1,22 @@
+########
+#.  ## #
+#. $ $ #
+#.  $  #
+########
+
+LATEX
+
+\begin{document}
+    \begin{tikzpicture}
+        \begin{sokoban}[$WIDTH$, $HEIGHT$]{$FILE$}
+
+            \node[scale=5] at (3.5, 2.5) {1};
+            \node[scale=5] at (5.5, 2.5) {2};
+            \node[scale=5] at (4.5, 3.5) {3};
+
+            \node[scale=5] at (1.5, 1.5) {A};
+            \node[scale=5] at (1.5, 2.5) {B};
+            \node[scale=5] at (1.5, 3.5) {C};
+        \end{sokoban}
+    \end{tikzpicture}
+\end{document}

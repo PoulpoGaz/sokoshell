@@ -1,15 +1,19 @@
 #########
 #    #  #
-#     u #
-#    l@r#
-#  #  d #
+#       #
+#     @ #
+#  #    #
 #########
 
 LATEX
+
 \begin{document}
     \begin{tikzpicture}
-        \begin{sokoban}[$WIDTH$, $HEIGHT$, sok/grid]{$FILE$}
-
+        \begin{sokoban}[$WIDTH$, $HEIGHT$]{$FILE$}
+            \draw[red, ->, line width=8] (6.5, 3.5) -- (6.5, 2.5);
+            \draw[red, ->, line width=8] (6.5, 3.5) -- (6.5, 4.5);
+            \draw[red, ->, line width=8] (6.5, 3.5) -- (7.5, 3.5);
+            \draw[red, ->, line width=8] (6.5, 3.5) -- (5.5, 3.5);
         \end{sokoban}
     \end{tikzpicture}
 \end{document}

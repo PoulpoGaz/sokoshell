@@ -29,23 +29,31 @@
             \end{columns}
         \end{frame}
 
-        \begin{frame}{Règles}
+        \begin{frame}{But du jeu}
+            \centering
+            \resizebox{\textwidth}{!}{%
+                \begin{tikzpicture}
+                    \node (start) {\includegraphics[width=0.5\textwidth]{rules/game_start.png}};
+                    \node (end) [right=of start]{\includegraphics[width=0.5\textwidth]{rules/game_end.png}};
+                    \draw[->, line width=\arrowwidth] (start.north east) to[out=60,in=130] node (label) [anchor=south, midway] {Déplacements} (end.north west);
+                \end{tikzpicture}
+            }
+        \end{frame}
 
-            \begin{columns}
+        \begin{frame}{Règles}
+            \begin{columns}\usetikzlibrary{shadows,shapes,positioning}
                 \begin{column}{0.5\textwidth}
                     \only<1-2>{
                         \begin{figure}
                             \centering
-                            \begin{tikzpicture}
-                            \node[anchor=south west, inner sep=0] (image) at (0,0) {\includegraphics[width=0.9\textwidth]{rules/moves.png}};
-                        \end{tikzpicture}
+                            \includegraphics[width=0.9\textwidth]{rules/moves.png}
                             \caption*{Déplacements autorisés}
                         \end{figure}
                     }
                     \only<3>{
                         \begin{figure}
                             \centering
-                            \includegraphics{rules/move_no_1.png}
+                            \includegraphics[width=0.9\textwidth]{rules/move_no_1.png}
                             \caption*{\includegraphics[width=\iconwidth]{icons/no.png}}
                         \end{figure}
                     }
@@ -54,14 +62,14 @@
                     \only<2>{
                         \begin{figure}
                             \centering
-                            \includegraphics{rules/move_yes.png}
+                            \includegraphics[width=0.9\textwidth]{rules/move_yes.png}
                             \caption*{\includegraphics[width=\iconwidth]{icons/yes.png}}
                         \end{figure}
                     }
                     \only<3>{
                         \begin{figure}
                             \centering
-                            \includegraphics{rules/move_no_2.png}
+                            \includegraphics[width=0.9\textwidth]{rules/move_no_2.png}
                             \caption*{\includegraphics[width=\iconwidth]{icons/no.png}}
                         \end{figure}
                     }
@@ -69,16 +77,28 @@
             \end{columns}
         \end{frame}
 
-        \begin{frame}{But du jeu}
+        \begin{frame}{Tuiles}
             \centering
-            \begin{columns}
-                \begin{column}{0.5\textwidth}
-                    \includegraphics[width=\columnwidth]{rules/last_move.png}
-                \end{column}
-                \begin{column}{0.5\textwidth}
-                    \includegraphics[width=\columnwidth]{rules/end.png}
-                \end{column}
-            \end{columns}
+
+            \includegraphics[width=0.5\textwidth]{tiles/tilemap.png}
+
+            \resizebox{\textwidth}{!}{%
+                \begin{tabular}{ c c c c c }
+                    \includegraphics[width=0.2\textwidth]{tiles/wall.png} &
+                    \includegraphics[width=0.2\textwidth]{tiles/floor.png} &
+                    \includegraphics[width=0.2\textwidth]{tiles/crate.png} &
+                    \includegraphics[width=0.2\textwidth]{tiles/target.png} &
+                    \includegraphics[width=0.2\textwidth]{tiles/crate_on_target.png} \\
+                   \textbf{Mur} & Sol & \textbf{Caisse} & Cible & \textbf{Caisse sur une cible} \\
+                \end{tabular}
+            }
+
+            % For some reason, the minted environement is not working
+            \only<2>{
+                \mint{java}|enum Tile {WALL, FLOOR, CRATE, TARGET, CRATE_ON_TARGET};|
+                \mint{java}|Tile[][] map = new Tile[height][width];|
+            }
+
         \end{frame}
 
         \begin{frame}{Lien avec le thème de l'année}
@@ -88,58 +108,33 @@
         \end{frame}
 
     \section{Principe de résolution}
-            \begin{frame}{Arbre des états}
-                \begin{customtree}
-                    \input{content/states_tree.tex}
-                \end{customtree}
-            \end{frame}
+        \begin{frame}{Arbre des états}
+            \input{content/search_tree.tex}
+        \end{frame}
 
-            \begin{frame}{Exemple développé}
-                \begin{customtree}
-                    \input{content/exhaustive_tree.tex}
+        \begin{frame}{Calcul du \textit{hash} d'un état - Hash de Zobrist}
+            Initialisation:
 
-                    % Put it but not draw it to have the same width on the next slide
-                    \node(c22)[ellipse, minimum width=4.2cm, minimum height=3.2cm, line width=1mm, red] at (sameState22.center){};
-                \end{customtree}
-            \end{frame}
+            \begin{center}
+                $T=\begin{blockarray}{ccc}
+                        \text{caisse} & \text{joueur} & \text{case} \\
+                    \begin{block}{(cc)c}
+                        6357   & 5742   & 0      \\
+                        -1378  & 42     & 1      \\
+                        \vdots & \vdots & \vdots \\
+                        93268  & -278   & wh - 1 \\
+                    \end{block}
+                \end{blockarray}$
+            \end{center}
 
-            \begin{frame}{Un graphe vu comme un arbre}
-                \begin{customtree}
-                    \input{content/exhaustive_tree.tex}
+            Usage:
+            $(c_1, ..., c_n)$ $n$ caisses et $p$ position du joueur:
+            $h = \underset{i=0}{\overset{n}{\xor}} T[c_i][0] \xor T[p][1]$
 
-                    \node(c1)[draw, ellipse, minimum width=4.2cm, minimum height=3.2cm, line width=1mm, red] at (sameState1.center){};
-                    \node(c2)[draw, ellipse, minimum width=4.2cm, minimum height=3.2cm, line width=1mm, red] at (sameState2.center){};
-                    \node(c12)[draw, ellipse, minimum width=4.2cm, minimum height=3.2cm, line width=1mm, red] at (sameState12.center){};
-                    \node(c22)[draw, ellipse, minimum width=4.2cm, minimum height=3.2cm, line width=1mm, red] at (sameState22.center){};
-
-                    \draw[<->, draw=red, line width = 2mm] (c1.north) |- (c12.west);
-                    \draw[<->, draw=red, line width = 2mm] (c2.east) -| (c22.south);
-                \end{customtree}
-            \end{frame}
-
-            \begin{frame}{Hash de Zobrist}
-                Initialisation:
-
-                \begin{center}
-                    $T=\begin{blockarray}{ccc}
-                            \text{caisse} & \text{joueur} & \text{case} \\
-                        \begin{block}{(cc)c}
-                            6357   & 5742   & 0      \\
-                            -1378  & 42     & 1      \\
-                            \vdots & \vdots & \vdots \\
-                            93268  & -278   & wh - 1 \\
-                        \end{block}
-                    \end{blockarray}$
-                \end{center}
-
-                Usage:
-                $(c_1, ..., c_n)$ $n$ caisses et $p$ position du joueur:
-                $h = \underset{i=0}{\overset{n}{\xor}} T[c_i][0] \xor T[p][1]$
-
-                Passer d'une configuration à une autre:
-                $c_i \rightarrow c_i', p \rightarrow p'$
-                $h = h \xor T[c_i][0] \xor T[c_i'][0] \xor T[p][1] \xor T[p'][1]$
-            \end{frame}
+            Passer d'une configuration à une autre:
+            $c_i \rightarrow c_i', p \rightarrow p'$
+            $h = h \xor T[c_i][0] \xor T[c_i'][0] \xor T[p][1] \xor T[p'][1]$
+        \end{frame}
 
     \section{Réduction de l'espace de recherche}
 
@@ -148,32 +143,41 @@
             \begin{frame}{Détection des positions mortes \textit{(dead positions)}}
                 \centering
                 \only<1>{
-                    \begin{tikzpicture}
-                        \node(before){\includegraphics{dead_positions/example_before.png}};
-                        \node(after)[right=of before]{\includegraphics{dead_positions/example_after.png}};
-                        \draw[->, line width=\arrowwidth] (before) -- (after);
-                    \end{tikzpicture}
+                    \resizebox{\textwidth}{!}{%
+                        \begin{tikzpicture}
+                            \node(before){\includegraphics[width=0.5\textwidth]{dead_positions/example_before.png}};
+                            \node(after)[right=of before]{\includegraphics[width=0.5\textwidth]{dead_positions/example_after.png}};
+                            \draw[->, line width=\arrowwidth] (before) -- (after);
+                        \end{tikzpicture}
+                    }
                 }
                 \only<2-> {
-                    \begin{enumerate}
                         \only<2>{
-                            \item
-                                \begin{tikzpicture}[baseline]
-                                    \node(first){\includegraphics{dead_positions/algo_1_1.png}};
-                                    \node(second)[right=of first]{\includegraphics{dead_positions/algo_1_2.png}};
+                            \resizebox{\textwidth}{!}{%
+                                \begin{tikzpicture}
+                                    \node(first){\includegraphics[width=0.5\textwidth]{dead_positions/algo_1_1.png}};
+                                    \node(second)[right=of first]{\includegraphics[width=0.5\textwidth]{dead_positions/algo_1_2.png}};
                                     \draw[->, line width=\arrowwidth] (before) -- (after);
                                 \end{tikzpicture}
+                            }
                         }
                         \only<3->{
-                            \setcounter{enumi}{1}
-                            \item
-                                \begin{tikzpicture}[baseline, every node/.style={node distance=0.1cm}]
-                                    \node(first){\includegraphics{dead_positions/algo_2_1.png}};
-                                    \node(second)[right=of first, visible on=<4>]{$\dots$};
-                                    \node[right=of second, visible on=<4>]{\includegraphics{dead_positions/algo_2_2.png}};
-                                \end{tikzpicture}
+                            \resizebox{\textwidth}{!}{%
+                                \begin{forest}
+                                    for tree = {
+                                        l sep = 15em,
+                                        edge = {line width = 3mm, ->},
+                                    }
+                                    [{\includegraphics{dead_positions/algo_2_1.png}}, grow=east
+                                        [\includegraphics{dead_positions/algo_2_2.png}, name=no,
+                                         edge label={node[midway, below=8mm, font=\fontsize{60}{63.5}\selectfont]{$\dots$}}]
+                                        [\includegraphics{dead_positions/algo_2_3.png}, name=yes]
+                                    ]
+                                    \node[right = of yes]{\includegraphics[width=3cm]{icons/yes.png}};
+                                    \node[right = of no]{\includegraphics[width=3cm]{icons/no.png}};
+                                \end{forest}
+                            }
                         }
-                    \end{enumerate}
                 }
             \end{frame}
 
@@ -318,13 +322,89 @@
 
     \section{Recherche dirigée par une heuristique}
         \begin{frame}{Heuristique simple \textit{(Simple Lower Bound)}}
-
-            \only<1>{
-
+            \centering
+            \only<1>{\includegraphics[width=0.9\textwidth]{heuristics/example.png}}
+            \only<2>{
+                \includegraphics[width=0.9\textwidth]{heuristics/simple.png}
+                \Large$\boxed{2 + 4 + 3 = \mathbf{9}}$
             }
         \end{frame}
 
         \begin{frame}{Heuristique gloutonne \textit{(Greedy Lower Bound)}}
+            \centering
+            \only<1>{\includegraphics[width=0.9\textwidth]{heuristics/greedy.png}}
+            \only<2->{
+                \begin{columns}
+                    \begin{column}{0.4\textwidth}
+                        \begin{center}
+                            \only<2>{
+                                \includegraphics[width=0.9\textwidth]{heuristics/greedy.png}
+                            }
+                            \only<3>{
+                                \includegraphics[width=0.9\textwidth]{heuristics/greedy_end.png}
+                                \Large$\boxed{2 + 3 + 5 = \mathbf{10}}$
+                            }
+                        \end{center}
+                    \end{column}
+                    \begin{column}{0.2\textwidth}
+                        \begin{center}
+                            \begin{tabular}{ | c | c | }
+                                \hline
+                                $1 \rightarrow A$ & 3 \\
+                                \hline
+                                $1 \rightarrow B$ & 2 \\
+                                \hline
+                                $1 \rightarrow C$ & 3 \\
+                                \hline
+                                $2 \rightarrow A$ & 4 \\
+                                \hline
+                                $2 \rightarrow B$ & 4 \\
+                                \hline
+                                $2 \rightarrow C$ & 5 \\
+                                \hline
+                                $3 \rightarrow A$ & 5 \\
+                                \hline
+                                $3 \rightarrow B$ & 4 \\
+                                \hline
+                                $3 \rightarrow C$ & 3 \\
+                                \hline
+                            \end{tabular}
+                        \end{center}
+                    \end{column}
+                    \begin{column}{0.1\textwidth}
+                        \begin{center}
+                            \begin{tikzpicture}
+                                \draw[->, line width=1mm, outer sep = 0, inner sep = 0] (0,0) -- node[above=2mm]{Tri} (1,0);
+                            \end{tikzpicture}
+                        \end{center}
+                    \end{column}
+                    \begin{column}{0.2\textwidth}
+                        \begin{center}
+                            \begin{tabular}{ | c | c | }
+                                \hline
+                                $\mathbf{1 \rightarrow B}$ & \textbf{2} \\
+                                \hline
+                                $1 \rightarrow A$ & 3 \\
+                                \hline
+                                $1 \rightarrow C$ & 3 \\
+                                \hline
+                                $\mathbf{3 \rightarrow C}$ & \textbf{3} \\
+                                \hline
+                                $2 \rightarrow B$ & 4 \\
+                                \hline
+                                $3 \rightarrow B$ & 4 \\
+                                \hline
+                                $2 \rightarrow A$ & 5 \\
+                                \hline
+                                $2 \rightarrow C$ & 5 \\
+                                \hline
+                                $\mathbf{3 \rightarrow A}$ & \textbf{5} \\
+                                \hline
+                            \end{tabular}
+                        \end{center}
+                    \end{column}
+                \end{columns}
+            }
         \end{frame}
 
     \section{Optimisations}
@@ -390,7 +470,7 @@
 
 
     \section{Annexe}
-        \begin{frame}{Tableau des compléxités}
+        \begin{frame}{Tableau des complexités}
 
         \end{frame}
 \end{document}

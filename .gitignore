@@ -14,3 +14,4 @@ documents/**/*.snm
 documents/**/*.noc
 documents/**/*.toc
 documents/**/*.synctex.gz
+documents/presentation/latex/_minted-presentation

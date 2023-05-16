@@ -10,9 +10,10 @@
 
 \setbeamertemplate{footline}[page number]
 
+\usepackage{forest}
 \usepackage{tikz}
 \usetikzlibrary{babel}
-\usetikzlibrary{arrows,shapes,positioning,shadows,trees,calc,fit}
+\usetikzlibrary{arrows,shapes,positioning,shadows,trees,calc,fit,backgrounds}
 \usetikzlibrary{overlay-beamer-styles} % 'visible on' option for nodes
 \usepackage{adjustbox}
 
@@ -43,35 +44,8 @@
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 
-\newenvironment{customtree}[1][0.8]{
-    \begin{adjustbox}{max totalsize={\textwidth}{\textheight}, center}
-        \begin{tikzpicture}
-            [sibling distance = 10em,
-            level distance = 7em,
-            every node/.style = {
-                % minimum width=10em,
-                shape=rectangle,
-                % line width=0.4mm,
-                scale=#1,
-                inner sep=0pt,
-                outer sep=0pt
-            },
-            edge from parent/.style = {
-                draw,
-                edge from parent path = {
-                    (\tikzparentnode) |-                          % Start from parent
-                    ($(\tikzparentnode)!0.5!(\tikzchildnode)$) -| % make an ortho line to mid point
-                    (\tikzchildnode)                              % make another ortho to the target
-                },
-                line width=0.4mm
-            },
-            % root/.style = {
-            % },
-        ]
-}{
-        \end{tikzpicture}
-    \end{adjustbox}
-}
+\usepackage{minted}
+
 
 \newcommand\iconwidth{2em}
 \newcommand\arrowwidth{0.8mm}
