@@ -8,6 +8,8 @@
 \setlength{\metropolis@progressinheadfoot@linewidth}{3pt}
 \makeatother
 
+\usepackage{forest}
+
 \setbeamertemplate{footline}[page number]
 
 \usepackage{tikz}
@@ -32,37 +34,38 @@
 \usepackage{lmodern} % for missing fonts (e.g. italic in titles)
 
 \newenvironment{customtree}[1][0.8]{
-    \begin{adjustbox}{max totalsize={\textwidth}{\textheight}, center}
-        \begin{tikzpicture}
-            [sibling distance = 10em,
-            level distance = 7em,
-            every node/.style = {
-                % minimum width=10em,
-                shape=rectangle,
-                % line width=0.4mm,
-                scale=#1,
-                inner sep=0pt,
-                outer sep=0pt
-            },
-            edge from parent/.style = {
-                draw,
-                edge from parent path = {
-                    (\tikzparentnode) |-                          % Start from parent
-                    ($(\tikzparentnode)!0.5!(\tikzchildnode)$) -| % make an ortho line to mid point
-                    (\tikzchildnode)                              % make another ortho to the target
+    \begin{center}
+        \resizebox{\textwidth}{!}{%
+            \begin{tikzpicture}
+                [sibling distance = 10em,
+                level distance = 7em,
+                every node/.style = {
+                    % minimum width=10em,
+                    shape=rectangle,
+                    % line width=0.4mm,
+                    scale=#1,
+                    inner sep=0pt,
+                    outer sep=0pt
                 },
-                line width=0.4mm
-            },
-            % root/.style = {
-            % },
-        ]
-}{
-        \end{tikzpicture}
-    \end{adjustbox}
-}
+                edge from parent/.style = {
+                    draw,
+                    edge from parent path = {
+                        (\tikzparentnode) |-                          % Start from parent
+                        ($(\tikzparentnode)!0.5!(\tikzchildnode)$) -| % make an ortho line to mid point
+                        (\tikzchildnode)                              % make another ortho to the target
+                    },
+                    line width=0.4mm
+                },
+                % root/.style = {
+                % },
+            ]
+    }{
+            \end{tikzpicture}
+        } % end of resizebox
+    \end{center}
+    }
 
 \usepackage{minted}
-
 
 
 \newcommand\iconwidth{2em}
