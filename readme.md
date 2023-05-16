@@ -4,15 +4,19 @@ Version 1.0-SNAPSHOT
 
 ## Results
 
-| Solver | Suite / Levels        | Time limit | Solved | Error / Other                               | Total | Start date       | End date         | Total run time   |
-|--------|-----------------------|------------|--------|---------------------------------------------|-------|------------------|------------------|------------------|
-| DFS    | Large test suite      | 30 sec     | 1732   | 8 errors - 46 no solution                   | 3272  | 10/12/2022 15:28 | 11/12/2022 04:43 | 13h 45min        |
-| DFS    | GroupEffort small set | 30 sec     | 47     | 1 no solution                               | 200   | 11/12/2022 16:19 | 11/12/2022 17:43 | 1h 24min         |
-| A*     | GroupEffort small set | 3 min      | 87     | 24 timeout - 89 errors                      | 200   | 15/02/2023 7:18  | 15/02/2023 8:56  | 1h 38min         |
-| A*     | Large test suite      | 3min       | 2095   | 1171 timeout - 4 errors - 2 no solution     | 3272  | 24/02/2023 19:21 | 27/02/2023 09:40 | 2 days 14h 19min |
-| fess0  | XSokoban_90           | 10min      | 14     | 76 timeout                                  | 90    | 03/03/2023 20:35 | 04/03/2023 09:20 | 12h 45min        |
-| fess0  | large_text_suite      | 10min      | 2273   | 946 timeout - 51 ram exceed - 2 no solution | 3272  | 16/04/2023 15:54 | 24/04/2023 02:21 | 7 days 10h 25min |
+| Solver | Suite / Levels        | Time limit | Solved | Error / Other                               | Total | Start date       | End date         | Total run time    |
+|--------|-----------------------|------------|--------|---------------------------------------------|-------|------------------|------------------|-------------------|
+| DFS    | Large test suite      | 30 sec     | 1732   | 8 errors - 46 no solution                   | 3272  | 10/12/2022 15:28 | 11/12/2022 04:43 | 13h 45min         |
+| DFS    | GroupEffort small set | 30 sec     | 47     | 1 no solution                               | 200   | 11/12/2022 16:19 | 11/12/2022 17:43 | 1h 24min          |
+| A*     | GroupEffort small set | 3 min      | 87     | 24 timeout - 89 errors                      | 200   | 15/02/2023 7:18  | 15/02/2023 8:56  | 1h 38min          |
+| A*     | Large test suite      | 3min       | 2095   | 1171 timeout - 4 errors - 2 no solution     | 3272  | 24/02/2023 19:21 | 27/02/2023 09:40 | 2 days 14h 19min  |
+| fess0  | XSokoban_90           | 10min      | 14     | 76 timeout                                  | 90    | 03/03/2023 20:35 | 04/03/2023 09:20 | 12h 45min         |
+| fess0¹ | large_text_suite      | 10min      | 2273   | 946 timeout - 51 ram exceed - 2 no solution | 3272  | 16/04/2023 15:54 | 24/04/2023 02:21 | 7 days 10h 25min  |
+| A*²    | large_test_suite      | 10 min     | 2204   | 1066 timeout - 2 no solution                | 3272  | 07/05/2023 15:38 | 15/05/2023 13:25 | 7 days 21h 53 min |
 
+
+¹:
+²: For Sasquatch_VII_50 #48, ram limit was increased to 30 Gb and ran separately.
 ## Ideas
 
 ### Goal Packing Order

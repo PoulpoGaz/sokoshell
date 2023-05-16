@@ -8,6 +8,8 @@
 \setlength{\metropolis@progressinheadfoot@linewidth}{3pt}
 \makeatother
 
+\setbeamertemplate{footline}[page number]
+
 \usepackage{tikz}
 \usetikzlibrary{babel}
 \usetikzlibrary{arrows,shapes,positioning,shadows,trees,calc,fit}
@@ -28,6 +30,18 @@
 \usepackage[french]{babel}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern} % for missing fonts (e.g. italic in titles)
+
+% zobrist hashing
+\usepackage{blkarray}
+\newcommand{\xor}{\, \text{\textbf{XOR}} \,}
+
+% greedy heuristic
+\usetikzlibrary{shapes.multipart,chains,scopes}
+
+% corral calculaton
+\usepackage{stmaryrd}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 
 \newenvironment{customtree}[1][0.8]{
     \begin{adjustbox}{max totalsize={\textwidth}{\textheight}, center}

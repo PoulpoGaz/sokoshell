@@ -10,7 +10,7 @@
 LATEX
 
 % 72 = 60 * 1.2: https://latex-tutorial.com/changing-font-size/
-\newcommand\setfont{\fontsize{60pt}{722pt}\selectfont}
+\newcommand\setfont{\fontsize{60pt}{72pt}\selectfont}
 
 \begin{document}
     \begin{tikzpicture}

@@ -4,8 +4,28 @@
 #####   ###########
 ###      ##########
 ### # ## ##########
-#   # ## #####  **#
-#              r**#
-##### ### # ##  **#
+#   # ## #####  ..#
+#               ..#
+##### ### # ##  ..#
 #####     #########
 ###################
+
+LATEX
+
+% 72 = 60 * 1.2: https://latex-tutorial.com/changing-font-size/
+\newcommand\setfont{\fontsize{60pt}{72pt}\selectfont}
+
+\begin{document}
+    \begin{tikzpicture}
+        \begin{sokoban}[$WIDTH$, $HEIGHT$]{$FILE$}
+            \node[white] at (16.5, 6.5) {\setfont 5};
+            \node[white] at (17.5, 6.5) {\setfont 2};
+
+            \node[white] at (16.5, 7.5) {\setfont 6};
+            \node[white] at (17.5, 7.5) {\setfont 3};
+
+            \node[white] at (16.5, 8.5) {\setfont 4};
+            \node[white] at (17.5, 8.5) {\setfont 1};
+        \end{sokoban}
+    \end{tikzpicture}
+\end{document}

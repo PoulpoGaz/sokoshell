@@ -1,0 +1,16 @@
+\centering
+\begin{tikzpicture}[grow=right, level distance=3cm, sibling distance=2.5cm]
+    \node {\includegraphics[width=0.2\textwidth]{deadlock_table/init.png}}
+        child {
+            node {\includegraphics[width=0.2\textwidth]{deadlock_table/floor.png}}
+            child {node {...}}
+        }
+        child {
+            node {\includegraphics[width=0.2\textwidth]{deadlock_table/crate.png}}
+            child [dashed] { node{\includegraphics[width=0.2\textwidth]{deadlock_table/leaf.png}}}
+        }
+        child {
+            node {\includegraphics[width=0.2\textwidth]{deadlock_table/wall.png}}
+            child {node {...}}
+        };
+\end{tikzpicture}

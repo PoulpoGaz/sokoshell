@@ -241,15 +241,15 @@ public class MonitorCommand extends AbstractCommand {
             }
 
             if (keyPressed(Key.CTRL_D)) {
-                boardComponent.setDrawDeadTiles(true);
+                boardComponent.setDrawDeadTiles(!boardComponent.isDrawDeadTiles());
                 repaint();
             }
             if (keyPressed(Key.CTRL_R)) {
-                boardComponent.setDrawRooms(true);
+                boardComponent.setDrawRooms(!boardComponent.isDrawRooms());
                 repaint();
             }
             if (keyPressed(Key.CTRL_T)) {
-                boardComponent.setDrawTunnels(true);
+                boardComponent.setDrawTunnels(!boardComponent.isDrawTunnels());
                 repaint();
             }
 

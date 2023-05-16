@@ -117,6 +117,30 @@
                 \end{customtree}
             \end{frame}
 
+            \begin{frame}{Hash de Zobrist}
+                Initialisation:
+
+                \begin{center}
+                    $T=\begin{blockarray}{ccc}
+                            \text{caisse} & \text{joueur} & \text{case} \\
+                        \begin{block}{(cc)c}
+                            6357   & 5742   & 0      \\
+                            -1378  & 42     & 1      \\
+                            \vdots & \vdots & \vdots \\
+                            93268  & -278   & wh - 1 \\
+                        \end{block}
+                    \end{blockarray}$
+                \end{center}
+
+                Usage:
+                $(c_1, ..., c_n)$ $n$ caisses et $p$ position du joueur:
+                $h = \underset{i=0}{\overset{n}{\xor}} T[c_i][0] \xor T[p][1]$
+
+                Passer d'une configuration à une autre:
+                $c_i \rightarrow c_i', p \rightarrow p'$
+                $h = h \xor T[c_i][0] \xor T[c_i'][0] \xor T[p][1] \xor T[p'][1]$
+            \end{frame}
+
     \section{Réduction de l'espace de recherche}
 
         \subsection{Analyse statique}
@@ -158,15 +182,22 @@
                     \includegraphics[width=\textwidth]{tunnels/tunnels.png}
                 }
                 \only<2>{
-                     \includegraphics[width=\textwidth]{tunnels/tunnel_macro.png}
+                    \begin{center}
+                        \includegraphics[width=0.6\textwidth]{tunnels/tunnel_macro_one_crate_1.png}
+
+                        \includegraphics[width=0.6\textwidth]{tunnels/tunnel_macro_one_crate_2.png}
+                    \end{center}
                 }
                 \only<3>{
-                    \includegraphics[width=\textwidth]{tunnels/tunnel_macro_player_only.png}
+                     \includegraphics[width=\textwidth]{tunnels/tunnel_macro.png}
                 }
                 \only<4>{
-                    \includegraphics[width=\textwidth]{tunnels/tunnel_macro_oneway.png}
+                    \includegraphics[width=\textwidth]{tunnels/tunnel_macro_player_only.png}
                 }
                 \only<5>{
+                    \includegraphics[width=\textwidth]{tunnels/tunnel_macro_oneway.png}
+                }
+                \only<6>{
                     \begin{minipage}{0.4\textwidth}
                          \includegraphics[width=\textwidth]{tunnels/straight.png}
                     \end{minipage}
@@ -177,23 +208,35 @@
                 }
             \end{frame}
 
-            \begin{frame}{Calcul d'un ordre de rangement \textit{(packing order)}}
+            \begin{frame}{Salles et ordre de rangement \textit{(packing order)}}
+                \only<1>{
+                    \includegraphics[width=\textwidth]{rooms_packing_order/rooms.png}
+                }
+                \only<2>{
+                    \includegraphics[width=\textwidth]{rooms_packing_order/level_completed.png}
+                }
+                \only<3>{
+                    \includegraphics[width=\textwidth]{rooms_packing_order/packing_order.png}
+                }
+                \only<4>{
+                    \centering
+                    \includegraphics[height=0.8\textheight]{rooms_packing_order/no_packing_order.png}
+                }
             \end{frame}
 
         \subsection{Analyse dynamique}
 
             \begin{frame}{Détection d'impasses \textit{(deadlocks)}}
-                % Ajouter un exemple simple de deaedlock ?
                 \begin{figure}
                     \centering
                     \subcaptionbox{\textit{Freeze deadlock n°1}} {
-                        \includegraphics[width=0.3\textwidth]{freeze_deadlock/ex_1_dead.png}
+                        \includegraphics[width=0.4\textwidth]{freeze_deadlock/ex_1_dead.png}
                     }
                     \subcaptionbox{\textit{Freeze deadlock n°2}} {
-                        \includegraphics[width=0.3\textwidth]{freeze_deadlock/ex_2_dead.png}
+                        \includegraphics[width=0.4\textwidth]{freeze_deadlock/ex_2_dead.png}
                     }
                     \subcaptionbox{\textit{PI Corral deadlock}} {
-                        \includegraphics[width=0.3\textwidth]{pi_corral_deadlock_dead.png}
+                        \includegraphics[width=0.4\textwidth]{pi_corral_deadlock_dead.png}
                     }
                 \end{figure}
             \end{frame}
@@ -236,16 +279,40 @@
                 \end{tikzpicture}
             \end{frame}
             \begin{frame}{Détection de \textit{PI Corral deadlocks}}
-
+                \only<1> {
+                    \begin{figure}
+                        \centering
+                        \subcaptionbox{\textit{Corral}} {
+                            \includegraphics[width=0.4\textwidth]{corral/corral.png}
+                        }
+                        \subcaptionbox{\textit{I Corral}} {
+                            \includegraphics[width=0.4\textwidth]{corral/i_corral.png}
+                        }
+                        \subcaptionbox{\textit{PI Corral}} {
+                            \includegraphics[width=0.4\textwidth]{corral/pi_corral.png}
+                        }
+                    \end{figure}
+                }
+                \only<2>{
+                    \begin{minipage}{0.45\textwidth}
+                        \includegraphics[width=\textwidth]{corral/multi_pi_corral_1.png}
+                    \end{minipage}
+                    \begin{minipage}{0.45\textwidth}
+                        \includegraphics[width=\textwidth]{corral/multi_pi_corral_2.png}
+                    \end{minipage}
+                }
             \end{frame}
             \begin{frame}{Table de \textit{deadlocks}}
                 \only<1>{
-                    \centering
-                    \includegraphics[width=0.6\textwidth]{deadlock_table/init.png}
+                    \begin{minipage}{0.45\textwidth}
+                         \includegraphics[width=\textwidth]{deadlock_table/init.png}
+                    \end{minipage}
+                    \begin{minipage}{0.45\textwidth}
+                        \includegraphics[width=\textwidth]{deadlock_table/new_deadlock.png}
+                    \end{minipage}
                 }
                 \only<2>{
-                    \centering
-                    \includegraphics[width=0.6\textwidth]{deadlock_table/new_deadlock.png}
+                    \input{content/deadlock_table_tree.tex}
                 }
             \end{frame}
 
@@ -261,8 +328,69 @@
         \end{frame}
 
     \section{Optimisations}
-        \begin{frame}{}
+        \begin{frame}{Parcours de graphes: démarquer tous les noeuds en $\mathcal{O}(1)$}
+            \begin{tikzpicture}
+                \node (start) {
+                    \includegraphics[width=0.15\textwidth]{optimisations/mark_init.png}
+                };
+                \node[right=of start] (first) {
+                    \includegraphics[width=0.15\textwidth]{optimisations/mark_player.png}
+                };
+                \node[right=of first] (second) {
+                    \includegraphics[width=0.15\textwidth]{optimisations/mark_all.png}
+                };
+                \node[right=of second] (third) {
+                    \includegraphics[width=0.15\textwidth]{optimisations/unmark.png}
+                };
+                % don't remove '0cm', otherwise tikz will place the text too below
+                \node [below=0cm of start.south] {$m=0$};
+                \node [below=0cm of first.south] {$m=0$};
+                \node [below=0cm of second.south] {$m=0$};
+                \node [below=0cm of third.south] {$m=1$};
+
+                \draw[->, line width=\arrowwidth] (start.east)  -- (first.west);
+                \draw[->, line width=\arrowwidth, dashed] (first.east) -- (second.west);
+                \draw[->, line width=\arrowwidth] (second.east) -- (third.west);
+            \end{tikzpicture}
         \end{frame}
 
+        \input{content/greedy_heuristic.tex}
+
+        \begin{frame}{Calcul des \textit{corrals} en $\mathcal{O}(wh)$}
+            \only<1>{
+                Utilisation de \textit{Union-Find}: partition de $\llbracket 0;wh-1 \rrbracket$.
+
+                \centering
+                \includegraphics[width=0.7\textwidth]{corral_detection/corral.png}
+            }
+            \only<2>{
+                \begin{algorithm}[H]
+                    \begin{algorithmic}[1]
+                        \Procedure{corral}{$x,y$}
+                            \If{not solid(x,y)}
+                                \State createSingleton(x, y)
+                            \Else
+                                \If{solid(x-1, y) \textbf{and} solid(x,y-1)}
+                                    \State createSingleton(x, y)
+                                \ElsIf{not solid(x-1, y) \textbf{and} solid(x,y-1)}
+                                    \State addToCorral(x-1,y, x,y)
+                                \ElsIf{solid(x-1, y) \textbf{and} not solid(x,y-1)}
+                                    \State addToCorral(x,y-1, x,y)
+                                \Else
+                                    \State addToCorral(x-1,y, x,y)
+                                    \State union(x,y-1, x,y)
+                                \EndIf
+                            \EndIf
+                        \EndProcedure
+                    \end{algorithmic}
+                \end{algorithm}
+            }
+        \end{frame}
     \section{Résultats}
+
+
+    \section{Annexe}
+        \begin{frame}{Tableau des compléxités}
+
+        \end{frame}
 \end{document}
