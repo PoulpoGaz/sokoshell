@@ -41,7 +41,7 @@
         \end{frame}
 
         \begin{frame}{Règles}
-            \begin{columns}\usetikzlibrary{shadows,shapes,positioning}
+            \begin{columns}
                 \begin{column}{0.5\textwidth}
                     \only<1-2>{
                         \begin{figure}
@@ -113,27 +113,38 @@
         \end{frame}
 
         \begin{frame}{Calcul du \textit{hash} d'un état - Hash de Zobrist}
-            Initialisation:
+            \only<1>{
+                Propriétés du \xor:
+                \begin{enumerate}
+                    \item $a \xor a = 0$
+                    \item \xor commutatif, associatif
+                    \item \xor préserve l'aléatoire
+                \end{enumerate}
 
-            \begin{center}
-                $T=\begin{blockarray}{ccc}
-                        \text{caisse} & \text{joueur} & \text{case} \\
-                    \begin{block}{(cc)c}
-                        6357   & 5742   & 0      \\
-                        -1378  & 42     & 1      \\
-                        \vdots & \vdots & \vdots \\
-                        93268  & -278   & wh - 1 \\
-                    \end{block}
-                \end{blockarray}$
-            \end{center}
+                Initialisation:
 
-            Usage:
-            $(c_1, ..., c_n)$ $n$ caisses et $p$ position du joueur:
-            $h = \underset{i=0}{\overset{n}{\xor}} T[c_i][0] \xor T[p][1]$
+                \begin{center}
+                    $T=\begin{blockarray}{ccc}
+                            \text{caisse} & \text{joueur} & \text{case} \\
+                        \begin{block}{(cc)c}
+                            6357   & 5742   & 0      \\
+                            -1378  & 42     & 1      \\
+                            \vdots & \vdots & \vdots \\
+                            93268  & -278   & wh - 1 \\
+                        \end{block}
+                    \end{blockarray}$
+                \end{center}
+            }
 
-            Passer d'une configuration à une autre:
-            $c_i \rightarrow c_i', p \rightarrow p'$
-            $h = h \xor T[c_i][0] \xor T[c_i'][0] \xor T[p][1] \xor T[p'][1]$
+            \only<2>{
+                Usage:
+                $(c_1, ..., c_n)$ $n$ caisses et $p$ position du joueur:
+                $h = \underset{i=0}{\overset{n}{\xor}} T[c_i][0] \xor T[p][1]$ \\
+
+                Calculer le hash d'un état à l'aide de son parent:
+                $c_i \rightarrow c_i', p \rightarrow p'$
+                $h' = h \xor T[c_i][0] \xor T[c_i'][0] \xor T[p][1] \xor T[p'][1]$
+            }
         \end{frame}
 
     \section{Réduction de l'espace de recherche}
@@ -301,6 +312,7 @@
                     \begin{minipage}{0.45\textwidth}
                         \includegraphics[width=\textwidth]{corral/multi_pi_corral_1.png}
                     \end{minipage}
+                    \hfill
                     \begin{minipage}{0.45\textwidth}
                         \includegraphics[width=\textwidth]{corral/multi_pi_corral_2.png}
                     \end{minipage}
@@ -311,6 +323,7 @@
                     \begin{minipage}{0.45\textwidth}
                          \includegraphics[width=\textwidth]{deadlock_table/init.png}
                     \end{minipage}
+                    \hfill
                     \begin{minipage}{0.45\textwidth}
                         \includegraphics[width=\textwidth]{deadlock_table/new_deadlock.png}
                     \end{minipage}
@@ -467,7 +480,19 @@
             }
         \end{frame}
     \section{Résultats}
-
+        \begin{frame}{Nombre de niveaux résolus}
+            \resizebox{\textwidth}{!}{
+                \begin{tabular}{|c|c|c|c|c|c|c|c|}
+                    \hline
+                    Collection       & Nombre de niveaux & A*   & fess0 & Festival & Sokolution & Takaken & YASS \\
+                    \hline
+                    XSokoban         & 90                & 11   & 15    & 90       & 90         & 90      & 89   \\
+                    \hline
+                    Large test suite & 3272              & 2204 & 2273  & 3202     & 3130       & 2944    & 2865 \\
+                    \hline
+                \end{tabular}
+            }
+        \end{frame}
 
     \section{Annexe}
         \begin{frame}{Tableau des complexités}

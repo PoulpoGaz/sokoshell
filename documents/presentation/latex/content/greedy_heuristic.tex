@@ -3,7 +3,7 @@
         % number from Aymeric_Du_Peloux_282 lvl4
         \centering
         \begin{tikzpicture}[list/.style={rectangle split, rectangle split parts=2,draw},
-                            mat/.style={ampersand replacement=\&, nodes={draw, inner sep=.3333em}, inner sep=0}]
+                            mat/.style={ampersand replacement=\&, nodes={draw, inner sep=.3333em, text width=0.25cm, align=center, anchor=center}, inner sep=0}]
             { [start chain=going below]
                 \only<1-2>{
                     \node [list, on chain] (A) {1};
@@ -12,22 +12,22 @@
                     \node [list, on chain] (D) {4};
 
                     \matrix [mat, right=of A] (a) {
-                        \node (a11) {3}; \& \node (a12) {4}; \& \node (a13) {1}; \& \node (a14) {2}; \\ % target
+                        \node (a11) {C}; \& \node (a12) {D}; \& \node (a13) {A}; \& \node (a14) {B}; \\ % target
                         \node (a21) {1}; \& \node (a22) {1}; \& \node (a23) {2}; \& \node (a24) {4}; \\ % distance
                     };
 
                     \matrix [mat, right=of B] (b) {
-                        \node (b11) {1}; \& \node (b12) {3}; \& \node (b13) {4}; \& \node (b14) {2}; \\
+                        \node (b11) {A}; \& \node (b12) {C}; \& \node (b13) {D}; \& \node (b14) {B}; \\
                         \node (b21) {1}; \& \node (b22) {2}; \& \node (b23) {2}; \& \node (b24) {3}; \\
                     };
 
                     \matrix [mat, right=of C] (c) {
-                        \node (c11) {1}; \& \node (c12) {4}; \& \node (c13) {2}; \& \node (c14) {3}; \\
+                        \node (c11) {A}; \& \node (c12) {D}; \& \node (c13) {B}; \& \node (c14) {C}; \\
                         \node (c21) {2}; \& \node (c22) {3}; \& \node (c23) {4}; \& \node (c24) {5}; \\
                     };
 
                     \matrix [mat, right=of D] (d) {
-                        \node (d11) {1}; \& \node (d12) {3}; \& \node (d13) {4}; \& \node (d14) {2}; \\
+                        \node (d11) {A}; \& \node (d12) {C}; \& \node (d13) {D}; \& \node (d14) {B}; \\
                         \node (d21) {3}; \& \node (d22) {4}; \& \node (d23) {4}; \& \node (d24) {5}; \\
                     };
 
@@ -65,17 +65,17 @@
                     \node [list, on chain] (D) {4};
 
                     \matrix [mat, right=of A] (a) {
-                        \node (a11) {3}; \& \node (a12) {4}; \& \node (a13) {1}; \& \node (a14) {2}; \\ % target
+                        \node (a11) {C}; \& \node (a12) {D}; \& \node (a13) {A}; \& \node (a14) {B}; \\ % target
                         \node (a21) {1}; \& \node (a22) {1}; \& \node (a23) {2}; \& \node (a24) {4}; \\ % distance
                     };
 
                     \matrix [mat, right=of C] (c) {
-                        \node (c11) {1}; \& \node (c12) {4}; \& \node (c13) {2}; \& \node (c14) {3}; \\
+                        \node (c11) {A}; \& \node (c12) {D}; \& \node (c13) {B}; \& \node (c14) {C}; \\
                         \node (c21) {2}; \& \node (c22) {3}; \& \node (c23) {4}; \& \node (c24) {5}; \\
                     };
 
                     \matrix [mat, right=of D] (d) {
-                        \node (d11) {1}; \& \node (d12) {3}; \& \node (d13) {4}; \& \node (d14) {2}; \\
+                        \node (d11) {A}; \& \node (d12) {C}; \& \node (d13) {D}; \& \node (d14) {B}; \\
                         \node (d21) {3}; \& \node (d22) {4}; \& \node (d23) {4}; \& \node (d24) {5}; \\
                     };
 
@@ -122,12 +122,12 @@
                     \node [list, on chain] (D) {4};
 
                     \matrix [mat, right=of C] (c) {
-                        \node (c11) {1}; \& \node (c12) {4}; \& \node (c13) {2}; \& \node (c14) {3}; \\
+                        \node (c11) {A}; \& \node (c12) {D}; \& \node (c13) {B}; \& \node (c14) {C}; \\
                         \node (c21) {2}; \& \node (c22) {3}; \& \node (c23) {4}; \& \node (c24) {5}; \\
                     };
 
                     \matrix [mat, right=of D] (d) {
-                        \node (d11) {1}; \& \node (d12) {3}; \& \node (d13) {4}; \& \node (d14) {2}; \\
+                        \node (d11) {A}; \& \node (d12) {C}; \& \node (d13) {D}; \& \node (d14) {B}; \\
                         \node (d21) {3}; \& \node (d22) {4}; \& \node (d23) {4}; \& \node (d24) {5}; \\
                     };
 
@@ -167,7 +167,7 @@
                     \node [list, on chain] (D) {4};
 
                     \matrix [mat, right=of D] (d) {
-                        \node (d11) {1}; \& \node (d12) {3}; \& \node (d13) {4}; \& \node (d14) {2}; \\
+                        \node (d11) {A}; \& \node (d12) {C}; \& \node (d13) {D}; \& \node (d14) {B}; \\
                         \node (d21) {3}; \& \node (d22) {4}; \& \node (d23) {4}; \& \node (d24) {5}; \\
                     };
 
