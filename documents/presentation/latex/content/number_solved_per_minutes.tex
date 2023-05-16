@@ -1,0 +1,19 @@
+\begin{adjustbox}{max totalsize={\textwidth}{\textheight},center}
+    \begin{tikzpicture}
+        \begin{axis}[
+            grid=major,
+            xmin=1, xmax=10,
+            ymin=2000, ymax=3300,
+            xlabel = {Temps (minutes)},
+            ylabel = {Nombre de niveaux},
+            legend entries={Festival, Sokolution, Takaken, YASS, Sokoshell},
+            legend style={at={(1.5, 0.5)},anchor= east}]
+        ]
+            \addplot table[x=min, y=Festival] {content/number_solved_per_minutes_data.txt};
+            \addplot table[x=min, y=Sokolution] {content/number_solved_per_minutes_data.txt};
+            \addplot table[x=min, y=Takaken] {content/number_solved_per_minutes_data.txt};
+            \addplot table[x=min, y=YASS] {content/number_solved_per_minutes_data.txt};
+            \addplot table[x=min, y=Sokoshell] {content/number_solved_per_minutes_data.txt};
+        \end{axis}
+    \end{tikzpicture}
+\end{adjustbox}
