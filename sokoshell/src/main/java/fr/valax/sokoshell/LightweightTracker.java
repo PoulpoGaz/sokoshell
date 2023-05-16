@@ -26,11 +26,11 @@ public class LightweightTracker implements Tracker {
             long currentQueueSize = trackable.currentQueueSize();
             long currentTime = System.currentTimeMillis();
 
-            if (lastTime - currentTime >= 1) {
+            if (currentTime - lastTime >= 1) {
                 area += (currentTime - lastTime) * (currentQueueSize + lastQueueSize) / 2d;
+                lastQueueSize = currentQueueSize;
             }
 
-            lastQueueSize = currentQueueSize;
             lastTime = currentTime;
         }
     }
