@@ -77,7 +77,7 @@
             \end{columns}
         \end{frame}
 
-        \begin{frame}{Tuiles} 
+        \begin{frame}{Tuiles}
             \centering
 
             \includegraphics[width=0.5\textwidth]{tiles/tilemap.png}
@@ -98,7 +98,7 @@
                 \mint{java}|enum Tile {WALL, FLOOR, CRATE, TARGET, CRATE_ON_TARGET};|
                 \mint{java}|Tile[][] map = new Tile[height][width];|
             }
-           
+
         \end{frame}
 
         \begin{frame}{Lien avec le thème de l'année}
@@ -108,179 +108,244 @@
         \end{frame}
 
     \section{Principe de résolution}
-            \begin{frame}{Arbre des états}
-                    \input{content/search_tree.tex}
+        \begin{frame}{Arbre des états}
+            \input{content/search_tree.tex}
+        \end{frame}
+
+        \begin{frame}{Calcul du \textit{hash} d'un état}
+        \end{frame}
+
+    \section{Réduction de l'espace de recherche}
+
+        \subsection{Analyse statique}
+
+            \begin{frame}{Détection des positions mortes \textit{(dead positions)}}
+                \centering
+                \only<1>{
+                    \resizebox{\textwidth}{!}{%
+                        \begin{tikzpicture}
+                            \node(before){\includegraphics[width=0.5\textwidth]{dead_positions/example_before.png}};
+                            \node(after)[right=of before]{\includegraphics[width=0.5\textwidth]{dead_positions/example_after.png}};
+                            \draw[->, line width=\arrowwidth] (before) -- (after);
+                        \end{tikzpicture}
+                    }
+                }
+                \only<2-> {
+                        \only<2>{
+                            \resizebox{\textwidth}{!}{%
+                                \begin{tikzpicture}
+                                    \node(first){\includegraphics[width=0.5\textwidth]{dead_positions/algo_1_1.png}};
+                                    \node(second)[right=of first]{\includegraphics[width=0.5\textwidth]{dead_positions/algo_1_2.png}};
+                                    \draw[->, line width=\arrowwidth] (before) -- (after);
+                                \end{tikzpicture}
+                            }
+                        }
+                        \only<3->{
+                            \resizebox{\textwidth}{!}{%
+                                \begin{forest}
+                                    for tree = {
+                                        l sep = 15em,
+                                        edge = {line width = 3mm, ->},
+                                    }
+                                    [{\includegraphics{dead_positions/algo_2_1.png}}, grow=east
+                                        [\includegraphics{dead_positions/algo_2_2.png}, name=no,
+                                         edge label={node[midway, below=8mm, font=\fontsize{60}{63.5}\selectfont]{$\dots$}}]
+                                        [\includegraphics{dead_positions/algo_2_3.png}, name=yes]
+                                    ]
+                                    \node[right = of yes]{\includegraphics[width=3cm]{icons/yes.png}};
+                                    \node[right = of no]{\includegraphics[width=3cm]{icons/no.png}};
+                                \end{forest}
+                            }
+                        }
+                }
             \end{frame}
 
-            \begin{frame}{Exemple développé}
-                % \begin{customtree}
-                %     \input{content/exhaustive_tree.tex}
-
-                %     % Put it but not draw it to have the same width on the next slide
-                %     \node(c22)[ellipse, minimum width=4.2cm, minimum height=3.2cm, line width=1mm, red] at (sameState22.center){};
-                % \end{customtree}
+            \begin{frame}{Détection de tunnels}
+                \only<1>{
+                    \includegraphics[width=\textwidth]{tunnels/tunnels.png}
+                }
+                \only<2>{
+                     \includegraphics[width=\textwidth]{tunnels/tunnel_macro.png}
+                }
+                \only<3>{
+                    \includegraphics[width=\textwidth]{tunnels/tunnel_macro_player_only.png}
+                }
+                \only<4>{
+                    \includegraphics[width=\textwidth]{tunnels/tunnel_macro_oneway.png}
+                }
+                \only<5>{
+                    \begin{minipage}{0.4\textwidth}
+                         \includegraphics[width=\textwidth]{tunnels/straight.png}
+                    \end{minipage}
+                    \hfill
+                    \begin{minipage}{0.4\textwidth}
+                         \includegraphics[width=\textwidth]{tunnels/corner.png}
+                    \end{minipage}
+                }
             \end{frame}
 
-            \begin{frame}{Un graphe vu comme un arbre}
-                % \begin{customtree}
-                %     \input{content/exhaustive_tree.tex}
-
-                %     \node(c1)[draw, ellipse, minimum width=4.2cm, minimum height=3.2cm, line width=1mm, red] at (sameState1.center){};
-                %     \node(c2)[draw, ellipse, minimum width=4.2cm, minimum height=3.2cm, line width=1mm, red] at (sameState2.center){};
-                %     \node(c12)[draw, ellipse, minimum width=4.2cm, minimum height=3.2cm, line width=1mm, red] at (sameState12.center){};
-                %     \node(c22)[draw, ellipse, minimum width=4.2cm, minimum height=3.2cm, line width=1mm, red] at (sameState22.center){};
-
-                %     \draw[<->, draw=red, line width = 2mm] (c1.north) |- (c12.west);
-                %     \draw[<->, draw=red, line width = 2mm] (c2.east) -| (c22.south);
-                % \end{customtree}
+            \begin{frame}{Calcul d'un ordre de rangement \textit{(packing order)}}
             \end{frame}
 
-    % \section{Réduction de l'espace de recherche}
+        \subsection{Analyse dynamique}
 
-    %     \subsection{Analyse statique}
+            \begin{frame}{Détection d'impasses \textit{(deadlocks)}}
+                % Ajouter un exemple simple de deadlock ?
+                \begin{figure}
+                    \centering
+                    \subcaptionbox{\textit{Freeze deadlock n°1}} {
+                        \includegraphics[width=0.3\textwidth]{freeze_deadlock/ex_1_dead.png}
+                    }
+                    \subcaptionbox{\textit{Freeze deadlock n°2}} {
+                        \includegraphics[width=0.3\textwidth]{freeze_deadlock/ex_2_dead.png}
+                    }
+                    \subcaptionbox{\textit{PI Corral deadlock}} {
+                        \includegraphics[width=0.3\textwidth]{pi_corral_deadlock_dead.png}
+                    }
+                \end{figure}
+            \end{frame}
 
-    %         \begin{frame}{Détection des positions mortes \textit{(dead positions)}}
-    %             \centering
-    %             \only<1>{
-    %                 \begin{tikzpicture}
-    %                     \node(before){\includegraphics{dead_positions/example_before.png}};
-    %                     \node(after)[right=of before]{\includegraphics{dead_positions/example_after.png}};
-    %                     \draw[->, line width=\arrowwidth] (before) -- (after);
-    %                 \end{tikzpicture}
-    %             }
-    %             \only<2-> {
-    %                 \begin{enumerate}
-    %                     \only<2>{
-    %                         \item
-    %                             \begin{tikzpicture}[baseline]
-    %                                 \node(first){\includegraphics{dead_positions/algo_1_1.png}};
-    %                                 \node(second)[right=of first]{\includegraphics{dead_positions/algo_1_2.png}};
-    %                                 \draw[->, line width=\arrowwidth] (before) -- (after);
-    %                             \end{tikzpicture}
-    %                     }
-    %                     \only<3->{
-    %                         \setcounter{enumi}{1}
-    %                         \item
-    %                             \begin{tikzpicture}[baseline, every node/.style={node distance=0.1cm}]
-    %                                 \node(first){\includegraphics{dead_positions/algo_2_1.png}};
-    %                                 \node(second)[right=of first, visible on=<4>]{$\dots$};
-    %                                 \node[right=of second, visible on=<4>]{\includegraphics{dead_positions/algo_2_2.png}};
-    %                             \end{tikzpicture}
-    %                     }
-    %                 \end{enumerate}
-    %             }
-    %         \end{frame}
+            \begin{frame}{Détection de \textit{freeze deadlocks}}
+                \begin{figure}
+                    \subcaptionbox{\textit{Règle n°1}} {
+                        \includegraphics[width=0.3\textwidth]{freeze_deadlock/rule_1.png}
+                    }
+                    \subcaptionbox{\textit{Règle n°2}} {
+                        \includegraphics[width=0.3\textwidth]{freeze_deadlock/rule_2.png}
+                    }
+                    \subcaptionbox{\textit{Règle n°3}} {
+                        \includegraphics[width=0.3\textwidth]{freeze_deadlock/rule_3.png}
+                    }
+                \end{figure}
+            \end{frame}
 
-    %         \begin{frame}{Détection de tunnels}
-    %             \only<1>{
-    %                 \includegraphics[width=\textwidth]{tunnels/tunnels.png}
-    %             }
-    %             \only<2>{
-    %                  \includegraphics[width=\textwidth]{tunnels/tunnel_macro.png}
-    %             }
-    %             \only<3>{
-    %                 \includegraphics[width=\textwidth]{tunnels/tunnel_macro_player_only.png}
-    %             }
-    %             \only<4>{
-    %                 \includegraphics[width=\textwidth]{tunnels/tunnel_macro_oneway.png}
-    %             }
-    %             \only<5>{
-    %                 \begin{minipage}{0.4\textwidth}
-    %                      \includegraphics[width=\textwidth]{tunnels/straight.png}
-    %                 \end{minipage}
-    %                 \hfill
-    %                 \begin{minipage}{0.4\textwidth}
-    %                      \includegraphics[width=\textwidth]{tunnels/corner.png}
-    %                 \end{minipage}
-    %             }
-    %         \end{frame}
+            \begin{frame}{Détection de \textit{freeze deadlocks}}
+                \centering
+                \begin{tikzpicture}
+                    \node (start) {
+                        \includegraphics[width=0.4\textwidth]{freeze_deadlock/ex_2_dead.png}
+                    };
+                    \node[visible on=<2-4>, right=of start] (first) {
+                        \includegraphics[width=0.4\textwidth]{freeze_deadlock/ex_2_explanation_1.png}
+                    };
+                    \node[visible on=<3-4>, below=of first] (second) {
+                        \includegraphics[width=0.4\textwidth]{freeze_deadlock/ex_2_explanation_2.png}
+                    };
+                    \node[visible on=<4>, left=of second] (third) {
+                        \includegraphics[width=0.4\textwidth]{freeze_deadlock/ex_2_explanation_3.png}
+                    };
+                    % don't remove '0cm', otherwise tikz will place the text too below
+                    \node [visible on=<4>, below=0cm of third.south] {Gelée!};
 
-    %         \begin{frame}{Calcul d'un ordre de rangement \textit{(packing order)}}
-    %         \end{frame}
+                    \draw[->, line width=\arrowwidth, visible on=<2-4>] (start.east)  -- (first.west);
+                    \draw[->, line width=\arrowwidth, visible on=<3-4>] (first.south) -- (second.north);
+                    \draw[->, line width=\arrowwidth, visible on=<4>] (second.west) -- (third.east);
+                \end{tikzpicture}
+            \end{frame}
+            \begin{frame}{Détection de \textit{PI Corral deadlocks}}
 
-    %     \subsection{Analyse dynamique}
+            \end{frame}
+            \begin{frame}{Table de \textit{deadlocks}}
+                \only<1>{
+                    \centering
+                    \includegraphics[width=0.6\textwidth]{deadlock_table/init.png}
+                }
+                \only<2>{
+                    \centering
+                    \includegraphics[width=0.6\textwidth]{deadlock_table/new_deadlock.png}
+                }
+            \end{frame}
 
-    %         \begin{frame}{Détection d'impasses \textit{(deadlocks)}}
-    %             % Ajouter un exemple simple de deaedlock ?
-    %             \begin{figure}
-    %                 \centering
-    %                 \subcaptionbox{\textit{Freeze deadlock n°1}} {
-    %                     \includegraphics[width=0.3\textwidth]{freeze_deadlock/ex_1_dead.png}
-    %                 }
-    %                 \subcaptionbox{\textit{Freeze deadlock n°2}} {
-    %                     \includegraphics[width=0.3\textwidth]{freeze_deadlock/ex_2_dead.png}
-    %                 }
-    %                 \subcaptionbox{\textit{PI Corral deadlock}} {
-    %                     \includegraphics[width=0.3\textwidth]{pi_corral_deadlock_dead.png}
-    %                 }
-    %             \end{figure}
-    %         \end{frame}
+    \section{Recherche dirigée par une heuristique}
+        \begin{frame}{Heuristique simple \textit{(Simple Lower Bound)}}
+            \centering
+            \only<1>{\includegraphics[width=0.9\textwidth]{heuristics/example.png}}
+            \only<2>{
+                \includegraphics[width=0.9\textwidth]{heuristics/simple.png}
+                \Large$\boxed{2 + 4 + 3 = \mathbf{9}}$
+            }
+        \end{frame}
 
-    %         \begin{frame}{Détection de \textit{freeze deadlocks}}
-    %             \begin{figure}
-    %                 \subcaptionbox{\textit{Règle n°1}} {
-    %                     \includegraphics[width=0.3\textwidth]{freeze_deadlock/rule_1.png}
-    %                 }
-    %                 \subcaptionbox{\textit{Règle n°2}} {
-    %                     \includegraphics[width=0.3\textwidth]{freeze_deadlock/rule_2.png}
-    %                 }
-    %                 \subcaptionbox{\textit{Règle n°3}} {
-    %                     \includegraphics[width=0.3\textwidth]{freeze_deadlock/rule_3.png}
-    %                 }
-    %             \end{figure}
-    %         \end{frame}
+        \begin{frame}{Heuristique gloutonne \textit{(Greedy Lower Bound)}}
+            \centering
+            \only<1>{\includegraphics[width=0.9\textwidth]{heuristics/greedy.png}}
+            \only<2->{
+                \begin{columns}
+                    \begin{column}{0.4\textwidth}
+                        \begin{center}
+                            \only<2>{
+                                \includegraphics[width=0.9\textwidth]{heuristics/greedy.png}
+                            }
+                            \only<3>{
+                                \includegraphics[width=0.9\textwidth]{heuristics/greedy_end.png}
+                                \Large$\boxed{2 + 3 + 5 = \mathbf{10}}$
+                            }
+                        \end{center}
+                    \end{column}
+                    \begin{column}{0.2\textwidth}
+                        \begin{center}
+                            \begin{tabular}{ | c | c | }
+                                \hline
+                                $1 \rightarrow A$ & 3 \\
+                                \hline
+                                $1 \rightarrow B$ & 2 \\
+                                \hline
+                                $1 \rightarrow C$ & 3 \\
+                                \hline
+                                $2 \rightarrow A$ & 4 \\
+                                \hline
+                                $2 \rightarrow B$ & 4 \\
+                                \hline
+                                $2 \rightarrow C$ & 5 \\
+                                \hline
+                                $3 \rightarrow A$ & 5 \\
+                                \hline
+                                $3 \rightarrow B$ & 4 \\
+                                \hline
+                                $3 \rightarrow C$ & 3 \\
+                                \hline
+                            \end{tabular}
+                        \end{center}
+                    \end{column}
+                    \begin{column}{0.1\textwidth}
+                        \begin{center}
+                            \begin{tikzpicture}
+                                \draw[->, line width=1mm, outer sep = 0, inner sep = 0] (0,0) -- node[above=2mm]{Tri} (1,0);
+                            \end{tikzpicture}
+                        \end{center}
+                    \end{column}
+                    \begin{column}{0.2\textwidth}
+                        \begin{center}
+                            \begin{tabular}{ | c | c | }
+                                \hline
+                                $\mathbf{1 \rightarrow B}$ & \textbf{2} \\
+                                \hline
+                                $1 \rightarrow A$ & 3 \\
+                                \hline
+                                $1 \rightarrow C$ & 3 \\
+                                \hline
+                                $\mathbf{3 \rightarrow C}$ & \textbf{3} \\
+                                \hline
+                                $2 \rightarrow B$ & 4 \\
+                                \hline
+                                $3 \rightarrow B$ & 4 \\
+                                \hline
+                                $2 \rightarrow A$ & 5 \\
+                                \hline
+                                $2 \rightarrow C$ & 5 \\
+                                \hline
+                                $\mathbf{3 \rightarrow A}$ & \textbf{5} \\
+                                \hline
+                            \end{tabular}
+                        \end{center}
+                    \end{column}
+                \end{columns}
+            }
+        \end{frame}
 
-    %         \begin{frame}{Détection de \textit{freeze deadlocks}}
-    %             \centering
-    %             \begin{tikzpicture}
-    %                 \node (start) {
-    %                     \includegraphics[width=0.4\textwidth]{freeze_deadlock/ex_2_dead.png}
-    %                 };
-    %                 \node[visible on=<2-4>, right=of start] (first) {
-    %                     \includegraphics[width=0.4\textwidth]{freeze_deadlock/ex_2_explanation_1.png}
-    %                 };
-    %                 \node[visible on=<3-4>, below=of first] (second) {
-    %                     \includegraphics[width=0.4\textwidth]{freeze_deadlock/ex_2_explanation_2.png}
-    %                 };
-    %                 \node[visible on=<4>, left=of second] (third) {
-    %                     \includegraphics[width=0.4\textwidth]{freeze_deadlock/ex_2_explanation_3.png}
-    %                 };
-    %                 % don't remove '0cm', otherwise tikz will place the text too below
-    %                 \node [visible on=<4>, below=0cm of third.south] {Gelée!};
+    \section{Optimisations}
+        \begin{frame}{}
+        \end{frame}
 
-    %                 \draw[->, line width=\arrowwidth, visible on=<2-4>] (start.east)  -- (first.west);
-    %                 \draw[->, line width=\arrowwidth, visible on=<3-4>] (first.south) -- (second.north);
-    %                 \draw[->, line width=\arrowwidth, visible on=<4>] (second.west) -- (third.east);
-    %             \end{tikzpicture}
-    %         \end{frame}
-    %         \begin{frame}{Détection de \textit{PI Corral deadlocks}}
-
-    %         \end{frame}
-    %         \begin{frame}{Table de \textit{deadlocks}}
-    %             \only<1>{
-    %                 \centering
-    %                 \includegraphics[width=0.6\textwidth]{deadlock_table/init.png}
-    %             }
-    %             \only<2>{
-    %                 \centering
-    %                 \includegraphics[width=0.6\textwidth]{deadlock_table/new_deadlock.png}
-    %             }
-    %         \end{frame}
-
-    % \section{Recherche dirigée par une heuristique}
-    %     \begin{frame}{Heuristique simple \textit{(Simple Lower Bound)}}
-
-    %         \only<1>{
-
-    %         }
-    %     \end{frame}
-
-    %     \begin{frame}{Heuristique gloutonne \textit{(Greedy Lower Bound)}}
-    %     \end{frame}
-
-    % \section{Optimisations}
-    %     \begin{frame}{}
-    %     \end{frame}
-
-    % \section{Résultats}
+    \section{Résultats}
 \end{document}
