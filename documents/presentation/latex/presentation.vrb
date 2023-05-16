@@ -1,0 +1,19 @@
+\frametitle{Statistiques}
+
+            \begin{tikzpicture}
+                \begin{axis}[
+                    axis lines=middle,
+                    xmin=-10, xmax=10,
+                    ymin=-10, ymax=10,
+                    xtick=\empty, ytick=\empty
+                    ]
+                    \addplot [] table {
+                        -10 -4
+                        -8  2
+                        -5  5
+                        -4  7
+                        -3  3
+                        0   6
+                    };
+                \end{axis}
+            \end{tikzpicture}
