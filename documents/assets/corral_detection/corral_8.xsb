@@ -1,0 +1,101 @@
+##########
+#   ######
+#       ##
+##$#$$  ##
+## #  ####
+## ## $  #
+#     $  #
+#   ###  #
+##########
+
+LATEX
+\begin{document}
+    \begin{tikzpicture}[
+            dot/.style = {circle, fill, minimum size=#1},
+            dot/.default = 15,
+            line/.style = {->, line width=4},
+            every loop/.style={min distance=1.5cm, in=45, out=135}
+        ]
+        \definecolor{pale blue}{RGB}{77, 77, 179}
+        \begin{sokoban}[$WIDTH$, $HEIGHT$]{$FILE$}
+            \node[dot, pale blue] (11) at (1.5, 1.5) {};
+            \node[dot, pale blue] (21) at (2.5, 1.5) {};
+            \node[dot, pale blue] (31) at (3.5, 1.5) {};
+
+            \node[dot, pale blue] (12) at (1.5, 2.5) {};
+            \node[dot, pale blue] (22) at (2.5, 2.5) {};
+            \node[dot, pale blue] (32) at (3.5, 2.5) {};
+            \node[dot, pale blue] (42) at (4.5, 2.5) {};
+            \node[dot, pale blue] (52) at (5.5, 2.5) {};
+            \node[dot, pale blue] (62) at (6.5, 2.5) {};
+            \node[dot, pale blue] (72) at (7.5, 2.5) {};
+
+            \node[dot, pale blue] (63) at (6.5, 3.5) {};
+            \node[dot, pale blue] (73) at (7.5, 3.5) {};
+
+            \node[dot, purple] (24) at (2.5, 4.5) {};
+            \node[dot, purple] (44) at (4.5, 4.5) {};
+            \node[dot, purple] (54) at (5.5, 4.5) {};
+
+            \node[dot, purple] (25) at (2.5, 5.5) {};
+            \node[dot, purple] (55) at (5.5, 5.5) {};
+            \node[dot, cyan] (75) at (7.5, 5.5) {};
+            \node[dot, cyan] (85) at (8.5, 5.5) {};
+
+            \node[dot, purple] (16) at (1.5, 6.5) {};
+            \node[dot, purple] (26) at (2.5, 6.5) {};
+            \node[dot, purple] (36) at (3.5, 6.5) {};
+            \node[dot, purple] (46) at (4.5, 6.5) {};
+            \node[dot, purple] (56) at (5.5, 6.5) {};
+            \node[dot, cyan] (76) at (7.5, 6.5) {};
+            \node[dot, cyan] (86) at (8.5, 6.5) {};
+
+            \node[dot, purple] (17) at (1.5, 7.5) {};
+            \node[dot, purple] (27) at (2.5, 7.5) {};
+            \node[dot, purple] (37) at (3.5, 7.5) {};
+            \node[dot, cyan] (77) at (7.5, 7.5) {};
+            \node[dot, cyan] (87) at (8.5, 7.5) {};
+
+
+
+
+            \draw[line, pale blue] (11) edge [loop] ();
+            \draw[line, pale blue] (21) -- (11);
+            \draw[line, pale blue] (31) -- (11);
+
+            \draw[line, pale blue] (12) -- (11);
+            \draw[line, pale blue] (22) -- (11);
+            \draw[line, pale blue] (32) -- (11);
+            \draw[line, pale blue] (42) -- (11);
+            \draw[line, pale blue] (52) -- (11);
+            \draw[line, pale blue] (62) -- (11);
+            \draw[line, pale blue] (72) -- (11);
+
+            \draw[line, pale blue] (63) -- (11);
+            \draw[line, pale blue] (73) -- (11);
+
+            \draw[line, purple] (24) edge [loop] ();
+            \draw[line, purple] (44) -- (24);
+            \draw[line, purple] (54) -- (24);
+
+            \draw[line, purple] (25) -- (24);
+            \draw[line, purple] (55) -- (24);
+            \draw[line, cyan] (75) edge [loop] ();
+            \draw[line, cyan] (85) -- (75);
+
+            \draw[line, purple] (16) -- (24);
+            \draw[line, purple] (26) -- (24);
+            \draw[line, purple] (36) -- (24);
+            \draw[line, purple] (46) -- (24);
+            \draw[line, purple] (56) -- (24);
+            \draw[line, cyan] (76) -- (75);
+            \draw[line, cyan] (86) -- (75);
+
+            \draw[line, purple] (17) -- (24);
+            \draw[line, purple] (27) -- (24);
+            \draw[line, purple] (37) -- (24);
+            \draw[line, cyan] (77) -- (75);
+            \draw[line, cyan] (87) -- (75);
+        \end{sokoban}
+    \end{tikzpicture}
+\end{document}

@@ -1,0 +1,100 @@
+##########
+#   ######
+#       ##
+##$#$$  ##
+## #  ####
+## ## $  #
+#     $  #
+#   ###  #
+##########
+
+LATEX
+\begin{document}
+    \begin{tikzpicture}[
+            dot/.style = {circle, fill, minimum size=#1},
+            dot/.default = 15,
+            line/.style = {->, line width=4},
+            every loop/.style={min distance=1.5cm, in=45, out=135}
+        ]
+        \begin{sokoban}[$WIDTH$, $HEIGHT$]{$FILE$}
+            \node[dot, blue] (11) at (1.5, 1.5) {};
+            \node[dot] (21) at (2.5, 1.5) {};
+            \node[dot] (31) at (3.5, 1.5) {};
+
+            \node[dot] (12) at (1.5, 2.5) {};
+            \node[dot] (22) at (2.5, 2.5) {};
+            \node[dot] (32) at (3.5, 2.5) {};
+            \node[dot] (42) at (4.5, 2.5) {};
+            \node[dot] (52) at (5.5, 2.5) {};
+            \node[dot] (62) at (6.5, 2.5) {};
+            \node[dot] (72) at (7.5, 2.5) {};
+
+            \node[dot] (63) at (6.5, 3.5) {};
+            \node[dot] (73) at (7.5, 3.5) {};
+
+            \node[dot] (24) at (2.5, 4.5) {};
+            \node[dot] (44) at (4.5, 4.5) {};
+            \node[dot] (54) at (5.5, 4.5) {};
+
+            \node[dot] (25) at (2.5, 5.5) {};
+            \node[dot] (55) at (5.5, 5.5) {};
+            \node[dot] (75) at (7.5, 5.5) {};
+            \node[dot] (85) at (8.5, 5.5) {};
+
+            \node[dot] (16) at (1.5, 6.5) {};
+            \node[dot] (26) at (2.5, 6.5) {};
+            \node[dot] (36) at (3.5, 6.5) {};
+            \node[dot] (46) at (4.5, 6.5) {};
+            \node[dot] (56) at (5.5, 6.5) {};
+            \node[dot] (76) at (7.5, 6.5) {};
+            \node[dot] (86) at (8.5, 6.5) {};
+
+            \node[dot] (17) at (1.5, 7.5) {};
+            \node[dot] (27) at (2.5, 7.5) {};
+            \node[dot] (37) at (3.5, 7.5) {};
+            \node[dot] (77) at (7.5, 7.5) {};
+            \node[dot] (87) at (8.5, 7.5) {};
+
+
+
+
+            \draw[line, blue] (11) edge [loop] ();
+            \draw[line] (21) edge [loop] ();
+            \draw[line] (31) edge [loop] ();
+
+            \draw[line] (12) edge [loop] ();
+            \draw[line] (22) edge [loop] ();
+            \draw[line] (32) edge [loop] ();
+            \draw[line] (42) edge [loop] ();
+            \draw[line] (52) edge [loop] ();
+            \draw[line] (62) edge [loop] ();
+            \draw[line] (72) edge [loop] ();
+
+            \draw[line] (63) edge [loop] ();
+            \draw[line] (73) edge [loop] ();
+
+            \draw[line] (24) edge [loop] ();
+            \draw[line] (44) edge [loop] ();
+            \draw[line] (54) edge [loop] ();
+
+            \draw[line] (25) edge [loop] ();
+            \draw[line] (55) edge [loop] ();
+            \draw[line] (75) edge [loop] ();
+            \draw[line] (85) edge [loop] ();
+
+            \draw[line] (16) edge [loop] ();
+            \draw[line] (26) edge [loop] ();
+            \draw[line] (36) edge [loop] ();
+            \draw[line] (46) edge [loop] ();
+            \draw[line] (56) edge [loop] ();
+            \draw[line] (76) edge [loop] ();
+            \draw[line] (86) edge [loop] ();
+
+            \draw[line] (17) edge [loop] ();
+            \draw[line] (27) edge [loop] ();
+            \draw[line] (37) edge [loop] ();
+            \draw[line] (77) edge [loop] ();
+            \draw[line] (87) edge [loop] ();
+        \end{sokoban}
+    \end{tikzpicture}
+\end{document}

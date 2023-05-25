@@ -540,36 +540,65 @@
             \only<1>{
                 Utilisation de \textit{Union-Find}: partition de $\llbracket 0;wh-1 \rrbracket$.
 
-                \centering
-                \includegraphics[width=0.7\textwidth]{corral_detection/corral.png}
+                \vspace{0.1cm}
+                \begin{columns}
+                    \begin{column}{0.4\textwidth}
+                        \centering
+                        \includegraphics[width=\textwidth]{corral_detection/corral.png}
+                    \end{column}
+                    \begin{column}{0.4\textwidth}
+                        \centering
+                        \includegraphics[width=\textwidth]{corral_detection/corral_union_find.png}
+                    \end{column}
+                \end{columns}
             }
-            \only<2>{
-                % \begin{algorithm}[H]
-                \begin{center}
-                    \scalebox{0.9}{
-                        \begin{minipage}{\textwidth}
-                            \begin{algorithmic}[1]
-                                \Procedure{corral}{$x,y$}
-                                    \If{not solid($x,y$)}
-                                        \State createSingleton($x, y$)
-                                    \Else
-                                        \If{solid($x-1, y$) \textbf{and} solid($x,y-1$)}
-                                            \State createSingleton($x, y$)
-                                        \ElsIf{not solid($x-1, y$) \textbf{and} solid($x,y-1$)}
-                                            \State addToCorral($x-1,y, x,y$)
-                                        \ElsIf{solid($x-1, y)$ \textbf{and} not solid($x,y-1$)}
-                                            \State addToCorral($x,y-1, x,y$)
-                                        \Else
-                                            \State addToCorral($x-1,y, x,y)$
-                                            \State union($x,y-1, x,y$)
-                                        \EndIf
-                                    \EndIf
-                                \EndProcedure
-                            \end{algorithmic}
-                        \end{minipage}
-                    }
-                \end{center}
-                % \end{algorithm}
+            \only<2-10>{
+                \centering
+                 \begin{tikzpicture}
+                    \node (A) {
+                        \includegraphics[width=0.35\textwidth]{corral_detection/corral_start.png}
+                    };
+                    \node[visible on=<3-5>, right=of A] (B) {
+                        \includegraphics[width=0.35\textwidth]{corral_detection/corral_1.png}
+                    };
+                    \node[visible on=<4-5>,below=of A] (C) {
+                        \includegraphics[width=0.35\textwidth]{corral_detection/corral_2.png}
+                    };
+                    \node[visible on=<5>, below=of B] (D) {
+                        \includegraphics[width=0.35\textwidth]{corral_detection/corral_3.png}
+                    };
+
+                    \draw[visible on=<3-5>, ->, line width=\arrowwidth] (A.east) -- (B.west);
+
+                    \coordinate (I) at ($ (B) ! .5 ! (C) $);
+                    \draw[visible on=<4-5>, ->, line width=\arrowwidth] (B.south) |- (I) -| (C.north);
+                    \draw[visible on=<5>, ->, line width=\arrowwidth, dashed] (C.east) -- (D.west);
+
+
+
+                    \node (A) {%
+                        \includegraphics[width=0.35\textwidth]{corral_detection/corral_4.png}%
+                    };%
+                    \node[visible on=<7-9>, right=of A] (B) {%
+                        \includegraphics[width=0.35\textwidth]{corral_detection/corral_5.png}%
+                    };%
+                    \node[visible on=<8-9>,below=of A] (C) {%
+                        \includegraphics[width=0.35\textwidth]{corral_detection/corral_6.png}%
+                    };%
+                    \node[visible on=<9>, below=of B] (D) {%
+                        \includegraphics[width=0.35\textwidth]{corral_detection/corral_7.png}%
+                    };%
+
+                    \draw[visible on=<7-9>, ->, line width=\arrowwidth, dashed] (A.east) -- (B.west);
+
+                    \coordinate (I) at ($ (B) ! .5 ! (C) $);
+                    \draw[visible on=<8-9>, ->, line width=\arrowwidth] (B.south) |- (I) -| (C.north);
+                    \draw[visible on=<9>, ->, line width=\arrowwidth] (C.east) -- (D.west);
+
+                    \node (A) {%
+                        \includegraphics[width=0.35\textwidth]{corral_detection/corral_8.png}%
+                    };%
+                \end{tikzpicture}
             }
         \end{frame}
 
@@ -598,6 +627,8 @@
                 YASS (Brian Damgaard)          & 89       & 2865 \\
                 \hline
             \end{tabular}
+
+            \BottomRightText{Statistiques par Matthias Meger et Brian Damgaard}
         \end{frame}
 
         \begin{frame}{Statistiques}
@@ -608,14 +639,14 @@
             \begin{adjustbox}{max totalsize={\textwidth}{\textheight},center}
                 \begin{tikzpicture}
                     \begin{axis}[
-                        grid=major,
-                        xmin=1, xmax=10,
-                        ymin=2000, ymax=3300,
-                        xlabel = {Temps (minutes)},
-                        ylabel = {Nombre de niveaux},
-                        legend entries={sokoshell, Festival, Sokolution, Takaken, YASS},
-                        legend style={at={(1.5, 0.5)},anchor= east},
-                        cycle list name=mylist
+                            grid=major,
+                            xmin=1, xmax=10,
+                            ymin=2000, ymax=3300,
+                            xlabel = {Temps (minutes)},
+                            ylabel = {Nombre de niveaux},
+                            legend entries={sokoshell, Festival, Sokolution, Takaken, YASS},
+                            legend style={at={(1.5, 0.5)},anchor= east},
+                            cycle list name=mylist
                         ]
 
                         \addplot table[x=min, y=sokoshell] {content/number_solved_per_minutes_data.txt};
@@ -626,6 +657,8 @@
                     \end{axis}
                 \end{tikzpicture}
             \end{adjustbox}
+
+            \BottomRightText{Statistiques par Matthias Meger et Brian Damgaard}
         \end{frame}
 
         \begin{frame}[fragile]{Statistiques}
@@ -668,6 +701,8 @@
                     \end{axis}
                 \end{tikzpicture}
             \end{adjustbox}
+
+            \BottomRightText{Statistiques par Matthias Meger et Brian Damgaard}
         \end{frame}
 
         \begin{frame}[fragile]{Statistiques}
@@ -696,6 +731,8 @@
                     \end{axis}
                 \end{tikzpicture}
             \end{adjustbox}
+
+            \BottomRightText{Statistiques par Matthias Meger et Brian Damgaard}
         \end{frame}
 
 
