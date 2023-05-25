@@ -13,7 +13,7 @@
 
 \setbeamertemplate{footline}[page number]
 
-\usepackage{pgfplots} % graphiques
+
 
 \usepackage{multirow}
 
@@ -30,11 +30,13 @@
 }
 
 \usepackage{adjustbox}
-\usepackage{pgfplots}
 
 \title{Résolution de niveaux du Sokoban}
 \author{\candidatename}
 \date{Candidat n°\candidatenumber}
+\def\titlepage{%
+  \usebeamertemplate{title page}% <--- avoid overfull vbox on titlepage (see https://tex.stackexchange.com/a/444420)
+}
 
 \usepackage{graphics}
 \graphicspath{{../assets/}}
@@ -51,13 +53,12 @@
 
 % greedy heuristic
 \usetikzlibrary{shapes.multipart,chains,scopes}
+\usetikzlibrary{matrix}
 
-% corral calculaton
-\usepackage{stmaryrd}
-% \usepackage{algorithm}
-% \captionsetup[algorithm]{labelformat=empty}
-\usepackage{algpseudocode}
+\usepackage{stmaryrd} % integer brackets
 
+\usepackage{pgfplots} % graphiques
+\pgfplotsset{compat=1.18}
 % stats
 \definecolor{RED}    {RGB}{220,  57,  18}
 \definecolor{GREEN}  {RGB}{16,  150,  24}
@@ -71,9 +72,6 @@
     {ORANGE,  line width=1.5, rounded corners=1pt},
     {MAGENTA, line width=1.5, rounded corners=1pt}% <-- don't add a comma here
 }
-
-\usepackage{minted}
-
 
 \newcommand\iconwidth{2em}
 \newcommand\arrowwidth{0.8mm}
