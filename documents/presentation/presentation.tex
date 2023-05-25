@@ -315,18 +315,20 @@
 
             \begin{frame}{Détection de \textit{PI Corral deadlocks}}
                 \only<1> {
-                    \begin{figure}
-                        \centering
-                        \subcaptionbox{\textit{Corral}} {
-                            \includegraphics[width=0.4\textwidth]{corral/corral.png}%
-                        }
-                        \subcaptionbox{\textit{I Corral}} {
-                            \includegraphics[width=0.4\textwidth]{corral/i_corral.png}%
-                        }
-                        \subcaptionbox{\textit{PI Corral}} {
-                            \includegraphics[width=0.4\textwidth]{corral/pi_corral.png}%
-                        }
-                    \end{figure}
+                    \begin{minipage}{0.9\textwidth}
+                        \begin{figure}
+                            \centering
+                            \subcaptionbox{\textit{Corral}} {
+                                \includegraphics[width=0.4\textwidth]{corral/corral.png}%
+                            }
+                            \subcaptionbox{\textit{I Corral}} {
+                                \includegraphics[width=0.4\textwidth]{corral/i_corral.png}%
+                            }
+                            \subcaptionbox{\textit{PI Corral}} {
+                                \includegraphics[width=0.4\textwidth]{corral/pi_corral.png}%
+                            }
+                        \end{figure}
+                    \end{minipage}
                 }
                 \only<2>{
                     \begin{minipage}{0.45\textwidth}
@@ -374,80 +376,89 @@
 
         \begin{frame}{Heuristique gloutonne \textit{(Greedy Lower Bound)}}
             \centering
+
             \includegraphics<1>[width=0.9\textwidth]{heuristics/greedy.png}%
-            \only<2->{%
-                \includegraphics[width=0.3\textwidth]{heuristics/greedy.png}%
-                \vspace{0.15cm}
-                \begin{columns}[onlytextwidth]
-                    \begin{column}{0.5\textwidth}%
-                        \only<2>{%
-                            \begin{columns}[onlytextwidth]
-                                \begin{column}{0.93\textwidth}%
-                                    \begin{tabular}{ | c | c | }%
-                                        \hline
-                                        Caisse $\rightarrow$ Cible & Distance \\
-                                        \hline
-                                        $1 \rightarrow A$ & 3 \\
-                                        \hline
-                                        $1 \rightarrow B$ & 2 \\
-                                        \hline
-                                        $1 \rightarrow C$ & 3 \\
-                                        \hline
-                                        $2 \rightarrow A$ & 4 \\
-                                        \hline
-                                        $2 \rightarrow B$ & 4 \\
-                                        \hline
-                                        $2 \rightarrow C$ & 5 \\
-                                        \hline
-                                        $3 \rightarrow A$ & 5 \\
-                                        \hline
-                                        $3 \rightarrow B$ & 4 \\
-                                        \hline
-                                        $3 \rightarrow C$ & 3 \\
-                                        \hline
-                                    \end{tabular}
-                                \end{column}
-                                \begin{column}{0.07\textwidth}
-                                        \begin{tikzpicture}%
-                                            \draw[->, line width=1mm, outer sep = 0, inner sep = 0] (0,0) -- node[above=2mm]{Tri} (1,0);
-                                        \end{tikzpicture}
-                                \end{column}
-                            \end{columns}
+            \only<2->{
+                \includegraphics[width=0.3\textwidth]{heuristics/greedy.png}
+
+                \vspace{0.19cm}
+                \begin{columns}
+                    \begin{column}{0.5\textwidth}
+                        \only<2>{
+                            \resizebox{0.9\textwidth}{!}{
+                                \begin{tabular}{ | c | c | }
+                                    \hline
+                                    Caisse $\rightarrow$ Cible & Distance \\
+                                    \hline
+                                    $1 \rightarrow A$ & 3 \\
+                                    \hline
+                                    $1 \rightarrow B$ & 2 \\
+                                    \hline
+                                    $1 \rightarrow C$ & 3 \\
+                                    \hline
+                                    $2 \rightarrow A$ & 4 \\
+                                    \hline
+                                    $2 \rightarrow B$ & 4 \\
+                                    \hline
+                                    $2 \rightarrow C$ & 5 \\
+                                    \hline
+                                    $3 \rightarrow A$ & 5 \\
+                                    \hline
+                                    $3 \rightarrow B$ & 4 \\
+                                    \hline
+                                    $3 \rightarrow C$ & 3 \\
+                                    \hline
+                                \end{tabular}
+                                \tikzmark{b}
+                            }
                         }
-                        \only<3>{%
-                            \begin{center}%
+                        \only<3>{
+                            \begin{center}
                                 \includegraphics[width=\textwidth]{heuristics/greedy_end.png}
                                 \Large$\boxed{2 + 3 + 5 = \mathbf{10}}$
                             \end{center}
                         }
                     \end{column}%
-                    \begin{column}{0.4\textwidth}%
+
+                    \begin{column}{0.5\textwidth}
                         % Sorted table
-                        \begin{tabular}{ | c | c | }
-                            \hline
-                                Caisse $\rightarrow$ Cible & Distance \\
-                            \hline
-                            $\mathbf{1 \rightarrow B}$ & \textbf{2} \\
-                            \hline
-                            $1 \rightarrow A$ & 3 \\
-                            \hline
-                            $1 \rightarrow C$ & 3 \\
-                            \hline
-                            $\mathbf{3 \rightarrow C}$ & \textbf{3} \\
-                            \hline
-                            $2 \rightarrow B$ & 4 \\
-                            \hline
-                            $3 \rightarrow B$ & 4 \\
-                            \hline
-                            $2 \rightarrow A$ & 5 \\
-                            \hline
-                            $2 \rightarrow C$ & 5 \\
-                            \hline
-                            $\mathbf{3 \rightarrow A}$ & \textbf{5} \\
-                            \hline
-                        \end{tabular}
+                        \resizebox{0.9\textwidth}{!}{
+                            \tikzmark{f}
+                            \begin{tabular}{ | c | c | }
+                                \hline
+                                    Caisse $\rightarrow$ Cible & Distance \\
+                                \hline
+                                $\mathbf{1 \rightarrow B}$ & \textbf{2} \\
+                                \hline
+                                $1 \rightarrow A$ & 3 \\
+                                \hline
+                                $1 \rightarrow C$ & 3 \\
+                                \hline
+                                $\mathbf{3 \rightarrow C}$ & \textbf{3} \\
+                                \hline
+                                $2 \rightarrow B$ & 4 \\
+                                \hline
+                                $3 \rightarrow B$ & 4 \\
+                                \hline
+                                $2 \rightarrow A$ & 5 \\
+                                \hline
+                                $2 \rightarrow C$ & 5 \\
+                                \hline
+                                $\mathbf{3 \rightarrow A}$ & \textbf{5} \\
+                                \hline
+                            \end{tabular}
+                        }
                     \end{column}
                 \end{columns}
+            }
+
+            \onslide<2> {
+                \begin{tikzpicture}[overlay, remember picture]
+                    \draw[->, line width=\arrowwidth]
+                        ($({pic cs:b}) + (-1.5mm, 0)$)
+                        to [sloped, "Tri"]
+                        ($({pic cs:f})$);
+                \end{tikzpicture}
             }
         \end{frame}
 
@@ -545,21 +556,21 @@
             \vspace{0.42cm}
             \begin{tabular}{|c|c|c|}
                 \hline
-                Ensemble de niveaux            & XSokoban & \textit{Large test suite} \\
+                Ensemble de niveaux            & XSokoban    & \textit{Large test suite} \\
                 \hline
-                Nombre de niveaux              & 90       & 3272 \\
+                Nombre de niveaux              & 90          & 3272 \\
                 \hline
-                A*                             & 11       & 2204 \\
+                \textbf{A*}                    & \textbf{11} & \textbf{2204} \\
                 \hline
-                fess0                          & 15       & 2273 \\
+                \textbf{fess0}                 & \textbf{15} & \textbf{2273} \\
                 \hline
-                Festival (Yaron Shoham)        & 90       & 3202 \\
+                Festival (Yaron Shoham)        & 90          & 3202 \\
                 \hline
-                Sokolution (Florent Diedler)   & 90       & 3130 \\
+                Sokolution (Florent Diedler)   & 90          & 3130 \\
                 \hline
-                Takaken (Ken'ichiro Takahashi) & 90       & 2944 \\
+                Takaken (Ken'ichiro Takahashi) & 90          & 2944 \\
                 \hline
-                YASS (Brian Damgaard)          & 89       & 2865 \\
+                YASS (Brian Damgaard)          & 89          & 2865 \\
                 \hline
             \end{tabular}
         \end{frame}
