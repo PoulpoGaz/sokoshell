@@ -182,11 +182,11 @@
                                 \begin{forest}
                                     for tree = {
                                         l sep = 15em,
-                                        edge = {line width = 3mm, ->},
+                                        edge = {line width=3mm, ->},
                                     }
                                     [{\includegraphics{dead_positions/algo_2_1.png}}, grow=east
                                         [\includegraphics{dead_positions/algo_2_2.png}, name=no,
-                                         edge label={node[midway, below=8mm, font=\fontsize{60}{63.5}\selectfont]{$\dots$}}]
+                                         edge = {loosely dotted}]
                                         [\includegraphics{dead_positions/algo_2_3.png}, name=yes]
                                     ]
                                     \node[right = of yes]{\includegraphics[width=3cm]{icons/yes.png}};
@@ -198,25 +198,17 @@
             \end{frame}
 
             \begin{frame}{Détection de tunnels}
-                \only<1>{
-                    \includegraphics[width=\textwidth]{tunnels/tunnels.png}
-                }
+                \includegraphics<1>[width=\textwidth]{tunnels/tunnels.png}%
                 \only<2>{
                     \begin{center}
-                        \includegraphics[width=0.6\textwidth]{tunnels/tunnel_macro_one_crate_1.png}
+                        \includegraphics[width=0.58\textwidth]{tunnels/tunnel_macro_one_crate_1.png}
 
-                        \includegraphics[width=0.6\textwidth]{tunnels/tunnel_macro_one_crate_2.png}
+                        \includegraphics[width=0.58\textwidth]{tunnels/tunnel_macro_one_crate_2.png}
                     \end{center}
                 }
-                \only<3>{
-                     \includegraphics[width=\textwidth]{tunnels/tunnel_macro.png}
-                }
-                \only<4>{
-                    \includegraphics[width=\textwidth]{tunnels/tunnel_macro_player_only.png}
-                }
-                \only<5>{
-                    \includegraphics[width=\textwidth]{tunnels/tunnel_macro_oneway.png}
-                }
+                \includegraphics<3>[width=\textwidth]{tunnels/tunnel_macro.png}%
+                \includegraphics<4>[width=\textwidth]{tunnels/tunnel_macro_player_only.png}%
+                \includegraphics<5>[width=\textwidth]{tunnels/tunnel_macro_oneway.png}%
                 \only<6>{
                     \begin{minipage}{0.4\textwidth}
                          \includegraphics[width=\textwidth]{tunnels/straight.png}
@@ -320,6 +312,7 @@
                     \draw[->, line width=\arrowwidth, visible on=<4>] (second.west) -- (third.east);
                 \end{tikzpicture}
             \end{frame}
+
             \begin{frame}{Détection de \textit{PI Corral deadlocks}}
                 \only<1> {
                     \begin{figure}
@@ -355,6 +348,7 @@
                     Brian Damgaard: émonde d'au moins \textbf{20\%} l'arbre de recherche !
                 }
             \end{frame}
+
             \begin{frame}{Table de \textit{deadlocks}}
                 \only<1>{
                     \begin{minipage}{0.45\textwidth}
@@ -480,7 +474,7 @@
                     \end{column}
                 }%
                 \only<2>{
-                    \begin{column}{0.4\textwidth}
+                    \begin{column}{0.49\textwidth}
                         \begin{tabular}{|c|c|c|c|}
                             \hline
                             \multirow{2}{2em}{Case} & \multicolumn{3}{|c|}{Distances} \\
@@ -633,10 +627,24 @@
 
         \begin{frame}{Statistiques}
             \centering
+
+            Temps moyen passé par niveaux
+
+            \vspace{0.05cm}
+            \resizebox{\textwidth}{!}{
+                \begin{tabular}{|c|c|c|c|c|c|c|}
+                    \hline
+                    Solveur     & A* & fess0 & Festival & Sokolution & Takaken & YASS \\
+                    \hline
+                    Temps moyen & 3min 28s & 3min 16s & 3s & 2s & 7s & 24s \\
+                    \hline
+                \end{tabular}
+            }
+
+            \vspace{0.3cm}
             Nombre de niveaux résolus (cumulés) en fonction du temps
 
-            \vspace{0.4cm}
-            \begin{adjustbox}{max totalsize={\textwidth}{\textheight},center}
+            \resizebox{0.8\textwidth}{!}{
                 \begin{tikzpicture}
                     \begin{axis}[
                             grid=major,
@@ -656,36 +664,28 @@
                         \addplot table[x=min, y=YASS] {content/number_solved_per_minutes_data.txt};
                     \end{axis}
                 \end{tikzpicture}
-            \end{adjustbox}
+
+            }
 
             \BottomRightText{Statistiques par Matthias Meger et Brian Damgaard}
         \end{frame}
 
         \begin{frame}[fragile]{Statistiques}
             \centering
-            Temps moyen passé par niveaux
 
-            \vspace{0.05cm}
-            \resizebox{\textwidth}{!}{
-                \begin{tabular}{|c|c|c|c|c|c|c|}
-                    \hline
-                    Solveur     & A* & fess0 & Festival & Sokolution & Takaken & YASS \\
-                    \hline
-                    Temps moyen & 3min 28s & 3min 16s & 3s & 2s & 7s & 24s \\
-                    \hline
-                \end{tabular}
-            }
+            Pourcentage de niveaux résolus selon la composition des niveaux
 
-            \begin{adjustbox}{max totalsize={\textwidth}{\textheight},center}
+            \vspace{0.42cm}
+            \resizebox{0.9\textwidth}{!}{
                 \begin{tikzpicture}
                     \begin{axis}[
+                            name=ax1,
                             grid=major,
                             xmin=0, xmax=250,
                             ymin=0, ymax=100,
                             xlabel = {Nombre de sols},
-                            ylabel = {Pourcentage de niveaux résolus},
-                            legend entries={sokoshell, Festival, Sokolution, Takaken, YASS},
-                            legend style={at={(1.5, 0.5)},anchor=east},
+                            % ylabel = {Pourcentage de niveaux résolus},
+                            xlabel style = {yshift=-0.2cm, font=\LARGE},
                             cycle list name=mylist
                         ]
                         \addplot table[x=floors, y=sokoshell]
@@ -698,24 +698,21 @@
                             {content/Solved_levels_versus_floors__percent.txt};
                         \addplot table[x=floors, y=YASS]
                             {content/Solved_levels_versus_floors__percent.txt};
+
+                        % \legend{}
                     \end{axis}
-                \end{tikzpicture}
-            \end{adjustbox}
-
-            \BottomRightText{Statistiques par Matthias Meger et Brian Damgaard}
-        \end{frame}
-
-        \begin{frame}[fragile]{Statistiques}
-             \begin{adjustbox}{max totalsize={\textwidth}{\textheight},center}
-                \begin{tikzpicture}
                     \begin{axis}[
+                            at={(ax1.south east)},
+                            xshift=1cm,
                             grid=major,
                             xmin=0, xmax=75,
                             ymin=0, ymax=100,
+                            yticklabels=\empty,
                             xlabel = {Nombre de caisses},
-                            ylabel = {Pourcentage de niveaux résolus},
+                            xlabel style = {yshift=-0.2cm, font=\LARGE},
+                            legend columns=5,
                             legend entries={sokoshell, Festival, Sokolution, Takaken, YASS},
-                            legend style={at={(1.5, 0.5)}, anchor=east},
+                            legend style={font=\Large, at={(-0.1, 1.1)}, anchor=south},
                             cycle list name=mylist
                         ]
                         \addplot table[x=crates, y=sokoshell]
@@ -730,11 +727,9 @@
                             {content/Solved_levels_versus_crates__percent.txt};
                     \end{axis}
                 \end{tikzpicture}
-            \end{adjustbox}
-
+            }
             \BottomRightText{Statistiques par Matthias Meger et Brian Damgaard}
         \end{frame}
-
 
     \section{Annexe}
         \begin{frame}{Tableau des complexités}
