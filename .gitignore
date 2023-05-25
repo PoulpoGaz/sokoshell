@@ -15,4 +15,4 @@ documents/**/*.noc
 documents/**/*.toc
 documents/**/*.synctex.gz
 documents/**/*.vrb
-documents/presentation/latex/_minted-presentation
+documents/presentation/_minted-presentation
