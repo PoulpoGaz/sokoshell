@@ -18,15 +18,15 @@ LATEX
             \node[scale=5] at (1.5, 2.5) {B};
             \node[scale=5] at (1.5, 3.5) {C};
 
-            \draw[red, ->, line width=8]
+            \draw[purple, ->, line width=8]
                 (3.3, 2.5) --
                 node[white, draw, circle, inner sep=0.1mm, ultra thick, below=1mm, scale=4] {2}
                 (1.7, 2.5);
-            \draw[red, ->, line width=8]
+            \draw[purple, ->, line width=8]
                 (5.5, 2.2) to[bend right]
                 node[white, draw, circle, inner sep=0.1mm, ultra thick, above=1mm, scale=4] {5}
                 (1.7, 1.5);
-            \draw[red, ->, line width=8]
+            \draw[purple, ->, line width=8]
                 (4.3, 3.5) --
                 node[white, draw, circle, inner sep=0.1mm, ultra thick, below=1mm, scale=4] {3}
                 (1.7, 3.5);

@@ -1,0 +1,28 @@
+#####
+#   #
+#. .#
+# . #
+#####
+
+LATEX
+
+% 60 = 50 * 1.2: https://latex-tutorial.com/changing-font-size/
+\newcommand\setfont{\fontsize{50pt}{60pt}\selectfont}
+
+\begin{document}
+    \begin{tikzpicture}
+        \begin{sokoban}[$WIDTH$, $HEIGHT$]{$FILE$}
+            \node[white] at (1.5, 1.5) {\setfont 0};
+            \node[white] at (2.5, 1.5) {\setfont 1};
+            \node[white] at (3.5, 1.5) {\setfont 2};
+
+            \node[black] at (1.5, 2.5) {\setfont A};
+            \node[white] at (2.5, 2.5) {\setfont 4};
+            \node[black] at (3.5, 2.5) {\setfont B};
+
+            \node[white] at (1.5, 3.5) {\setfont 6};
+            \node[black] at (2.5, 3.5) {\setfont C};
+            \node[white] at (3.5, 3.5) {\setfont 8};
+        \end{sokoban}
+    \end{tikzpicture}
+\end{document}
