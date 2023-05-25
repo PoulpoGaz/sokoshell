@@ -17,8 +17,14 @@
 \usetikzlibrary{babel}
 \usetikzlibrary{arrows,shapes,positioning,shadows,trees,calc,fit,backgrounds}
 \usetikzlibrary{overlay-beamer-styles} % 'visible on' option for nodes
-\usepackage{adjustbox}
 
+% to enable ! in tikz
+\tikzset{
+    handle active characters in code=false, % (inutile, c’est par défaut)
+    handle active characters in nodes, % true/false ne change rien
+}
+
+\usepackage{adjustbox}
 \usepackage{pgfplots}
 
 \title{Résolution de niveaux du Sokoban}
@@ -46,6 +52,20 @@
 \usepackage{stmaryrd}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
+
+% stats
+\definecolor{RED}    {RGB}{220,  57,  18}
+\definecolor{GREEN}  {RGB}{16,  150,  24}
+\definecolor{BLUE}   {RGB}{48,   96, 193}
+\definecolor{ORANGE} {RGB}{255, 153,   0}
+\definecolor{MAGENTA}{RGB}{200,  54, 166}
+\pgfplotscreateplotcyclelist{mylist}{
+    {RED,     line width=1.5, rounded corners=1pt},
+    {GREEN,   line width=1.5, rounded corners=1pt},
+    {BLUE,    line width=1.5, rounded corners=1pt},
+    {ORANGE,  line width=1.5, rounded corners=1pt},
+    {MAGENTA, line width=1.5, rounded corners=1pt}% <-- don't add a comma here
+}
 
 \usepackage{minted}
 

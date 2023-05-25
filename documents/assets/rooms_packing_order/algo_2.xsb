@@ -1,0 +1,14 @@
+#######
+##  **#
+@*   *#
+##  **#
+#######
+
+LATEX
+\begin{document}
+    \begin{tikzpicture}
+        \begin{sokoban}[$WIDTH$, $HEIGHT$]{$FILE$}
+            \draw[purple, line width=8, line cap=round, ->] (1.5, 2.5) -- +(3, 0);
+        \end{sokoban}
+    \end{tikzpicture}
+\end{document}

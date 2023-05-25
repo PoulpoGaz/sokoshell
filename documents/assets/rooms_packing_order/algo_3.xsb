@@ -1,0 +1,16 @@
+#######
+##  **#
+     *#
+##  **#
+#######
+
+LATEX
+\begin{document}
+    \begin{tikzpicture}
+        \begin{sokoban}[$WIDTH$, $HEIGHT$]{$FILE$}
+            \draw[purple, line width=8, line cap=round] (4, 1) rectangle +(1,1);
+            \draw[purple, line width=8, line cap=round] (5, 2) rectangle +(1,1);
+            \draw[purple, line width=8, line cap=round] (4, 3) rectangle +(1,1);
+        \end{sokoban}
+    \end{tikzpicture}
+\end{document}

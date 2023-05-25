@@ -366,6 +366,7 @@ public class CorralDetector {
 
         parent[i] = rootI;
         rank[i] = 0;
+        rank[rootI] = Math.max(1, rank[rootI]);
     }
 
     /**

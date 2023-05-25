@@ -27,6 +27,9 @@
                     \end{figure}
                 \end{column}
             \end{columns}
+
+            \centering
+            Problème \textbf{PSPACE-complet}
         \end{frame}
 
         \begin{frame}{But du jeu}
@@ -221,21 +224,43 @@
                     \begin{minipage}{0.4\textwidth}
                          \includegraphics[width=\textwidth]{tunnels/corner.png}
                     \end{minipage}
+
+                    \centering
+                    Composition d'un tunnel
                 }
             \end{frame}
 
             \begin{frame}{Salles et ordre de rangement \textit{(packing order)}}
+                \centering
                 \only<1>{
                     \includegraphics[width=\textwidth]{rooms_packing_order/rooms.png}
                 }
                 \only<2>{
-                    \includegraphics[width=\textwidth]{rooms_packing_order/level_completed.png}
+                    \begin{tikzpicture}
+                        \node (A) {
+                            \includegraphics[width=0.4\textwidth]{rooms_packing_order/algo_1.png}
+                        };
+                        \node[right=of A] (B) {
+                            \includegraphics[width=0.4\textwidth]{rooms_packing_order/algo_2.png}
+                        };
+                        \node[below=of A] (C) {
+                            \includegraphics[width=0.4\textwidth]{rooms_packing_order/algo_3.png}
+                        };
+                        \node[below=of B] (D) {
+                            \includegraphics[width=0.4\textwidth]{rooms_packing_order/algo_4.png}
+                        };
+
+                        \draw[->, line width=\arrowwidth] (A.east) -- (B.west);
+
+                        \coordinate (I) at ($ (B) ! .5 ! (C) $);
+                        \draw[->, line width=\arrowwidth] (B.south) |- (I) -| (C.north);
+                        \draw[->, line width=\arrowwidth, dashed] (C.east) -- (D.west);
+                    \end{tikzpicture}
                 }
                 \only<3>{
                     \includegraphics[width=\textwidth]{rooms_packing_order/packing_order.png}
                 }
                 \only<4>{
-                    \centering
                     \includegraphics[height=0.8\textheight]{rooms_packing_order/no_packing_order.png}
                 }
             \end{frame}
@@ -299,34 +324,44 @@
                     \begin{figure}
                         \centering
                         \subcaptionbox{\textit{Corral}} {
-                            \includegraphics[width=0.4\textwidth]{corral/corral.png}
+                            \includegraphics[width=0.4\textwidth]{corral/corral.png}%
                         }
                         \subcaptionbox{\textit{I Corral}} {
-                            \includegraphics[width=0.4\textwidth]{corral/i_corral.png}
+                            \includegraphics[width=0.4\textwidth]{corral/i_corral.png}%
                         }
                         \subcaptionbox{\textit{PI Corral}} {
-                            \includegraphics[width=0.4\textwidth]{corral/pi_corral.png}
+                            \includegraphics[width=0.4\textwidth]{corral/pi_corral.png}%
                         }
                     \end{figure}
                 }
                 \only<2>{
                     \begin{minipage}{0.45\textwidth}
-                        \includegraphics[width=\textwidth]{corral/multi_pi_corral_1.png}
+                        \includegraphics[width=\textwidth]{corral/multi_pi_corral_1.png}%
+
+                        \centering
+                        Deux \textit{I-Corrals}
                     \end{minipage}
                     \hfill
                     \begin{minipage}{0.45\textwidth}
-                        \includegraphics[width=\textwidth]{corral/multi_pi_corral_2.png}
+                        \includegraphics[width=\textwidth]{corral/multi_pi_corral_2.png}%
+
+                        \centering
+                        Un multi \textit{PI-Corrals}
                     \end{minipage}
+                }
+                \only<3>{
+                    \centering
+                    Brian Damgaard: émonde d'au moins \textbf{20\%} l'arbre de recherche !
                 }
             \end{frame}
             \begin{frame}{Table de \textit{deadlocks}}
                 \only<1>{
                     \begin{minipage}{0.45\textwidth}
-                         \includegraphics[width=\textwidth]{deadlock_table/init.png}
+                         \includegraphics[width=\textwidth]{deadlock_table/init.png}%
                     \end{minipage}
                     \hfill
                     \begin{minipage}{0.45\textwidth}
-                        \includegraphics[width=\textwidth]{deadlock_table/new_deadlock.png}
+                        \includegraphics[width=\textwidth]{deadlock_table/new_deadlock.png}%
                     \end{minipage}
                 }
                 \only<2>{
@@ -516,6 +551,8 @@
         \begin{frame}[fragile]{Statistiques}
             \centering
             Temps moyen passé par niveaux
+
+            \vspace{0.05cm}
             \resizebox{\textwidth}{!}{
                 \begin{tabular}{|c|c|c|c|c|c|c|}
                     \hline
@@ -529,19 +566,53 @@
             \begin{adjustbox}{max totalsize={\textwidth}{\textheight},center}
                 \begin{tikzpicture}
                     \begin{axis}[
-                        grid=major,
-                        xmin=0, xmax=250,
-                        ymin=0, ymax=100,
-                        xlabel = {Nombre de sols},
-                        ylabel = {Pourcentage de niveaux résolus},
-                        legend entries={sokoshell, Festival, Sokolution, Takaken, YASS},
-                        legend style={at={(1.5, 0.5)},anchor=east}
+                            grid=major,
+                            xmin=0, xmax=250,
+                            ymin=0, ymax=100,
+                            xlabel = {Nombre de sols},
+                            ylabel = {Pourcentage de niveaux résolus},
+                            legend entries={sokoshell, Festival, Sokolution, Takaken, YASS},
+                            legend style={at={(1.5, 0.5)},anchor=east},
+                            cycle list name=mylist
                         ]
-                        \addplot table[x=floors, y=sokoshell] {content/Solved_levels_versus_floors__percent.txt};
-                        \addplot table[x=floors, y=Festival] {content/Solved_levels_versus_floors__percent.txt};
-                        \addplot table[x=floors, y=Sokolution] {content/Solved_levels_versus_floors__percent.txt};
-                        \addplot table[x=floors, y=Takaken] {content/Solved_levels_versus_floors__percent.txt};
-                        \addplot table[x=floors, y=YASS] {content/Solved_levels_versus_floors__percent.txt};
+                        \addplot table[x=floors, y=sokoshell]
+                            {content/Solved_levels_versus_floors__percent.txt};
+                        \addplot table[x=floors, y=Festival]
+                            {content/Solved_levels_versus_floors__percent.txt};
+                        \addplot table[x=floors, y=Sokolution]
+                            {content/Solved_levels_versus_floors__percent.txt};
+                        \addplot table[x=floors, y=Takaken]
+                            {content/Solved_levels_versus_floors__percent.txt};
+                        \addplot table[x=floors, y=YASS]
+                            {content/Solved_levels_versus_floors__percent.txt};
+                    \end{axis}
+                \end{tikzpicture}
+            \end{adjustbox}
+        \end{frame}
+
+        \begin{frame}[fragile]{Statistiques}
+             \begin{adjustbox}{max totalsize={\textwidth}{\textheight},center}
+                \begin{tikzpicture}
+                    \begin{axis}[
+                            grid=major,
+                            xmin=0, xmax=75,
+                            ymin=0, ymax=100,
+                            xlabel = {Nombre de caisses},
+                            ylabel = {Pourcentage de niveaux résolus},
+                            legend entries={sokoshell, Festival, Sokolution, Takaken, YASS},
+                            legend style={at={(1.5, 0.5)}, anchor=east},
+                            cycle list name=mylist
+                        ]
+                        \addplot table[x=crates, y=sokoshell]
+                            {content/Solved_levels_versus_crates__percent.txt};
+                        \addplot table[x=crates, y=Festival]
+                            {content/Solved_levels_versus_crates__percent.txt};
+                        \addplot table[x=crates, y=Sokolution]
+                            {content/Solved_levels_versus_crates__percent.txt};
+                        \addplot table[x=crates, y=Takaken]
+                            {content/Solved_levels_versus_crates__percent.txt};
+                        \addplot table[x=crates, y=YASS]
+                            {content/Solved_levels_versus_crates__percent.txt};
                     \end{axis}
                 \end{tikzpicture}
             \end{adjustbox}

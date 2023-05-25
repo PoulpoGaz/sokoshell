@@ -1,4 +1,4 @@
-min Sokoshell   Festival    Sokolution  Takaken YASS
+min sokoshell   Festival    Sokolution  Takaken YASS
 1   2086        2967        3022        2852    2550
 2   2142        3019        3053        2896    2623
 3   2174        3074        3069        2922    2658
