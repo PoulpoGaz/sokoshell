@@ -10,7 +10,7 @@ LATEX
 \begin{document}
     \begin{tikzpicture}
         \begin{sokoban}[$WIDTH$, $HEIGHT$]{$FILE$}
-            \draw[red, ->, line width=8] (3.5, 2.5) -- (3.5, 3.5);
+            \draw[purple, ->, line width=8] (3.5, 2.5) -- (3.5, 3.5);
         \end{sokoban}
     \end{tikzpicture}
 \end{document}

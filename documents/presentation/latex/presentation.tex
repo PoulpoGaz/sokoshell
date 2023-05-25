@@ -5,11 +5,7 @@
 
     \maketitle
 
-    \begin{frame}{Plan}
-        \tableofcontents%[hideallsubsections]
-    \end{frame}
-
-    \section{Le jeu du Sokoban}
+    \section{Introduction}
         \begin{frame}{Le jeu du Sokoban}
             \begin{columns}
                 \begin{column}{0.3\textwidth}
@@ -50,6 +46,7 @@
                         \begin{figure}
                             \centering
                             \includegraphics[width=0.9\textwidth]{rules/moves.png}
+                            % \resizebox{!}{\iconwidth}{}
                             \caption*{Déplacements autorisés}
                         \end{figure}
                     }
@@ -105,6 +102,10 @@
             \includegraphics[width=\textwidth]{shell.png}
          \end{frame}
 
+        \begin{frame}{Plan}
+            \tableofcontents%[hideallsubsections]
+        \end{frame}
+
         \begin{frame}{Lien avec le thème de l'année}
             \centering
             \only<1>{\includegraphics[width=0.9\textwidth]{warehouse.jpg}}
@@ -131,7 +132,7 @@
                     $T=\begin{blockarray}{ccc}
                             \text{caisse} & \text{joueur} & \text{case} \\
                         \begin{block}{(cc)c}
-                            6357   & 5742   & 0      \\
+                            6357   & \candidatenumber   & 0      \\
                             -1378  & 42     & 1      \\
                             \vdots & \vdots & \vdots \\
                             93268  & -278   & wh - 1 \\
@@ -141,13 +142,14 @@
             }
 
             \only<2>{
-                Usage:
-                $(c_1, ..., c_n)$ $n$ caisses et $p$ position du joueur:
-                $h = \underset{i=0}{\overset{n}{\xor}} T[c_i][0] \xor T[p][1]$ \\
-
-                Calculer le hash d'un état à l'aide de son parent:
-                $c_i \rightarrow c_i', p \rightarrow p'$
-                $h' = h \xor T[c_i][0] \xor T[c_i'][0] \xor T[p][1] \xor T[p'][1]$
+                \begin{itemize}
+                    \item $(c_1, ..., c_n)$ $n$ caisses et $p$ position du joueur :
+                        \[h = \underset{i=0}{\overset{n}{\xor}} T[c_i][0] \xor T[p][1] \]
+                        \[\text{ en } \mathcal{O}(n)\]
+                    \item \textbf{Connaissant le hash de l'état parent}: $c_i \rightarrow c_i', p \rightarrow p'$
+                          \[h' = h \xor T[c_i][0] \xor T[c_i'][0] \xor T[p][1] \xor T[p'][1]\]
+                          \[\boxed{\text{en }\mathcal{O}(1)}\]
+                \end{itemize}
             }
         \end{frame}
 
@@ -371,93 +373,146 @@
 
     \section{Recherche dirigée par une heuristique}
         \begin{frame}{Heuristique simple \textit{(Simple Lower Bound)}}
-            \centering
-            \only<1>{\includegraphics[width=0.9\textwidth]{heuristics/example.png}}
-            \only<2>{
-                \includegraphics[width=0.9\textwidth]{heuristics/simple.png}
-                \Large$\boxed{2 + 4 + 3 = \mathbf{9}}$
-            }
+            \centering%
+            \includegraphics<1>[width=0.9\textwidth]{heuristics/example.png}%
+            \includegraphics<2>[width=0.9\textwidth]{heuristics/simple.png}
+            \onslide<2>{\Large$\boxed{2 + 4 + 3 = \mathbf{9}}$}
         \end{frame}
 
         \begin{frame}{Heuristique gloutonne \textit{(Greedy Lower Bound)}}
             \centering
-            \only<1>{\includegraphics[width=0.9\textwidth]{heuristics/greedy.png}}
-            \only<2->{
-                \begin{columns}
-                    \begin{column}{0.4\textwidth}
-                        \begin{center}
-                            \only<2>{
-                                \includegraphics[width=0.9\textwidth]{heuristics/greedy.png}
-                            }
-                            \only<3>{
-                                \includegraphics[width=0.9\textwidth]{heuristics/greedy_end.png}
+            \includegraphics<1>[width=0.9\textwidth]{heuristics/greedy.png}%
+            \only<2->{%
+                \includegraphics[width=0.3\textwidth]{heuristics/greedy.png}%
+                \vspace{0.15cm}
+                \begin{columns}[onlytextwidth]
+                    \begin{column}{0.5\textwidth}%
+                        \only<2>{%
+                            \begin{columns}[onlytextwidth]
+                                \begin{column}{0.93\textwidth}%
+                                    \begin{tabular}{ | c | c | }%
+                                        \hline
+                                        Caisse $\rightarrow$ Cible & Distance \\
+                                        \hline
+                                        $1 \rightarrow A$ & 3 \\
+                                        \hline
+                                        $1 \rightarrow B$ & 2 \\
+                                        \hline
+                                        $1 \rightarrow C$ & 3 \\
+                                        \hline
+                                        $2 \rightarrow A$ & 4 \\
+                                        \hline
+                                        $2 \rightarrow B$ & 4 \\
+                                        \hline
+                                        $2 \rightarrow C$ & 5 \\
+                                        \hline
+                                        $3 \rightarrow A$ & 5 \\
+                                        \hline
+                                        $3 \rightarrow B$ & 4 \\
+                                        \hline
+                                        $3 \rightarrow C$ & 3 \\
+                                        \hline
+                                    \end{tabular}
+                                \end{column}
+                                \begin{column}{0.07\textwidth}
+                                        \begin{tikzpicture}%
+                                            \draw[->, line width=1mm, outer sep = 0, inner sep = 0] (0,0) -- node[above=2mm]{Tri} (1,0);
+                                        \end{tikzpicture}
+                                \end{column}
+                            \end{columns}
+                        }
+                        \only<3>{%
+                            \begin{center}%
+                                \includegraphics[width=\textwidth]{heuristics/greedy_end.png}
                                 \Large$\boxed{2 + 3 + 5 = \mathbf{10}}$
-                            }
-                        \end{center}
-                    \end{column}
-                    \begin{column}{0.2\textwidth}
-                        \begin{center}
-                            \begin{tabular}{ | c | c | }
-                                \hline
-                                $1 \rightarrow A$ & 3 \\
-                                \hline
-                                $1 \rightarrow B$ & 2 \\
-                                \hline
-                                $1 \rightarrow C$ & 3 \\
-                                \hline
-                                $2 \rightarrow A$ & 4 \\
-                                \hline
-                                $2 \rightarrow B$ & 4 \\
-                                \hline
-                                $2 \rightarrow C$ & 5 \\
-                                \hline
-                                $3 \rightarrow A$ & 5 \\
-                                \hline
-                                $3 \rightarrow B$ & 4 \\
-                                \hline
-                                $3 \rightarrow C$ & 3 \\
-                                \hline
-                            \end{tabular}
-                        \end{center}
-                    \end{column}
-                    \begin{column}{0.1\textwidth}
-                        \begin{center}
-                            \begin{tikzpicture}
-                                \draw[->, line width=1mm, outer sep = 0, inner sep = 0] (0,0) -- node[above=2mm]{Tri} (1,0);
-                            \end{tikzpicture}
-                        \end{center}
-                    \end{column}
-                    \begin{column}{0.2\textwidth}
-                        \begin{center}
-                            \begin{tabular}{ | c | c | }
-                                \hline
-                                $\mathbf{1 \rightarrow B}$ & \textbf{2} \\
-                                \hline
-                                $1 \rightarrow A$ & 3 \\
-                                \hline
-                                $1 \rightarrow C$ & 3 \\
-                                \hline
-                                $\mathbf{3 \rightarrow C}$ & \textbf{3} \\
-                                \hline
-                                $2 \rightarrow B$ & 4 \\
-                                \hline
-                                $3 \rightarrow B$ & 4 \\
-                                \hline
-                                $2 \rightarrow A$ & 5 \\
-                                \hline
-                                $2 \rightarrow C$ & 5 \\
-                                \hline
-                                $\mathbf{3 \rightarrow A}$ & \textbf{5} \\
-                                \hline
-                            \end{tabular}
-                        \end{center}
+                            \end{center}
+                        }
+                    \end{column}%
+                    \begin{column}{0.4\textwidth}%
+                        % Sorted table
+                        \begin{tabular}{ | c | c | }
+                            \hline
+                                Caisse $\rightarrow$ Cible & Distance \\
+                            \hline
+                            $\mathbf{1 \rightarrow B}$ & \textbf{2} \\
+                            \hline
+                            $1 \rightarrow A$ & 3 \\
+                            \hline
+                            $1 \rightarrow C$ & 3 \\
+                            \hline
+                            $\mathbf{3 \rightarrow C}$ & \textbf{3} \\
+                            \hline
+                            $2 \rightarrow B$ & 4 \\
+                            \hline
+                            $3 \rightarrow B$ & 4 \\
+                            \hline
+                            $2 \rightarrow A$ & 5 \\
+                            \hline
+                            $2 \rightarrow C$ & 5 \\
+                            \hline
+                            $\mathbf{3 \rightarrow A}$ & \textbf{5} \\
+                            \hline
+                        \end{tabular}
                     \end{column}
                 \end{columns}
             }
         \end{frame}
 
     \section{Optimisations}
-        \begin{frame}{Parcours de graphes: démarquer tous les noeuds en $\mathcal{O}(1)$}
+        \begin{frame}{Précalcul des distances caisses-cibles}
+            \centering
+            \begin{columns}[onlytextwidth]
+                \only<1>{
+                    \begin{column}{0.3\textwidth}
+                        \begin{tabular}{|c|c|c|c|}
+                            \hline
+                            \multirow{2}{2em}{Case} & \multicolumn{3}{|c|}{Distances} \\ \cline{2-4}
+                                                    & A & B & C \\ \hline
+                                                  0 & 1 & 3 & 3 \\ \hline
+                                                  1 & 2 & 2 & 2 \\ \hline
+                                                  2 & 3 & 1 & 3 \\ \hline
+                                                  3 & 0 & 2 & 2 \\ \hline
+                                                  4 & 1 & 1 & 1 \\ \hline
+                                                  5 & 2 & 0 & 2 \\ \hline
+                                                  6 & 1 & 3 & 1 \\ \hline
+                                                  7 & 2 & 2 & 0 \\ \hline
+                                                  8 & 3 & 1 & 1 \\ \hline
+                        \end{tabular}
+                    \end{column}
+                }%
+                \only<2>{
+                    \begin{column}{0.4\textwidth}
+                        \begin{tabular}{|c|c|c|c|}
+                            \hline
+                            \multirow{2}{2em}{Case} & \multicolumn{3}{|c|}{Distances} \\
+                                                    & \multicolumn{3}{|c|}{triées} \\ \hline
+                                                  0 & A: 1 & B: 3 & C: 3 \\ \hline
+                                                  1 & A: 2 & B: 2 & C: 2 \\ \hline
+                                                  2 & B: 1 & A: 3 & C: 3 \\ \hline
+                                                  3 & A: 0 & B: 2 & C: 2 \\ \hline
+                                                  4 & A: 1 & B: 1 & C: 1 \\ \hline
+                                                  5 & B: 0 & A: 2 & C: 2 \\ \hline
+                                                  6 & A: 1 & C: 1 & B: 3 \\ \hline
+                                                  7 & C: 0 & A: 2 & B: 2 \\ \hline
+                                                  8 & B: 1 & C: 1 & A: 3 \\ \hline
+                        \end{tabular}
+                    \end{column}
+                }
+                \begin{column}{0.5\textwidth}
+                    \includegraphics[width=\textwidth]{optimisations/distances.png}
+                \end{column}
+
+            \end{columns}
+        \end{frame}
+
+        \input{content/greedy_heuristic.tex}
+
+        \begin{frame}{Parcours de graphes: démarquer tous les nœuds en $\mathcal{O}(1)$}
+
+            \centering
+
+            nœud marqué \textit{ssi valeur} $= m$
+
             \begin{tikzpicture}
                 \node (start) {
                     \includegraphics[width=0.15\textwidth]{optimisations/mark_init.png}
@@ -472,18 +527,16 @@
                     \includegraphics[width=0.15\textwidth]{optimisations/unmark.png}
                 };
                 % don't remove '0cm', otherwise tikz will place the text too below
-                \node [below=0cm of start.south] {$m=0$};
-                \node [below=0cm of first.south] {$m=0$};
-                \node [below=0cm of second.south] {$m=0$};
-                \node [below=0cm of third.south] {$m=1$};
+                \node [above=0cm of start.north] {$m=0$};
+                \node [above=0cm of first.north] {$m=0$};
+                \node [above=0cm of second.north] {$m=0$};
+                \node [above=0cm of third.north] {$m=1$};
 
                 \draw[->, line width=\arrowwidth] (start.east)  -- (first.west);
                 \draw[->, line width=\arrowwidth, dashed] (first.east) -- (second.west);
                 \draw[->, line width=\arrowwidth] (second.east) -- (third.west);
             \end{tikzpicture}
         \end{frame}
-
-        \input{content/greedy_heuristic.tex}
 
         \begin{frame}{Calcul des \textit{corrals} en $\mathcal{O}(wh)$}
             \only<1>{
@@ -493,28 +546,35 @@
                 \includegraphics[width=0.7\textwidth]{corral_detection/corral.png}
             }
             \only<2>{
-                \begin{algorithm}[H]
-                    \begin{algorithmic}[1]
-                        \Procedure{corral}{$x,y$}
-                            \If{not solid(x,y)}
-                                \State createSingleton(x, y)
-                            \Else
-                                \If{solid(x-1, y) \textbf{and} solid(x,y-1)}
-                                    \State createSingleton(x, y)
-                                \ElsIf{not solid(x-1, y) \textbf{and} solid(x,y-1)}
-                                    \State addToCorral(x-1,y, x,y)
-                                \ElsIf{solid(x-1, y) \textbf{and} not solid(x,y-1)}
-                                    \State addToCorral(x,y-1, x,y)
-                                \Else
-                                    \State addToCorral(x-1,y, x,y)
-                                    \State union(x,y-1, x,y)
-                                \EndIf
-                            \EndIf
-                        \EndProcedure
-                    \end{algorithmic}
-                \end{algorithm}
+                % \begin{algorithm}[H]
+                \begin{center}
+                    \scalebox{0.9}{
+                        \begin{minipage}{\textwidth}
+                            \begin{algorithmic}[1]
+                                \Procedure{corral}{$x,y$}
+                                    \If{not solid($x,y$)}
+                                        \State createSingleton($x, y$)
+                                    \Else
+                                        \If{solid($x-1, y$) \textbf{and} solid($x,y-1$)}
+                                            \State createSingleton($x, y$)
+                                        \ElsIf{not solid($x-1, y$) \textbf{and} solid($x,y-1$)}
+                                            \State addToCorral($x-1,y, x,y$)
+                                        \ElsIf{solid($x-1, y)$ \textbf{and} not solid($x,y-1$)}
+                                            \State addToCorral($x,y-1, x,y$)
+                                        \Else
+                                            \State addToCorral($x-1,y, x,y)$
+                                            \State union($x,y-1, x,y$)
+                                        \EndIf
+                                    \EndIf
+                                \EndProcedure
+                            \end{algorithmic}
+                        \end{minipage}
+                    }
+                \end{center}
+                % \end{algorithm}
             }
         \end{frame}
+
     \section{Résultats}
         \begin{frame}{Nombre de niveaux résolus}
             Limite de temps: 10 min. Limite de RAM: 32 Gb.
@@ -529,7 +589,7 @@
                 \hline
                 fess0                          & 15       & 2273 \\
                 \hline
-                Festival (Yaron Shoham)        & 90       & 3202 \\
+                Festival (Yaron Shoham)        & 90       & 3202 \\
                 \hline
                 Sokolution (Florent Diedler)   & 90       & 3130 \\
                 \hline

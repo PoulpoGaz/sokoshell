@@ -1,5 +1,8 @@
 \documentclass[]{beamer}
 
+\newcommand\candidatename{Nom Prénom}
+\newcommand\candidatenumber{01234}
+
 \usetheme[subsectionpage=progressbar]{metropolis}
 
 \makeatletter
@@ -11,6 +14,8 @@
 \setbeamertemplate{footline}[page number]
 
 \usepackage{pgfplots} % graphiques
+
+\usepackage{multirow}
 
 \usepackage{forest}
 \usepackage{tikz}
@@ -28,9 +33,8 @@
 \usepackage{pgfplots}
 
 \title{Résolution de niveaux du Sokoban}
-\date{\today}
-\author{Nom, Prénom}
-\institute{Numéro de candidat}
+\author{\candidatename}
+\date{Candidat n°\candidatenumber}
 
 \usepackage{graphics}
 \graphicspath{{../../assets/}}
@@ -50,7 +54,8 @@
 
 % corral calculaton
 \usepackage{stmaryrd}
-\usepackage{algorithm}
+% \usepackage{algorithm}
+% \captionsetup[algorithm]{labelformat=empty}
 \usepackage{algpseudocode}
 
 % stats
