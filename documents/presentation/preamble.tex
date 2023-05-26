@@ -56,6 +56,7 @@
 \usetikzlibrary{shapes.multipart,chains,scopes}
 \usetikzlibrary{matrix}
 
+
 \usepackage{stmaryrd} % integer brackets
 
 \usepackage{pgfplots} % graphiques
@@ -73,6 +74,13 @@
     {ORANGE,  line width=1.5, rounded corners=1pt},
     {MAGENTA, line width=1.5, rounded corners=1pt}% <-- don't add a comma here
 }
+\usepackage[absolute,overlay]{textpos}
+
+\newcommand\BottomRightText[1]{%
+    \begin{textblock*}{\paperwidth}(0pt,\textheight)
+        \raggedright #1\hspace{.5em}
+\end{textblock*}}
+
 
 \newcommand\iconwidth{2em}
 \newcommand\arrowwidth{0.8mm}
