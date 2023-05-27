@@ -6,15 +6,16 @@
 
     \section{Introduction}
         \begin{frame}{Le jeu du Sokoban}
-            \begin{columns}
-                \begin{column}{0.3\textwidth}
+            \begin{columns}[onlytextwidth]
+                \begin{column}{0.32\textwidth}
                     \begin{figure}
                         \centering
-                        \includegraphics[width=\columnwidth]{creator.jpg}
+                        \copyrightbox[b]{\includegraphics[width=\columnwidth]{creator.jpg}}
+                                        {\url{https://shmuplations.com/wp-content/uploads/2022/03/thinkingrabbit04.jpg}}%
                         \caption*{Hiroyuki Imabayashi}
                     \end{figure}
                 \end{column}
-                \begin{column}{0.7\textwidth}
+                \begin{column}{0.6\textwidth}
                     \begin{figure}
                         \centering
                         \includegraphics[width=\columnwidth]{level_example.png}
@@ -107,8 +108,15 @@
 
         \begin{frame}{Lien avec le thème de l'année}
             \centering
-            \only<1>{\includegraphics[width=0.9\textwidth]{warehouse.jpg}}
-            \only<2>{\includegraphics[width=0.9\textwidth]{city_plan.jpg}}
+            \only<1>{
+                 \copyrightbox[b]{\includegraphics[width=0.9\textwidth]{warehouse.jpg}}
+                                 {Source : \textit{Indiana Jones et les Aventuriers de l'arche perdue} (scène de fin), Steven Spielberg, 1981
+                                          \url{https://pbs.twimg.com/media/EyjVShEVEAAQZjK.jpg}}%
+            }
+            \only<2>{
+                \copyrightbox[b]{\includegraphics[width=0.9\textwidth]{city_plan.jpg}}
+                                {Source : \url{https://www.geographicus.com/mm5/graphics/00000001/L/NewYork-bridgesmaverick-1807.jpg}}%
+            }
         \end{frame}
 
     \section{Principe de résolution}
@@ -342,12 +350,12 @@
                         \includegraphics[width=\textwidth]{corral/multi_pi_corral_2.png}%
 
                         \centering
-                        Un multi \textit{PI-Corrals}
+                        Un multi \textit{PI-Corral}
                     \end{minipage}
                 }
                 \only<3>{
                     \centering
-                    Brian Damgaard: émonde d'au moins \textbf{20\%} l'arbre de recherche !
+                    Brian Damgaard: émonde l'arbre de recherche d'au moins \textbf{20\%} !
                 }
             \end{frame}
 
@@ -564,13 +572,13 @@
                         \includegraphics[width=0.35\textwidth]{corral_detection/corral_start.png}
                     };
                     \node[visible on=<3-5>, right=of A] (B) {
-                        \includegraphics[width=0.35\textwidth]{corral_detection/corral_1.png}
+                        \includegraphics[width=0.32\textwidth]{corral_detection/corral_1.png}
                     };
                     \node[visible on=<4-5>,below=of A] (C) {
-                        \includegraphics[width=0.35\textwidth]{corral_detection/corral_2.png}
+                        \includegraphics[width=0.32\textwidth]{corral_detection/corral_2.png}
                     };
                     \node[visible on=<5>, below=of B] (D) {
-                        \includegraphics[width=0.35\textwidth]{corral_detection/corral_3.png}
+                        \includegraphics[width=0.32\textwidth]{corral_detection/corral_3.png}
                     };
 
                     \draw[visible on=<3-5>, ->, line width=\arrowwidth] (A.east) -- (B.west);
@@ -585,13 +593,13 @@
                         \includegraphics[width=0.35\textwidth]{corral_detection/corral_4.png}%
                     };%
                     \node[visible on=<7-9>, right=of A] (B) {%
-                        \includegraphics[width=0.35\textwidth]{corral_detection/corral_5.png}%
+                        \includegraphics[width=0.32\textwidth]{corral_detection/corral_5.png}%
                     };%
                     \node[visible on=<8-9>,below=of A] (C) {%
-                        \includegraphics[width=0.35\textwidth]{corral_detection/corral_6.png}%
+                        \includegraphics[width=0.32\textwidth]{corral_detection/corral_6.png}%
                     };%
                     \node[visible on=<9>, below=of B] (D) {%
-                        \includegraphics[width=0.35\textwidth]{corral_detection/corral_7.png}%
+                        \includegraphics[width=0.32\textwidth]{corral_detection/corral_7.png}%
                     };%
 
                     \draw[visible on=<7-9>, ->, line width=\arrowwidth, dashed] (A.east) -- (B.west);
@@ -648,7 +656,8 @@
                 \hline
             \end{tabular}
 
-            \BottomRightText{Statistiques par Matthias Meger et Brian Damgaard}
+            \BottomLeftText{Statistiques (pour les autres solveurs) par Matthias Meger et Brian Damgaard
+                            (\href{https://sourceforge.net/projects/sokoban-solver-statistics/}{https://sourceforge.net/projects/sokoban-solver-statistics/})}
         \end{frame}
 
         \begin{frame}{Statistiques}
@@ -660,9 +669,9 @@
             \resizebox{\textwidth}{!}{
                 \begin{tabular}{|c|c|c|c|c|c|c|}
                     \hline
-                    Solveur     & A* & fess0 & Festival & Sokolution & Takaken & YASS \\
+                    Solveur     & \textbf{A*}       & \textbf{fess0}    & Festival & Sokolution & Takaken & YASS \\
                     \hline
-                    Temps moyen & 3min 28s & 3min 16s & 3s & 2s & 7s & 24s \\
+                    Temps moyen & \textbf{3min 28s} & \textbf{3min 16s} & 3s & 2s & 7s & 24s \\
                     \hline
                 \end{tabular}
             }
@@ -670,7 +679,7 @@
             \vspace{0.3cm}
             Nombre de niveaux résolus (cumulés) en fonction du temps
 
-            \resizebox{0.8\textwidth}{!}{
+            \resizebox{0.75\textwidth}{!}{
                 \begin{tikzpicture}
                     \begin{axis}[
                             grid=major,
@@ -693,7 +702,8 @@
 
             }
 
-            \BottomRightText{Statistiques par Matthias Meger et Brian Damgaard}
+            \BottomLeftText{Statistiques (pour les autres solveurs) par Matthias Meger et Brian Damgaard
+                            (\href{https://sourceforge.net/projects/sokoban-solver-statistics/}{https://sourceforge.net/projects/sokoban-solver-statistics/})}
         \end{frame}
 
         \begin{frame}[fragile]{Statistiques}
@@ -754,7 +764,8 @@
                     \end{axis}
                 \end{tikzpicture}
             }
-            \BottomRightText{Statistiques par Matthias Meger et Brian Damgaard}
+            \BottomLeftText{Statistiques (pour les autres solveurs) par Matthias Meger et Brian Damgaard
+                            (\href{https://sourceforge.net/projects/sokoban-solver-statistics/}{https://sourceforge.net/projects/sokoban-solver-statistics/})}
         \end{frame}
 
     \section{Annexe}
