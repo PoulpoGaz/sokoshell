@@ -559,8 +559,8 @@
             }
             \only<2-10>{
                 \centering
-                 \begin{tikzpicture}
-                    \node (A) {
+                 \begin{tikzpicture}[remember picture]
+                    \node[visible on=<2-5>] (A) {
                         \includegraphics[width=0.35\textwidth]{corral_detection/corral_start.png}
                     };
                     \node[visible on=<3-5>, right=of A] (B) {
@@ -581,7 +581,7 @@
 
 
 
-                    \node (A) {%
+                    \node[visible on=<6-9>] (A) {%
                         \includegraphics[width=0.35\textwidth]{corral_detection/corral_4.png}%
                     };%
                     \node[visible on=<7-9>, right=of A] (B) {%
@@ -600,9 +600,24 @@
                     \draw[visible on=<8-9>, ->, line width=\arrowwidth] (B.south) |- (I) -| (C.north);
                     \draw[visible on=<9>, ->, line width=\arrowwidth] (C.east) -- (D.west);
 
-                    \node (A) {%
+                    \node[visible on=<10>] (A) {%
                         \includegraphics[width=0.35\textwidth]{corral_detection/corral_8.png}%
                     };%
+                \end{tikzpicture}
+            }
+
+             \onslide<6> {
+                \begin{tikzpicture}[overlay, remember picture]
+                    \draw[->, line width=\arrowwidth]
+                        let \p1 = (current page.south west), \p2 = (A.west) in
+                        (\x1, \y2) -- (\p2);
+                \end{tikzpicture}
+            }
+             \onslide<10> {
+                \begin{tikzpicture}[overlay, remember picture]
+                    \draw[->, line width=\arrowwidth, dashed]
+                    let \p1 = (current page.south west), \p2 = (A.west) in
+                    (\x1, \y2) -- (\p2);
                 \end{tikzpicture}
             }
         \end{frame}
@@ -743,7 +758,39 @@
         \end{frame}
 
     \section{Annexe}
-        \begin{frame}{Tableau des complexités}
+        \begin{frame}{Tableau des complexités - Statique}
+            $c$ nombre de caisses, $C$ nombre de cibles, $w$ longueur et $h$ largeur du niveau, $t$ nombre de tunnels, $r$ nombre de salles, $N$ nombre d'états dans la liste des états à explorer.
 
+            \only<1>{
+                \begin{tabular}{|p{0.45\textwidth}|p{0.45\textwidth}|}
+                    \hline
+                    \multicolumn{2}{|c|}{Statique} \\
+                    \hline
+                    \textit{Dead tiles}                    & $\mathcal{O}((wh)^2)$            \\
+                    Détection des tunnels                  & $\mathcal{O}((wh)^2)$            \\
+                    Propriété \textit{oneway} des tunnels  & $\mathcal{O}(twh)$               \\
+                    Détection des salles                   & $\mathcal{O}((wh)^2)$            \\
+                    \textit{Packing order}                 & $\mathcal{O}(rcwh)$              \\
+                    Précalcul des distances cibles-caisses & $\mathcal{O}(wh(Cwh + C\log C))$ \\
+                    \hline
+                \end{tabular}
+            }
+
+            \frametitle<2>{Tableau des complexités - Dynamique}
+            \only<2>{
+                \begin{tabular}{|p{0.45\textwidth}|p{0.45\textwidth}|}
+                    \hline
+                    \multicolumn{2}{|c|}{Dynamique} \\
+                    \hline
+                    \textit{Freeze deadlocks}       & $\mathcal{O}(c)$                   \\
+                    Détection des \textit{corrals}  & $\mathcal{O}(wh)$                  \\
+                    PI-\textit{corral deadlocks}    & Exponentielle                      \\
+                    Table de \textit{deadlocks}     & $\mathcal{O}(1)$                   \\
+                    Recherche des états enfants     & $\mathcal{O}(crwh)$                \\
+                    Ajout des états enfants (A*)    & $\mathcal{O}((wh)^2 + \log N)$     \\
+                    Ajout des états enfants (fess0) & $\mathcal{O}(c + (wh)^2 + \log N)$ \\
+                    \hline
+                \end{tabular}
+            }
         \end{frame}
 \end{document}
