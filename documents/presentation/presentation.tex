@@ -469,6 +469,17 @@
                 \end{tikzpicture}
             }
         \end{frame}
+        \begin{frame}{Vers FESS}
+            \begin{itemize}
+                \item FESS: algorithme utilisé par Festival, meilleur solveur.
+                \item Ordre de priorité:
+                    \begin{itemize}
+                        \item maximiser le nombre de caisses rangées.
+                        \item minimiser le nombre de \textit{corral}.
+                        \item minimiser l'heuristique précédente.
+                    \end{itemize}
+            \end{itemize}
+        \end{frame}
 
     \section{Optimisations}
         \begin{frame}{Précalcul des distances caisses-cibles}
@@ -766,6 +777,45 @@
             }
             \BottomLeftText{Statistiques (pour les autres solveurs) par Matthias Meger et Brian Damgaard
                             (\href{https://sourceforge.net/projects/sokoban-solver-statistics/}{https://sourceforge.net/projects/sokoban-solver-statistics/})}
+        \end{frame}
+        \begin{frame}{Résultats intermédiaires}
+            \centering
+            \begin{tikzpicture}
+                \definecolor{GRAY250}{RGB}{250, 250, 250}
+                \begin{axis}[
+                        xtick={0,1,2,3,4,5,6,7,8},
+                        xticklabels={Rien, Dead tiles, Tunnels, Salles, Freeze deadlocks, PI-Corral deadlocks, Table de deadlocks, A*, fess0},
+                        xticklabel style={
+                            anchor=base,
+                            yshift=-\baselineskip,
+                            rotate=25,
+                            font=\tiny
+                        },
+                        nodes near coords,
+                        nodes near coords style={fill, GRAY250, text=RED, outer sep=0, inner sep=0.042cm, yshift=0.15cm},
+                        nodes near coords align={above},
+                        axis x line=bottom,
+                        axis y line=left,
+                        grid=both,
+                        ylabel={Nombre d'états explorés},
+                        ymode=log,
+                        ymin=1000
+                    ]
+                    \addplot+ [sharp plot, RED, mark options={fill=RED},
+                        point meta=explicit symbolic] coordinates {
+                        (1, 2022551) [2 022 551]
+                        (2, 1092072) [1 092 072]
+                        (3, 75614) [75 614]
+                        (4, 37730) [37 730]
+                        (5, 9779) [9 779]
+                        (6, 6191) [6 191]
+                        (7, 1270) [1 270]
+                        (8, 2773) [2 773]
+                    };
+                \end{axis}
+            \end{tikzpicture}
+
+            XSokoban: 6/90 (+4)
         \end{frame}
 
     \section{Annexe}

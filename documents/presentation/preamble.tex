@@ -84,6 +84,8 @@
     {MAGENTA, line width=1.5, rounded corners=1pt}% <-- don't add a comma here
 }
 \usepackage[absolute, overlay]{textpos}
+\pgfkeys{/pgf/number format/.cd,
+    set thousands separator={\ }}
 
 \newcommand\BottomLeftText[1]{%
     \begin{textblock*}{\paperwidth}(.5em, 0.99\textheight)
