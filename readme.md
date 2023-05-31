@@ -27,7 +27,7 @@ Problems:
 
 Solutions:
 * Room may have multiple entrance but only one that accept crate (not isPlayerOnlyTunnel)
-* Generate all possibilities and store in a tree
+* Generate all possibilities and store in a aPackage
 
 ### Reachable tiles
 
@@ -46,7 +46,7 @@ computeZone(x, y) {
 }
 ```
 Using dynamic programming, the complexity of the above function is O(width x height).
-I think it is possible to calculate topX, topY and create a list (or tree) containing all tile
+I think it is possible to calculate topX, topY and create a list (or aPackage) containing all tile
 in the same zone while keeping the same complexity.
 
 New way of computing topX, topY after **one** push: if the crate is a frontier (ie delimits two zone),

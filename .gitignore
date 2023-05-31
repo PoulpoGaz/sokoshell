@@ -16,3 +16,14 @@ documents/**/*.toc
 documents/**/*.synctex.gz
 documents/**/*.vrb
 documents/presentation/_minted-presentation
+
+tools/**/*.aux
+tools/**/*.log
+tools/**/*.nav
+tools/**/*.out
+tools/**/*.snm
+tools/**/*.noc
+tools/**/*.toc
+tools/**/*.synctex.gz
+tools/**/*.vrb
+tools/_minted-out
