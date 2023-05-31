@@ -1,0 +1,200 @@
+\documentclass[a4paper]{article}
+
+\usepackage{color}
+\usepackage{textcomp}
+\usepackage{minted}
+\usepackage{titling}% the wheel somebody else kindly made for us earlier
+\usepackage{fancyhdr}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{fontenc}
+\usepackage[french]{babel}
+\usepackage[a4paper, left=1cm, right=1cm, top=1.5cm, bottom=1.5cm]{geometry}
+\usepackage{dirtree}
+\usepackage{hyperref}
+
+\usemintedstyle{colorful}
+
+\setminted[java]{linenos, numbersep=5pt, autogobble, frame=lines, framesep=2mm, breaklines}
+\setcounter{tocdepth}{3}
+\setcounter{secnumdepth}{3}
+\begin{document}
+    \dirtree{%
+        .1 {fr.valax.sokoshell.solver}.
+        .2 {pathfinder}.
+        .4 \hyperref[package:fr.valax.sokoshell.solver.pathfinder.PlayerAStar.java]{PlayerAStar}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.pathfinder.PlayerAStar.java}}.
+        .4 \hyperref[package:fr.valax.sokoshell.solver.pathfinder.AStarMarkSystem.java]{AStarMarkSystem}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.pathfinder.AStarMarkSystem.java}}.
+        .4 \hyperref[package:fr.valax.sokoshell.solver.pathfinder.AbstractAStar.java]{AbstractAStar}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.pathfinder.AbstractAStar.java}}.
+        .4 \hyperref[package:fr.valax.sokoshell.solver.pathfinder.CratePlayerAStar.java]{CratePlayerAStar}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.pathfinder.CratePlayerAStar.java}}.
+        .4 \hyperref[package:fr.valax.sokoshell.solver.pathfinder.Node.java]{Node}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.pathfinder.Node.java}}.
+        .4 \hyperref[package:fr.valax.sokoshell.solver.pathfinder.CrateAStar.java]{CrateAStar}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.pathfinder.CrateAStar.java}}.
+        .2 {collections}.
+        .4 \hyperref[package:fr.valax.sokoshell.solver.collections.Node.java]{Node}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.collections.Node.java}}.
+        .4 \hyperref[package:fr.valax.sokoshell.solver.collections.SolverCollection.java]{SolverCollection}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.collections.SolverCollection.java}}.
+        .4 \hyperref[package:fr.valax.sokoshell.solver.collections.MinHeap.java]{MinHeap}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.collections.MinHeap.java}}.
+        .4 \hyperref[package:fr.valax.sokoshell.solver.collections.SolverPriorityQueue.java]{SolverPriorityQueue}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.collections.SolverPriorityQueue.java}}.
+        .2 {heuristic}.
+        .4 \hyperref[package:fr.valax.sokoshell.solver.heuristic.AbstractHeuristic.java]{AbstractHeuristic}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.heuristic.AbstractHeuristic.java}}.
+        .4 \hyperref[package:fr.valax.sokoshell.solver.heuristic.GreedyHeuristic.java]{GreedyHeuristic}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.heuristic.GreedyHeuristic.java}}.
+        .4 \hyperref[package:fr.valax.sokoshell.solver.heuristic.SimpleHeuristic.java]{SimpleHeuristic}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.heuristic.SimpleHeuristic.java}}.
+        .4 \hyperref[package:fr.valax.sokoshell.solver.heuristic.Heuristic.java]{Heuristic}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.heuristic.Heuristic.java}}.
+        .2 {board}.
+        .3 {tiles}.
+        .5 \hyperref[package:fr.valax.sokoshell.solver.board.tiles.MutableTileInfo.java]{MutableTileInfo}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.board.tiles.MutableTileInfo.java}}.
+        .5 \hyperref[package:fr.valax.sokoshell.solver.board.tiles.GenericTileInfo.java]{GenericTileInfo}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.board.tiles.GenericTileInfo.java}}.
+        .5 \hyperref[package:fr.valax.sokoshell.solver.board.tiles.ImmutableTileInfo.java]{ImmutableTileInfo}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.board.tiles.ImmutableTileInfo.java}}.
+        .5 \hyperref[package:fr.valax.sokoshell.solver.board.tiles.TileInfo.java]{TileInfo}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.board.tiles.TileInfo.java}}.
+        .5 \hyperref[package:fr.valax.sokoshell.solver.board.tiles.Tile.java]{Tile}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.board.tiles.Tile.java}}.
+        .3 {mark}.
+        .5 \hyperref[package:fr.valax.sokoshell.solver.board.mark.HeavyweightMarkSystem.java]{HeavyweightMarkSystem}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.board.mark.HeavyweightMarkSystem.java}}.
+        .5 \hyperref[package:fr.valax.sokoshell.solver.board.mark.FixedSizeMarkSystem.java]{FixedSizeMarkSystem}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.board.mark.FixedSizeMarkSystem.java}}.
+        .5 \hyperref[package:fr.valax.sokoshell.solver.board.mark.Mark.java]{Mark}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.board.mark.Mark.java}}.
+        .5 \hyperref[package:fr.valax.sokoshell.solver.board.mark.DefaultMark.java]{DefaultMark}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.board.mark.DefaultMark.java}}.
+        .5 \hyperref[package:fr.valax.sokoshell.solver.board.mark.MarkSystem.java]{MarkSystem}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.board.mark.MarkSystem.java}}.
+        .5 \hyperref[package:fr.valax.sokoshell.solver.board.mark.AbstractMarkSystem.java]{AbstractMarkSystem}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.board.mark.AbstractMarkSystem.java}}.
+        .4 \hyperref[package:fr.valax.sokoshell.solver.board.Tunnel.java]{Tunnel}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.board.Tunnel.java}}.
+        .4 \hyperref[package:fr.valax.sokoshell.solver.board.ImmutableBoard.java]{ImmutableBoard}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.board.ImmutableBoard.java}}.
+        .4 \hyperref[package:fr.valax.sokoshell.solver.board.Move.java]{Move}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.board.Move.java}}.
+        .4 \hyperref[package:fr.valax.sokoshell.solver.board.Room.java]{Room}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.board.Room.java}}.
+        .4 \hyperref[package:fr.valax.sokoshell.solver.board.MutableBoard.java]{MutableBoard}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.board.MutableBoard.java}}.
+        .4 \hyperref[package:fr.valax.sokoshell.solver.board.Direction.java]{Direction}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.board.Direction.java}}.
+        .4 \hyperref[package:fr.valax.sokoshell.solver.board.GenericBoard.java]{GenericBoard}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.board.GenericBoard.java}}.
+        .4 \hyperref[package:fr.valax.sokoshell.solver.board.Board.java]{Board}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.board.Board.java}}.
+        .3 \hyperref[package:fr.valax.sokoshell.solver.State.java]{State}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.State.java}}.
+        .3 \hyperref[package:fr.valax.sokoshell.solver.ReachableTiles.java]{ReachableTiles}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.ReachableTiles.java}}.
+        .3 \hyperref[package:fr.valax.sokoshell.solver.Solver.java]{Solver}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.Solver.java}}.
+        .3 \hyperref[package:fr.valax.sokoshell.solver.DeadlockTable.java]{DeadlockTable}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.DeadlockTable.java}}.
+        .3 \hyperref[package:fr.valax.sokoshell.solver.AStarSolver.java]{AStarSolver}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.AStarSolver.java}}.
+        .3 \hyperref[package:fr.valax.sokoshell.solver.Corral.java]{Corral}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.Corral.java}}.
+        .3 \hyperref[package:fr.valax.sokoshell.solver.BruteforceSolver.java]{BruteforceSolver}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.BruteforceSolver.java}}.
+        .3 \hyperref[package:fr.valax.sokoshell.solver.Tracker.java]{Tracker}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.Tracker.java}}.
+        .3 \hyperref[package:fr.valax.sokoshell.solver.AbstractSolver.java]{AbstractSolver}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.AbstractSolver.java}}.
+        .3 \hyperref[package:fr.valax.sokoshell.solver.SolverParameter.java]{SolverParameter}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.SolverParameter.java}}.
+        .3 \hyperref[package:fr.valax.sokoshell.solver.Trackable.java]{Trackable}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.Trackable.java}}.
+        .3 \hyperref[package:fr.valax.sokoshell.solver.CorralDetector.java]{CorralDetector}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.CorralDetector.java}}.
+        .3 \hyperref[package:fr.valax.sokoshell.solver.WeightedState.java]{WeightedState}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.WeightedState.java}}.
+        .3 \hyperref[package:fr.valax.sokoshell.solver.Level.java]{Level}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.Level.java}}.
+        .3 \hyperref[package:fr.valax.sokoshell.solver.SolverReport.java]{SolverReport}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.SolverReport.java}}.
+        .3 \hyperref[package:fr.valax.sokoshell.solver.FESS0Solver.java]{FESS0Solver}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.FESS0Solver.java}}.
+        .3 \hyperref[package:fr.valax.sokoshell.solver.SolverParameters.java]{SolverParameters}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.SolverParameters.java}}.
+        .3 \hyperref[package:fr.valax.sokoshell.solver.FreezeDeadlockDetector.java]{FreezeDeadlockDetector}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.FreezeDeadlockDetector.java}}.
+        .3 \hyperref[package:fr.valax.sokoshell.solver.ISolverStatistics.java]{ISolverStatistics}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.ISolverStatistics.java}}.
+        .3 \hyperref[package:fr.valax.sokoshell.solver.Pack.java]{Pack}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.Pack.java}}.
+        .3 \hyperref[package:fr.valax.sokoshell.solver.Hotspots.java]{Hotspots}\DTcomment{\pageref{package:fr.valax.sokoshell.solver.Hotspots.java}}.
+}
+    \section{fr.valax.sokoshell.solver}\label{package:fr.valax.sokoshell.solver}
+        \subsection{pathfinder}\label{package:fr.valax.sokoshell.solver.pathfinder}
+                \paragraph{PlayerAStar}\label{package:fr.valax.sokoshell.solver.pathfinder.PlayerAStar.java}
+                \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/pathfinder/PlayerAStar.java}
+                \paragraph{AStarMarkSystem}\label{package:fr.valax.sokoshell.solver.pathfinder.AStarMarkSystem.java}
+                \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/pathfinder/AStarMarkSystem.java}
+                \paragraph{AbstractAStar}\label{package:fr.valax.sokoshell.solver.pathfinder.AbstractAStar.java}
+                \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/pathfinder/AbstractAStar.java}
+                \paragraph{CratePlayerAStar}\label{package:fr.valax.sokoshell.solver.pathfinder.CratePlayerAStar.java}
+                \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/pathfinder/CratePlayerAStar.java}
+                \paragraph{Node}\label{package:fr.valax.sokoshell.solver.pathfinder.Node.java}
+                \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/pathfinder/Node.java}
+                \paragraph{CrateAStar}\label{package:fr.valax.sokoshell.solver.pathfinder.CrateAStar.java}
+                \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/pathfinder/CrateAStar.java}
+        \subsection{collections}\label{package:fr.valax.sokoshell.solver.collections}
+                \paragraph{Node}\label{package:fr.valax.sokoshell.solver.collections.Node.java}
+                \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/collections/Node.java}
+                \paragraph{SolverCollection}\label{package:fr.valax.sokoshell.solver.collections.SolverCollection.java}
+                \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/collections/SolverCollection.java}
+                \paragraph{MinHeap}\label{package:fr.valax.sokoshell.solver.collections.MinHeap.java}
+                \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/collections/MinHeap.java}
+                \paragraph{SolverPriorityQueue}\label{package:fr.valax.sokoshell.solver.collections.SolverPriorityQueue.java}
+                \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/collections/SolverPriorityQueue.java}
+        \subsection{heuristic}\label{package:fr.valax.sokoshell.solver.heuristic}
+                \paragraph{AbstractHeuristic}\label{package:fr.valax.sokoshell.solver.heuristic.AbstractHeuristic.java}
+                \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/heuristic/AbstractHeuristic.java}
+                \paragraph{GreedyHeuristic}\label{package:fr.valax.sokoshell.solver.heuristic.GreedyHeuristic.java}
+                \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/heuristic/GreedyHeuristic.java}
+                \paragraph{SimpleHeuristic}\label{package:fr.valax.sokoshell.solver.heuristic.SimpleHeuristic.java}
+                \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/heuristic/SimpleHeuristic.java}
+                \paragraph{Heuristic}\label{package:fr.valax.sokoshell.solver.heuristic.Heuristic.java}
+                \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/heuristic/Heuristic.java}
+        \subsection{board}\label{package:fr.valax.sokoshell.solver.board}
+            \subsubsection{tiles}\label{package:fr.valax.sokoshell.solver.board.tiles}
+                \paragraph{MutableTileInfo}\label{package:fr.valax.sokoshell.solver.board.tiles.MutableTileInfo.java}
+                    \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/board/tiles/MutableTileInfo.java}
+                \paragraph{GenericTileInfo}\label{package:fr.valax.sokoshell.solver.board.tiles.GenericTileInfo.java}
+                    \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/board/tiles/GenericTileInfo.java}
+                \paragraph{ImmutableTileInfo}\label{package:fr.valax.sokoshell.solver.board.tiles.ImmutableTileInfo.java}
+                    \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/board/tiles/ImmutableTileInfo.java}
+                \paragraph{TileInfo}\label{package:fr.valax.sokoshell.solver.board.tiles.TileInfo.java}
+                    \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/board/tiles/TileInfo.java}
+                \paragraph{Tile}\label{package:fr.valax.sokoshell.solver.board.tiles.Tile.java}
+                    \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/board/tiles/Tile.java}
+            \subsubsection{mark}\label{package:fr.valax.sokoshell.solver.board.mark}
+                \paragraph{HeavyweightMarkSystem}\label{package:fr.valax.sokoshell.solver.board.mark.HeavyweightMarkSystem.java}
+                    \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/board/mark/HeavyweightMarkSystem.java}
+                \paragraph{FixedSizeMarkSystem}\label{package:fr.valax.sokoshell.solver.board.mark.FixedSizeMarkSystem.java}
+                    \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/board/mark/FixedSizeMarkSystem.java}
+                \paragraph{Mark}\label{package:fr.valax.sokoshell.solver.board.mark.Mark.java}
+                    \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/board/mark/Mark.java}
+                \paragraph{DefaultMark}\label{package:fr.valax.sokoshell.solver.board.mark.DefaultMark.java}
+                    \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/board/mark/DefaultMark.java}
+                \paragraph{MarkSystem}\label{package:fr.valax.sokoshell.solver.board.mark.MarkSystem.java}
+                    \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/board/mark/MarkSystem.java}
+                \paragraph{AbstractMarkSystem}\label{package:fr.valax.sokoshell.solver.board.mark.AbstractMarkSystem.java}
+                    \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/board/mark/AbstractMarkSystem.java}
+                \paragraph{Tunnel}\label{package:fr.valax.sokoshell.solver.board.Tunnel.java}
+                \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/board/Tunnel.java}
+                \paragraph{ImmutableBoard}\label{package:fr.valax.sokoshell.solver.board.ImmutableBoard.java}
+                \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/board/ImmutableBoard.java}
+                \paragraph{Move}\label{package:fr.valax.sokoshell.solver.board.Move.java}
+                \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/board/Move.java}
+                \paragraph{Room}\label{package:fr.valax.sokoshell.solver.board.Room.java}
+                \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/board/Room.java}
+                \paragraph{MutableBoard}\label{package:fr.valax.sokoshell.solver.board.MutableBoard.java}
+                \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/board/MutableBoard.java}
+                \paragraph{Direction}\label{package:fr.valax.sokoshell.solver.board.Direction.java}
+                \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/board/Direction.java}
+                \paragraph{GenericBoard}\label{package:fr.valax.sokoshell.solver.board.GenericBoard.java}
+                \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/board/GenericBoard.java}
+                \paragraph{Board}\label{package:fr.valax.sokoshell.solver.board.Board.java}
+                \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/board/Board.java}
+                \paragraph{State}\label{package:fr.valax.sokoshell.solver.State.java}
+            \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/State.java}
+                \paragraph{ReachableTiles}\label{package:fr.valax.sokoshell.solver.ReachableTiles.java}
+            \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/ReachableTiles.java}
+                \paragraph{Solver}\label{package:fr.valax.sokoshell.solver.Solver.java}
+            \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/Solver.java}
+                \paragraph{DeadlockTable}\label{package:fr.valax.sokoshell.solver.DeadlockTable.java}
+            \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/DeadlockTable.java}
+                \paragraph{AStarSolver}\label{package:fr.valax.sokoshell.solver.AStarSolver.java}
+            \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/AStarSolver.java}
+                \paragraph{Corral}\label{package:fr.valax.sokoshell.solver.Corral.java}
+            \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/Corral.java}
+                \paragraph{BruteforceSolver}\label{package:fr.valax.sokoshell.solver.BruteforceSolver.java}
+            \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/BruteforceSolver.java}
+                \paragraph{Tracker}\label{package:fr.valax.sokoshell.solver.Tracker.java}
+            \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/Tracker.java}
+                \paragraph{AbstractSolver}\label{package:fr.valax.sokoshell.solver.AbstractSolver.java}
+            \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/AbstractSolver.java}
+                \paragraph{SolverParameter}\label{package:fr.valax.sokoshell.solver.SolverParameter.java}
+            \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/SolverParameter.java}
+                \paragraph{Trackable}\label{package:fr.valax.sokoshell.solver.Trackable.java}
+            \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/Trackable.java}
+                \paragraph{CorralDetector}\label{package:fr.valax.sokoshell.solver.CorralDetector.java}
+            \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/CorralDetector.java}
+                \paragraph{WeightedState}\label{package:fr.valax.sokoshell.solver.WeightedState.java}
+            \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/WeightedState.java}
+                \paragraph{Level}\label{package:fr.valax.sokoshell.solver.Level.java}
+            \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/Level.java}
+                \paragraph{SolverReport}\label{package:fr.valax.sokoshell.solver.SolverReport.java}
+            \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/SolverReport.java}
+                \paragraph{FESS0Solver}\label{package:fr.valax.sokoshell.solver.FESS0Solver.java}
+            \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/FESS0Solver.java}
+                \paragraph{SolverParameters}\label{package:fr.valax.sokoshell.solver.SolverParameters.java}
+            \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/SolverParameters.java}
+                \paragraph{FreezeDeadlockDetector}\label{package:fr.valax.sokoshell.solver.FreezeDeadlockDetector.java}
+            \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/FreezeDeadlockDetector.java}
+                \paragraph{ISolverStatistics}\label{package:fr.valax.sokoshell.solver.ISolverStatistics.java}
+            \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/ISolverStatistics.java}
+                \paragraph{Pack}\label{package:fr.valax.sokoshell.solver.Pack.java}
+            \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/Pack.java}
+                \paragraph{Hotspots}\label{package:fr.valax.sokoshell.solver.Hotspots.java}
+            \inputminted{java}{/home/poulpogaz/dev/Java/project/sokoshell/sokoshell/src/main/java/fr/valax/sokoshell/solver/Hotspots.java}
+\end{document}
