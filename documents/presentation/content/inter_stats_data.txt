@@ -1,0 +1,10 @@
+x y         label
+0 5000000   Non\space{}résolu
+1 2022551   2\space022\space551
+2 1092072   1\space092\space072
+3 75614     75\space614
+4 37730     37\space730
+5 9779      9\space779
+6 6191      6\space191
+7 1270      1\space270
+8 2773      2\space773
