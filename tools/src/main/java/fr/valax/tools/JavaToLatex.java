@@ -45,13 +45,13 @@ public class JavaToLatex {
                 \\usepackage{amssymb}
                 \\usepackage{fontenc}
                 \\usepackage[french]{babel}
-                \\usepackage[a4paper, left=1cm, right=1cm, top=1.5cm, bottom=1.5cm]{geometry}
+                \\usepackage[a4paper, left=2cm, right=2cm, top=1.5cm, bottom=2cm]{geometry}
                 \\usepackage{dirtree}
                 \\usepackage{hyperref}
 
                 \\usemintedstyle{colorful}
 
-                \\setminted[java]{linenos, numbersep=5pt, autogobble, frame=lines, framesep=2mm, breaklines}
+                \\setminted[java]{linenos, numbersep=5pt, autogobble, frame=single, breaklines}
                 """);
 
         bw.write("\\setcounter{tocdepth}{");

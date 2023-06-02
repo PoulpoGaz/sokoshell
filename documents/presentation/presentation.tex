@@ -133,12 +133,7 @@
 
             \begin{frame}{Détection des positions mortes \textit{(dead tiles)}}
                 \centering
-
-                \resizebox{\textwidth}{!}{%
-                    \begin{tikzpicture}
-                        \node {\includegraphics[width=0.7\textwidth]{dead_positions/example_after.png}};
-                    \end{tikzpicture}
-                }
+                \includegraphics[width=0.9\textwidth]{dead_positions/example_after.png}
             \end{frame}
 
             \begin{frame}{Détection de tunnels}
@@ -160,16 +155,21 @@
                     \end{figure}
                 }
                 \only<3>{
-                    \begin{minipage}{0.4\textwidth}
-                        \includegraphics[width=\textwidth]{tunnels/straight.png}
-                    \end{minipage}
-                    \hfill
-                    \begin{minipage}{0.4\textwidth}
-                        \includegraphics[width=\textwidth]{tunnels/corner.png}
-                    \end{minipage}
+                    \begin{columns}
+                        \begin{column}{0.45\textwidth}
+                            \centering
+                            \includegraphics[width=0.6\textwidth]{tunnels/straight.png}%
 
-                    \centering
-                    Composition d'un tunnel
+                            \vspace{1cm}
+                            \includegraphics[width=0.6\textwidth]{tunnels/corner.png}%
+
+                            Composition d'un tunnel
+                        \end{column}
+                        \hfill
+                        \begin{column}{0.45\textwidth}
+                            \includegraphics[width=\textwidth]{tunnels/tunnel_detection.png}%
+                        \end{column}
+                    \end{columns}
                 }
             \end{frame}
 
@@ -206,7 +206,7 @@
             \end{frame}
 
             \begin{interstateframe}
-                \begin{interstatenv}{1}{0}\interstatplot{3};\end{interstatenv}
+                \begin{interstatenv}{1}{1}\interstatplot{3};\end{interstatenv}
             \end{interstateframe}
 
         \subsection{Analyse dynamique}
@@ -266,7 +266,7 @@
                 \end{tikzpicture}
             \end{frame}
 
-            \begin{frame}{Détection de \textit{PI Corral deadlocks}}
+            \begin{frame}{\textit{PI Corral prunning}}
                 \only<1> {
                     \begin{figure}
                         \centering
@@ -282,9 +282,16 @@
                     \end{figure}
                 }
                 \only<2>{
-                    d
-                }
-                \only<3>{
+                    \begin{tikzpicture}
+                        \node (A) {\includegraphics[width=0.4\textwidth]{corral/pi_corral_complex.png}};
+                        \node[right=of A] (B) {\includegraphics[width=0.4\textwidth]{corral/pi_corral_simplified.png}};
+
+                        \draw[->, line width=\arrowwidth] (A.east) -- (B.west);
+
+                        \node [below=0cm of A.south] {Situation complexe};
+                        \node [below=0cm of B.south] {Inutile de considérer les caisses grisés};
+                    \end{tikzpicture}
+
                     \centering
                     Brian Damgaard: émonde l'arbre de recherche d'au moins \textbf{20\%} !
                 }
@@ -551,6 +558,36 @@
             }
         \end{frame}
 
+        \begin{frame}{Parcours de graphes: démarquer tous les nœuds en $\mathcal{O}(1)$}
+
+            \centering
+            nœud marqué \textit{ssi valeur} $= m$
+
+            \begin{tikzpicture}
+                \node (start) {
+                    \includegraphics[width=0.15\textwidth]{optimisations/mark_init.png}
+                };
+                \node[right=of start] (first) {
+                    \includegraphics[width=0.15\textwidth]{optimisations/mark_player.png}
+                };
+                \node[right=of first] (second) {
+                    \includegraphics[width=0.15\textwidth]{optimisations/mark_all.png}
+                };
+                \node[right=of second] (third) {
+                    \includegraphics[width=0.15\textwidth]{optimisations/unmark.png}
+                };
+                % don't remove '0cm', otherwise tikz will place the text too below
+                \node [above=0cm of start.north] {$m=0$};
+                \node [above=0cm of first.north] {$m=0$};
+                \node [above=0cm of second.north] {$m=0$};
+                \node [above=0cm of third.north] {$m=1$};
+
+                \draw[->, line width=\arrowwidth] (start.east)  -- (first.west);
+                \draw[->, line width=\arrowwidth, dashed] (first.east) -- (second.west);
+                \draw[->, line width=\arrowwidth] (second.east) -- (third.west);
+            \end{tikzpicture}
+        \end{frame}
+
         \begin{frame}{Précalcul des distances caisses-cibles}
             \centering
             \begin{columns}[onlytextwidth]
@@ -599,36 +636,6 @@
 
         \input{content/greedy_heuristic.tex}
 
-        \begin{frame}{Parcours de graphes: démarquer tous les nœuds en $\mathcal{O}(1)$}
-
-            \centering
-            nœud marqué \textit{ssi valeur} $= m$
-
-            \begin{tikzpicture}
-                \node (start) {
-                    \includegraphics[width=0.15\textwidth]{optimisations/mark_init.png}
-                };
-                \node[right=of start] (first) {
-                    \includegraphics[width=0.15\textwidth]{optimisations/mark_player.png}
-                };
-                \node[right=of first] (second) {
-                    \includegraphics[width=0.15\textwidth]{optimisations/mark_all.png}
-                };
-                \node[right=of second] (third) {
-                    \includegraphics[width=0.15\textwidth]{optimisations/unmark.png}
-                };
-                % don't remove '0cm', otherwise tikz will place the text too below
-                \node [above=0cm of start.north] {$m=0$};
-                \node [above=0cm of first.north] {$m=0$};
-                \node [above=0cm of second.north] {$m=0$};
-                \node [above=0cm of third.north] {$m=1$};
-
-                \draw[->, line width=\arrowwidth] (start.east)  -- (first.west);
-                \draw[->, line width=\arrowwidth, dashed] (first.east) -- (second.west);
-                \draw[->, line width=\arrowwidth] (second.east) -- (third.west);
-            \end{tikzpicture}
-        \end{frame}
-
         \begin{frame}{Calcul des \textit{corrals} en $\mathcal{O}(wh)$}
             \only<1>{
                 Utilisation de \textit{Union-Find}: partition de $\llbracket 0;wh-1 \rrbracket$.
@@ -645,63 +652,63 @@
                     \end{column}
                 \end{columns}
             }
-            \only<2-10>{
+            \only<2-4>{
                 \centering
                 \begin{tikzpicture}[remember picture]
-                    \node[visible on=<2-5>] (A) {
+                    \node[visible on=<2>] (A) {
                         \includegraphics[width=0.32\textwidth]{corral_detection/corral_start.png}
                     };
-                    \node[visible on=<3-5>, right=of A] (B) {
+                    \node[visible on=<2>, right=of A] (B) {
                         \includegraphics[width=0.32\textwidth]{corral_detection/corral_1.png}
                     };
-                    \node[visible on=<4-5>,below=of A] (C) {
+                    \node[visible on=<2>,below=of A] (C) {
                         \includegraphics[width=0.32\textwidth]{corral_detection/corral_2.png}
                     };
-                    \node[visible on=<5>, below=of B] (D) {
+                    \node[visible on=<2>, below=of B] (D) {
                         \includegraphics[width=0.32\textwidth]{corral_detection/corral_3.png}
                     };
 
-                    \draw[visible on=<3-5>, ->, line width=\arrowwidth] (A.east) -- (B.west);
+                    \draw[visible on=<2>, ->, line width=\arrowwidth] (A.east) -- (B.west);
 
                     \coordinate (I) at ($ (B) ! .5 ! (C) $);
-                    \draw[visible on=<4-5>, ->, line width=\arrowwidth] (B.south) |- (I) -| (C.north);
-                    \draw[visible on=<5>, ->, line width=\arrowwidth, dashed] (C.east) -- (D.west);
+                    \draw[visible on=<2>, ->, line width=\arrowwidth] (B.south) |- (I) -| (C.north);
+                    \draw[visible on=<2>, ->, line width=\arrowwidth, dashed] (C.east) -- (D.west);
 
 
 
-                    \node[visible on=<6-9>] (A) {%
+                    \node[visible on=<3>] (A) {%
                         \includegraphics[width=0.32\textwidth]{corral_detection/corral_4.png}%
                     };%
-                    \node[visible on=<7-9>, right=of A] (B) {%
+                    \node[visible on=<3>, right=of A] (B) {%
                         \includegraphics[width=0.32\textwidth]{corral_detection/corral_5.png}%
                     };%
-                    \node[visible on=<8-9>,below=of A] (C) {%
+                    \node[visible on=<3>,below=of A] (C) {%
                         \includegraphics[width=0.32\textwidth]{corral_detection/corral_6.png}%
                     };%
-                    \node[visible on=<9>, below=of B] (D) {%
+                    \node[visible on=<3>, below=of B] (D) {%
                         \includegraphics[width=0.32\textwidth]{corral_detection/corral_7.png}%
                     };%
 
-                    \draw[visible on=<7-9>, ->, line width=\arrowwidth, dashed] (A.east) -- (B.west);
+                    \draw[visible on=<3>, ->, line width=\arrowwidth, dashed] (A.east) -- (B.west);
 
                     \coordinate (I) at ($ (B) ! .5 ! (C) $);
-                    \draw[visible on=<8-9>, ->, line width=\arrowwidth] (B.south) |- (I) -| (C.north);
-                    \draw[visible on=<9>, ->, line width=\arrowwidth] (C.east) -- (D.west);
+                    \draw[visible on=<3>, ->, line width=\arrowwidth] (B.south) |- (I) -| (C.north);
+                    \draw[visible on=<3>, ->, line width=\arrowwidth] (C.east) -- (D.west);
 
-                    \node[visible on=<10>] (A) {%
+                    \node[visible on=<4>] (A) {%
                         \includegraphics[width=0.32\textwidth]{corral_detection/corral_8.png}%
                     };%
                 \end{tikzpicture}
             }
 
-            \onslide<6> {
+            \onslide<3> {
                 \begin{tikzpicture}[overlay, remember picture]
                     \draw[->, line width=\arrowwidth]
                     let \p1 = (current page.south west), \p2 = (A.west) in
                     (\x1, \y2) -- (\p2);
                 \end{tikzpicture}
             }
-            \onslide<10> {
+            \onslide<4> {
                 \begin{tikzpicture}[overlay, remember picture]
                     \draw[->, line width=\arrowwidth, dashed]
                     let \p1 = (current page.south west), \p2 = (A.west) in

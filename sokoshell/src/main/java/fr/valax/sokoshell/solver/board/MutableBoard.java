@@ -484,8 +484,7 @@ public class MutableBoard extends GenericBoard {
         });
     }
     /**
-     * Discovers all the reachable cases from (x, y) to find dead positions, as described
-     * <a href="www.sokobano.de/wiki/index.php?title=How_to_detect_deadlocks#Detecting_simple_deadlocks">here</a>
+     * Discovers all the reachable cases from (x, y) to find dead positions.
      */
     private void findNonDeadCases(TileInfo tile, Direction lastDir) {
         tile.setDeadTile(false);
