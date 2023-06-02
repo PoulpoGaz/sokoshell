@@ -4,88 +4,87 @@
 
     \maketitle
 
-    \section{Introduction}
-        \begin{frame}{Le jeu du Sokoban}
-            \begin{columns}[onlytextwidth]
-                \begin{column}{0.32\textwidth}
-                    \begin{figure}
-                        \centering
-                        \copyrightbox[b]{\includegraphics[width=\columnwidth]{creator.jpg}}
-                                        {\url{https://shmuplations.com/wp-content/uploads/2022/03/thinkingrabbit04.jpg}}%
-                        \caption*{Hiroyuki Imabayashi}
-                    \end{figure}
-                \end{column}
-                \begin{column}{0.6\textwidth}
-                    \begin{figure}
-                        \centering
-                        \includegraphics[width=0.7\columnwidth]{level_example.png}
-                        \caption*{\textit{XSokoban} 1}
-                        \includegraphics[width=0.7\columnwidth]{level_solved.png}
-                        \caption*{\textit{XSokoban} 1 résolu}
-                    \end{figure}
-                \end{column}
-            \end{columns}
-
-            \centering
-            Problème \textbf{PSPACE-complet}
-        \end{frame}
-
-        \begin{frame}{Règles}
-
-            \begin{figure}
-                \begin{subfigure}[b]{0.4\textwidth}
+    \begin{frame}{Le jeu du Sokoban}
+        \begin{columns}[onlytextwidth]
+            \begin{column}{0.32\textwidth}
+                \begin{figure}
                     \centering
-                    \includegraphics[width=0.9\textwidth]{rules/moves.png}
-                \end{subfigure}
-                \hfill
-                \begin{subfigure}[b]{0.4\textwidth}
+                    \copyrightbox[b]{\includegraphics[width=\columnwidth]{creator.jpg}}
+                                    {\url{https://shmuplations.com/wp-content/uploads/2022/03/thinkingrabbit04.jpg}}%
+                    \caption*{Hiroyuki Imabayashi}
+                \end{figure}
+            \end{column}
+            \begin{column}{0.6\textwidth}
+                \begin{figure}
                     \centering
-                    \includegraphics[width=0.9\textwidth]{rules/move_yes.png}
-                \end{subfigure}
-                \caption*{Déplacements autorisés}
-            \end{figure}
+                    \includegraphics[width=0.7\columnwidth]{level_example.png}
+                    \caption*{\textit{XSokoban} 1}
+                    \includegraphics[width=0.7\columnwidth]{level_solved.png}
+                    \caption*{\textit{XSokoban} 1 résolu}
+                \end{figure}
+            \end{column}
+        \end{columns}
 
-             \begin{figure}
-                \begin{subfigure}[b]{0.4\textwidth}
-                    \centering
-                    \includegraphics[width=0.9\textwidth]{rules/move_no_1.png}
-                \end{subfigure}
-                \hfill
-                \begin{subfigure}[b]{0.4\textwidth}
-                    \centering
-                    \includegraphics[width=0.9\textwidth]{rules/move_no_2.png}
-                \end{subfigure}
-                \caption*{Déplacements interdits}
-            \end{figure}
-        \end{frame}
+        \centering
+        Problème \textbf{PSPACE-complet}
+    \end{frame}
+
+    \begin{frame}{Règles}
+
+        \begin{figure}
+            \begin{subfigure}[b]{0.4\textwidth}
+                \centering
+                \includegraphics[width=0.9\textwidth]{rules/moves.png}
+            \end{subfigure}
+            \hfill
+            \begin{subfigure}[b]{0.4\textwidth}
+                \centering
+                \includegraphics[width=0.9\textwidth]{rules/move_yes.png}
+            \end{subfigure}
+            \caption*{Déplacements autorisés}
+        \end{figure}
+
+         \begin{figure}
+            \begin{subfigure}[b]{0.4\textwidth}
+                \centering
+                \includegraphics[width=0.9\textwidth]{rules/move_no_1.png}
+            \end{subfigure}
+            \hfill
+            \begin{subfigure}[b]{0.4\textwidth}
+                \centering
+                \includegraphics[width=0.9\textwidth]{rules/move_no_2.png}
+            \end{subfigure}
+            \caption*{Déplacements interdits}
+        \end{figure}
+    \end{frame}
 
 
-        \begin{frame}{Problématique et réalisation}
-            \centering
-            \Large\textbf{Quelles stratégies adopter pour trouver une solution le plus rapidement possible à un niveau de Sokoban ?}
+    \begin{frame}{Problématique et réalisation}
+        \centering
+        \Large\textbf{Quelles stratégies adopter pour trouver une solution le plus rapidement possible à un niveau de Sokoban ?}
 
-            \vspace{1.5cm} % don't remove the blank line above, otherwise it won't work (cf https://tex.stackexchange.com/a/204990)
-            \includegraphics[width=\textwidth]{shell.png}
-         \end{frame}
+        \vspace{1.5cm} % don't remove the blank line above, otherwise it won't work (cf https://tex.stackexchange.com/a/204990)
+        \includegraphics[width=\textwidth]{shell.png}
+     \end{frame}
 
-        \begin{frame}{Plan}
-            \tableofcontents%[hideallsubsections]
-        \end{frame}
+    \begin{frame}{Plan}
+        \tableofcontents%[hideallsubsections]
+    \end{frame}
 
-        \begin{frame}{Lien avec le thème de l'année}
-            \centering
-            \begin{columns}
-                \begin{column}{0.5\textwidth}
-                    \copyrightbox[b]{\includegraphics[width=\textwidth]{warehouse.jpg}}
-                    {Source : \textit{Indiana Jones et les Aventuriers de l'arche perdue} (scène de fin), Steven Spielberg, 1981
-                        \url{https://pbs.twimg.com/media/EyjVShEVEAAQZjK.jpg}}%
-                \end{column}
-                \begin{column}{0.5\textwidth}
-                    \copyrightbox[b]{\includegraphics[width=\textwidth]{city_plan.jpg}}
-                    {Source : \url{https://www.geographicus.com/mm5/graphics/00000001/L/NewYork-bridgesmaverick-1807.jpg}}%
-                \end{column}
-            \end{columns}
-        \end{frame}
+    \begin{frame}{Lien avec le thème de l'année}
+        \centering
+        \begin{columns}
+            \begin{column}{0.5\textwidth}
+                \copyrightbox[b]{\includegraphics[width=\textwidth]{warehouse.jpg}}
+                {Source : \textit{Indiana Jones et les Aventuriers de l'arche perdue} (scène de fin), Steven Spielberg, 1981
+                    \url{https://pbs.twimg.com/media/EyjVShEVEAAQZjK.jpg}}%
+            \end{column}
+            \begin{column}{0.5\textwidth}
+                \copyrightbox[b]{\includegraphics[width=\textwidth]{city_plan.jpg}}
+                {Source : \url{https://www.geographicus.com/mm5/graphics/00000001/L/NewYork-bridgesmaverick-1807.jpg}}%
+            \end{column}
+        \end{columns}
+    \end{frame}
 
     \section{Principe de résolution}
         \begin{frame}{Arbre des états}
@@ -142,10 +141,6 @@
                 }
             \end{frame}
 
-            \begin{interstateframe}
-                \begin{interstatenv}{1}{0}\interstatplot{1};\end{interstatenv}
-            \end{interstateframe}
-
             \begin{frame}{Détection de tunnels}
                 \includegraphics<1>[width=\textwidth]{tunnels/tunnels.png}%
                 \only<2>{
@@ -177,10 +172,6 @@
                     Composition d'un tunnel
                 }
             \end{frame}
-
-            \begin{interstateframe}
-                \begin{interstatenv}{1}{0}\interstatplot{2};\end{interstatenv}
-            \end{interstateframe}
 
             \begin{frame}{Salles et ordre de rangement \textit{(packing order)}}
                 \centering
@@ -275,10 +266,6 @@
                 \end{tikzpicture}
             \end{frame}
 
-            \begin{interstateframe}
-                \begin{interstatenv}{2}{1}\interstatplot{4};\end{interstatenv}
-            \end{interstateframe}
-
             \begin{frame}{Détection de \textit{PI Corral deadlocks}}
                 \only<1> {
                     \begin{figure}
@@ -358,10 +345,6 @@
             \end{columns}
         \end{frame}
 
-        \begin{interstateframe}
-            \begin{interstatenv}{11}{5}\interstatplot{6};\end{interstatenv}
-        \end{interstateframe}
-
         \begin{frame}{Vers FESS}
             \begin{itemize}
                 \item FESS: algorithme utilisé par Festival, meilleur solveur.
@@ -375,7 +358,7 @@
         \end{frame}
 
         \begin{interstateframe}
-            \begin{interstatenv}{15}{4}\interstatplot{7};\end{interstatenv}
+            \begin{interstatenv}{15}{5 + 4}\interstatplot{7};\end{interstatenv}
         \end{interstateframe}
 
     \section{Résultats}

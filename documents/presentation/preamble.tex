@@ -94,36 +94,45 @@
 % Graphiques des résultats intermédiaires
 
 \newenvironment{interstatenv}[2]{%
+    \centering
+    \footnotesize Niveaux résolus dans \textit{XSokoban} : \textbf{#1 / 90 (+ #2)}
 
-        \footnotesize Niveaux résolus dans \textit{XSokoban} : \textbf{#1 / 90 (+ #2)}
+    \footnotesize Niveau 24 du pack \textit{Boxxle} :
 
-        \footnotesize Niveau 24 du pack \textit{Boxxle} :
 
-        \begin{tikzpicture}[scale=0.9]
-            \begin{axis}[
-                    xtick={0,1,2,3,4,5,6,7,8},
-                    xticklabels={Rien, Dead tiles, Tunnels, Salles, Freeze deadlocks, PI-Corral deadlocks, A*, fess0},
-                    xticklabel style={
-                        anchor=base,
-                        yshift=-1.5\baselineskip,
-                        rotate=25,
-                        font=\tiny
-                    },
-                    nodes near coords,
-                    nodes near coords style={draw=black, fill=GRAY250, text=RED, outer sep=0, inner sep=0.08cm, yshift=0.15cm, line width=0.2},
-                    nodes near coords align={above},
-                    axis x line=bottom,
-                    axis y line=left,
-                    grid=both,
-                    ylabel={Nombre d'états explorés},
-                    ymode=log,
-                    ymin=1000,
-                    line width=1.5
-                ]
+    \begin{columns}
+        \begin{column}{\dimexpr0.5\paperwidth-10pt}
+            \begin{tikzpicture}[scale=0.8]
+                \begin{axis}[
+                        xtick={0,1,2,3,4,5,6,7,8},
+                        xticklabels={Rien, Dead tiles, Tunnels, Salles, Freeze deadlocks, PI-Corral deadlocks, A*, fess0},
+                        xticklabel style={
+                            anchor=base,
+                            yshift=-1.5\baselineskip,
+                            rotate=25,
+                            font=\tiny
+                        },
+                        nodes near coords,
+                        nodes near coords style={draw=black, fill=GRAY250, text=RED, outer sep=0, inner sep=0.08cm, yshift=0.15cm, line width=0.2},
+                        nodes near coords align={above},
+                        axis x line=bottom,
+                        axis y line=left,
+                        grid=both,
+                        ylabel={Nombre d'états explorés},
+                        ymode=log,
+                        ymin=1000,
+                        line width=1.5
+                    ]
 }{%
-            \end{axis}
-        \end{tikzpicture}
-
+                \end{axis}
+            \end{tikzpicture}
+        \end{column}
+        \hfill
+        \begin{column}{\dimexpr0.35\paperwidth-10pt}
+            \centering
+            \includegraphics[width=\textwidth]{Boxxle_1_24.png}
+        \end{column}
+    \end{columns}
 }
 
 \newenvironment{interstateframe}{%
