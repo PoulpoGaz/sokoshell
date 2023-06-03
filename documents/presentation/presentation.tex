@@ -58,19 +58,6 @@
         \end{figure}
     \end{frame}
 
-
-    \begin{frame}{Problématique et réalisation}
-        \centering
-        \Large\textbf{Quelles stratégies adopter pour trouver une solution le plus rapidement possible à un niveau de Sokoban ?}
-
-        \vspace{1.5cm} % don't remove the blank line above, otherwise it won't work (cf https://tex.stackexchange.com/a/204990)
-        \includegraphics[width=\textwidth]{shell.png}
-     \end{frame}
-
-    \begin{frame}{Plan}
-        \tableofcontents%[hideallsubsections]
-    \end{frame}
-
     \begin{frame}{Lien avec le thème de l'année}
         \centering
         \begin{columns}
@@ -86,9 +73,42 @@
         \end{columns}
     \end{frame}
 
+    \begin{frame}{Problématique et réalisation}
+        \centering
+        \Large\textbf{Quelles stratégies adopter pour trouver une solution le plus rapidement possible à un niveau de Sokoban ?}
+
+        \vspace{1.5cm} % don't remove the blank line above, otherwise it won't work (cf https://tex.stackexchange.com/a/204990)
+        \includegraphics[width=\textwidth]{shell.png}
+     \end{frame}
+
+    \begin{frame}{Plan}
+        \tableofcontents%[hideallsubsections]
+    \end{frame}
+
     \section{Principe de résolution}
-        \begin{frame}{Arbre des états}
-            \input{content/search_tree.tex}
+        \begin{frame}{Principe de résolution}
+            \begin{columns}
+                \begin{column}{\dimexpr0.5\paperwidth}
+                    \input{content/search_tree.tex}
+                \end{column}
+
+                \begin{column}{\dimexpr0.5\paperwidth}
+                    \begin{minipage}{\textwidth}
+                        \begin{algorithmic}[1]
+                            \State C = une collection
+                            \State Ajouter l'état initial à C
+                            \While{C non vide}
+                                \State Prendre un état de C
+                                \If{état final}
+                                    \State Solution trouvée
+                                \EndIf
+                                \State Ajouter les états enfants à C
+                            \EndWhile
+                            \State Sans solution
+                        \end{algorithmic}
+                    \end{minipage}
+                \end{column}
+            \end{columns}
         \end{frame}
 
         \begin{frame}{Calcul du \textit{hash} d'un état - Hash de Zobrist}
@@ -266,7 +286,7 @@
                 \end{tikzpicture}
             \end{frame}
 
-            \begin{frame}{\textit{PI Corral prunning}}
+            \begin{frame}{\textit{PI Corral pruning}}
                 \only<1> {
                     \begin{figure}
                         \centering
@@ -289,7 +309,7 @@
                         \draw[->, line width=\arrowwidth] (A.east) -- (B.west);
 
                         \node [below=0cm of A.south] {Situation complexe};
-                        \node [below=0cm of B.south] {Inutile de considérer les caisses grisés};
+                        \node [below=0cm of B.south] {Inutile de considérer les caisses grisées};
                     \end{tikzpicture}
 
                     \centering
@@ -298,60 +318,10 @@
             \end{frame}
 
             \begin{interstateframe}
-                \begin{interstatenv}{6}{4}\interstatplot{5};\end{interstatenv}
+                \begin{interstatenv}{6}{1 + 4}\interstatplot{5};\end{interstatenv}
             \end{interstateframe}
 
     \section{Recherche dirigée par une heuristique}
-        \begin{frame}{Heuristique simple \textit{(Simple Lower Bound)}}
-            \centering%
-            \includegraphics[width=0.9\textwidth]{heuristics/simple.png}
-            \Large$\boxed{2 + 4 + 3 = \mathbf{9}}$
-        \end{frame}
-
-        \begin{frame}{Heuristique gloutonne \textit{(Greedy Lower Bound)}}
-            \centering
-            \includegraphics[width=0.3\textwidth]{heuristics/greedy.png}
-
-            \vspace{0.19cm}
-            \begin{columns}
-                \begin{column}{0.5\textwidth}
-                    \begin{center}
-                        \includegraphics[width=\textwidth]{heuristics/greedy_end.png}
-                        \Large$\boxed{2 + 3 + 5 = \mathbf{10}}$
-                    \end{center}
-                \end{column}%
-
-                \begin{column}{0.5\textwidth}
-                    % Sorted table
-                    \resizebox{0.9\textwidth}{!}{
-                        \begin{tabular}{ | c | c | }
-                            \hline
-                                Caisse $\rightarrow$ Cible & Distance \\
-                            \hline
-                            $\mathbf{1 \rightarrow B}$ & \textbf{2} \\
-                            \hline
-                            $1 \rightarrow A$ & 3 \\
-                            \hline
-                            $1 \rightarrow C$ & 3 \\
-                            \hline
-                            $\mathbf{3 \rightarrow C}$ & \textbf{3} \\
-                            \hline
-                            $2 \rightarrow B$ & 4 \\
-                            \hline
-                            $3 \rightarrow B$ & 4 \\
-                            \hline
-                            $2 \rightarrow A$ & 5 \\
-                            \hline
-                            $2 \rightarrow C$ & 5 \\
-                            \hline
-                            $\mathbf{3 \rightarrow A}$ & \textbf{5} \\
-                            \hline
-                        \end{tabular}
-                    }
-                \end{column}
-            \end{columns}
-        \end{frame}
-
         \begin{frame}{Vers FESS}
             \begin{itemize}
                 \item FESS: algorithme utilisé par Festival, meilleur solveur.
@@ -359,7 +329,7 @@
                     \begin{itemize}
                         \item maximiser le nombre de caisses rangées.
                         \item minimiser le nombre de \textit{corral}.
-                        \item minimiser l'heuristique précédente.
+                        \item minimiser la distance à l'état final.
                     \end{itemize}
             \end{itemize}
         \end{frame}
@@ -556,6 +526,56 @@
             \only<2>{
                 \input{content/deadlock_table_tree.tex}
             }
+        \end{frame}
+
+        \begin{frame}{Heuristique simple \textit{(Simple Lower Bound)}}
+            \centering%
+            \includegraphics[width=0.9\textwidth]{heuristics/simple.png}
+            \Large$\boxed{2 + 4 + 3 = \mathbf{9}}$
+        \end{frame}
+
+        \begin{frame}{Heuristique gloutonne \textit{(Greedy Lower Bound)}}
+            \centering
+            \includegraphics[width=0.3\textwidth]{heuristics/greedy.png}
+
+            \vspace{0.19cm}
+            \begin{columns}
+                \begin{column}{0.5\textwidth}
+                    \begin{center}
+                        \includegraphics[width=\textwidth]{heuristics/greedy_end.png}
+                        \Large$\boxed{2 + 3 + 5 = \mathbf{10}}$
+                    \end{center}
+                \end{column}%
+
+                \begin{column}{0.5\textwidth}
+                    % Sorted table
+                    \resizebox{0.9\textwidth}{!}{
+                        \begin{tabular}{ | c | c | }
+                            \hline
+                            Caisse $\rightarrow$ Cible & Distance \\
+                            \hline
+                            $\mathbf{1 \rightarrow B}$ & \textbf{2} \\
+                            \hline
+                            $1 \rightarrow A$ & 3 \\
+                            \hline
+                            $1 \rightarrow C$ & 3 \\
+                            \hline
+                            $\mathbf{3 \rightarrow C}$ & \textbf{3} \\
+                            \hline
+                            $2 \rightarrow B$ & 4 \\
+                            \hline
+                            $3 \rightarrow B$ & 4 \\
+                            \hline
+                            $2 \rightarrow A$ & 5 \\
+                            \hline
+                            $2 \rightarrow C$ & 5 \\
+                            \hline
+                            $\mathbf{3 \rightarrow A}$ & \textbf{5} \\
+                            \hline
+                        \end{tabular}
+                    }
+                \end{column}
+            \end{columns}
         \end{frame}
 
         \begin{frame}{Parcours de graphes: démarquer tous les nœuds en $\mathcal{O}(1)$}

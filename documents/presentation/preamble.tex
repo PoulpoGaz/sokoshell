@@ -30,6 +30,11 @@
 
 \usepackage{subcaption} % rules
 
+\usepackage{stmaryrd}
+\usepackage{algorithm}
+% \captionsetup[algorithm]{labelformat=empty}
+\usepackage{algpseudocode}
+
 % Url formatting
 \usepackage{href-ul}
 
@@ -105,7 +110,7 @@
             \begin{tikzpicture}[scale=0.8]
                 \begin{axis}[
                         xtick={0,1,2,3,4,5,6,7,8},
-                        xticklabels={Rien, Dead tiles, Tunnels, Salles, Freeze deadlocks, PI-Corral deadlocks, A*, fess0},
+                        xticklabels={Rien, Dead tiles, Tunnels, Salles, Freeze deadlocks, PI-Corral pruning, A*, fess0},
                         xticklabel style={
                             anchor=base,
                             yshift=-1.5\baselineskip,
