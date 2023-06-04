@@ -79,10 +79,6 @@
 
         \vspace{1.5cm} % don't remove the blank line above, otherwise it won't work (cf https://tex.stackexchange.com/a/204990)
         \includegraphics[width=\textwidth]{shell.png}
-     \end{frame}
-
-    \begin{frame}{Plan}
-        \tableofcontents%[hideallsubsections]
     \end{frame}
 
     \section{Principe de résolution}
@@ -148,142 +144,140 @@
         \end{frame}
 
     \section{Réduction de l'espace de recherche}
+        \begin{frame}{Détection des positions mortes \textit{(dead tiles)}}
+            \centering
+            \includegraphics[width=0.9\textwidth]{dead_positions/example_after.png}
+        \end{frame}
 
-        \subsection{Analyse statique}
-
-            \begin{frame}{Détection des positions mortes \textit{(dead tiles)}}
-                \centering
-                \includegraphics[width=0.9\textwidth]{dead_positions/example_after.png}
-            \end{frame}
-
-            \begin{frame}{Détection de tunnels}
-                \includegraphics<1>[width=\textwidth]{tunnels/tunnels.png}%
-                \only<2>{
-                    \begin{figure}
-                        \subcaptionbox*{Au plus une caisse}{
-                            \includegraphics[width=0.45\textwidth]{tunnels/tunnel_macro_one_crate_2.png}
-                        }
-                        \subcaptionbox*{Deux états fils}{
-                            \includegraphics[width=0.45\textwidth]{tunnels/tunnel_macro.png}
-                        }
-                        \subcaptionbox*{Coin $\Rightarrow$ un état fils}{
-                            \includegraphics[width=0.45\textwidth]{tunnels/tunnel_macro_player_only.png}
-                        }
-                        \subcaptionbox*{Tunnel \textit{oneway}}{
-                            \includegraphics[width=0.45\textwidth]{tunnels/tunnel_macro_oneway.png}
-                        }
-                    \end{figure}
-                }
-                \only<3>{
-                    \begin{columns}
-                        \begin{column}{0.45\textwidth}
-                            \centering
-                            \includegraphics[width=0.6\textwidth]{tunnels/straight.png}%
-
-                            \vspace{1cm}
-                            \includegraphics[width=0.6\textwidth]{tunnels/corner.png}%
-
-                            Composition d'un tunnel
-                        \end{column}
-                        \hfill
-                        \begin{column}{0.45\textwidth}
-                            \includegraphics[width=\textwidth]{tunnels/tunnel_detection.png}%
-                        \end{column}
-                    \end{columns}
-                }
-            \end{frame}
-
-            \begin{frame}{Salles et ordre de rangement \textit{(packing order)}}
-                \centering
-                \only<1>{
-                    \includegraphics[width=\textwidth]{rooms_packing_order/rooms.png}
-                }
-                \only<2>{
-                    \begin{tikzpicture}
-                        \node (A) {
-                            \includegraphics[width=0.4\textwidth]{rooms_packing_order/algo_1.png}
-                        };
-                        \node[right=of A] (B) {
-                            \includegraphics[width=0.4\textwidth]{rooms_packing_order/algo_2.png}
-                        };
-                        \node[below=of A] (C) {
-                            \includegraphics[width=0.4\textwidth]{rooms_packing_order/algo_3.png}
-                        };
-                        \node[below=of B] (D) {
-                            \includegraphics[width=0.4\textwidth]{rooms_packing_order/algo_4.png}
-                        };
-
-                        \draw[->, line width=\arrowwidth] (A.east) -- (B.west);
-
-                        \coordinate (I) at ($ (B) ! .5 ! (C) $);
-                        \draw[->, line width=\arrowwidth] (B.south) |- (I) -| (C.north);
-                        \draw[->, line width=\arrowwidth, dashed] (C.east) -- (D.west);
-                    \end{tikzpicture}
-                }
-                \only<3>{
-                    \includegraphics[height=0.8\textheight]{rooms_packing_order/no_packing_order.png}
-                }
-            \end{frame}
-
-            \begin{interstateframe}
-                \begin{interstatenv}{1}{1}\interstatplot{3};\end{interstatenv}
-            \end{interstateframe}
-
-        \subsection{Analyse dynamique}
-
-            \begin{frame}{Détection d'impasses \textit{(deadlocks)}}
+        \begin{frame}{Détection de tunnels}
+            \includegraphics<1>[width=\textwidth]{tunnels/tunnels.png}%
+            \only<2>{
                 \begin{figure}
-                    \centering
-                    \subcaptionbox{\textit{Freeze deadlock n°1}} {
-                        \includegraphics[width=0.4\textwidth]{freeze_deadlock/ex_1_dead.png}
+                    \subcaptionbox*{Au plus une caisse}{
+                        \includegraphics[width=0.45\textwidth]{tunnels/tunnel_macro_one_crate_2.png}
                     }
-                    \subcaptionbox{\textit{Freeze deadlock n°2}} {
-                        \includegraphics[width=0.4\textwidth]{freeze_deadlock/ex_2_dead.png}
+                    \subcaptionbox*{Deux états fils}{
+                        \includegraphics[width=0.45\textwidth]{tunnels/tunnel_macro.png}
                     }
-                    \subcaptionbox{\textit{PI Corral deadlock}} {
-                        \includegraphics[width=0.4\textwidth]{pi_corral_deadlock_dead.png}
+                    \subcaptionbox*{Coin $\Rightarrow$ un état fils}{
+                        \includegraphics[width=0.45\textwidth]{tunnels/tunnel_macro_player_only.png}
+                    }
+                    \subcaptionbox*{Tunnel \textit{oneway}}{
+                        \includegraphics[width=0.45\textwidth]{tunnels/tunnel_macro_oneway.png}
                     }
                 \end{figure}
-            \end{frame}
+            }
+            \only<3>{
+                \begin{columns}
+                    \begin{column}{0.45\textwidth}
+                        \centering
+                        \includegraphics[width=0.6\textwidth]{tunnels/straight.png}%
 
-            \begin{frame}{Détection de \textit{freeze deadlocks}}
-                \begin{figure}
-                    \subcaptionbox{\textit{Règle n°1}} {
-                        \includegraphics[width=0.3\textwidth]{freeze_deadlock/rule_1.png}
-                    }
-                    \subcaptionbox{\textit{Règle n°2}} {
-                        \includegraphics[width=0.3\textwidth]{freeze_deadlock/rule_2.png}
-                    }
-                    \subcaptionbox{\textit{Règle n°3}} {
-                        \includegraphics[width=0.3\textwidth]{freeze_deadlock/rule_3.png}
-                    }
-                \end{figure}
-            \end{frame}
+                        \vspace{1cm}
+                        \includegraphics[width=0.6\textwidth]{tunnels/corner.png}%
 
-            \begin{frame}{Détection de \textit{freeze deadlocks}}
-                \centering
+                        Composition d'un tunnel
+                    \end{column}
+                    \hfill
+                    \begin{column}{0.45\textwidth}
+                        \includegraphics[width=\textwidth]{tunnels/tunnel_detection.png}%
+                    \end{column}
+                \end{columns}
+            }
+        \end{frame}
+
+        \begin{frame}{Salles et ordre de rangement \textit{(packing order)}}
+            \centering
+            \only<1>{
+                \includegraphics[width=\textwidth]{rooms_packing_order/rooms.png}
+            }
+            \only<2>{
                 \begin{tikzpicture}
                     \node (A) {
-                        \includegraphics[width=0.4\textwidth]{freeze_deadlock/ex_2_dead.png}
+                        \includegraphics[width=0.4\textwidth]{rooms_packing_order/algo_1.png}
                     };
                     \node[right=of A] (B) {
-                        \includegraphics[width=0.4\textwidth]{freeze_deadlock/ex_2_explanation_1.png}
+                        \includegraphics[width=0.4\textwidth]{rooms_packing_order/algo_2.png}
                     };
                     \node[below=of A] (C) {
-                        \includegraphics[width=0.4\textwidth]{freeze_deadlock/ex_2_explanation_2.png}
+                        \includegraphics[width=0.4\textwidth]{rooms_packing_order/algo_3.png}
                     };
-                    \node[right=of C] (D) {
-                        \includegraphics[width=0.4\textwidth]{freeze_deadlock/ex_2_explanation_3.png}
+                    \node[below=of B] (D) {
+                        \includegraphics[width=0.4\textwidth]{rooms_packing_order/algo_4.png}
                     };
-                    % don't remove '0cm', otherwise tikz will place the text too below
-                    \node [below=0cm of D.south] {Gelée!};
 
                     \draw[->, line width=\arrowwidth] (A.east) -- (B.west);
 
                     \coordinate (I) at ($ (B) ! .5 ! (C) $);
                     \draw[->, line width=\arrowwidth] (B.south) |- (I) -| (C.north);
-                    \draw[->, line width=\arrowwidth] (C.east) -- (D.west);
+                    \draw[->, line width=\arrowwidth, dashed] (C.east) -- (D.west);
                 \end{tikzpicture}
+            }
+            \only<3>{
+                \includegraphics[height=0.8\textheight]{rooms_packing_order/no_packing_order.png}
+            }
+        \end{frame}
+
+        \begin{interstateframe}
+            \begin{interstatenv}{1}{1}\interstatplot{3};\end{interstatenv}
+        \end{interstateframe}
+
+        \subsection{Analyse dynamique}
+
+            \begin{frame}{Détection de \textit{freeze deadlocks}}
+               \only<1>{
+                    \begin{columns}
+                        \begin{column}{0.5\textwidth}
+                            \centering
+                            \includegraphics[height=0.7\textwidth]{freeze_deadlock/ex_1_dead.png}
+                        \end{column}
+                        \begin{column}{0.5\textwidth}
+                            \centering
+                            \includegraphics[height=0.7\textwidth]{freeze_deadlock/ex_2_dead.png}
+                        \end{column}
+                    \end{columns}
+
+                    \centering
+                    Deux \textit{freeze deadlocks}
+                }
+                \only<2>{
+                    \begin{figure}
+                        \subcaptionbox{\textit{Règle n°1}} {
+                            \includegraphics[width=0.3\textwidth]{freeze_deadlock/rule_1.png}
+                        }
+                        \subcaptionbox{\textit{Règle n°2}} {
+                            \includegraphics[width=0.3\textwidth]{freeze_deadlock/rule_2.png}
+                        }
+                        \subcaptionbox{\textit{Règle n°3}} {
+                            \includegraphics[width=0.3\textwidth]{freeze_deadlock/rule_3.png}
+                        }
+                    \end{figure}
+                }
+                \only<3> {
+                    \centering
+                    \begin{tikzpicture}
+                        \node (A) {
+                            \includegraphics[width=0.4\textwidth]{freeze_deadlock/ex_2_dead.png}
+                        };
+                        \node[right=of A] (B) {
+                            \includegraphics[width=0.4\textwidth]{freeze_deadlock/ex_2_explanation_1.png}
+                        };
+                        \node[below=of A] (C) {
+                            \includegraphics[width=0.4\textwidth]{freeze_deadlock/ex_2_explanation_2.png}
+                        };
+                        \node[right=of C] (D) {
+                            \includegraphics[width=0.4\textwidth]{freeze_deadlock/ex_2_explanation_3.png}
+                        };
+                        % don't remove '0cm', otherwise tikz will place the text too below
+                        \node [below=0cm of D.south] {Gelée!};
+
+                        \draw[->, line width=\arrowwidth] (A.east) -- (B.west);
+
+                        \coordinate (I) at ($ (B) ! .5 ! (C) $);
+                        \draw[->, line width=\arrowwidth] (B.south) |- (I) -| (C.north);
+                        \draw[->, line width=\arrowwidth] (C.east) -- (D.west);
+                    \end{tikzpicture}
+                }
             \end{frame}
 
             \begin{frame}{\textit{PI Corral pruning}}
@@ -321,23 +315,6 @@
                 \begin{interstatenv}{6}{1 + 4}\interstatplot{5};\end{interstatenv}
             \end{interstateframe}
 
-    \section{Recherche dirigée par une heuristique}
-        \begin{frame}{Vers FESS}
-            \begin{itemize}
-                \item FESS: algorithme utilisé par Festival, meilleur solveur.
-                \item Ordre de priorité:
-                    \begin{itemize}
-                        \item maximiser le nombre de caisses rangées.
-                        \item minimiser le nombre de \textit{corral}.
-                        \item minimiser la distance à l'état final.
-                    \end{itemize}
-            \end{itemize}
-        \end{frame}
-
-        \begin{interstateframe}
-            \begin{interstatenv}{15}{5 + 4}\interstatplot{7};\end{interstatenv}
-        \end{interstateframe}
-
     \section{Résultats}
         \begin{frame}{Nombre de niveaux résolus}
             \centering
@@ -349,8 +326,6 @@
                 Ensemble de niveaux            & XSokoban    & \textit{Large test suite} \\
                 \hline
                 Nombre de niveaux              & 90          & 3272 \\
-                \hline
-                \textbf{A*}                    & \textbf{11} & \textbf{2204} \\
                 \hline
                 \textbf{fess0}                 & \textbf{15} & \textbf{2273} \\
                 \hline
@@ -368,6 +343,15 @@
                             (\href{https://sourceforge.net/projects/sokoban-solver-statistics/}{https://sourceforge.net/projects/sokoban-solver-statistics/})}
         \end{frame}
 
+        \begin{frame}{Conclusion}
+            \begin{itemize}
+                \item $\approx$ 6000 lignes de code (solveur uniquement).
+                \item Implémentation difficile (Tunnel, \textit{corral}).
+                \item Première expérience de travail en groupe.
+            \end{itemize}
+        \end{frame}
+
+    \section{Annexe}
         \begin{frame}{Statistiques}
             \centering
 
@@ -390,14 +374,14 @@
             \resizebox{0.75\textwidth}{!}{
                 \begin{tikzpicture}
                     \begin{axis}[
-                            grid=major,
-                            xmin=1, xmax=10,
-                            ymin=2000, ymax=3300,
-                            xlabel = {Temps (minutes)},
-                            ylabel = {Nombre de niveaux},
-                            legend entries={sokoshell, Festival, Sokolution, Takaken, YASS},
-                            legend style={at={(1.5, 0.5)},anchor= east},
-                            cycle list name=mylist
+                        grid=major,
+                        xmin=1, xmax=10,
+                        ymin=2000, ymax=3300,
+                        xlabel = {Temps (minutes)},
+                        ylabel = {Nombre de niveaux},
+                        legend entries={sokoshell, Festival, Sokolution, Takaken, YASS},
+                        legend style={at={(1.5, 0.5)},anchor= east},
+                        cycle list name=mylist
                         ]
 
                         \addplot table[x=min, y=sokoshell] {content/number_solved_per_minutes_data.txt};
@@ -411,7 +395,7 @@
             }
 
             \BottomLeftText{Statistiques (pour les autres solveurs) par Matthias Meger et Brian Damgaard
-                            (\href{https://sourceforge.net/projects/sokoban-solver-statistics/}{https://sourceforge.net/projects/sokoban-solver-statistics/})}
+                (\href{https://sourceforge.net/projects/sokoban-solver-statistics/}{https://sourceforge.net/projects/sokoban-solver-statistics/})}
         \end{frame}
 
         \begin{frame}[fragile]{Statistiques}
@@ -423,60 +407,59 @@
             \resizebox{0.9\textwidth}{!}{
                 \begin{tikzpicture}
                     \begin{axis}[
-                            name=ax1,
-                            grid=major,
-                            xmin=0, xmax=250,
-                            ymin=0, ymax=100,
-                            xlabel = {Nombre de sols},
-                            % ylabel = {Pourcentage de niveaux résolus},
-                            xlabel style = {yshift=-0.2cm, font=\LARGE},
-                            cycle list name=mylist
+                        name=ax1,
+                        grid=major,
+                        xmin=0, xmax=250,
+                        ymin=0, ymax=100,
+                        xlabel = {Nombre de sols},
+                        % ylabel = {Pourcentage de niveaux résolus},
+                        xlabel style = {yshift=-0.2cm, font=\LARGE},
+                        cycle list name=mylist
                         ]
                         \addplot table[x=floors, y=sokoshell]
-                            {content/Solved_levels_versus_floors__percent.txt};
+                        {content/Solved_levels_versus_floors__percent.txt};
                         \addplot table[x=floors, y=Festival]
-                            {content/Solved_levels_versus_floors__percent.txt};
+                        {content/Solved_levels_versus_floors__percent.txt};
                         \addplot table[x=floors, y=Sokolution]
-                            {content/Solved_levels_versus_floors__percent.txt};
+                        {content/Solved_levels_versus_floors__percent.txt};
                         \addplot table[x=floors, y=Takaken]
-                            {content/Solved_levels_versus_floors__percent.txt};
+                        {content/Solved_levels_versus_floors__percent.txt};
                         \addplot table[x=floors, y=YASS]
-                            {content/Solved_levels_versus_floors__percent.txt};
+                        {content/Solved_levels_versus_floors__percent.txt};
 
                         % \legend{}
                     \end{axis}
                     \begin{axis}[
-                            at={(ax1.south east)},
-                            xshift=1cm,
-                            grid=major,
-                            xmin=0, xmax=75,
-                            ymin=0, ymax=100,
-                            yticklabels=\empty,
-                            xlabel = {Nombre de caisses},
-                            xlabel style = {yshift=-0.2cm, font=\LARGE},
-                            legend columns=5,
-                            legend entries={sokoshell, Festival, Sokolution, Takaken, YASS},
-                            legend style={font=\Large, at={(-0.1, 1.1)}, anchor=south},
-                            cycle list name=mylist
+                        at={(ax1.south east)},
+                        xshift=1cm,
+                        grid=major,
+                        xmin=0, xmax=75,
+                        ymin=0, ymax=100,
+                        yticklabels=\empty,
+                        xlabel = {Nombre de caisses},
+                        xlabel style = {yshift=-0.2cm, font=\LARGE},
+                        legend columns=5,
+                        legend entries={sokoshell, Festival, Sokolution, Takaken, YASS},
+                        legend style={font=\Large, at={(-0.1, 1.1)}, anchor=south},
+                        cycle list name=mylist
                         ]
                         \addplot table[x=crates, y=sokoshell]
-                            {content/Solved_levels_versus_crates__percent.txt};
+                        {content/Solved_levels_versus_crates__percent.txt};
                         \addplot table[x=crates, y=Festival]
-                            {content/Solved_levels_versus_crates__percent.txt};
+                        {content/Solved_levels_versus_crates__percent.txt};
                         \addplot table[x=crates, y=Sokolution]
-                            {content/Solved_levels_versus_crates__percent.txt};
+                        {content/Solved_levels_versus_crates__percent.txt};
                         \addplot table[x=crates, y=Takaken]
-                            {content/Solved_levels_versus_crates__percent.txt};
+                        {content/Solved_levels_versus_crates__percent.txt};
                         \addplot table[x=crates, y=YASS]
-                            {content/Solved_levels_versus_crates__percent.txt};
+                        {content/Solved_levels_versus_crates__percent.txt};
                     \end{axis}
                 \end{tikzpicture}
             }
             \BottomLeftText{Statistiques (pour les autres solveurs) par Matthias Meger et Brian Damgaard
-                            (\href{https://sourceforge.net/projects/sokoban-solver-statistics/}{https://sourceforge.net/projects/sokoban-solver-statistics/})}
+                (\href{https://sourceforge.net/projects/sokoban-solver-statistics/}{https://sourceforge.net/projects/sokoban-solver-statistics/})}
         \end{frame}
 
-    \section{Annexe}
         \begin{frame}{Tableau des complexités - Statique}
             $c$ nombre de caisses, $C$ nombre de cibles, $w$ longueur et $h$ largeur du niveau, $t$ nombre de tunnels, $r$ nombre de salles, $N$ nombre d'états dans la liste des états à explorer.
 
@@ -576,6 +559,18 @@
                     }
                 \end{column}
             \end{columns}
+        \end{frame}
+
+        \begin{frame}{Vers FESS}
+            \begin{itemize}
+                \item FESS: algorithme utilisé par Festival, meilleur solveur.
+                \item Ordre de priorité:
+                \begin{itemize}
+                    \item maximiser le nombre de caisses rangées.
+                    \item minimiser le nombre de \textit{corral}.
+                    \item minimiser la distance à l'état final.
+                \end{itemize}
+            \end{itemize}
         \end{frame}
 
         \begin{frame}{Parcours de graphes: démarquer tous les nœuds en $\mathcal{O}(1)$}
