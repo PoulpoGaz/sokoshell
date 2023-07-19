@@ -26,8 +26,8 @@ public class SolveCommand extends AbstractCommand {
     protected String levels;
 
     @Option(names = {"s", "solver-type"}, hasArgument = true, argName = "Solver type",
-            description = "solving strategy: DFS (default) BFS, A*",
-            defaultValue = "DFS")
+            description = "solving strategy: DFS, BFS, A*, fess0 (default)",
+            defaultValue = "fess0")
     protected String solver;
 
     @Option(names = {"t", "tracker"}, hasArgument = true, argName = "Tracker",
