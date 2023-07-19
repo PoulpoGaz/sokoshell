@@ -4,124 +4,107 @@
 
     \maketitle
 
-    \section{Introduction}
-        \begin{frame}{Le jeu du Sokoban}
-            \begin{columns}[onlytextwidth]
-                \begin{column}{0.32\textwidth}
-                    \begin{figure}
-                        \centering
-                        \copyrightbox[b]{\includegraphics[width=\columnwidth]{creator.jpg}}
-                                        {\url{https://shmuplations.com/wp-content/uploads/2022/03/thinkingrabbit04.jpg}}%
-                        \caption*{Hiroyuki Imabayashi}
-                    \end{figure}
-                \end{column}
-                \begin{column}{0.6\textwidth}
-                    \begin{figure}
-                        \centering
-                        \includegraphics[width=\columnwidth]{level_example.png}
-                        \caption*{\textit{XSokoban}}
-                    \end{figure}
-                \end{column}
-            \end{columns}
+    \begin{frame}{Le jeu du Sokoban}
+        \begin{columns}[onlytextwidth]
+            \begin{column}{0.32\textwidth}
+                \begin{figure}
+                    \centering
+                    \copyrightbox[b]{\includegraphics[width=\columnwidth]{creator.jpg}}
+                                    {\url{https://shmuplations.com/wp-content/uploads/2022/03/thinkingrabbit04.jpg}}%
+                    \caption*{Hiroyuki Imabayashi}
+                \end{figure}
+            \end{column}
+            \begin{column}{0.6\textwidth}
+                \begin{figure}
+                    \centering
+                    \includegraphics[width=0.7\columnwidth]{level_example.png}
+                    \caption*{\textit{XSokoban} 1}
+                    \includegraphics[width=0.7\columnwidth]{level_solved.png}
+                    \caption*{\textit{XSokoban} 1 résolu}
+                \end{figure}
+            \end{column}
+        \end{columns}
 
-            \centering
-            Problème \textbf{PSPACE-complet}
-        \end{frame}
+        \centering
+        Problème \textbf{PSPACE-complet}
+    \end{frame}
 
-        \begin{frame}{But du jeu}
-            \centering
-            \resizebox{\textwidth}{!}{%
-                \begin{tikzpicture}
-                    \node (start) {\includegraphics[width=0.5\textwidth]{rules/game_start.png}};
-                    \node (end) [right=of start]{\includegraphics[width=0.5\textwidth]{rules/game_end.png}};
-                    \draw[->, line width=\arrowwidth] (start.north east) to[out=60,in=130] node (label) [anchor=south, midway] {Déplacements} (end.north west);
-                \end{tikzpicture}
-            }
-        \end{frame}
+    \begin{frame}{Règles}
 
-        \begin{frame}{Règles}
-            \begin{columns}
-                \begin{column}{0.5\textwidth}
-                    \only<1-2>{
-                        \begin{figure}
-                            \centering
-                            \includegraphics[width=0.9\textwidth]{rules/moves.png}
-                            % \resizebox{!}{\iconwidth}{}
-                            \caption*{Déplacements autorisés}
-                        \end{figure}
-                    }
-                    \only<3>{
-                        \begin{figure}
-                            \centering
-                            \includegraphics[width=0.9\textwidth]{rules/move_no_1.png}
-                            \caption*{\includegraphics[width=\iconwidth]{icons/no.png}}
-                        \end{figure}
-                    }
-                \end{column}
-                \begin{column}{0.5\textwidth}
-                    \only<2>{
-                        \begin{figure}
-                            \centering
-                            \includegraphics[width=0.9\textwidth]{rules/move_yes.png}
-                            \caption*{\includegraphics[width=\iconwidth]{icons/yes.png}}
-                        \end{figure}
-                    }
-                    \only<3>{
-                        \begin{figure}
-                            \centering
-                            \includegraphics[width=0.9\textwidth]{rules/move_no_2.png}
-                            \caption*{\includegraphics[width=\iconwidth]{icons/no.png}}
-                        \end{figure}
-                    }
-                \end{column}
-            \end{columns}
-        \end{frame}
+        \begin{figure}
+            \begin{subfigure}[b]{0.4\textwidth}
+                \centering
+                \includegraphics[width=0.9\textwidth]{rules/moves.png}
+            \end{subfigure}
+            \hfill
+            \begin{subfigure}[b]{0.4\textwidth}
+                \centering
+                \includegraphics[width=0.9\textwidth]{rules/move_yes.png}
+            \end{subfigure}
+            \caption*{Déplacements autorisés}
+        \end{figure}
 
-        \begin{frame}{Tuiles}
-            \centering
+         \begin{figure}
+            \begin{subfigure}[b]{0.4\textwidth}
+                \centering
+                \includegraphics[width=0.9\textwidth]{rules/move_no_1.png}
+            \end{subfigure}
+            \hfill
+            \begin{subfigure}[b]{0.4\textwidth}
+                \centering
+                \includegraphics[width=0.9\textwidth]{rules/move_no_2.png}
+            \end{subfigure}
+            \caption*{Déplacements interdits}
+        \end{figure}
+    \end{frame}
 
-            \includegraphics[width=0.5\textwidth]{tiles/tilemap.png}
+    \begin{frame}{Lien avec le thème de l'année}
+        \centering
+        \begin{columns}
+            \begin{column}{0.5\textwidth}
+                \copyrightbox[b]{\includegraphics[width=\textwidth]{warehouse.jpg}}
+                {Source : \textit{Indiana Jones et les Aventuriers de l'arche perdue} (scène de fin), Steven Spielberg, 1981
+                    \url{https://pbs.twimg.com/media/EyjVShEVEAAQZjK.jpg}}%
+            \end{column}
+            \begin{column}{0.5\textwidth}
+                \copyrightbox[b]{\includegraphics[width=\textwidth]{city_plan.jpg}}
+                {Source : \url{https://www.geographicus.com/mm5/graphics/00000001/L/NewYork-bridgesmaverick-1807.jpg}}%
+            \end{column}
+        \end{columns}
+    \end{frame}
 
-            \resizebox{\textwidth}{!}{%
-                \begin{tabular}{ c c c c c }
-                    \includegraphics[width=0.2\textwidth]{tiles/wall.png} &
-                    \includegraphics[width=0.2\textwidth]{tiles/floor.png} &
-                    \includegraphics[width=0.2\textwidth]{tiles/crate.png} &
-                    \includegraphics[width=0.2\textwidth]{tiles/target.png} &
-                    \includegraphics[width=0.2\textwidth]{tiles/crate_on_target.png} \\
-                   \textbf{Mur} & Sol & \textbf{Caisse} & Cible & \textbf{Caisse sur une cible} \\
-                \end{tabular}
-            }
-        \end{frame}
+    \begin{frame}{Problématique et réalisation}
+        \centering
+        \Large\textbf{Quelles stratégies adopter pour trouver une solution le plus rapidement possible à un niveau de Sokoban ?}
 
-        \begin{frame}{Problématique et réalisation}
-            \centering
-            \Large\textbf{Quelles stratégies adopter pour trouver une solution le plus rapidement possible à un niveau de Sokoban ?}
-
-            \vspace{1.5cm} % don't remove the blank line above, otherwise it won't work (cf https://tex.stackexchange.com/a/204990)
-            \includegraphics[width=\textwidth]{shell.png}
-         \end{frame}
-
-        \begin{frame}{Plan}
-            \tableofcontents%[hideallsubsections]
-        \end{frame}
-
-        \begin{frame}{Lien avec le thème de l'année}
-            \centering
-            \only<1>{
-                 \copyrightbox[b]{\includegraphics[width=0.9\textwidth]{warehouse.jpg}}
-                                 {Source : \textit{Indiana Jones et les Aventuriers de l'arche perdue} (scène de fin), Steven Spielberg, 1981
-                                          \url{https://pbs.twimg.com/media/EyjVShEVEAAQZjK.jpg}}%
-            }
-            \only<2>{
-                \copyrightbox[b]{\includegraphics[width=0.9\textwidth]{city_plan.jpg}}
-                                {Source : \url{https://www.geographicus.com/mm5/graphics/00000001/L/NewYork-bridgesmaverick-1807.jpg}}%
-            }
-        \end{frame}
+        \vspace{1.5cm} % don't remove the blank line above, otherwise it won't work (cf https://tex.stackexchange.com/a/204990)
+        \includegraphics[width=\textwidth]{shell.png}
+    \end{frame}
 
     \section{Principe de résolution}
-        \begin{frame}{Arbre des états}
-            \input{content/search_tree.tex}
+        \begin{frame}{Principe de résolution}
+            \begin{columns}
+                \begin{column}{\dimexpr0.5\paperwidth}
+                    \input{content/search_tree.tex}
+                \end{column}
+
+                \begin{column}{\dimexpr0.5\paperwidth}
+                    \begin{minipage}{\textwidth}
+                        \begin{algorithmic}[1]
+                            \State C = une collection
+                            \State Ajouter l'état initial à C
+                            \While{C non vide}
+                                \State Prendre un état de C
+                                \If{état final}
+                                    \State Solution trouvée
+                                \EndIf
+                                \State Ajouter les états enfants à C
+                            \EndWhile
+                            \State Sans solution
+                        \end{algorithmic}
+                    \end{minipage}
+                \end{column}
+            \end{columns}
         \end{frame}
 
         \begin{frame}{Calcul du \textit{hash} d'un état - Hash de Zobrist}
@@ -161,485 +144,176 @@
         \end{frame}
 
     \section{Réduction de l'espace de recherche}
+        \begin{frame}{Détection des positions mortes \textit{(dead tiles)}}
+            \centering
+            \includegraphics[width=0.9\textwidth]{dead_positions/example_after.png}
+        \end{frame}
 
-        \subsection{Analyse statique}
-
-            \begin{frame}{Détection des positions mortes \textit{(dead positions)}}
-                \centering
-                \only<1>{
-                    \resizebox{\textwidth}{!}{%
-                        \begin{tikzpicture}
-                            \node(before){\includegraphics[width=0.5\textwidth]{dead_positions/example_before.png}};
-                            \node(after)[right=of before]{\includegraphics[width=0.5\textwidth]{dead_positions/example_after.png}};
-                            \draw[->, line width=\arrowwidth] (before) -- (after);
-                        \end{tikzpicture}
+        \begin{frame}{Détection de tunnels}
+            \includegraphics<1>[width=\textwidth]{tunnels/tunnels.png}%
+            \only<2>{
+                \begin{figure}
+                    \subcaptionbox*{Au plus une caisse}{
+                        \includegraphics[width=0.45\textwidth]{tunnels/tunnel_macro_one_crate_2.png}
                     }
-                }
-                \only<2-> {
-                        \only<2>{
-                            \resizebox{\textwidth}{!}{%
-                                \begin{tikzpicture}
-                                    \node(first){\includegraphics[width=0.5\textwidth]{dead_positions/algo_1_1.png}};
-                                    \node(second)[right=of first]{\includegraphics[width=0.5\textwidth]{dead_positions/algo_1_2.png}};
-                                    \draw[->, line width=\arrowwidth] (before) -- (after);
-                                \end{tikzpicture}
-                            }
-                        }
-                        \only<3->{
-                            \resizebox{\textwidth}{!}{%
-                                \begin{forest}
-                                    for tree = {
-                                        l sep = 15em,
-                                        edge = {line width=3mm, ->},
-                                    }
-                                    [{\includegraphics{dead_positions/algo_2_1.png}}, grow=east
-                                        [\includegraphics{dead_positions/algo_2_2.png}, name=no,
-                                         edge = {loosely dotted}]
-                                        [\includegraphics{dead_positions/algo_2_3.png}, name=yes]
-                                    ]
-                                    \node[right = of yes]{\includegraphics[width=3cm]{icons/yes.png}};
-                                    \node[right = of no]{\includegraphics[width=3cm]{icons/no.png}};
-                                \end{forest}
-                            }
-                        }
-                }
-            \end{frame}
+                    \subcaptionbox*{Deux états fils}{
+                        \includegraphics[width=0.45\textwidth]{tunnels/tunnel_macro.png}
+                    }
+                    \subcaptionbox*{Coin $\Rightarrow$ un état fils}{
+                        \includegraphics[width=0.45\textwidth]{tunnels/tunnel_macro_player_only.png}
+                    }
+                    \subcaptionbox*{Tunnel \textit{oneway}}{
+                        \includegraphics[width=0.45\textwidth]{tunnels/tunnel_macro_oneway.png}
+                    }
+                \end{figure}
+            }
+            \only<3>{
+                \begin{columns}
+                    \begin{column}{0.45\textwidth}
+                        \centering
+                        \includegraphics[width=0.6\textwidth]{tunnels/straight.png}%
 
-            \begin{frame}{Détection de tunnels}
-                \includegraphics<1>[width=\textwidth]{tunnels/tunnels.png}%
-                \only<2>{
-                    \begin{center}
-                        \includegraphics[width=0.58\textwidth]{tunnels/tunnel_macro_one_crate_1.png}
+                        \vspace{1cm}
+                        \includegraphics[width=0.6\textwidth]{tunnels/corner.png}%
 
-                        \includegraphics[width=0.58\textwidth]{tunnels/tunnel_macro_one_crate_2.png}
-                    \end{center}
-                }
-                \includegraphics<3>[width=\textwidth]{tunnels/tunnel_macro.png}%
-                \includegraphics<4>[width=\textwidth]{tunnels/tunnel_macro_player_only.png}%
-                \includegraphics<5>[width=\textwidth]{tunnels/tunnel_macro_oneway.png}%
-                \only<6>{
-                    \begin{minipage}{0.4\textwidth}
-                         \includegraphics[width=\textwidth]{tunnels/straight.png}
-                    \end{minipage}
+                        Composition d'un tunnel
+                    \end{column}
                     \hfill
-                    \begin{minipage}{0.4\textwidth}
-                         \includegraphics[width=\textwidth]{tunnels/corner.png}
-                    \end{minipage}
+                    \begin{column}{0.45\textwidth}
+                        \includegraphics[width=\textwidth]{tunnels/tunnel_detection.png}%
+                    \end{column}
+                \end{columns}
+            }
+        \end{frame}
+
+        \begin{frame}{Salles et ordre de rangement \textit{(packing order)}}
+            \centering
+            \only<1>{
+                \includegraphics[width=\textwidth]{rooms_packing_order/rooms.png}
+            }
+            \only<2>{
+                \begin{tikzpicture}
+                    \node (A) {
+                        \includegraphics[width=0.4\textwidth]{rooms_packing_order/algo_1.png}
+                    };
+                    \node[right=of A] (B) {
+                        \includegraphics[width=0.4\textwidth]{rooms_packing_order/algo_2.png}
+                    };
+                    \node[below=of A] (C) {
+                        \includegraphics[width=0.4\textwidth]{rooms_packing_order/algo_3.png}
+                    };
+                    \node[below=of B] (D) {
+                        \includegraphics[width=0.4\textwidth]{rooms_packing_order/algo_4.png}
+                    };
+
+                    \draw[->, line width=\arrowwidth] (A.east) -- (B.west);
+
+                    \coordinate (I) at ($ (B) ! .5 ! (C) $);
+                    \draw[->, line width=\arrowwidth] (B.south) |- (I) -| (C.north);
+                    \draw[->, line width=\arrowwidth, dashed] (C.east) -- (D.west);
+                \end{tikzpicture}
+            }
+            \only<3>{
+                \includegraphics[height=0.8\textheight]{rooms_packing_order/no_packing_order.png}
+            }
+        \end{frame}
+
+        \begin{interstateframe}
+            \begin{interstatenv}{1}{1}\interstatplot{3};\end{interstatenv}
+        \end{interstateframe}
+
+        \subsection{Analyse dynamique}
+
+            \begin{frame}{Détection de \textit{freeze deadlocks}}
+               \only<1>{
+                    \begin{columns}
+                        \begin{column}{0.5\textwidth}
+                            \centering
+                            \includegraphics[height=0.7\textwidth]{freeze_deadlock/ex_1_dead.png}
+                        \end{column}
+                        \begin{column}{0.5\textwidth}
+                            \centering
+                            \includegraphics[height=0.7\textwidth]{freeze_deadlock/ex_2_dead.png}
+                        \end{column}
+                    \end{columns}
 
                     \centering
-                    Composition d'un tunnel
-                }
-            \end{frame}
-
-            \begin{frame}{Salles et ordre de rangement \textit{(packing order)}}
-                \centering
-                \only<1>{
-                    \includegraphics[width=\textwidth]{rooms_packing_order/rooms.png}
+                    Deux \textit{freeze deadlocks}
                 }
                 \only<2>{
+                    \begin{figure}
+                        \subcaptionbox{\textit{Règle n°1}} {
+                            \includegraphics[width=0.3\textwidth]{freeze_deadlock/rule_1.png}
+                        }
+                        \subcaptionbox{\textit{Règle n°2}} {
+                            \includegraphics[width=0.3\textwidth]{freeze_deadlock/rule_2.png}
+                        }
+                        \subcaptionbox{\textit{Règle n°3}} {
+                            \includegraphics[width=0.3\textwidth]{freeze_deadlock/rule_3.png}
+                        }
+                    \end{figure}
+                }
+                \only<3> {
+                    \centering
                     \begin{tikzpicture}
                         \node (A) {
-                            \includegraphics[width=0.4\textwidth]{rooms_packing_order/algo_1.png}
+                            \includegraphics[width=0.4\textwidth]{freeze_deadlock/ex_2_dead.png}
                         };
                         \node[right=of A] (B) {
-                            \includegraphics[width=0.4\textwidth]{rooms_packing_order/algo_2.png}
+                            \includegraphics[width=0.4\textwidth]{freeze_deadlock/ex_2_explanation_1.png}
                         };
                         \node[below=of A] (C) {
-                            \includegraphics[width=0.4\textwidth]{rooms_packing_order/algo_3.png}
+                            \includegraphics[width=0.4\textwidth]{freeze_deadlock/ex_2_explanation_2.png}
                         };
-                        \node[below=of B] (D) {
-                            \includegraphics[width=0.4\textwidth]{rooms_packing_order/algo_4.png}
+                        \node[right=of C] (D) {
+                            \includegraphics[width=0.4\textwidth]{freeze_deadlock/ex_2_explanation_3.png}
                         };
+                        % don't remove '0cm', otherwise tikz will place the text too below
+                        \node [below=0cm of D.south] {Gelée!};
 
                         \draw[->, line width=\arrowwidth] (A.east) -- (B.west);
 
                         \coordinate (I) at ($ (B) ! .5 ! (C) $);
                         \draw[->, line width=\arrowwidth] (B.south) |- (I) -| (C.north);
-                        \draw[->, line width=\arrowwidth, dashed] (C.east) -- (D.west);
+                        \draw[->, line width=\arrowwidth] (C.east) -- (D.west);
                     \end{tikzpicture}
                 }
-                \only<3>{
-                    \includegraphics[width=\textwidth]{rooms_packing_order/packing_order.png}
-                }
-                \only<4>{
-                    \includegraphics[height=0.8\textheight]{rooms_packing_order/no_packing_order.png}
-                }
             \end{frame}
 
-        \subsection{Analyse dynamique}
-
-            \begin{frame}{Détection d'impasses \textit{(deadlocks)}}
-                \begin{figure}
-                    \centering
-                    \subcaptionbox{\textit{Freeze deadlock n°1}} {
-                        \includegraphics[width=0.4\textwidth]{freeze_deadlock/ex_1_dead.png}
-                    }
-                    \subcaptionbox{\textit{Freeze deadlock n°2}} {
-                        \includegraphics[width=0.4\textwidth]{freeze_deadlock/ex_2_dead.png}
-                    }
-                    \subcaptionbox{\textit{PI Corral deadlock}} {
-                        \includegraphics[width=0.4\textwidth]{pi_corral_deadlock_dead.png}
-                    }
-                \end{figure}
-            \end{frame}
-
-            \begin{frame}{Détection de \textit{freeze deadlocks}}
-                \begin{figure}
-                    \subcaptionbox{\textit{Règle n°1}} {
-                        \includegraphics[width=0.3\textwidth]{freeze_deadlock/rule_1.png}
-                    }
-                    \subcaptionbox{\textit{Règle n°2}} {
-                        \includegraphics[width=0.3\textwidth]{freeze_deadlock/rule_2.png}
-                    }
-                    \subcaptionbox{\textit{Règle n°3}} {
-                        \includegraphics[width=0.3\textwidth]{freeze_deadlock/rule_3.png}
-                    }
-                \end{figure}
-            \end{frame}
-
-            \begin{frame}{Détection de \textit{freeze deadlocks}}
-                \centering
-                \begin{tikzpicture}
-                    \node (start) {
-                        \includegraphics[width=0.4\textwidth]{freeze_deadlock/ex_2_dead.png}
-                    };
-                    \node[visible on=<2-4>, right=of start] (first) {
-                        \includegraphics[width=0.4\textwidth]{freeze_deadlock/ex_2_explanation_1.png}
-                    };
-                    \node[visible on=<3-4>, below=of first] (second) {
-                        \includegraphics[width=0.4\textwidth]{freeze_deadlock/ex_2_explanation_2.png}
-                    };
-                    \node[visible on=<4>, left=of second] (third) {
-                        \includegraphics[width=0.4\textwidth]{freeze_deadlock/ex_2_explanation_3.png}
-                    };
-                    % don't remove '0cm', otherwise tikz will place the text too below
-                    \node [visible on=<4>, below=0cm of third.south] {Gelée!};
-
-                    \draw[->, line width=\arrowwidth, visible on=<2-4>] (start.east)  -- (first.west);
-                    \draw[->, line width=\arrowwidth, visible on=<3-4>] (first.south) -- (second.north);
-                    \draw[->, line width=\arrowwidth, visible on=<4>] (second.west) -- (third.east);
-                \end{tikzpicture}
-            \end{frame}
-
-            \begin{frame}{Détection de \textit{PI Corral deadlocks}}
+            \begin{frame}{\textit{PI Corral pruning}}
                 \only<1> {
-                    \begin{minipage}{0.9\textwidth}
-                        \begin{figure}
-                            \centering
-                            \subcaptionbox{\textit{Corral}} {
-                                \includegraphics[width=0.4\textwidth]{corral/corral.png}%
-                            }
-                            \subcaptionbox{\textit{I Corral}} {
-                                \includegraphics[width=0.4\textwidth]{corral/i_corral.png}%
-                            }
-                            \subcaptionbox{\textit{PI Corral}} {
-                                \includegraphics[width=0.4\textwidth]{corral/pi_corral.png}%
-                            }
-                        \end{figure}
-                    \end{minipage}
+                    \begin{figure}
+                        \centering
+                        \subcaptionbox{\textit{Corral}} {
+                            \includegraphics[width=0.4\textwidth]{corral/corral.png}%
+                        }
+                        \subcaptionbox{\textit{I Corral}} {
+                            \includegraphics[width=0.5\textwidth]{corral/i_corral.png}%
+                        }
+                        \subcaptionbox{\textit{PI Corral}} {
+                            \includegraphics[width=0.4\textwidth]{corral/pi_corral.png}%
+                        }
+                    \end{figure}
                 }
                 \only<2>{
-                    \begin{minipage}{0.45\textwidth}
-                        \includegraphics[width=\textwidth]{corral/multi_pi_corral_1.png}%
+                    \begin{tikzpicture}
+                        \node (A) {\includegraphics[width=0.4\textwidth]{corral/pi_corral_complex.png}};
+                        \node[right=of A] (B) {\includegraphics[width=0.4\textwidth]{corral/pi_corral_simplified.png}};
 
-                        \centering
-                        Deux \textit{I-Corrals}
-                    \end{minipage}
-                    \hfill
-                    \begin{minipage}{0.45\textwidth}
-                        \includegraphics[width=\textwidth]{corral/multi_pi_corral_2.png}%
+                        \draw[->, line width=\arrowwidth] (A.east) -- (B.west);
 
-                        \centering
-                        Un multi \textit{PI-Corral}
-                    \end{minipage}
-                }
-                \only<3>{
+                        \node [below=0cm of A.south] {Situation complexe};
+                        \node [below=0cm of B.south] {Inutile de considérer les caisses grisées};
+                    \end{tikzpicture}
+
                     \centering
                     Brian Damgaard: émonde l'arbre de recherche d'au moins \textbf{20\%} !
                 }
             \end{frame}
 
-            \begin{frame}{Table de \textit{deadlocks}}
-                \only<1>{
-                    \begin{minipage}{0.45\textwidth}
-                         \includegraphics[width=\textwidth]{deadlock_table/init.png}%
-                    \end{minipage}
-                    \hfill
-                    \begin{minipage}{0.45\textwidth}
-                        \includegraphics[width=\textwidth]{deadlock_table/new_deadlock.png}%
-                    \end{minipage}
-                }
-                \only<2>{
-                    \input{content/deadlock_table_tree.tex}
-                }
-            \end{frame}
-
-    \section{Recherche dirigée par une heuristique}
-        \begin{frame}{Heuristique simple \textit{(Simple Lower Bound)}}
-            \centering%
-            \includegraphics<1>[width=0.9\textwidth]{heuristics/example.png}%
-            \includegraphics<2>[width=0.9\textwidth]{heuristics/simple.png}
-            \onslide<2>{\Large$\boxed{2 + 4 + 3 = \mathbf{9}}$}
-        \end{frame}
-
-        \begin{frame}{Heuristique gloutonne \textit{(Greedy Lower Bound)}}
-            \centering
-
-            \includegraphics<1>[width=0.9\textwidth]{heuristics/greedy.png}%
-            \only<2->{
-                \includegraphics[width=0.3\textwidth]{heuristics/greedy.png}
-
-                \vspace{0.19cm}
-                \begin{columns}
-                    \begin{column}{0.5\textwidth}
-                        \only<2>{
-                            \resizebox{0.9\textwidth}{!}{
-                                \begin{tabular}{ | c | c | }
-                                    \hline
-                                    Caisse $\rightarrow$ Cible & Distance \\
-                                    \hline
-                                    $1 \rightarrow A$ & 3 \\
-                                    \hline
-                                    $1 \rightarrow B$ & 2 \\
-                                    \hline
-                                    $1 \rightarrow C$ & 3 \\
-                                    \hline
-                                    $2 \rightarrow A$ & 4 \\
-                                    \hline
-                                    $2 \rightarrow B$ & 4 \\
-                                    \hline
-                                    $2 \rightarrow C$ & 5 \\
-                                    \hline
-                                    $3 \rightarrow A$ & 5 \\
-                                    \hline
-                                    $3 \rightarrow B$ & 4 \\
-                                    \hline
-                                    $3 \rightarrow C$ & 3 \\
-                                    \hline
-                                \end{tabular}
-                                \tikzmark{b}
-                            }
-                        }
-                        \only<3>{
-                            \begin{center}
-                                \includegraphics[width=\textwidth]{heuristics/greedy_end.png}
-                                \Large$\boxed{2 + 3 + 5 = \mathbf{10}}$
-                            \end{center}
-                        }
-                    \end{column}%
-
-                    \begin{column}{0.5\textwidth}
-                        % Sorted table
-                        \resizebox{0.9\textwidth}{!}{
-                            \tikzmark{f}
-                            \begin{tabular}{ | c | c | }
-                                \hline
-                                    Caisse $\rightarrow$ Cible & Distance \\
-                                \hline
-                                $\mathbf{1 \rightarrow B}$ & \textbf{2} \\
-                                \hline
-                                $1 \rightarrow A$ & 3 \\
-                                \hline
-                                $1 \rightarrow C$ & 3 \\
-                                \hline
-                                $\mathbf{3 \rightarrow C}$ & \textbf{3} \\
-                                \hline
-                                $2 \rightarrow B$ & 4 \\
-                                \hline
-                                $3 \rightarrow B$ & 4 \\
-                                \hline
-                                $2 \rightarrow A$ & 5 \\
-                                \hline
-                                $2 \rightarrow C$ & 5 \\
-                                \hline
-                                $\mathbf{3 \rightarrow A}$ & \textbf{5} \\
-                                \hline
-                            \end{tabular}
-                        }
-                    \end{column}
-                \end{columns}
-            }
-
-            \onslide<2> {
-                \begin{tikzpicture}[overlay, remember picture]
-                    \draw[->, line width=\arrowwidth]
-                        ($({pic cs:b}) + (-1.5mm, 0)$)
-                        to [sloped, "Tri"]
-                        ($({pic cs:f})$);
-                \end{tikzpicture}
-            }
-        \end{frame}
-        \begin{frame}{Vers FESS}
-            \begin{itemize}
-                \item FESS: algorithme utilisé par Festival, meilleur solveur.
-                \item Ordre de priorité:
-                    \begin{itemize}
-                        \item maximiser le nombre de caisses rangées.
-                        \item minimiser le nombre de \textit{corral}.
-                        \item minimiser l'heuristique précédente.
-                    \end{itemize}
-            \end{itemize}
-        \end{frame}
-
-    \section{Optimisations}
-        \begin{frame}{Précalcul des distances caisses-cibles}
-            \centering
-            \begin{columns}[onlytextwidth]
-                \only<1>{
-                    \begin{column}{0.3\textwidth}
-                        \begin{tabular}{|c|c|c|c|}
-                            \hline
-                            \multirow{2}{2em}{Case} & \multicolumn{3}{|c|}{Distances} \\ \cline{2-4}
-                                                    & A & B & C \\ \hline
-                                                  0 & 1 & 3 & 3 \\ \hline
-                                                  1 & 2 & 2 & 2 \\ \hline
-                                                  2 & 3 & 1 & 3 \\ \hline
-                                                  3 & 0 & 2 & 2 \\ \hline
-                                                  4 & 1 & 1 & 1 \\ \hline
-                                                  5 & 2 & 0 & 2 \\ \hline
-                                                  6 & 1 & 3 & 1 \\ \hline
-                                                  7 & 2 & 2 & 0 \\ \hline
-                                                  8 & 3 & 1 & 1 \\ \hline
-                        \end{tabular}
-                    \end{column}
-                }%
-                \only<2>{
-                    \begin{column}{0.49\textwidth}
-                        \begin{tabular}{|c|c|c|c|}
-                            \hline
-                            \multirow{2}{2em}{Case} & \multicolumn{3}{|c|}{Distances} \\
-                                                    & \multicolumn{3}{|c|}{triées} \\ \hline
-                                                  0 & A: 1 & B: 3 & C: 3 \\ \hline
-                                                  1 & A: 2 & B: 2 & C: 2 \\ \hline
-                                                  2 & B: 1 & A: 3 & C: 3 \\ \hline
-                                                  3 & A: 0 & B: 2 & C: 2 \\ \hline
-                                                  4 & A: 1 & B: 1 & C: 1 \\ \hline
-                                                  5 & B: 0 & A: 2 & C: 2 \\ \hline
-                                                  6 & A: 1 & C: 1 & B: 3 \\ \hline
-                                                  7 & C: 0 & A: 2 & B: 2 \\ \hline
-                                                  8 & B: 1 & C: 1 & A: 3 \\ \hline
-                        \end{tabular}
-                    \end{column}
-                }
-                \begin{column}{0.5\textwidth}
-                    \includegraphics[width=\textwidth]{optimisations/distances.png}
-                \end{column}
-
-            \end{columns}
-        \end{frame}
-
-        \input{content/greedy_heuristic.tex}
-
-        \begin{frame}{Parcours de graphes: démarquer tous les nœuds en $\mathcal{O}(1)$}
-
-            \centering
-            nœud marqué \textit{ssi valeur} $= m$
-
-            \begin{tikzpicture}
-                \node (start) {
-                    \includegraphics[width=0.15\textwidth]{optimisations/mark_init.png}
-                };
-                \node[right=of start] (first) {
-                    \includegraphics[width=0.15\textwidth]{optimisations/mark_player.png}
-                };
-                \node[right=of first] (second) {
-                    \includegraphics[width=0.15\textwidth]{optimisations/mark_all.png}
-                };
-                \node[right=of second] (third) {
-                    \includegraphics[width=0.15\textwidth]{optimisations/unmark.png}
-                };
-                % don't remove '0cm', otherwise tikz will place the text too below
-                \node [above=0cm of start.north] {$m=0$};
-                \node [above=0cm of first.north] {$m=0$};
-                \node [above=0cm of second.north] {$m=0$};
-                \node [above=0cm of third.north] {$m=1$};
-
-                \draw[->, line width=\arrowwidth] (start.east)  -- (first.west);
-                \draw[->, line width=\arrowwidth, dashed] (first.east) -- (second.west);
-                \draw[->, line width=\arrowwidth] (second.east) -- (third.west);
-            \end{tikzpicture}
-        \end{frame}
-
-        \begin{frame}{Calcul des \textit{corrals} en $\mathcal{O}(wh)$}
-            \only<1>{
-                Utilisation de \textit{Union-Find}: partition de $\llbracket 0;wh-1 \rrbracket$.
-
-                \vspace{0.1cm}
-                \begin{columns}
-                    \begin{column}{0.4\textwidth}
-                        \centering
-                        \includegraphics[width=\textwidth]{corral_detection/corral.png}
-                    \end{column}
-                    \begin{column}{0.4\textwidth}
-                        \centering
-                        \includegraphics[width=\textwidth]{corral_detection/corral_union_find.png}
-                    \end{column}
-                \end{columns}
-            }
-            \only<2-10>{
-                \centering
-                 \begin{tikzpicture}[remember picture]
-                    \node[visible on=<2-5>] (A) {
-                        \includegraphics[width=0.35\textwidth]{corral_detection/corral_start.png}
-                    };
-                    \node[visible on=<3-5>, right=of A] (B) {
-                        \includegraphics[width=0.32\textwidth]{corral_detection/corral_1.png}
-                    };
-                    \node[visible on=<4-5>,below=of A] (C) {
-                        \includegraphics[width=0.32\textwidth]{corral_detection/corral_2.png}
-                    };
-                    \node[visible on=<5>, below=of B] (D) {
-                        \includegraphics[width=0.32\textwidth]{corral_detection/corral_3.png}
-                    };
-
-                    \draw[visible on=<3-5>, ->, line width=\arrowwidth] (A.east) -- (B.west);
-
-                    \coordinate (I) at ($ (B) ! .5 ! (C) $);
-                    \draw[visible on=<4-5>, ->, line width=\arrowwidth] (B.south) |- (I) -| (C.north);
-                    \draw[visible on=<5>, ->, line width=\arrowwidth, dashed] (C.east) -- (D.west);
-
-
-
-                    \node[visible on=<6-9>] (A) {%
-                        \includegraphics[width=0.35\textwidth]{corral_detection/corral_4.png}%
-                    };%
-                    \node[visible on=<7-9>, right=of A] (B) {%
-                        \includegraphics[width=0.32\textwidth]{corral_detection/corral_5.png}%
-                    };%
-                    \node[visible on=<8-9>,below=of A] (C) {%
-                        \includegraphics[width=0.32\textwidth]{corral_detection/corral_6.png}%
-                    };%
-                    \node[visible on=<9>, below=of B] (D) {%
-                        \includegraphics[width=0.32\textwidth]{corral_detection/corral_7.png}%
-                    };%
-
-                    \draw[visible on=<7-9>, ->, line width=\arrowwidth, dashed] (A.east) -- (B.west);
-
-                    \coordinate (I) at ($ (B) ! .5 ! (C) $);
-                    \draw[visible on=<8-9>, ->, line width=\arrowwidth] (B.south) |- (I) -| (C.north);
-                    \draw[visible on=<9>, ->, line width=\arrowwidth] (C.east) -- (D.west);
-
-                    \node[visible on=<10>] (A) {%
-                        \includegraphics[width=0.35\textwidth]{corral_detection/corral_8.png}%
-                    };%
-                \end{tikzpicture}
-            }
-
-             \onslide<6> {
-                \begin{tikzpicture}[overlay, remember picture]
-                    \draw[->, line width=\arrowwidth]
-                        let \p1 = (current page.south west), \p2 = (A.west) in
-                        (\x1, \y2) -- (\p2);
-                \end{tikzpicture}
-            }
-             \onslide<10> {
-                \begin{tikzpicture}[overlay, remember picture]
-                    \draw[->, line width=\arrowwidth, dashed]
-                    let \p1 = (current page.south west), \p2 = (A.west) in
-                    (\x1, \y2) -- (\p2);
-                \end{tikzpicture}
-            }
-        \end{frame}
+            \begin{interstateframe}
+                \begin{interstatenv}{6}{1 + 4}\interstatplot{5};\end{interstatenv}
+            \end{interstateframe}
 
     \section{Résultats}
         \begin{frame}{Nombre de niveaux résolus}
@@ -652,8 +326,6 @@
                 Ensemble de niveaux            & XSokoban    & \textit{Large test suite} \\
                 \hline
                 Nombre de niveaux              & 90          & 3272 \\
-                \hline
-                \textbf{A*}                    & \textbf{11} & \textbf{2204} \\
                 \hline
                 \textbf{fess0}                 & \textbf{15} & \textbf{2273} \\
                 \hline
@@ -671,6 +343,15 @@
                             (\href{https://sourceforge.net/projects/sokoban-solver-statistics/}{https://sourceforge.net/projects/sokoban-solver-statistics/})}
         \end{frame}
 
+        \begin{frame}{Conclusion}
+            \begin{itemize}
+                \item $\approx$ 6000 lignes de code (solveur uniquement).
+                \item Implémentation difficile (Tunnel, \textit{corral}).
+                \item Première expérience de programmation à plusieurs.
+            \end{itemize}
+        \end{frame}
+
+    \section{Annexe}
         \begin{frame}{Statistiques}
             \centering
 
@@ -693,14 +374,14 @@
             \resizebox{0.75\textwidth}{!}{
                 \begin{tikzpicture}
                     \begin{axis}[
-                            grid=major,
-                            xmin=1, xmax=10,
-                            ymin=2000, ymax=3300,
-                            xlabel = {Temps (minutes)},
-                            ylabel = {Nombre de niveaux},
-                            legend entries={sokoshell, Festival, Sokolution, Takaken, YASS},
-                            legend style={at={(1.5, 0.5)},anchor= east},
-                            cycle list name=mylist
+                        grid=major,
+                        xmin=1, xmax=10,
+                        ymin=2000, ymax=3300,
+                        xlabel = {Temps (minutes)},
+                        ylabel = {Nombre de niveaux},
+                        legend entries={sokoshell, Festival, Sokolution, Takaken, YASS},
+                        legend style={at={(1.5, 0.5)},anchor= east},
+                        cycle list name=mylist
                         ]
 
                         \addplot table[x=min, y=sokoshell] {content/number_solved_per_minutes_data.txt};
@@ -714,7 +395,7 @@
             }
 
             \BottomLeftText{Statistiques (pour les autres solveurs) par Matthias Meger et Brian Damgaard
-                            (\href{https://sourceforge.net/projects/sokoban-solver-statistics/}{https://sourceforge.net/projects/sokoban-solver-statistics/})}
+                (\href{https://sourceforge.net/projects/sokoban-solver-statistics/}{https://sourceforge.net/projects/sokoban-solver-statistics/})}
         \end{frame}
 
         \begin{frame}[fragile]{Statistiques}
@@ -726,60 +407,59 @@
             \resizebox{0.9\textwidth}{!}{
                 \begin{tikzpicture}
                     \begin{axis}[
-                            name=ax1,
-                            grid=major,
-                            xmin=0, xmax=250,
-                            ymin=0, ymax=100,
-                            xlabel = {Nombre de sols},
-                            % ylabel = {Pourcentage de niveaux résolus},
-                            xlabel style = {yshift=-0.2cm, font=\LARGE},
-                            cycle list name=mylist
+                        name=ax1,
+                        grid=major,
+                        xmin=0, xmax=250,
+                        ymin=0, ymax=100,
+                        xlabel = {Nombre de sols},
+                        % ylabel = {Pourcentage de niveaux résolus},
+                        xlabel style = {yshift=-0.2cm, font=\LARGE},
+                        cycle list name=mylist
                         ]
                         \addplot table[x=floors, y=sokoshell]
-                            {content/Solved_levels_versus_floors__percent.txt};
+                        {content/Solved_levels_versus_floors__percent.txt};
                         \addplot table[x=floors, y=Festival]
-                            {content/Solved_levels_versus_floors__percent.txt};
+                        {content/Solved_levels_versus_floors__percent.txt};
                         \addplot table[x=floors, y=Sokolution]
-                            {content/Solved_levels_versus_floors__percent.txt};
+                        {content/Solved_levels_versus_floors__percent.txt};
                         \addplot table[x=floors, y=Takaken]
-                            {content/Solved_levels_versus_floors__percent.txt};
+                        {content/Solved_levels_versus_floors__percent.txt};
                         \addplot table[x=floors, y=YASS]
-                            {content/Solved_levels_versus_floors__percent.txt};
+                        {content/Solved_levels_versus_floors__percent.txt};
 
                         % \legend{}
                     \end{axis}
                     \begin{axis}[
-                            at={(ax1.south east)},
-                            xshift=1cm,
-                            grid=major,
-                            xmin=0, xmax=75,
-                            ymin=0, ymax=100,
-                            yticklabels=\empty,
-                            xlabel = {Nombre de caisses},
-                            xlabel style = {yshift=-0.2cm, font=\LARGE},
-                            legend columns=5,
-                            legend entries={sokoshell, Festival, Sokolution, Takaken, YASS},
-                            legend style={font=\Large, at={(-0.1, 1.1)}, anchor=south},
-                            cycle list name=mylist
+                        at={(ax1.south east)},
+                        xshift=1cm,
+                        grid=major,
+                        xmin=0, xmax=75,
+                        ymin=0, ymax=100,
+                        yticklabels=\empty,
+                        xlabel = {Nombre de caisses},
+                        xlabel style = {yshift=-0.2cm, font=\LARGE},
+                        legend columns=5,
+                        legend entries={sokoshell, Festival, Sokolution, Takaken, YASS},
+                        legend style={font=\Large, at={(-0.1, 1.1)}, anchor=south},
+                        cycle list name=mylist
                         ]
                         \addplot table[x=crates, y=sokoshell]
-                            {content/Solved_levels_versus_crates__percent.txt};
+                        {content/Solved_levels_versus_crates__percent.txt};
                         \addplot table[x=crates, y=Festival]
-                            {content/Solved_levels_versus_crates__percent.txt};
+                        {content/Solved_levels_versus_crates__percent.txt};
                         \addplot table[x=crates, y=Sokolution]
-                            {content/Solved_levels_versus_crates__percent.txt};
+                        {content/Solved_levels_versus_crates__percent.txt};
                         \addplot table[x=crates, y=Takaken]
-                            {content/Solved_levels_versus_crates__percent.txt};
+                        {content/Solved_levels_versus_crates__percent.txt};
                         \addplot table[x=crates, y=YASS]
-                            {content/Solved_levels_versus_crates__percent.txt};
+                        {content/Solved_levels_versus_crates__percent.txt};
                     \end{axis}
                 \end{tikzpicture}
             }
             \BottomLeftText{Statistiques (pour les autres solveurs) par Matthias Meger et Brian Damgaard
-                            (\href{https://sourceforge.net/projects/sokoban-solver-statistics/}{https://sourceforge.net/projects/sokoban-solver-statistics/})}
+                (\href{https://sourceforge.net/projects/sokoban-solver-statistics/}{https://sourceforge.net/projects/sokoban-solver-statistics/})}
         \end{frame}
 
-    \section{Annexe}
         \begin{frame}{Tableau des complexités - Statique}
             $c$ nombre de caisses, $C$ nombre de cibles, $w$ longueur et $h$ largeur du niveau, $t$ nombre de tunnels, $r$ nombre de salles, $N$ nombre d'états dans la liste des états à explorer.
 
@@ -816,14 +496,239 @@
             }
         \end{frame}
 
+         \begin{frame}{Table de \textit{deadlocks}}
+            \only<1>{
+                \begin{minipage}{0.45\textwidth}
+                    \includegraphics[width=\textwidth]{deadlock_table/init.png}%
+                \end{minipage}
+                \hfill
+                \begin{minipage}{0.45\textwidth}
+                    \includegraphics[width=\textwidth]{deadlock_table/new_deadlock.png}%
+                \end{minipage}
+            }
+            \only<2>{
+                \input{content/deadlock_table_tree.tex}
+            }
+        \end{frame}
 
-    % Exemple de frame de résultats intermédiaires.
-    % Paramètres:
-    %   5 = nombre de niveaux résolus dans XSokoban
-    %   9 = nombre de niveaux résolus en plus
-    %   4 = Borne max de l'intervalle d'améliorations à plot ([0, 8])
-    \begin{interstateframe}
-        \begin{interstatenv}{5}{9}\interstatplot{4};\end{interstatenv}
-    \end{interstateframe}
+        \begin{frame}{Heuristique simple \textit{(Simple Lower Bound)}}
+            \centering%
+            \includegraphics[width=0.9\textwidth]{heuristics/simple.png}
+            \Large$\boxed{2 + 4 + 3 = \mathbf{9}}$
+        \end{frame}
 
+        \begin{frame}{Heuristique gloutonne \textit{(Greedy Lower Bound)}}
+            \centering
+            \includegraphics[width=0.3\textwidth]{heuristics/greedy.png}
+
+            \vspace{0.19cm}
+            \begin{columns}
+                \begin{column}{0.5\textwidth}
+                    \begin{center}
+                        \includegraphics[width=\textwidth]{heuristics/greedy_end.png}
+                        \Large$\boxed{2 + 3 + 5 = \mathbf{10}}$
+                    \end{center}
+                \end{column}%
+
+                \begin{column}{0.5\textwidth}
+                    % Sorted table
+                    \resizebox{0.9\textwidth}{!}{
+                        \begin{tabular}{ | c | c | }
+                            \hline
+                            Caisse $\rightarrow$ Cible & Distance \\
+                            \hline
+                            $\mathbf{1 \rightarrow B}$ & \textbf{2} \\
+                            \hline
+                            $1 \rightarrow A$ & 3 \\
+                            \hline
+                            $1 \rightarrow C$ & 3 \\
+                            \hline
+                            $\mathbf{3 \rightarrow C}$ & \textbf{3} \\
+                            \hline
+                            $2 \rightarrow B$ & 4 \\
+                            \hline
+                            $3 \rightarrow B$ & 4 \\
+                            \hline
+                            $2 \rightarrow A$ & 5 \\
+                            \hline
+                            $2 \rightarrow C$ & 5 \\
+                            \hline
+                            $\mathbf{3 \rightarrow A}$ & \textbf{5} \\
+                            \hline
+                        \end{tabular}
+                    }
+                \end{column}
+            \end{columns}
+        \end{frame}
+
+        \begin{frame}{Vers FESS}
+            \begin{itemize}
+                \item FESS: algorithme utilisé par Festival, meilleur solveur.
+                \item Ordre de priorité:
+                \begin{itemize}
+                    \item maximiser le nombre de caisses rangées.
+                    \item minimiser le nombre de \textit{corral}.
+                    \item minimiser la distance à l'état final.
+                \end{itemize}
+            \end{itemize}
+        \end{frame}
+
+        \begin{frame}{Parcours de graphes: démarquer tous les nœuds en $\mathcal{O}(1)$}
+
+            \centering
+            nœud marqué \textit{ssi valeur} $= m$
+
+            \begin{tikzpicture}
+                \node (start) {
+                    \includegraphics[width=0.15\textwidth]{optimisations/mark_init.png}
+                };
+                \node[right=of start] (first) {
+                    \includegraphics[width=0.15\textwidth]{optimisations/mark_player.png}
+                };
+                \node[right=of first] (second) {
+                    \includegraphics[width=0.15\textwidth]{optimisations/mark_all.png}
+                };
+                \node[right=of second] (third) {
+                    \includegraphics[width=0.15\textwidth]{optimisations/unmark.png}
+                };
+                % don't remove '0cm', otherwise tikz will place the text too below
+                \node [above=0cm of start.north] {$m=0$};
+                \node [above=0cm of first.north] {$m=0$};
+                \node [above=0cm of second.north] {$m=0$};
+                \node [above=0cm of third.north] {$m=1$};
+
+                \draw[->, line width=\arrowwidth] (start.east)  -- (first.west);
+                \draw[->, line width=\arrowwidth, dashed] (first.east) -- (second.west);
+                \draw[->, line width=\arrowwidth] (second.east) -- (third.west);
+            \end{tikzpicture}
+        \end{frame}
+
+        \begin{frame}{Précalcul des distances caisses-cibles}
+            \centering
+            \begin{columns}[onlytextwidth]
+                \only<1>{
+                    \begin{column}{0.3\textwidth}
+                        \begin{tabular}{|c|c|c|c|}
+                            \hline
+                            \multirow{2}{2em}{Case} & \multicolumn{3}{|c|}{Distances} \\ \cline{2-4}
+                            & A & B & C \\ \hline
+                            0 & 1 & 3 & 3 \\ \hline
+                            1 & 2 & 2 & 2 \\ \hline
+                            2 & 3 & 1 & 3 \\ \hline
+                            3 & 0 & 2 & 2 \\ \hline
+                            4 & 1 & 1 & 1 \\ \hline
+                            5 & 2 & 0 & 2 \\ \hline
+                            6 & 1 & 3 & 1 \\ \hline
+                            7 & 2 & 2 & 0 \\ \hline
+                            8 & 3 & 1 & 1 \\ \hline
+                        \end{tabular}
+                    \end{column}
+                }%
+                \only<2>{
+                    \begin{column}{0.49\textwidth}
+                        \begin{tabular}{|c|c|c|c|}
+                            \hline
+                            \multirow{2}{2em}{Case} & \multicolumn{3}{|c|}{Distances} \\
+                            & \multicolumn{3}{|c|}{triées} \\ \hline
+                            0 & A: 1 & B: 3 & C: 3 \\ \hline
+                            1 & A: 2 & B: 2 & C: 2 \\ \hline
+                            2 & B: 1 & A: 3 & C: 3 \\ \hline
+                            3 & A: 0 & B: 2 & C: 2 \\ \hline
+                            4 & A: 1 & B: 1 & C: 1 \\ \hline
+                            5 & B: 0 & A: 2 & C: 2 \\ \hline
+                            6 & A: 1 & C: 1 & B: 3 \\ \hline
+                            7 & C: 0 & A: 2 & B: 2 \\ \hline
+                            8 & B: 1 & C: 1 & A: 3 \\ \hline
+                        \end{tabular}
+                    \end{column}
+                }
+                \begin{column}{0.5\textwidth}
+                    \includegraphics[width=\textwidth]{optimisations/distances.png}
+                \end{column}
+
+            \end{columns}
+        \end{frame}
+
+        \input{content/greedy_heuristic.tex}
+
+        \begin{frame}{Calcul des \textit{corrals} en $\mathcal{O}(wh)$}
+            \only<1>{
+                Utilisation de \textit{Union-Find}: partition de $\llbracket 0;wh-1 \rrbracket$.
+
+                \vspace{0.1cm}
+                \begin{columns}
+                    \begin{column}{0.4\textwidth}
+                        \centering
+                        \includegraphics[width=\textwidth]{corral_detection/corral.png}
+                    \end{column}
+                    \begin{column}{0.4\textwidth}
+                        \centering
+                        \includegraphics[width=\textwidth]{corral_detection/corral_union_find.png}
+                    \end{column}
+                \end{columns}
+            }
+            \only<2-4>{
+                \centering
+                \begin{tikzpicture}[remember picture]
+                    \node[visible on=<2>] (A) {
+                        \includegraphics[width=0.32\textwidth]{corral_detection/corral_start.png}
+                    };
+                    \node[visible on=<2>, right=of A] (B) {
+                        \includegraphics[width=0.32\textwidth]{corral_detection/corral_1.png}
+                    };
+                    \node[visible on=<2>,below=of A] (C) {
+                        \includegraphics[width=0.32\textwidth]{corral_detection/corral_2.png}
+                    };
+                    \node[visible on=<2>, below=of B] (D) {
+                        \includegraphics[width=0.32\textwidth]{corral_detection/corral_3.png}
+                    };
+
+                    \draw[visible on=<2>, ->, line width=\arrowwidth] (A.east) -- (B.west);
+
+                    \coordinate (I) at ($ (B) ! .5 ! (C) $);
+                    \draw[visible on=<2>, ->, line width=\arrowwidth] (B.south) |- (I) -| (C.north);
+                    \draw[visible on=<2>, ->, line width=\arrowwidth, dashed] (C.east) -- (D.west);
+
+
+
+                    \node[visible on=<3>] (A) {%
+                        \includegraphics[width=0.32\textwidth]{corral_detection/corral_4.png}%
+                    };%
+                    \node[visible on=<3>, right=of A] (B) {%
+                        \includegraphics[width=0.32\textwidth]{corral_detection/corral_5.png}%
+                    };%
+                    \node[visible on=<3>,below=of A] (C) {%
+                        \includegraphics[width=0.32\textwidth]{corral_detection/corral_6.png}%
+                    };%
+                    \node[visible on=<3>, below=of B] (D) {%
+                        \includegraphics[width=0.32\textwidth]{corral_detection/corral_7.png}%
+                    };%
+
+                    \draw[visible on=<3>, ->, line width=\arrowwidth, dashed] (A.east) -- (B.west);
+
+                    \coordinate (I) at ($ (B) ! .5 ! (C) $);
+                    \draw[visible on=<3>, ->, line width=\arrowwidth] (B.south) |- (I) -| (C.north);
+                    \draw[visible on=<3>, ->, line width=\arrowwidth] (C.east) -- (D.west);
+
+                    \node[visible on=<4>] (A) {%
+                        \includegraphics[width=0.32\textwidth]{corral_detection/corral_8.png}%
+                    };%
+                \end{tikzpicture}
+            }
+
+            \onslide<3> {
+                \begin{tikzpicture}[overlay, remember picture]
+                    \draw[->, line width=\arrowwidth]
+                    let \p1 = (current page.south west), \p2 = (A.west) in
+                    (\x1, \y2) -- (\p2);
+                \end{tikzpicture}
+            }
+            \onslide<4> {
+                \begin{tikzpicture}[overlay, remember picture]
+                    \draw[->, line width=\arrowwidth, dashed]
+                    let \p1 = (current page.south west), \p2 = (A.west) in
+                    (\x1, \y2) -- (\p2);
+                \end{tikzpicture}
+            }
+        \end{frame}
 \end{document}

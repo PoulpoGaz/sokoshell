@@ -105,7 +105,8 @@ public class SolverReport {
 
         if (status.equals(SOLUTION_FOUND)) {
             if (states == null) {
-                throw new IllegalArgumentException("SolverStatus is SOLUTION_FOUND. You must give the solution");
+                throw new IllegalArgumentException("SolverStatus is SOLUTION_FOUND." +
+                        "You must give the solution");
             }
 
             SolutionBuilder builder = createFullSolution(states);
@@ -305,7 +306,8 @@ public class SolverReport {
 
             jr.assertKeyEquals("statistics");
         } else if (!key.equals("statistics")) {
-            throw new JsonException(String.format("Invalid key. Expected \"statistics\" but was \"%s\"", key));
+            throw new JsonException(String.format("Invalid key. " +
+                    "Expected \"statistics\" but was \"%s\"", key));
         }
 
         // see writeSolution
