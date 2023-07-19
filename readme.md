@@ -5,7 +5,7 @@ You can load (see [formats](#supported-formats)), play, solve sokoban in your fa
 
 ## Usage
 
-**Warning**: any version of windows is not supported, even the most recent one which seems to have an appropriate terminal.
+**Warning**: all version of Windows are not supported, even the most recent one which seems to have an appropriate terminal.
 
 Current version doesn't offer a simple 'jar'. Therefore, to run it you will have to install the JDK 17 and maven.
 Then run in your favorite terminal `bash sokoshell-in-terminal.bash`. If everything works, you will see:
@@ -153,7 +153,7 @@ For IntelliJ IDEA:
 
 * args: Code parsing user input, deserializing strings, injecting variables values with black magic (reflective API), executing appropriate commands
   and offer auto-completion and default commands to the main module (sokoshell).
-  It is very similar to [picocli](https://picocli.info/) but it supports pipe.
+  It is very similar to [picocli](https://picocli.info/), but it supports pipe.
 * interval: A simple library to parse intervals (i.e. things of the form '5-10, 13, 15-')
 * sokoshell: The main module. Contains the solver, file reading, all the commands and a basic GUI toolkit for terminal (inspired by Swing)
 * tools: various tools used to create the presentation, removing duplicate levels and converting java to latex.
