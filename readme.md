@@ -70,8 +70,8 @@ Ram limit = 32 GiB
 | A*     | GroupEffort small set | 3 min      | 87     | 24 timeout - 89 errors                      | 200   | 15/02/2023 7:18  | 15/02/2023 8:56  | 1h 38min          | Not available                                                          |
 | A*     | Large test suite      | 3 min      | 2095   | 1171 timeout - 4 errors - 2 no solution     | 3272  | 24/02/2023 19:21 | 27/02/2023 09:40 | 2 days 14h 19min  | Not available                                                          |
 | fess0  | XSokoban_90           | 10 min     | 14     | 76 timeout                                  | 90    | 03/03/2023 20:35 | 04/03/2023 09:20 | 12h 45min         | Not available                                                          |
-| fess0  | large_text_suite      | 10 min     | 2273   | 946 timeout - 51 ram exceed - 2 no solution | 3272  | 16/04/2023 15:54 | 24/04/2023 02:21 | 7 days 10h 25min  | [sokoshell_1.0_astar](levels%2Flarge_test_suite%2Fsokoshell_1.0_astar) |
-| A*     | large_test_suite      | 10 min     | 2204   | 1066 timeout - 2 no solution                | 3272  | 07/05/2023 15:38 | 15/05/2023 13:25 | 7 days 21h 53 min | [sokoshell_1.0_fess0](levels%2Flarge_test_suite%2Fsokoshell_1.0_fess0) |
+| fess0  | large_text_suite      | 10 min     | 2273   | 946 timeout - 51 ram exceed - 2 no solution | 3272  | 16/04/2023 15:54 | 24/04/2023 02:21 | 7 days 10h 25min  | [sokoshell_1.0_fess0](levels%2Flarge_test_suite%2Fsokoshell_1.0_fess0) |
+| A*     | large_test_suite      | 10 min     | 2204   | 1066 timeout - 2 no solution                | 3272  | 07/05/2023 15:38 | 15/05/2023 13:25 | 7 days 21h 53 min | [sokoshell_1.0_astar](levels%2Flarge_test_suite%2Fsokoshell_1.0_astar) |
 
 ### Ideas
 
